@@ -1,0 +1,54 @@
+<Window
+    x:Class="AIM.MainWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:local="using:AIM.Models"
+    mc:Ignorable="d"
+    Title="AIM File Manager">
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="250"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <Button Grid.Row="0" Grid.Column="0" Content="Select Root Directory" Click="SelectRootButton_Click" Margin="5"/>
+
+        <TreeView x:Name="DirectoryTree" Grid.Row="1" Grid.Column="0" ItemsSource="{x:Bind ViewModel.DirectoryItems}" SelectionChanged="DirectoryTree_SelectionChanged" AllowDrop="True" DragOver="DirectoryTree_DragOver" Drop="DirectoryTree_Drop">
+            <TreeView.ItemTemplate>
+                <DataTemplate x:DataType="local:DirectoryItem">
+                    <TreeViewItem Content="{x:Bind Name}" ItemsSource="{x:Bind SubDirectories}" IsExpanded="False"/>
+                </DataTemplate>
+            </TreeView.ItemTemplate>
+        </TreeView>
+
+        <TabView x:Name="FeatureTabs" Grid.Row="1" Grid.Column="1" SelectedIndex="0">
+            <TabViewItem Header="Browse &amp; Edit">
+                <TabViewItem.Content>
+                    <Frame x:Name="BrowseFrame" />
+                </TabViewItem.Content>
+            </TabViewItem>
+            <TabViewItem Header="Search">
+                <TabViewItem.Content>
+                    <Frame x:Name="SearchFrame" />
+                </TabViewItem.Content>
+            </TabViewItem>
+            <TabViewItem Header="Preview">
+                <TabViewItem.Content>
+                    <Frame x:Name="PreviewFrame" />
+                </TabViewItem.Content>
+            </TabViewItem>
+            <TabViewItem Header="Settings">
+                <TabViewItem.Content>
+                    <Frame x:Name="SettingsFrame" />
+                </TabViewItem.Content>
+            </TabViewItem>
+        </TabView>
+    </Grid>
+</Window>
