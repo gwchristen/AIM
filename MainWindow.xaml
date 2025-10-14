@@ -28,7 +28,7 @@
             </TreeView.ItemTemplate>
         </TreeView>
 
-        <TabView x:Name="FeatureTabs" Grid.Row="1" Grid.Column="1" SelectedIndex="0">
+        <TabView x:Name="FeatureTabs" x:FieldModifier="public" Grid.Row="1" Grid.Column="1" SelectedIndex="0">
             <TabViewItem Header="Browse &amp; Edit">
                 <TabViewItem.Content>
                     <Frame x:Name="BrowseFrame" />
@@ -41,7 +41,7 @@
             </TabViewItem>
             <TabViewItem Header="Preview">
                 <TabViewItem.Content>
-                    <Frame x:Name="PreviewFrame" />
+                    <Frame x:Name="PreviewFrame" x:FieldModifier="public" />
                 </TabViewItem.Content>
             </TabViewItem>
             <TabViewItem Header="Settings">
