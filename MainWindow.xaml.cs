@@ -13,10 +13,16 @@ namespace AIM;
 
 public sealed partial class MainWindow : Window
 {
-    public MainViewModel ViewModel { get; set; }
+    public static MainWindow? Instance { get; private set; }
+
+    public MainViewModel ViewModel { get; }
 
     public MainWindow()
     {
+        Instance = this;
+        InitializeComponent();
+        ViewModel = Ioc.Default.GetService<MainViewModel>();
+
         InitializeComponent();
         ViewModel = Ioc.Default.GetService<MainViewModel>();
         BrowseFrame.Navigate(typeof(BrowsePage));

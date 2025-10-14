@@ -2,6 +2,7 @@ using AIM.Models;
 using AIM.ViewModels;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Navigation;
+using System.Diagnostics;
 
 namespace AIM.Views;
 
@@ -16,12 +17,13 @@ public sealed partial class PreviewPage : Page
         DataContext = ViewModel;
     }
 
-    protected override void OnNavigatedTo(NavigationEventArgs e)
+    protected override async void OnNavigatedTo(NavigationEventArgs e)
     {
         base.OnNavigatedTo(e);
+        Debug.WriteLine("OnNavigatedTo: " + (e.Parameter as FileItem)?.Name);
         if (e.Parameter is FileItem file)
         {
-            ViewModel.LoadFileContent(file);
+            await ViewModel.LoadFileContent(file);
         }
     }
 }
