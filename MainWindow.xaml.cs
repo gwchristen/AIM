@@ -67,5 +67,4 @@ public sealed partial class MainWindow : Window
     {
         ViewModel.HandleFileDrop(e.DataView);
     }
-
 }

@@ -6,8 +6,10 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
         <TextBlock Grid.Row="0" Text="{Binding FileName}" FontWeight="Bold" Margin="5"/>
         <TextBox Grid.Row="1" Text="{Binding Content, Mode=TwoWay}" AcceptsReturn="True" TextWrapping="Wrap" Margin="5"/>
+        <Button Grid.Row="2" Content="Save" Command="{x:Bind ViewModel.SaveFileContentCommand}" Margin="5" HorizontalAlignment="Right"/>
     </Grid>
 </Page>

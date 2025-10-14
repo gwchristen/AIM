@@ -2,8 +2,8 @@
 using AIM.Services;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.DependencyInjection;
+using CommunityToolkit.Mvvm.Input;
 using System;
-using System.Diagnostics;
 using System.Threading.Tasks;
 
 namespace AIM.ViewModels;
@@ -11,6 +11,7 @@ namespace AIM.ViewModels;
 public partial class PreviewViewModel : ObservableObject
 {
     private readonly IFileService _fileService;
+    private string _currentFilePath = string.Empty;
 
     [ObservableProperty]
     private string content = string.Empty;
@@ -25,9 +26,7 @@ public partial class PreviewViewModel : ObservableObject
 
     public async Task LoadFileContent(FileItem file)
     {
-        //Debug.WriteLine($"LoadFileContent: {file.FullPath}, Type: {file.Type}"); // Debug output
-        Content = $"File: {file.FullPath}, Type: {file.Type}"; // Temporary display
-        FileName = file.Name;
+        _currentFilePath = file.FullPath;
         if (file.Type == FileType.Text || file.Type == FileType.Csv || file.Type == FileType.Log)
         {
             try
@@ -47,12 +46,19 @@ public partial class PreviewViewModel : ObservableObject
         }
     }
 
+    [RelayCommand]
     public async Task SaveFileContent()
     {
-        await Task.CompletedTask; // Fix CS1998
-        if (!string.IsNullOrEmpty(FileName))
+        if (!string.IsNullOrEmpty(_currentFilePath))
         {
-            // Placeholder: Implement save logic with full path
+            try
+            {
+                await _fileService.WriteFileAsync(_currentFilePath, Content);
+            }
+            catch (Exception ex)
+            {
+                // Optionally show error (e.g., via dialog or status)
+            }
         }
     }
 }
