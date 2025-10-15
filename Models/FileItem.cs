@@ -1,15 +1,18 @@
-﻿using System;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
+using System;
 
 namespace AIM.Models;
 
 public enum FileType { Text, Csv, Log, Other }
 
-public class FileItem
+public partial class FileItem : ObservableObject
 {
-    public string Name { get; set; } = string.Empty;
-    public string FullPath { get; set; } = string.Empty;
-    public FileType Type { get; set; }
-    public long Size { get; set; }
-    public DateTime LastModified { get; set; }
-    public string ContentPreview { get; set; } = string.Empty;
+    [ObservableProperty]
+    private string name = string.Empty;
+
+    [ObservableProperty]
+    private string fullPath = string.Empty;
+
+    [ObservableProperty]
+    private FileType type;
 }

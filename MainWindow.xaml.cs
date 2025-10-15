@@ -5,7 +5,6 @@ using CommunityToolkit.Mvvm.DependencyInjection;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using System;
-using System.Linq;
 using Windows.ApplicationModel.DataTransfer;
 using Windows.Storage.Pickers;
 
@@ -22,49 +21,44 @@ public sealed partial class MainWindow : Window
         Instance = this;
         InitializeComponent();
         ViewModel = Ioc.Default.GetService<MainViewModel>();
-
-        InitializeComponent();
-        ViewModel = Ioc.Default.GetService<MainViewModel>();
         BrowseFrame.Navigate(typeof(BrowsePage));
         SearchFrame.Navigate(typeof(SearchPage));
-        PreviewFrame.Navigate(typeof(PreviewPage));
         SettingsFrame.Navigate(typeof(SettingsPage));
+        // PreviewFrame navigated on demand
     }
 
-    private async void SelectRootButton_Click(object sender, RoutedEventArgs e)
+    private void DirectoryTree_ItemInvoked(TreeView sender, TreeViewItemInvokedEventArgs e)
     {
-        var picker = new FolderPicker();
-        var hwnd = WinRT.Interop.WindowNative.GetWindowHandle(this);
-        WinRT.Interop.InitializeWithWindow.Initialize(picker, hwnd);
-        picker.SuggestedStartLocation = PickerLocationId.Desktop;
-        picker.FileTypeFilter.Add("*");
-        var folder = await picker.PickSingleFolderAsync();
-        if (folder != null)
+        if (e.InvokedItem is DirectoryItem item)
         {
-            await ViewModel.LoadRootDirectoryAsync(folder.Path);
-        }
-    }
-
-    private void DirectoryTree_SelectionChanged(TreeView sender, TreeViewSelectionChangedEventArgs args)
-    {
-        if (args.AddedItems.FirstOrDefault() is DirectoryItem selected)
-        {
-            ViewModel.SelectedRootDirectory = selected;
-            // Load files in Browse tab
+            // Load files in BrowsePage
             if (BrowseFrame.Content is BrowsePage browsePage)
             {
-                browsePage.ViewModel.LoadFilesAsync(selected.FullPath);
+                _ = browsePage.ViewModel.LoadFilesAsync(item);
             }
         }
     }
 
-    private void DirectoryTree_DragOver(object sender, DragEventArgs e)
+    private async void SelectCustomRootButton_Click(object sender, RoutedEventArgs e)
     {
-        e.AcceptedOperation = DataPackageOperation.Copy;
+        var folderPicker = new FolderPicker();
+        folderPicker.SuggestedStartLocation = PickerLocationId.Desktop;
+        var hwnd = WinRT.Interop.WindowNative.GetWindowHandle(this);
+        WinRT.Interop.InitializeWithWindow.Initialize(folderPicker, hwnd);
+        var folder = await folderPicker.PickSingleFolderAsync();
+        if (folder != null)
+        {
+            ViewModel.SelectedRoot = folder.Path;
+        }
     }
 
-    private void DirectoryTree_Drop(object sender, DragEventArgs e)
+    private async void RefreshTreeButton_Click(object sender, RoutedEventArgs e)
     {
-        ViewModel.HandleFileDrop(e.DataView);
+        if (!string.IsNullOrEmpty(ViewModel.SelectedRoot))
+        {
+            await ViewModel.LoadRootDirectoryAsync(ViewModel.SelectedRoot);
+        }
     }
+
+    // ... existing code ...
 }
