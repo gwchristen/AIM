@@ -1,58 +1,128 @@
 ﻿#pragma warning disable MVVMTK0045
 using AIM.Models;
-using AIM.Services;
 using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.DependencyInjection;
 using CommunityToolkit.Mvvm.Input;
+using System;
 using System.Collections.ObjectModel;
-using System.Diagnostics;
+using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace AIM.ViewModels;
 
 public partial class SearchViewModel : ObservableObject
 {
-    private readonly ISearchService _searchService;
+    private readonly MainViewModel _mainViewModel;
 
     [ObservableProperty]
     private string searchQuery = string.Empty;
 
     [ObservableProperty]
+    private bool isSearching = false;
+
+    [ObservableProperty]
     private string statusMessage = string.Empty;
 
     [ObservableProperty]
-    private bool isContentSearch = false;
+    private bool isContentSearch = true;
 
     public ObservableCollection<FileItem> SearchResults { get; } = new();
 
+    public MainViewModel MainViewModel => _mainViewModel;
+
     public SearchViewModel()
     {
-        _searchService = Ioc.Default.GetService<ISearchService>();
+        _mainViewModel = MainWindow.Instance?.ViewModel ?? throw new InvalidOperationException("MainViewModel not available");
     }
 
     [RelayCommand]
-    private async Task Search()
+    private async void Search()
     {
-        if (string.IsNullOrEmpty(SearchQuery)) return;
+        if (string.IsNullOrWhiteSpace(SearchQuery)) return;
 
-        var rootPath = MainWindow.Instance?.ViewModel?.SelectedRootDirectory?.FullPath ?? string.Empty;
-        Debug.WriteLine($"Searching for '{SearchQuery}' in '{rootPath}', Content: {IsContentSearch}");
-        if (string.IsNullOrEmpty(rootPath))
-        {
-            StatusMessage = "Please select a root directory first.";
-            return;
-        }
-
-        StatusMessage = IsContentSearch ? "Searching file contents..." : "Searching file names...";
+        IsSearching = true;
+        StatusMessage = "Searching...";
         SearchResults.Clear();
-        var results = IsContentSearch
-            ? await _searchService.SearchContentAsync(SearchQuery, rootPath)
-            : await _searchService.SearchFilesAsync(SearchQuery, rootPath);
-        foreach (var item in results)
+
+        try
         {
-            SearchResults.Add(item);
+            // Search in SelectedRoot or all directories
+            var rootPath = _mainViewModel.SelectedRoot;
+            if (string.IsNullOrEmpty(rootPath))
+            {
+                StatusMessage = "No root directory selected.";
+                return;
+            }
+
+            var files = Directory.GetFiles(rootPath, "*.*", SearchOption.AllDirectories)
+                .Where(f => Path.GetExtension(f).ToLower() is ".txt" or ".csv" or ".log")
+                .Where(f =>
+                {
+                    if (IsContentSearch)
+                    {
+                        try
+                        {
+                            return Path.GetFileName(f).Contains(SearchQuery, StringComparison.OrdinalIgnoreCase) ||
+                                   File.ReadAllText(f).Contains(SearchQuery, StringComparison.OrdinalIgnoreCase);
+                        }
+                        catch
+                        {
+                            return false;
+                        }
+                    }
+                    else
+                    {
+                        return Path.GetFileName(f).Contains(SearchQuery, StringComparison.OrdinalIgnoreCase);
+                    }
+                })
+                .Take(100); // Limit results
+
+            foreach (var file in files)
+            {
+                var info = new FileInfo(file);
+                var owner = "N/A";
+                try
+                {
+                    var acl = info.GetAccessControl();
+                    owner = acl.GetOwner(typeof(System.Security.Principal.NTAccount)).Value;
+                }
+                catch { }
+                var sizeKb = info.Length / 1024.0;
+                SearchResults.Add(new FileItem
+                {
+                    Name = Path.GetFileName(file),
+                    FullPath = file,
+                    Type = GetFileType(file),
+                    Size = info.Length,
+                    SizeString = $"{sizeKb:F2} KB",
+                    CreatedDate = info.CreationTime,
+                    ModifiedDate = info.LastWriteTime,
+                    CreatedDateString = info.CreationTime.ToString("d"),
+                    ModifiedDateString = info.LastWriteTime.ToString("d"),
+                    Owner = owner
+                });
+            }
+            StatusMessage = $"Found {SearchResults.Count} results.";
         }
-        StatusMessage = $"Found {SearchResults.Count} results.";
-        Debug.WriteLine($"Found {SearchResults.Count} results");
+        catch (Exception ex)
+        {
+            StatusMessage = $"Error: {ex.Message}";
+        }
+        finally
+        {
+            IsSearching = false;
+        }
+    }
+
+    private FileType GetFileType(string path)
+    {
+        var ext = Path.GetExtension(path).ToLower();
+        return ext switch
+        {
+            ".txt" => FileType.Text,
+            ".csv" => FileType.Csv,
+            ".log" => FileType.Log,
+            _ => FileType.Other
+        };
     }
 }

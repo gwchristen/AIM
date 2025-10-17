@@ -16,8 +16,10 @@
   <ItemGroup>
     <None Remove="Views\BrowsePage.xaml" />
     <None Remove="Views\PreviewPage.xaml" />
+    <None Remove="Views\ScansPage.xaml" />
     <None Remove="Views\SearchPage.xaml" />
     <None Remove="Views\SettingsPage.xaml" />
+    <None Remove="Views\StatsPage.xaml" />
   </ItemGroup>
 
   <ItemGroup>
@@ -45,6 +47,7 @@
   <ItemGroup>
     <PackageReference Include="CommunityToolkit.Common" Version="8.4.0" />
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
+    <PackageReference Include="CommunityToolkit.WinUI.UI.Controls.DataGrid" Version="7.1.2" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.9" />
     <PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.26100.6584" />
     <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.8.250916003" />
@@ -52,9 +55,25 @@
     <PackageReference Include="Serilog.Extensions.Logging" Version="9.0.3-dev-02320" />
     <PackageReference Include="Serilog.Sinks.File" Version="7.0.0" />
     <PackageReference Include="System.Text.Json" Version="9.0.9" />
+    <PackageReference Include="WinUI3XamlPreview" Version="0.8.2" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Helpers\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Page Update="Views\StatsPage.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <Page Update="Views\InvArchivesPage.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <Page Update="Views\ScansPage.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
   <ItemGroup>
     <Page Update="Views\SettingsPage.xaml">

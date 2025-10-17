@@ -1,69 +1,75 @@
 ﻿#pragma warning disable MVVMTK0045
 using AIM.Models;
-using AIM.Services;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Microsoft.UI.Xaml;
 using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text.Json;
 using System.Threading.Tasks;
-using Windows.ApplicationModel.DataTransfer;
 
 namespace AIM.ViewModels;
 
+public class AppSettings
+{
+    public string ArchivePath { get; set; } = @"C:\Temp\AIM\Archive";
+    public string ShippedDirectory { get; set; } = @"C:\Temp\AIM\Shipped";
+    public string Password { get; set; } = string.Empty;
+    public string DefaultRootDirectory { get; set; } = @"C:\Temp\AIM";
+    public string FileScansDirectory { get; set; } = @"C:\Temp\AIM\FileScans";
+    public string InventoryArchiveDirectory { get; set; } = @"C:\Temp\AIM\InventoryArchive";
+}
+
 public partial class MainViewModel : ObservableObject
 {
-    private readonly IFileService _fileService;
-    private readonly ILoggingService _loggingService;
+    private readonly string settingsFilePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "AIM", "settings.json");
 
-    private string selectedRoot = string.Empty;
-    private string archivePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "Archive");
-    private string defaultRootDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
-    private string shippedDirectory = string.Empty;
-    private string fileScansDirectory = string.Empty;
-    private string inventoryArchiveDirectory = string.Empty;
-    private string password = string.Empty;
-
-    private string settingsFile = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "AIM", "settings.json");
+    private string _selectedRoot = @"C:\Temp\AIM";
 
     [ObservableProperty]
-    private DirectoryItem selectedRootDirectory;
+    private ObservableCollection<DirectoryItem> directoryItems = new();
 
-    public string SelectedRoot
-    {
-        get => selectedRoot;
-        set
-        {
-            if (SetProperty(ref selectedRoot, value))
-            {
-                OnSelectedRootChanged(value);
-            }
-        }
-    }
+    [ObservableProperty]
+    private DirectoryItem selectedDirectory;
+
+    [ObservableProperty]
+    private DirectoryItem selectedLevel1;
+
+    [ObservableProperty]
+    private DirectoryItem selectedLevel2;
+
+    [ObservableProperty]
+    private DirectoryItem selectedLevel3;
+
+    [ObservableProperty]
+    private DirectoryItem selectedLevel4;
+
+    [ObservableProperty]
+    private string rootName = string.Empty;
+
+    private string _archivePath = @"C:\Temp\AIM\Archive";
+
+    private string _shippedDirectory = @"C:\Temp\AIM\Shipped";
+
+    private string _password = string.Empty;
+
+    private string _defaultRootDirectory = @"C:\Temp\AIM";
+
+    private string _fileScansDirectory = @"C:\Temp\AIM\FileScans";
+
+    private string _inventoryArchiveDirectory = @"C:\Temp\AIM\InventoryArchive";
 
     public string ArchivePath
     {
-        get => archivePath;
+        get => _archivePath;
         set
         {
-            if (SetProperty(ref archivePath, value))
+            if (SetProperty(ref _archivePath, value))
             {
-                SaveSettings();
-            }
-        }
-    }
-
-    public string DefaultRootDirectory
-    {
-        get => defaultRootDirectory;
-        set
-        {
-            if (SetProperty(ref defaultRootDirectory, value))
-            {
-                OnDefaultRootDirectoryChanged(value);
                 SaveSettings();
             }
         }
@@ -71,34 +77,10 @@ public partial class MainViewModel : ObservableObject
 
     public string ShippedDirectory
     {
-        get => shippedDirectory;
+        get => _shippedDirectory;
         set
         {
-            if (SetProperty(ref shippedDirectory, value))
-            {
-                SaveSettings();
-            }
-        }
-    }
-
-    public string FileScansDirectory
-    {
-        get => fileScansDirectory;
-        set
-        {
-            if (SetProperty(ref fileScansDirectory, value))
-            {
-                SaveSettings();
-            }
-        }
-    }
-
-    public string InventoryArchiveDirectory
-    {
-        get => inventoryArchiveDirectory;
-        set
-        {
-            if (SetProperty(ref inventoryArchiveDirectory, value))
+            if (SetProperty(ref _shippedDirectory, value))
             {
                 SaveSettings();
             }
@@ -107,169 +89,214 @@ public partial class MainViewModel : ObservableObject
 
     public string Password
     {
-        get => password;
+        get => _password;
         set
         {
-            if (SetProperty(ref password, value))
+            if (SetProperty(ref _password, value))
             {
                 SaveSettings();
             }
         }
     }
 
-    public ObservableCollection<DirectoryItem> DirectoryItems { get; } = new();
-
-    public List<RootOption> RootOptions { get; } = new()
+    public string DefaultRootDirectory
     {
-        new RootOption { Name = "Documents", Path = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments) },
-        new RootOption { Name = "Desktop", Path = Environment.GetFolderPath(Environment.SpecialFolder.Desktop) },
-        new RootOption { Name = "Downloads", Path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "Downloads") },
-        new RootOption { Name = "Pictures", Path = Environment.GetFolderPath(Environment.SpecialFolder.MyPictures) }
-    };
-
-    public MainViewModel(IFileService fileService, ILoggingService loggingService)
-    {
-        _fileService = fileService;
-        _loggingService = loggingService;
-        LoadSettings();
-        SelectedRoot = !string.IsNullOrEmpty(DefaultRootDirectory) ? DefaultRootDirectory : RootOptions.FirstOrDefault()?.Path ?? string.Empty;
-        if (!string.IsNullOrEmpty(SelectedRoot))
+        get => _defaultRootDirectory;
+        set
         {
-            _ = LoadRootDirectoryAsync(SelectedRoot);
+            if (SetProperty(ref _defaultRootDirectory, value))
+            {
+                SaveSettings();
+            }
         }
+    }
+
+    public string FileScansDirectory
+    {
+        get => _fileScansDirectory;
+        set
+        {
+            if (SetProperty(ref _fileScansDirectory, value))
+            {
+                SaveSettings();
+            }
+        }
+    }
+
+    public string InventoryArchiveDirectory
+    {
+        get => _inventoryArchiveDirectory;
+        set
+        {
+            if (SetProperty(ref _inventoryArchiveDirectory, value))
+            {
+                SaveSettings();
+            }
+        }
+    }
+
+    public ObservableCollection<DirectoryItem> Level1 { get; } = new();
+    public ObservableCollection<DirectoryItem> Level2 { get; } = new();
+    public ObservableCollection<DirectoryItem> Level3 { get; } = new();
+    public ObservableCollection<DirectoryItem> Level4 { get; } = new();
+
+    private DispatcherTimer _refreshTimer;
+
+    public string SelectedRoot
+    {
+        get => _selectedRoot;
+        set
+        {
+            if (SetProperty(ref _selectedRoot, value))
+            {
+                OnSelectedRootChanged();
+            }
+        }
+    }
+
+    public MainViewModel()
+    {
+        LoadSettings();
+        OnSelectedRootChanged();
+        _refreshTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(30) };
+        _refreshTimer.Tick += (s, e) => RefreshTree();
+        _refreshTimer.Start();
     }
 
     private void LoadSettings()
     {
         try
         {
-            if (File.Exists(settingsFile))
+            if (File.Exists(settingsFilePath))
             {
-                var json = File.ReadAllText(settingsFile);
-                var data = JsonSerializer.Deserialize<SettingsData>(json);
-                ArchivePath = data.ArchivePath ?? ArchivePath;
-                DefaultRootDirectory = data.DefaultRootDirectory ?? DefaultRootDirectory;
-                ShippedDirectory = data.ShippedDirectory ?? ShippedDirectory;
-                FileScansDirectory = data.FileScansDirectory ?? FileScansDirectory;
-                InventoryArchiveDirectory = data.InventoryArchiveDirectory ?? InventoryArchiveDirectory;
-                Password = data.Password ?? Password;
+                var json = File.ReadAllText(settingsFilePath);
+                var settings = JsonSerializer.Deserialize<AppSettings>(json);
+                if (settings != null)
+                {
+                    _archivePath = settings.ArchivePath ?? _archivePath;
+                    _shippedDirectory = settings.ShippedDirectory ?? _shippedDirectory;
+                    _password = settings.Password ?? _password;
+                    _defaultRootDirectory = settings.DefaultRootDirectory ?? _defaultRootDirectory;
+                    _fileScansDirectory = settings.FileScansDirectory ?? _fileScansDirectory;
+                    _inventoryArchiveDirectory = settings.InventoryArchiveDirectory ?? _inventoryArchiveDirectory;
+                }
             }
         }
-        catch
-        {
-            // Use defaults if loading fails
-        }
+        catch { }
     }
 
     private void SaveSettings()
     {
         try
         {
-            var data = new SettingsData
+            var settings = new AppSettings
             {
-                ArchivePath = ArchivePath,
-                DefaultRootDirectory = DefaultRootDirectory,
-                ShippedDirectory = ShippedDirectory,
-                FileScansDirectory = FileScansDirectory,
-                InventoryArchiveDirectory = InventoryArchiveDirectory,
-                Password = Password
+                ArchivePath = _archivePath,
+                ShippedDirectory = _shippedDirectory,
+                Password = _password,
+                DefaultRootDirectory = _defaultRootDirectory,
+                FileScansDirectory = _fileScansDirectory,
+                InventoryArchiveDirectory = _inventoryArchiveDirectory
             };
-            var dir = Path.GetDirectoryName(settingsFile);
-            Directory.CreateDirectory(dir);
-            File.WriteAllText(settingsFile, JsonSerializer.Serialize(data));
+            var json = JsonSerializer.Serialize(settings);
+            Directory.CreateDirectory(Path.GetDirectoryName(settingsFilePath));
+            File.WriteAllText(settingsFilePath, json);
+        }
+        catch { }
+    }
+
+    private void OnSelectedRootChanged()
+    {
+        DirectoryItems.Clear();
+        Level1.Clear();
+        Level2.Clear();
+        Level3.Clear();
+        Level4.Clear();
+
+        if (Directory.Exists(SelectedRoot))
+        {
+            var root = new DirectoryItem
+            {
+                Name = Path.GetFileName(SelectedRoot),
+                FullPath = SelectedRoot
+            };
+            PopulateSubDirectories(root);
+            DirectoryItems.Add(root);
+            RootName = root.Name;
+            foreach (var sub in root.SubDirectories.Where(s => HasContents(s)))
+            {
+                Level1.Add(sub);
+            }
+        }
+        else
+        {
+            // Create the directory and some test subdirectories
+            Directory.CreateDirectory(SelectedRoot);
+            Directory.CreateDirectory(Path.Combine(SelectedRoot, "SubDir1"));
+            Directory.CreateDirectory(Path.Combine(SelectedRoot, "SubDir2"));
+            File.WriteAllText(Path.Combine(SelectedRoot, "test.txt"), "Test content");
+            File.WriteAllText(Path.Combine(SelectedRoot, "SubDir1", "file1.txt"), "Content 1");
+            File.WriteAllText(Path.Combine(SelectedRoot, "SubDir2", "file2.csv"), "Col1,Col2\nVal1,Val2");
+
+            var root = new DirectoryItem
+            {
+                Name = Path.GetFileName(SelectedRoot),
+                FullPath = SelectedRoot
+            };
+            PopulateSubDirectories(root);
+            DirectoryItems.Add(root);
+            RootName = root.Name;
+            foreach (var sub in root.SubDirectories.Where(s => HasContents(s)))
+            {
+                Level1.Add(sub);
+            }
+        }
+    }
+
+    private bool HasContents(DirectoryItem item)
+    {
+        try
+        {
+            return item.SubDirectories.Any() || Directory.GetFiles(item.FullPath).Any();
         }
         catch
         {
-            // Ignore if saving fails
+            return false;
         }
     }
 
-    public async Task LoadRootDirectoryAsync(string path)
+    private void PopulateSubDirectories(DirectoryItem item)
     {
-        try
-        {
-            var root = new DirectoryItem { Name = Path.GetFileName(path), FullPath = path };
-            SelectedRootDirectory = root;
-            DirectoryItems.Clear();
-            DirectoryItems.Add(root);
-            await LoadDirectoryAsync(root, 1);
-            await _loggingService.LogAsync("Loaded root directory", path);
-        }
-        catch (UnauthorizedAccessException)
-        {
-            // Handle access denied for root
-        }
-    }
-
-    public async Task LoadDirectoryAsync(DirectoryItem item, int depth = 0)
-    {
-        if (item == null || depth > 5) return;
         try
         {
             var subDirs = Directory.GetDirectories(item.FullPath)
-                .Select(d => new DirectoryItem { Name = Path.GetFileName(d), FullPath = d })
+                .Select(d => new DirectoryItem
+                {
+                    Name = Path.GetFileName(d),
+                    FullPath = d
+                })
                 .ToList();
-            item.SubDirectories.Clear();
+
             foreach (var sub in subDirs)
             {
+                PopulateSubDirectories(sub);
                 item.SubDirectories.Add(sub);
             }
-            // Recursively load deeper
-            foreach (var sub in item.SubDirectories)
-            {
-                await LoadDirectoryAsync(sub, depth + 1);
-            }
         }
-        catch (UnauthorizedAccessException)
+        catch
         {
-            // Handle access denied
+            // Ignore access denied etc.
         }
-    }
-
-    public void HandleFileDrop(DataPackageView dataView)
-    {
-        // Implement drop logic
-        _loggingService.LogAsync("File dropped for addition");
     }
 
     [RelayCommand]
-    private void RenameItem() { }
-
-    [RelayCommand]
-    private void DeleteToArchive() { }
-
-    [RelayCommand]
-    private void ShipItems() { }
-
-    private void OnSelectedRootChanged(string value)
+    private void RefreshTree()
     {
-        if (!string.IsNullOrEmpty(value))
-        {
-            _ = LoadRootDirectoryAsync(value);
-        }
+        OnSelectedRootChanged();
     }
 
-    private void OnDefaultRootDirectoryChanged(string value)
+    public void UpdateSelectedDirectory()
     {
-        if (!string.IsNullOrEmpty(value))
-        {
-            SelectedRoot = value;
-        }
+        SelectedDirectory = SelectedLevel4 ?? SelectedLevel3 ?? SelectedLevel2 ?? SelectedLevel1 ?? DirectoryItems[0];
     }
-}
-
-public class RootOption
-{
-    public string Name { get; set; } = string.Empty;
-    public string Path { get; set; } = string.Empty;
-}
-
-public class SettingsData
-{
-    public string ArchivePath { get; set; }
-    public string DefaultRootDirectory { get; set; }
-    public string ShippedDirectory { get; set; }
-    public string FileScansDirectory { get; set; }
-    public string InventoryArchiveDirectory { get; set; }
-    public string Password { get; set; }
 }

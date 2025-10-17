@@ -3,16 +3,25 @@ using System;
 
 namespace AIM.Models;
 
-public enum FileType { Text, Csv, Log, Other }
-
 public partial class FileItem : ObservableObject
 {
-    [ObservableProperty]
-    private string name = string.Empty;
+    public string Name { get; set; } = string.Empty;
+    public string FullPath { get; set; } = string.Empty;
+    public FileType Type { get; set; }
+    public long Size { get; set; }
+    public string SizeString { get; set; } = string.Empty;
+    public DateTime CreatedDate { get; set; }
+    public DateTime ModifiedDate { get; set; }
+    public string CreatedDateString { get; set; } = string.Empty;
+    public string ModifiedDateString { get; set; } = string.Empty;
+    public string Owner { get; set; } = string.Empty;
+    public string IconGlyph { get; set; } = string.Empty;
+}
 
-    [ObservableProperty]
-    private string fullPath = string.Empty;
-
-    [ObservableProperty]
-    private FileType type;
+public enum FileType
+{
+    Text,
+    Csv,
+    Log,
+    Other
 }

@@ -1,17 +1,13 @@
-<?xml version="1.0" encoding="utf-8"?>
 <Application
     x:Class="AIM.App"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
-   
-    
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:AIM"
+    xmlns:converters="using:AIM.Converters">
     <Application.Resources>
         <ResourceDictionary>
-            <ResourceDictionary.MergedDictionaries>
-                <XamlControlsResources xmlns="using:Microsoft.UI.Xaml.Controls" />
-                <!-- Other merged dictionaries here -->
-            </ResourceDictionary.MergedDictionaries>
-            <!-- Other app resources here -->
+            <converters:BoolToSymbolConverter x:Key="BoolToSymbolConverter"/>
+            <converters:BoolNegationConverter x:Key="BoolNegationConverter"/>
         </ResourceDictionary>
     </Application.Resources>
 </Application>

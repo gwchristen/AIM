@@ -1,11 +1,10 @@
 using AIM.Models;
 using AIM.ViewModels;
 using AIM.Views;
-using CommunityToolkit.Mvvm.DependencyInjection;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using System;
-using Windows.ApplicationModel.DataTransfer;
+using System.Threading.Tasks;
 using Windows.Storage.Pickers;
 
 namespace AIM;
@@ -19,46 +18,58 @@ public sealed partial class MainWindow : Window
     public MainWindow()
     {
         Instance = this;
+        ViewModel = new MainViewModel();
         InitializeComponent();
-        ViewModel = Ioc.Default.GetService<MainViewModel>();
-        BrowseFrame.Navigate(typeof(BrowsePage));
-        SearchFrame.Navigate(typeof(SearchPage));
-        SettingsFrame.Navigate(typeof(SettingsPage));
-        // PreviewFrame navigated on demand
+        MainFrame.Navigate(typeof(BrowsePage));
     }
 
-    private void DirectoryTree_ItemInvoked(TreeView sender, TreeViewItemInvokedEventArgs e)
-    {
-        if (e.InvokedItem is DirectoryItem item)
-        {
-            // Load files in BrowsePage
-            if (BrowseFrame.Content is BrowsePage browsePage)
-            {
-                _ = browsePage.ViewModel.LoadFilesAsync(item);
-            }
-        }
-    }
-
-    private async void SelectCustomRootButton_Click(object sender, RoutedEventArgs e)
+    private void SelectCustomRootButton_Click(object sender, RoutedEventArgs e)
     {
         var folderPicker = new FolderPicker();
         folderPicker.SuggestedStartLocation = PickerLocationId.Desktop;
         var hwnd = WinRT.Interop.WindowNative.GetWindowHandle(this);
         WinRT.Interop.InitializeWithWindow.Initialize(folderPicker, hwnd);
-        var folder = await folderPicker.PickSingleFolderAsync();
-        if (folder != null)
+        folderPicker.PickSingleFolderAsync().AsTask().ContinueWith(t =>
         {
-            ViewModel.SelectedRoot = folder.Path;
-        }
+            if (t.Result != null)
+            {
+                ViewModel.SelectedRoot = t.Result.Path;
+            }
+        }, TaskScheduler.FromCurrentSynchronizationContext());
     }
 
-    private async void RefreshTreeButton_Click(object sender, RoutedEventArgs e)
+    private void BrowseButton_Click(object sender, RoutedEventArgs e)
     {
-        if (!string.IsNullOrEmpty(ViewModel.SelectedRoot))
-        {
-            await ViewModel.LoadRootDirectoryAsync(ViewModel.SelectedRoot);
-        }
+        MainFrame.Navigate(typeof(BrowsePage));
     }
 
-    // ... existing code ...
+    private void PreviewButton_Click(object sender, RoutedEventArgs e)
+    {
+        MainFrame.Navigate(typeof(PreviewPage));
+    }
+
+    private void SearchButton_Click(object sender, RoutedEventArgs e)
+    {
+        MainFrame.Navigate(typeof(SearchPage));
+    }
+
+    private void ScansButton_Click(object sender, RoutedEventArgs e)
+    {
+        MainFrame.Navigate(typeof(ScansPage));
+    }
+
+    private void InvArchivesButton_Click(object sender, RoutedEventArgs e)
+    {
+        MainFrame.Navigate(typeof(InvArchivesPage));
+    }
+
+    private void StatsButton_Click(object sender, RoutedEventArgs e)
+    {
+        MainFrame.Navigate(typeof(StatsPage));
+    }
+
+    private void SettingsButton_Click(object sender, RoutedEventArgs e)
+    {
+        MainFrame.Navigate(typeof(SettingsPage));
+    }
 }

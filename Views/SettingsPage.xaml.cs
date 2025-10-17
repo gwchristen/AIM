@@ -1,114 +1,99 @@
 using AIM.ViewModels;
-using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using System;
+using System.ComponentModel;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Windows.Storage.Pickers;
 
 namespace AIM.Views;
 
-public sealed partial class SettingsPage : Page
+public sealed partial class SettingsPage : Page, INotifyPropertyChanged
 {
-    public SettingsViewModel ViewModel { get; set; } = new();
+    public MainViewModel ViewModel { get; }
+
+    private bool _isLocked = false;
+
+    public bool IsLocked
+    {
+        get => _isLocked;
+        set
+        {
+            if (_isLocked != value)
+            {
+                _isLocked = value;
+                OnPropertyChanged();
+            }
+        }
+    }
+
+    public event PropertyChangedEventHandler PropertyChanged;
+
+    private void OnPropertyChanged([CallerMemberName] string propertyName = null)
+    {
+        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+    }
 
     public SettingsPage()
     {
         InitializeComponent();
-        DataContext = ViewModel;
-        ViewModel.IsUnlockedChanged += OnIsUnlockedChanged;
-        UpdateReadOnly();
+        ViewModel = MainWindow.Instance.ViewModel;
     }
 
-    private void OnIsUnlockedChanged(bool isUnlocked)
+    private async void BrowseRootDirectory_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
     {
-        UpdateReadOnly();
+        await BrowseFolderAsync(path => ViewModel.DefaultRootDirectory = path);
     }
 
-    private void UpdateReadOnly()
+    private async void BrowseArchivePath_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
     {
-        bool isReadOnly = !ViewModel.IsUnlocked;
-        ArchiveTextBox.IsReadOnly = isReadOnly;
-        DefaultRootTextBox.IsReadOnly = isReadOnly;
-        ShippedTextBox.IsReadOnly = isReadOnly;
-        InventoryArchiveTextBox.IsReadOnly = isReadOnly;
+        await BrowseFolderAsync(path => ViewModel.ArchivePath = path);
     }
 
-    private async void ChangePasswordClicked(object sender, RoutedEventArgs e)
+    private async void BrowseShippedDirectory_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
     {
-        if (!string.IsNullOrEmpty(ViewModel.MainViewModel.Password))
+        await BrowseFolderAsync(path => ViewModel.ShippedDirectory = path);
+    }
+
+    private async void BrowseFileScansDirectory_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
+    {
+        await BrowseFolderAsync(path => ViewModel.FileScansDirectory = path);
+    }
+
+    private async void BrowseInventoryArchiveDirectory_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
+    {
+        await BrowseFolderAsync(path => ViewModel.InventoryArchiveDirectory = path);
+    }
+
+    private async Task BrowseFolderAsync(Action<string> setPath)
+    {
+        var folderPicker = new FolderPicker();
+        folderPicker.SuggestedStartLocation = PickerLocationId.Desktop;
+        var hwnd = WinRT.Interop.WindowNative.GetWindowHandle(MainWindow.Instance);
+        WinRT.Interop.InitializeWithWindow.Initialize(folderPicker, hwnd);
+        var folder = await folderPicker.PickSingleFolderAsync();
+        if (folder != null)
         {
-            // Prompt for current password
-            var currentDialog = new ContentDialog
-            {
-                Title = "Enter Current Password",
-                Content = new PasswordBox { PlaceholderText = "Current password" },
-                PrimaryButtonText = "Next",
-                CloseButtonText = "Cancel",
-                XamlRoot = this.XamlRoot
-            };
-            var currentResult = await currentDialog.ShowAsync();
-            if (currentResult == ContentDialogResult.Primary)
-            {
-                var currentEntered = ((PasswordBox)currentDialog.Content).Password;
-                if (currentEntered == ViewModel.MainViewModel.Password)
-                {
-                    // Prompt for new password
-                    var newDialog = new ContentDialog
-                    {
-                        Title = "Enter New Password",
-                        Content = new PasswordBox { PlaceholderText = "New password" },
-                        PrimaryButtonText = "Set",
-                        CloseButtonText = "Cancel",
-                        XamlRoot = this.XamlRoot
-                    };
-                    var newResult = await newDialog.ShowAsync();
-                    if (newResult == ContentDialogResult.Primary)
-                    {
-                        var newEntered = ((PasswordBox)newDialog.Content).Password;
-                        ViewModel.MainViewModel.Password = newEntered;
-                    }
-                }
-                else
-                {
-                    var errorDialog = new ContentDialog
-                    {
-                        Title = "Error",
-                        Content = "Incorrect current password",
-                        CloseButtonText = "OK",
-                        XamlRoot = this.XamlRoot
-                    };
-                    await errorDialog.ShowAsync();
-                }
-            }
-        }
-        else
-        {
-            // No current password, set new one
-            var newDialog = new ContentDialog
-            {
-                Title = "Set Password",
-                Content = new PasswordBox { PlaceholderText = "Enter password" },
-                PrimaryButtonText = "Set",
-                CloseButtonText = "Cancel",
-                XamlRoot = this.XamlRoot
-            };
-            var newResult = await newDialog.ShowAsync();
-            if (newResult == ContentDialogResult.Primary)
-            {
-                var newEntered = ((PasswordBox)newDialog.Content).Password;
-                ViewModel.MainViewModel.Password = newEntered;
-            }
+            setPath(folder.Path);
         }
     }
 
-    private async void UnlockClicked(object sender, RoutedEventArgs e)
+    private async void LockButton_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
     {
-        if (!string.IsNullOrEmpty(ViewModel.MainViewModel.Password))
+        if (!IsLocked)
+        {
+            IsLocked = true;
+        }
+    }
+
+    private async void UnlockButton_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
+    {
+        if (IsLocked)
         {
             var dialog = new ContentDialog
             {
-                Title = "Enter Password to Unlock",
-                Content = new PasswordBox { PlaceholderText = "Enter password" },
+                Title = "Enter Password",
+                Content = new PasswordBox(),
                 PrimaryButtonText = "Unlock",
                 CloseButtonText = "Cancel",
                 XamlRoot = this.XamlRoot
@@ -116,87 +101,17 @@ public sealed partial class SettingsPage : Page
             var result = await dialog.ShowAsync();
             if (result == ContentDialogResult.Primary)
             {
-                var enteredPassword = ((PasswordBox)dialog.Content).Password;
-                if (enteredPassword == ViewModel.MainViewModel.Password)
+                var password = ((PasswordBox)dialog.Content).Password;
+                if (password == ViewModel.Password)
                 {
-                    ViewModel.IsUnlocked = true;
-                }
-                else
-                {
-                    var errorDialog = new ContentDialog
-                    {
-                        Title = "Error",
-                        Content = "Incorrect password",
-                        CloseButtonText = "OK",
-                        XamlRoot = this.XamlRoot
-                    };
-                    await errorDialog.ShowAsync();
+                    IsLocked = false;
                 }
             }
         }
-        else
-        {
-            // No password set, unlock directly
-            ViewModel.IsUnlocked = true;
-        }
     }
 
-    private void LockClicked(object sender, RoutedEventArgs e)
+    private void SaveButton_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
     {
-        ViewModel.IsUnlocked = false;
-    }
-
-    private async void BrowseArchiveClicked(object sender, RoutedEventArgs e)
-    {
-        var folder = await PickFolderAsync();
-        if (folder != null)
-        {
-            ViewModel.MainViewModel.ArchivePath = folder.Path;
-        }
-    }
-
-    private async void BrowseDefaultRootClicked(object sender, RoutedEventArgs e)
-    {
-        var folder = await PickFolderAsync();
-        if (folder != null)
-        {
-            ViewModel.MainViewModel.DefaultRootDirectory = folder.Path;
-        }
-    }
-
-    private async void BrowseShippedClicked(object sender, RoutedEventArgs e)
-    {
-        var folder = await PickFolderAsync();
-        if (folder != null)
-        {
-            ViewModel.MainViewModel.ShippedDirectory = folder.Path;
-        }
-    }
-
-    private async void BrowseFileScansClicked(object sender, RoutedEventArgs e)
-    {
-        var folder = await PickFolderAsync();
-        if (folder != null)
-        {
-            ViewModel.MainViewModel.FileScansDirectory = folder.Path;
-        }
-    }
-
-    private async void BrowseInventoryArchiveClicked(object sender, RoutedEventArgs e)
-    {
-        var folder = await PickFolderAsync();
-        if (folder != null)
-        {
-            ViewModel.MainViewModel.InventoryArchiveDirectory = folder.Path;
-        }
-    }
-
-    private async Task<Windows.Storage.StorageFolder> PickFolderAsync()
-    {
-        var folderPicker = new FolderPicker();
-        folderPicker.SuggestedStartLocation = PickerLocationId.Desktop;
-        var hwnd = WinRT.Interop.WindowNative.GetWindowHandle(MainWindow.Instance);
-        WinRT.Interop.InitializeWithWindow.Initialize(folderPicker, hwnd);
-        return await folderPicker.PickSingleFolderAsync();
+        // Settings are saved automatically via bindings
     }
 }

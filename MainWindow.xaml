@@ -5,40 +5,27 @@
     xmlns:local="using:AIM"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    mc:Ignorable="d">
+    mc:Ignorable="d"
+    Title="AIM">
+
     <Grid>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="300"/>
+            <ColumnDefinition Width="200"/>
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
-        <ScrollViewer Grid.Column="0" VerticalScrollBarVisibility="Auto">
-            <StackPanel Margin="10">
-                <Button Content="Select Root Directory" Click="SelectCustomRootButton_Click" Margin="0,0,0,10"/>
-                <Button Content="Refresh Tree" Click="RefreshTreeButton_Click" Margin="0,0,0,10"/>
-                <TreeView x:Name="DirectoryTree" ItemsSource="{x:Bind ViewModel.DirectoryItems}" ItemInvoked="DirectoryTree_ItemInvoked">
-                    <TreeView.ItemTemplate>
-                        <DataTemplate>
-                            <TreeViewItem ItemsSource="{Binding SubDirectories}" IsExpanded="{Binding IsExpanded}">
-                                <TextBlock Text="{Binding Name}" />
-                            </TreeViewItem>
-                        </DataTemplate>
-                    </TreeView.ItemTemplate>
-                </TreeView>
-            </StackPanel>
-        </ScrollViewer>
-        <TabView x:FieldModifier="public" x:Name="FeatureTabs" Grid.Column="1" SelectedIndex="0">
-            <TabViewItem Header="Browse">
-                <Frame x:FieldModifier="public" x:Name="BrowseFrame"/>
-            </TabViewItem>
-            <TabViewItem Header="Search">
-                <Frame x:FieldModifier="public" x:Name="SearchFrame"/>
-            </TabViewItem>
-            <TabViewItem Header="Preview">
-                <Frame x:FieldModifier="public" x:Name="PreviewFrame"/>
-            </TabViewItem>
-            <TabViewItem Header="Settings">
-                <Frame x:FieldModifier="public" x:Name="SettingsFrame"/>
-            </TabViewItem>
-        </TabView>
+
+        <StackPanel Grid.Column="0" Orientation="Vertical" Margin="10">
+            <Button Content="Select Root" Click="SelectCustomRootButton_Click" Margin="0,5"/>
+            <Button Content="Refresh Tree" Command="{x:Bind ViewModel.RefreshTreeCommand}" Margin="0,5"/>
+            <Button Content="Browse" Click="BrowseButton_Click" Margin="0,5"/>
+            <Button Content="Preview" Click="PreviewButton_Click" Margin="0,5"/>
+            <Button Content="Search" Click="SearchButton_Click" Margin="0,5"/>
+            <Button Content="Scans" Click="ScansButton_Click" Margin="0,5"/>
+            <Button Content="Inv Archives" Click="InvArchivesButton_Click" Margin="0,5"/>
+            <Button Content="Stats" Click="StatsButton_Click" Margin="0,5"/>
+            <Button Content="Settings" Click="SettingsButton_Click" Margin="0,5"/>
+        </StackPanel>
+
+        <Frame x:Name="MainFrame" x:FieldModifier="public" Grid.Column="1" />
     </Grid>
 </Window>
