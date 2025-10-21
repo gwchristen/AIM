@@ -7,23 +7,23 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
     Title="AIM">
-
+    
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="200"/>
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
 
-        <StackPanel Grid.Column="0" Orientation="Vertical" Margin="10">
-            <Button Content="Select Root" Click="SelectCustomRootButton_Click" Margin="0,5"/>
-            <Button Content="Refresh Tree" Command="{x:Bind ViewModel.RefreshTreeCommand}" Margin="0,5"/>
-            <Button Content="Browse" Click="BrowseButton_Click" Margin="0,5"/>
-            <Button Content="Preview" Click="PreviewButton_Click" Margin="0,5"/>
-            <Button Content="Search" Click="SearchButton_Click" Margin="0,5"/>
-            <Button Content="Scans" Click="ScansButton_Click" Margin="0,5"/>
-            <Button Content="Inv Archives" Click="InvArchivesButton_Click" Margin="0,5"/>
-            <Button Content="Stats" Click="StatsButton_Click" Margin="0,5"/>
-            <Button Content="Settings" Click="SettingsButton_Click" Margin="0,5"/>
+        <StackPanel Grid.Column="0" Orientation="Vertical" Margin="10,10,10,10">
+            <RadioButton Content="Select Root" GroupName="Navigation" Style="{StaticResource TileRadioButton}" Click="SelectCustomRootButton_Click"/>
+            <RadioButton Content="Refresh Tree" GroupName="Navigation" Style="{StaticResource TileRadioButton}" Command="{x:Bind ViewModel.RefreshTreeCommand}"/>
+            <RadioButton Content="Browse" GroupName="Navigation" Style="{StaticResource TileRadioButton}" IsChecked="True" Click="BrowseButton_Click"/>
+            <RadioButton Content="Preview" GroupName="Navigation" Style="{StaticResource TileRadioButton}" Click="PreviewButton_Click"/>
+            <RadioButton Content="Search" GroupName="Navigation" Style="{StaticResource TileRadioButton}" Click="SearchButton_Click"/>
+            <RadioButton Content="Scans" GroupName="Navigation" Style="{StaticResource TileRadioButton}" Click="ScansButton_Click"/>
+            <RadioButton Content="Inv Archives" GroupName="Navigation" Style="{StaticResource TileRadioButton}" Click="InvArchivesButton_Click"/>
+            <RadioButton Content="Stats" GroupName="Navigation" Style="{StaticResource TileRadioButton}" Click="StatsButton_Click"/>
+            <RadioButton Content="Settings" GroupName="Navigation" Style="{StaticResource TileRadioButton}" Click="SettingsButton_Click"/>
         </StackPanel>
 
         <Frame x:Name="MainFrame" x:FieldModifier="public" Grid.Column="1" />

@@ -50,9 +50,9 @@
             <Button Content="Archive" Command="{x:Bind ViewModel.DeleteToArchiveCommand}" Margin="0,5"/>
             <Button Content="Shipped" Command="{x:Bind ViewModel.ShipItemsCommand}" Margin="0,5"/>
             <Button Content="Move -&gt;" Command="{x:Bind ViewModel.MoveFileCommand}" Margin="0,5"/>
-            <Button Content="" Margin="0,5"/>
-            <Button Content="" Margin="0,5"/>
-            <Button Content="Copy from Scans" Margin="0,5"/>
+            <Button Content="Undo" Command="{x:Bind ViewModel.UndoCommand}" Margin="0,5"/>
+            <Rectangle Height="40"/>
+            <Button Content="Copy from Scans" Command="{x:Bind ViewModel.CopyFromScansCommand}" Margin="5"/>
         </StackPanel>
 
         <!-- Right Side -->
@@ -78,7 +78,7 @@
                     </StackPanel>
                 </StackPanel>
             </ScrollViewer>
-            <ListView Grid.Row="1" ItemsSource="{x:Bind ViewModel.RightFilteredContents}" SelectedItem="{x:Bind ViewModel.SelectedContent, Mode=TwoWay}" SelectionChanged="FilteredContents_SelectionChanged" Margin="5" BorderBrush="Gray" BorderThickness="1">
+            <ListView Grid.Row="1" ItemsSource="{x:Bind ViewModel.RightFilteredContents}" SelectedItem="{x:Bind ViewModel.SelectedRightContent, Mode=TwoWay}" SelectionChanged="RightFilteredContents_SelectionChanged" Margin="5" BorderBrush="Gray" BorderThickness="1">
                 <ListView.ItemTemplate>
                     <DataTemplate>
                         <StackPanel Orientation="Horizontal">

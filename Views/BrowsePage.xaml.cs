@@ -230,4 +230,22 @@ public sealed partial class BrowsePage : Page
             }
         }
     }
+
+    private void RightFilteredContents_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        if (ViewModel.SelectedRightContent?.IsFolder == true)
+        {
+            var item = new DirectoryItem { Name = ViewModel.SelectedRightContent.Name, FullPath = ViewModel.SelectedRightContent.FullPath };
+            try
+            {
+                var subs = Directory.GetDirectories(item.FullPath).Select(d => new DirectoryItem { Name = Path.GetFileName(d), FullPath = d });
+                foreach (var sub in subs)
+                {
+                    item.SubDirectories.Add(sub);
+                }
+            }
+            catch { }
+            ViewModel.NavigateToRightDirectory(item);
+        }
+    }
 }

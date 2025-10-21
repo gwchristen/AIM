@@ -63,6 +63,9 @@ public partial class MainViewModel : ObservableObject
 
     private string _inventoryArchiveDirectory = @"C:\Temp\AIM\InventoryArchive";
 
+    [ObservableProperty]
+    private ObservableCollection<AIM.Models.FileItem> selectedScanFiles = new();
+
     public string ArchivePath
     {
         get => _archivePath;
@@ -207,6 +210,12 @@ public partial class MainViewModel : ObservableObject
 
     private void OnSelectedRootChanged()
     {
+        // Save selected paths before clearing
+        var sel1Path = SelectedLevel1?.FullPath;
+        var sel2Path = SelectedLevel2?.FullPath;
+        var sel3Path = SelectedLevel3?.FullPath;
+        var sel4Path = SelectedLevel4?.FullPath;
+
         DirectoryItems.Clear();
         Level1.Clear();
         Level2.Clear();
@@ -251,6 +260,26 @@ public partial class MainViewModel : ObservableObject
                 Level1.Add(sub);
             }
         }
+
+        // Restore selections
+        SelectedLevel1 = Level1.FirstOrDefault(d => d.FullPath == sel1Path);
+        if (SelectedLevel1 != null)
+        {
+            PopulateSubDirectories(SelectedLevel1);
+            SelectedLevel2 = SelectedLevel1.SubDirectories.FirstOrDefault(d => d.FullPath == sel2Path);
+            if (SelectedLevel2 != null)
+            {
+                PopulateSubDirectories(SelectedLevel2);
+                SelectedLevel3 = SelectedLevel2.SubDirectories.FirstOrDefault(d => d.FullPath == sel3Path);
+                if (SelectedLevel3 != null)
+                {
+                    PopulateSubDirectories(SelectedLevel3);
+                    SelectedLevel4 = SelectedLevel3.SubDirectories.FirstOrDefault(d => d.FullPath == sel4Path);
+                }
+            }
+        }
+
+        UpdateSelectedDirectory();
     }
 
     private bool HasContents(DirectoryItem item)
