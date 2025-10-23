@@ -83,11 +83,11 @@ public partial class StatsViewModel : ObservableObject
                 ohioLines = $"Ohio Devices: {ohioLineCount}";
                 imLines = $"I&M Devices: {imLineCount}";
 
-                // Problematic files (lines <17 chars)
+                // Problematic files (lines not equal to 17 chars)
                 foreach (var file in textFiles)
                 {
                     var lines = File.ReadAllLines(file);
-                    if (lines.Any(l => l.Length < 17 && !string.IsNullOrWhiteSpace(l)))
+                    if (lines.Any(l => !string.IsNullOrWhiteSpace(l) && l.Length != 17))
                     {
                         probFiles.Add(new ProblematicFile { Path = file });
                     }

@@ -1,63 +1,50 @@
 using AIM.Models;
 using AIM.ViewModels;
+using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
-using System.Linq;
 
 namespace AIM.Views;
 
 public sealed partial class SearchPage : Page
 {
-    public SearchViewModel ViewModel { get; set; }
+    public SearchViewModel ViewModel { get; }
 
     public SearchPage()
     {
-        InitializeComponent();
+        this.InitializeComponent();
         ViewModel = new SearchViewModel();
-    }
-
-    private void SearchButton_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
-    {
-        ViewModel.SearchResults.Clear();
-        var query = ViewModel.SearchQuery;
-        if (string.IsNullOrWhiteSpace(query)) return;
-
-        var files = System.IO.Directory.GetFiles(ViewModel.MainViewModel.DirectoryItems[0].FullPath, "*.*", System.IO.SearchOption.AllDirectories)
-            .Where(f => System.IO.Path.GetExtension(f).ToLower() is ".txt" or ".csv" or ".log")
-            .Where(f => System.IO.File.ReadAllText(f).Contains(query, System.StringComparison.OrdinalIgnoreCase))
-            .Select(f => new FileItem
-            {
-                Name = System.IO.Path.GetFileName(f),
-                FullPath = f,
-                Type = GetFileType(f),
-                Size = new System.IO.FileInfo(f).Length,
-                SizeString = $"{new System.IO.FileInfo(f).Length / 1024.0:F2} KB",
-                CreatedDate = System.IO.File.GetCreationTime(f),
-                ModifiedDate = System.IO.File.GetLastWriteTime(f),
-                CreatedDateString = System.IO.File.GetCreationTime(f).ToString("d"),
-                ModifiedDateString = System.IO.File.GetLastWriteTime(f).ToString("d"),
-                Owner = "N/A"
-            });
-
-        foreach (var file in files)
-        {
-            ViewModel.SearchResults.Add(file);
-        }
+        DataContext = ViewModel;
     }
 
     private void ResultsListView_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
-        // Navigation removed for now
-    }
-
-    private FileType GetFileType(string path)
-    {
-        var ext = System.IO.Path.GetExtension(path).ToLower();
-        return ext switch
+        if (sender is ListView listView && listView.SelectedItem is Models.FileItem file)
         {
-            ".txt" => FileType.Text,
-            ".csv" => FileType.Csv,
-            ".log" => FileType.Log,
-            _ => FileType.Other
-        };
+            // Navigate to Preview tab
+            if (MainWindow.Instance != null)
+            {
+                MainWindow.Instance.MainFrame.Navigate(typeof(PreviewPage));
+                // Set the selected tab
+                MainWindow.Instance.IsPreviewSelected = true;
+                MainWindow.Instance.IsBrowseSelected = false;
+                MainWindow.Instance.IsSearchSelected = false;
+                MainWindow.Instance.IsScansSelected = false;
+                MainWindow.Instance.IsInvArchivesSelected = false;
+                MainWindow.Instance.IsStatsSelected = false;
+                MainWindow.Instance.IsSettingsSelected = false;
+
+                // Load the file in Preview
+                if (MainWindow.Instance.MainFrame.Content is PreviewPage previewPage)
+                {
+                    var fileItem = new FileItem
+                    {
+                        FullPath = file.FullPath,
+                        Name = file.Name,
+                        Type = file.Type
+                    };
+                    _ = previewPage.ViewModel.LoadFileContent(fileItem);
+                }
+            }
+        }
     }
 }

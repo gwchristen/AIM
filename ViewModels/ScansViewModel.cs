@@ -4,6 +4,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.UI.Xaml;
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
@@ -24,9 +25,17 @@ public partial class ScansViewModel : ObservableObject
     public ObservableCollection<DirectoryItem> Directories { get; } = new();
     public ObservableCollection<FileItem> Files { get; } = new();
 
+    public event Action SelectedDirectoryChanged;
+    public event Action SortingDone;
+
+    private static bool sortDirection = false;
+
+    public RelayCommand<string> SortCommand { get; }
+
     public ScansViewModel()
     {
         _mainViewModel = MainWindow.Instance?.ViewModel ?? throw new InvalidOperationException("MainViewModel not available");
+        SortCommand = new RelayCommand<string>(Sort);
         PopulateDirectories();
     }
 
@@ -53,7 +62,8 @@ public partial class ScansViewModel : ObservableObject
     {
         if (value != null)
         {
-            _ = LoadFiles(value);
+            LoadFiles(value);
+            SelectedDirectoryChanged?.Invoke();
         }
     }
 
@@ -62,7 +72,7 @@ public partial class ScansViewModel : ObservableObject
         _mainViewModel.SelectedScanFiles = new ObservableCollection<FileItem>(value);
     }
 
-    private async Task LoadFiles(DirectoryItem item)
+    private void LoadFiles(DirectoryItem item)
     {
         Files.Clear();
         try
@@ -91,6 +101,37 @@ public partial class ScansViewModel : ObservableObject
             }
         }
         catch { }
+    }
+
+    private void Sort(string param)
+    {
+        if (Files == null || Files.Count == 0) return;
+
+        List<FileItem> sortedList;
+        switch (param)
+        {
+            case "Name":
+                sortedList = sortDirection ? Files.OrderBy(f => f.Name).ToList() : Files.OrderByDescending(f => f.Name).ToList();
+                break;
+            case "Size":
+                sortedList = sortDirection ? Files.OrderBy(f => f.Size).ToList() : Files.OrderByDescending(f => f.Size).ToList();
+                break;
+            case "Created":
+                sortedList = sortDirection ? Files.OrderBy(f => f.CreatedDate).ToList() : Files.OrderByDescending(f => f.CreatedDate).ToList();
+                break;
+            case "Modified":
+                sortedList = sortDirection ? Files.OrderBy(f => f.ModifiedDate).ToList() : Files.OrderByDescending(f => f.ModifiedDate).ToList();
+                break;
+            default:
+                return;
+        }
+        Files.Clear();
+        foreach (var file in sortedList)
+        {
+            Files.Add(file);
+        }
+        sortDirection = !sortDirection;
+        SortingDone?.Invoke();
     }
 
     [RelayCommand]

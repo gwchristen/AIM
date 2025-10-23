@@ -7,15 +7,22 @@
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
         <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="5">
+            <TextBox Text="{x:Bind ViewModel.SearchDirectory, Mode=TwoWay}" PlaceholderText="Search Directory" Width="400" Margin="0,0,5,0"/>
+            <Button Content="Browse" Command="{x:Bind ViewModel.BrowseCommand}"/>
+        </StackPanel>
+        <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="5">
             <TextBox x:Name="SearchTextBox" Text="{x:Bind ViewModel.SearchQuery, Mode=TwoWay}" Width="300" PlaceholderText="Enter search query" Margin="0,0,5,0"/>
             <Button Content="Search" Command="{x:Bind ViewModel.SearchCommand}"/>
         </StackPanel>
-        <ToggleSwitch Grid.Row="1" Header="Search in file contents" IsOn="{x:Bind ViewModel.IsContentSearch, Mode=TwoWay}" Margin="5"/>
-        <TextBlock Grid.Row="2" Text="{x:Bind ViewModel.StatusMessage}" Margin="5" Foreground="Blue"/>
-        <ListView Grid.Row="3" ItemsSource="{x:Bind ViewModel.SearchResults}" SelectionChanged="ResultsListView_SelectionChanged">
+        <ToggleSwitch Grid.Row="2" Header="Search in file contents" IsOn="{x:Bind ViewModel.IsContentSearch, Mode=TwoWay}" Margin="5"/>
+        <Border Grid.Row="3" Background="Transparent" Margin="5">
+            <TextBlock Text="{Binding StatusMessage}" Foreground="Red" FontWeight="Bold" />
+        </Border>
+        <ListView Grid.Row="4" ItemsSource="{x:Bind ViewModel.SearchResults}" SelectionChanged="ResultsListView_SelectionChanged">
             <ListView.ItemTemplate>
                 <DataTemplate>
                     <StackPanel Orientation="Horizontal">

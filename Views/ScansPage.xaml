@@ -21,24 +21,61 @@
             </ListView.ItemTemplate>
         </ListView>
 
-        <!-- Files List -->
-        <ListView Grid.Column="1" ItemsSource="{Binding Files}" DoubleTapped="FilesListView_DoubleTapped" SelectionMode="Multiple" SelectionChanged="FilesListView_SelectionChanged">
-            <ListView.ItemTemplate>
-                <DataTemplate>
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="100"/>
-                            <ColumnDefinition Width="150"/>
-                            <ColumnDefinition Width="150"/>
-                        </Grid.ColumnDefinitions>
-                        <TextBlock Text="{Binding Name}" Grid.Column="0"/>
-                        <TextBlock Text="{Binding SizeString}" Grid.Column="1"/>
-                        <TextBlock Text="{Binding CreatedDateString}" Grid.Column="2"/>
-                        <TextBlock Text="{Binding ModifiedDateString}" Grid.Column="3"/>
-                    </Grid>
-                </DataTemplate>
-            </ListView.ItemTemplate>
-        </ListView>
+        <!-- Files List with Sort Headers -->
+        <Grid Grid.Column="1">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <!-- Sort Headers -->
+            <Grid Grid.Row="0" Margin="0,0,0,5">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="100"/>
+                    <ColumnDefinition Width="150"/>
+                    <ColumnDefinition Width="150"/>
+                </Grid.ColumnDefinitions>
+                <Button Grid.Column="0" Command="{Binding SortCommand}" CommandParameter="Name" Padding="0" HorizontalAlignment="Stretch" FontWeight="Bold">
+                    <TextBlock Text="Name" />
+                </Button>
+                <Button Grid.Column="1" Command="{Binding SortCommand}" CommandParameter="Size" Padding="0" HorizontalAlignment="Stretch" FontWeight="Bold">
+                    <TextBlock Text="Size" />
+                </Button>
+                <Button Grid.Column="2" Command="{Binding SortCommand}" CommandParameter="Created" Padding="0" HorizontalAlignment="Stretch" FontWeight="Bold">
+                    <TextBlock Text="Created" />
+                </Button>
+                <Button Grid.Column="3" Command="{Binding SortCommand}" CommandParameter="Modified" Padding="0" HorizontalAlignment="Stretch" FontWeight="Bold">
+                    <TextBlock Text="Modified" />
+                </Button>
+            </Grid>
+
+            <!-- Files List -->
+            <ListView Grid.Row="1" x:Name="FilesListView" ItemsSource="{Binding Files}" DoubleTapped="FilesListView_DoubleTapped" SelectionMode="Multiple" SelectionChanged="FilesListView_SelectionChanged" Margin="0">
+                <ListView.ItemContainerStyle>
+                    <Style TargetType="ListViewItem">
+                        <Setter Property="Padding" Value="0"/>
+                        <Setter Property="Margin" Value="0"/>
+                        <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                    </Style>
+                </ListView.ItemContainerStyle>
+                <ListView.ItemTemplate>
+                    <DataTemplate>
+                        <Grid Margin="0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="100"/>
+                                <ColumnDefinition Width="150"/>
+                                <ColumnDefinition Width="150"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Text="{Binding Name}" Grid.Column="0" />
+                            <TextBlock Text="{Binding SizeString}" Grid.Column="1" />
+                            <TextBlock Text="{Binding CreatedDateString}" Grid.Column="2" />
+                            <TextBlock Text="{Binding ModifiedDateString}" Grid.Column="3" />
+                        </Grid>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
+        </Grid>
     </Grid>
 </Page>

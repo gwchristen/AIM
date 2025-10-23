@@ -1,5 +1,4 @@
-﻿#pragma warning disable MVVMTK0045
-using AIM.Models;
+﻿using AIM.Models;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using System;
@@ -7,6 +6,7 @@ using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Windows.Storage.Pickers;
 
 namespace AIM.ViewModels;
 
@@ -15,13 +15,16 @@ public partial class SearchViewModel : ObservableObject
     private readonly MainViewModel _mainViewModel;
 
     [ObservableProperty]
+    private string searchDirectory = string.Empty;
+
+    [ObservableProperty]
     private string searchQuery = string.Empty;
 
     [ObservableProperty]
     private bool isSearching = false;
 
     [ObservableProperty]
-    private string statusMessage = string.Empty;
+    private string statusMessage = "Ready to search.";
 
     [ObservableProperty]
     private bool isContentSearch = true;
@@ -33,6 +36,21 @@ public partial class SearchViewModel : ObservableObject
     public SearchViewModel()
     {
         _mainViewModel = MainWindow.Instance?.ViewModel ?? throw new InvalidOperationException("MainViewModel not available");
+        SearchDirectory = _mainViewModel.SelectedRoot;
+    }
+
+    [RelayCommand]
+    private async Task Browse()
+    {
+        var folderPicker = new FolderPicker();
+        folderPicker.SuggestedStartLocation = PickerLocationId.DocumentsLibrary;
+        var hwnd = WinRT.Interop.WindowNative.GetWindowHandle(MainWindow.Instance);
+        WinRT.Interop.InitializeWithWindow.Initialize(folderPicker, hwnd);
+        var folder = await folderPicker.PickSingleFolderAsync();
+        if (folder != null)
+        {
+            SearchDirectory = folder.Path;
+        }
     }
 
     [RelayCommand]
@@ -46,15 +64,21 @@ public partial class SearchViewModel : ObservableObject
 
         try
         {
-            // Search in SelectedRoot or all directories
-            var rootPath = _mainViewModel.SelectedRoot;
+            var rootPath = SearchDirectory;
             if (string.IsNullOrEmpty(rootPath))
             {
-                StatusMessage = "No root directory selected.";
+                rootPath = _mainViewModel.SelectedRoot;
+            }
+            if (string.IsNullOrEmpty(rootPath))
+            {
+                StatusMessage = "No search directory selected. Please set the Root Directory in Settings.";
                 return;
             }
 
-            var files = Directory.GetFiles(rootPath, "*.*", SearchOption.AllDirectories)
+            var allFiles = Directory.GetFiles(rootPath, "*.*", SearchOption.AllDirectories).ToList();
+            var totalFiles = allFiles.Count;
+
+            var files = allFiles
                 .Where(f => Path.GetExtension(f).ToLower() is ".txt" or ".csv" or ".log")
                 .Where(f =>
                 {
@@ -102,7 +126,7 @@ public partial class SearchViewModel : ObservableObject
                     Owner = owner
                 });
             }
-            StatusMessage = $"Found {SearchResults.Count} results.";
+            StatusMessage = $"Searched {totalFiles} files. Files found: {SearchResults.Count}";
         }
         catch (Exception ex)
         {
