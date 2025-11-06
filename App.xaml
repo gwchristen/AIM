@@ -2,8 +2,8 @@
     x:Class="AIM.App"
     xmlns="https://github.com/avaloniaui"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:local="using:AIM"
-    xmlns:converters="using:AIM.Converters"
+    xmlns:local="clr-namespace:AIM"
+    xmlns:converters="clr-namespace:AIM.Converters"
     RequestedThemeVariant="Default">
     <Application.DataTemplates>
         <local:ViewLocator/>
