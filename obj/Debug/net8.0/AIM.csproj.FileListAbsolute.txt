@@ -20,6 +20,7 @@
 /home/runner/work/AIM/AIM/bin/Debug/net8.0/Avalonia.Diagnostics.dll
 /home/runner/work/AIM/AIM/bin/Debug/net8.0/Avalonia.Fonts.Inter.dll
 /home/runner/work/AIM/AIM/bin/Debug/net8.0/Avalonia.FreeDesktop.dll
+/home/runner/work/AIM/AIM/bin/Debug/net8.0/Avalonia.Markup.Xaml.Loader.dll
 /home/runner/work/AIM/AIM/bin/Debug/net8.0/Avalonia.Native.dll
 /home/runner/work/AIM/AIM/bin/Debug/net8.0/Avalonia.Remote.Protocol.dll
 /home/runner/work/AIM/AIM/bin/Debug/net8.0/Avalonia.Skia.dll

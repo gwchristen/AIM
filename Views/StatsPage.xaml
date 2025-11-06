@@ -1,11 +1,9 @@
-<Page
-    x:Class="AIM.Views.StatsPage"
-    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    mc:Ignorable="d"
-    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="AIM.Views.StatsPage">
 
     <Grid Margin="20">
         <Grid.RowDefinitions>
@@ -43,8 +41,8 @@
 
         <!-- Problematic Files -->
         <StackPanel Grid.Row="1">
-            <TextBlock Text="Files with Lines !=17 Characters (Double-click to Preview)" FontSize="16"/>
-            <ListBox ItemsSource="{Binding ProblematicFiles}" DoubleTapped="ListBox_DoubleTapped">
+            <TextBlock Text="Files with Lines !=17 Characters" FontSize="16" Margin="0,0,0,10"/>
+            <ListBox ItemsSource="{Binding ProblematicFiles}">
                 <ListBox.ItemTemplate>
                     <DataTemplate>
                         <TextBlock Text="{Binding Path}" />
@@ -53,4 +51,4 @@
             </ListBox>
         </StackPanel>
     </Grid>
-</Page>
+</UserControl>

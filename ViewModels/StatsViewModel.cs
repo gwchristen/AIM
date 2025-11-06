@@ -2,7 +2,8 @@
 using AIM.Views;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using Microsoft.UI.Xaml;
+
+using Avalonia.Threading;
 using System;
 using System.Collections.ObjectModel;
 using System.IO;
@@ -95,7 +96,7 @@ public partial class StatsViewModel : ObservableObject
             }
 
             // Update UI on main thread
-            MainWindow.Instance.DispatcherQueue.TryEnqueue(() =>
+            Avalonia.Threading.Dispatcher.UIThread.Post(() =>
             {
                 TotalTextFilesText = totalTextFiles;
                 TotalLinesText = totalLines;
@@ -114,7 +115,7 @@ public partial class StatsViewModel : ObservableObject
         // Navigate to Preview tab and load file
         if (MainWindow.Instance != null)
         {
-            MainWindow.Instance.MainFrame.Navigate(typeof(PreviewPage));
+            // MainWindow.Instance.MainFrame.Navigate(typeof(PreviewPage));
             // Set the selected tab
             MainWindow.Instance.IsPreviewSelected = true;
             MainWindow.Instance.IsBrowseSelected = false;
@@ -124,17 +125,19 @@ public partial class StatsViewModel : ObservableObject
             MainWindow.Instance.IsStatsSelected = false;
             MainWindow.Instance.IsSettingsSelected = false;
 
+            // TODO: Implement navigation in Avalonia
             // Load the file in Preview
-            if (MainWindow.Instance.MainFrame.Content is PreviewPage previewPage)
-            {
-                var fileItem = new FileItem
-                {
-                    FullPath = file.Path,
-                    Name = Path.GetFileName(file.Path),
-                    Type = GetFileType(file.Path)
-                };
-                await previewPage.ViewModel.LoadFileContent(fileItem);
-            }
+            // if (MainWindow.Instance.MainFrame.Content is PreviewPage previewPage)
+            // {
+            //     var fileItem = new FileItem
+            //     {
+            //         FullPath = file.Path,
+            //         Name = Path.GetFileName(file.Path),
+            //         Type = GetFileType(file.Path)
+            //     };
+            //     await previewPage.ViewModel.LoadFileContent(fileItem);
+            // }
+            await Task.CompletedTask;
         }
     }
 

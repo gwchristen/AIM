@@ -1,11 +1,12 @@
-﻿using Microsoft.UI.Xaml.Data;
+using Avalonia.Data.Converters;
 using System;
+using System.Globalization;
 
 namespace AIM.Converters;
 
 public class BoolNegationConverter : IValueConverter
 {
-    public object Convert(object value, Type targetType, object parameter, string language)
+    public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
     {
         if (value is bool boolValue)
         {
@@ -14,8 +15,8 @@ public class BoolNegationConverter : IValueConverter
         return value;
     }
 
-    public object ConvertBack(object value, Type targetType, object parameter, string language)
+    public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
     {
-        return Convert(value, targetType, parameter, language);
+        return Convert(value, targetType, parameter, culture);
     }
 }

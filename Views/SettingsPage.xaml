@@ -1,41 +1,39 @@
-<Page
-    x:Class="AIM.Views.SettingsPage"
-    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:local="using:AIM"
-    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    mc:Ignorable="d">
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="AIM.Views.SettingsPage">
 
     <ScrollViewer>
         <StackPanel Margin="20" Spacing="10">
             <TextBlock Text="Settings" FontSize="24" FontWeight="Bold"/>
             <StackPanel Orientation="Horizontal" Spacing="10">
-                <TextBox Header="Password" Text="{x:Bind ViewModel.Password, Mode=TwoWay}" Width="200"/>
+                <TextBox Header="Password" Text="{Binding ViewModel.Password}" Width="200"/>
                 <Button Content="Lock" Click="LockButton_Click"/>
                 <Button Content="Unlock" Click="UnlockButton_Click"/>
                 <Button Content="Save" Click="SaveButton_Click"/>
             </StackPanel>
-            <StackPanel Orientation="Horizontal" Margin="0,5">
-                <TextBox Header="Root Directory" Text="{x:Bind ViewModel.DefaultRootDirectory, Mode=TwoWay}" Width="300" IsEnabled="{x:Bind IsLocked, Mode=OneWay, Converter={StaticResource BoolNegationConverter}}"/>
-                <Button Content="Browse" Click="BrowseRootDirectory_Click" Margin="5,0,0,0"/>
+            <StackPanel Orientation="Horizontal" Margin="0,5" Spacing="10">
+                <TextBox Header="Root Directory" Text="{Binding ViewModel.DefaultRootDirectory}" Width="300" IsEnabled="{Binding IsLocked, Converter={StaticResource BoolNegationConverter}}"/>
+                <Button Content="Browse" Click="BrowseRootDirectory_Click"/>
             </StackPanel>
-            <StackPanel Orientation="Horizontal" Margin="0,5">
-                <TextBox Header="Archive Path" Text="{x:Bind ViewModel.ArchivePath, Mode=TwoWay}" Width="300" IsEnabled="{x:Bind IsLocked, Mode=OneWay, Converter={StaticResource BoolNegationConverter}}"/>
-                <Button Content="Browse" Click="BrowseArchivePath_Click" Margin="5,0,0,0"/>
+            <StackPanel Orientation="Horizontal" Margin="0,5" Spacing="10">
+                <TextBox Header="Archive Path" Text="{Binding ViewModel.ArchivePath}" Width="300" IsEnabled="{Binding IsLocked, Converter={StaticResource BoolNegationConverter}}"/>
+                <Button Content="Browse" Click="BrowseArchivePath_Click"/>
             </StackPanel>
-            <StackPanel Orientation="Horizontal" Margin="0,5">
-                <TextBox Header="Shipped Directory" Text="{x:Bind ViewModel.ShippedDirectory, Mode=TwoWay}" Width="300" IsEnabled="{x:Bind IsLocked, Mode=OneWay, Converter={StaticResource BoolNegationConverter}}"/>
-                <Button Content="Browse" Click="BrowseShippedDirectory_Click" Margin="5,0,0,0"/>
+            <StackPanel Orientation="Horizontal" Margin="0,5" Spacing="10">
+                <TextBox Header="Shipped Directory" Text="{Binding ViewModel.ShippedDirectory}" Width="300" IsEnabled="{Binding IsLocked, Converter={StaticResource BoolNegationConverter}}"/>
+                <Button Content="Browse" Click="BrowseShippedDirectory_Click"/>
             </StackPanel>
-            <StackPanel Orientation="Horizontal" Margin="0,5">
-                <TextBox Header="File Scans Directory" Text="{x:Bind ViewModel.FileScansDirectory, Mode=TwoWay}" Width="300"/>
-                <Button Content="Browse" Click="BrowseFileScansDirectory_Click" Margin="5,0,0,0"/>
+            <StackPanel Orientation="Horizontal" Margin="0,5" Spacing="10">
+                <TextBox Header="File Scans Directory" Text="{Binding ViewModel.FileScansDirectory}" Width="300"/>
+                <Button Content="Browse" Click="BrowseFileScansDirectory_Click"/>
             </StackPanel>
-            <StackPanel Orientation="Horizontal" Margin="0,5">
-                <TextBox Header="Inventory Archive Directory" Text="{x:Bind ViewModel.InventoryArchiveDirectory, Mode=TwoWay}" Width="300" IsEnabled="{x:Bind IsLocked, Mode=OneWay, Converter={StaticResource BoolNegationConverter}}"/>
-                <Button Content="Browse" Click="BrowseInventoryArchiveDirectory_Click" Margin="5,0,0,0"/>
+            <StackPanel Orientation="Horizontal" Margin="0,5" Spacing="10">
+                <TextBox Header="Inventory Archive Directory" Text="{Binding ViewModel.InventoryArchiveDirectory}" Width="300" IsEnabled="{Binding IsLocked, Converter={StaticResource BoolNegationConverter}}"/>
+                <Button Content="Browse" Click="BrowseInventoryArchiveDirectory_Click"/>
             </StackPanel>
         </StackPanel>
     </ScrollViewer>
-</Page>
+</UserControl>

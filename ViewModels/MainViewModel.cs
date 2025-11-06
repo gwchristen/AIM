@@ -2,7 +2,6 @@
 using AIM.Models;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using Microsoft.UI.Xaml;
 using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
@@ -11,6 +10,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text.Json;
 using System.Threading.Tasks;
+using Avalonia.Threading;
 
 namespace AIM.ViewModels;
 
@@ -143,7 +143,7 @@ public partial class MainViewModel : ObservableObject
     public ObservableCollection<DirectoryItem> Level3 { get; } = new();
     public ObservableCollection<DirectoryItem> Level4 { get; } = new();
 
-    private DispatcherTimer _refreshTimer;
+    private DispatcherTimer? _refreshTimer;
 
     public string SelectedRoot
     {

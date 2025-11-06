@@ -1,8 +1,10 @@
-﻿using AIM.Services;
+using AIM.Services;
 using AIM.ViewModels;
+using Avalonia;
+using Avalonia.Controls.ApplicationLifetimes;
+using Avalonia.Markup.Xaml;
 using CommunityToolkit.Mvvm.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.UI.Xaml;
 using System;
 
 namespace AIM;
@@ -12,11 +14,25 @@ public partial class App : Application
     public App()
     {
         Services = ConfigureServices();
-        Ioc.Default.ConfigureServices(Services); // Add this line to configure the Ioc container
-        InitializeComponent();
+        Ioc.Default.ConfigureServices(Services);
     }
 
-    public new static App Current => (App)Application.Current;
+    public override void Initialize()
+    {
+        AvaloniaXamlLoader.Load(this);
+    }
+
+    public override void OnFrameworkInitializationCompleted()
+    {
+        if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
+        {
+            desktop.MainWindow = new MainWindow();
+        }
+
+        base.OnFrameworkInitializationCompleted();
+    }
+
+    public new static App Current => (App)Application.Current!;
 
     public IServiceProvider Services { get; }
 
@@ -34,12 +50,4 @@ public partial class App : Application
 
         return services.BuildServiceProvider();
     }
-
-    protected override void OnLaunched(Microsoft.UI.Xaml.LaunchActivatedEventArgs args)
-    {
-        m_window = new MainWindow();
-        m_window.Activate();
-    }
-
-    private Window m_window;
 }

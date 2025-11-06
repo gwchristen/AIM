@@ -11,6 +11,7 @@
 /home/runner/.nuget/packages/avalonia.freedesktop/11.2.2/lib/net8.0/Avalonia.FreeDesktop.dll
 /home/runner/.nuget/packages/avalonia/11.2.2/ref/net8.0/Avalonia.Markup.dll
 /home/runner/.nuget/packages/avalonia/11.2.2/ref/net8.0/Avalonia.Markup.Xaml.dll
+/home/runner/.nuget/packages/avalonia.markup.xaml.loader/11.2.2/lib/net8.0/Avalonia.Markup.Xaml.Loader.dll
 /home/runner/.nuget/packages/avalonia/11.2.2/ref/net8.0/Avalonia.Metal.dll
 /home/runner/.nuget/packages/avalonia/11.2.2/ref/net8.0/Avalonia.MicroCom.dll
 /home/runner/.nuget/packages/avalonia.native/11.2.2/lib/net8.0/Avalonia.Native.dll
