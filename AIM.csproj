@@ -1,6 +1,5 @@
-<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Avalonia">
   <PropertyGroup>
-    <OutputType>WinExe</OutputType>
 	<TargetFramework>net8.0</TargetFramework>
     <RootNamespace>AIM</RootNamespace>
     <Nullable>enable</Nullable>
