@@ -2504,7 +2504,7 @@
     ]
   },
   "packageFolders": {
-    "/home/runner/.nuget/packages/": {}
+    "/home/runner/work/AIM/.codeql-scratch/dbs/csharp/working/packages": {}
   },
   "project": {
     "version": "1.0.0",
@@ -2512,7 +2512,7 @@
       "projectUniqueName": "/home/runner/work/AIM/AIM/AIM.csproj",
       "projectName": "AIM",
       "projectPath": "/home/runner/work/AIM/AIM/AIM.csproj",
-      "packagesPath": "/home/runner/.nuget/packages/",
+      "packagesPath": "/home/runner/work/AIM/.codeql-scratch/dbs/csharp/working/packages",
       "outputPath": "/home/runner/work/AIM/AIM/obj/",
       "projectStyle": "PackageReference",
       "configFilePaths": [
@@ -2610,6 +2610,20 @@
         ],
         "assetTargetFallback": true,
         "warn": true,
+        "downloadDependencies": [
+          {
+            "name": "Microsoft.AspNetCore.App.Ref",
+            "version": "[8.0.21, 8.0.21]"
+          },
+          {
+            "name": "Microsoft.NETCore.App.Host.linux-x64",
+            "version": "[8.0.21, 8.0.21]"
+          },
+          {
+            "name": "Microsoft.NETCore.App.Ref",
+            "version": "[8.0.21, 8.0.21]"
+          }
+        ],
         "frameworkReferences": {
           "Microsoft.NETCore.App": {
             "privateAssets": "all"
