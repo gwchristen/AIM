@@ -1,7 +1,9 @@
-<Page
-    x:Class="AIM.Views.SearchPage"
-    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="AIM.Views.SearchPage">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
@@ -10,28 +12,28 @@
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
-        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="5">
-            <TextBox Text="{x:Bind ViewModel.SearchDirectory, Mode=TwoWay}" PlaceholderText="Search Directory" Width="400" Margin="0,0,5,0"/>
-            <Button Content="Browse" Command="{x:Bind ViewModel.BrowseCommand}"/>
+        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="5" Spacing="5">
+            <TextBox Text="{Binding ViewModel.SearchDirectory}" Watermark="Search Directory" Width="400"/>
+            <Button Content="Browse" Command="{Binding ViewModel.BrowseCommand}"/>
         </StackPanel>
-        <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="5">
-            <TextBox x:Name="SearchTextBox" Text="{x:Bind ViewModel.SearchQuery, Mode=TwoWay}" Width="300" PlaceholderText="Enter search query" Margin="0,0,5,0"/>
-            <Button Content="Search" Command="{x:Bind ViewModel.SearchCommand}"/>
+        <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="5" Spacing="5">
+            <TextBox Name="SearchTextBox" Text="{Binding ViewModel.SearchQuery}" Width="300" Watermark="Enter search query"/>
+            <Button Content="Search" Command="{Binding ViewModel.SearchCommand}"/>
         </StackPanel>
-        <ToggleSwitch Grid.Row="2" Header="Search in file contents" IsOn="{x:Bind ViewModel.IsContentSearch, Mode=TwoWay}" Margin="5"/>
+        <ToggleSwitch Grid.Row="2" IsChecked="{Binding ViewModel.IsContentSearch}" Margin="5" Content="Search in file contents"/>
         <Border Grid.Row="3" Background="Transparent" Margin="5">
             <TextBlock Text="{Binding StatusMessage}" Foreground="Red" FontWeight="Bold" />
         </Border>
-        <ListView Grid.Row="4" ItemsSource="{x:Bind ViewModel.SearchResults}" SelectionChanged="ResultsListView_SelectionChanged">
-            <ListView.ItemTemplate>
+        <ListBox Grid.Row="4" ItemsSource="{Binding ViewModel.SearchResults}">
+            <ListBox.ItemTemplate>
                 <DataTemplate>
-                    <StackPanel Orientation="Horizontal">
+                    <StackPanel Orientation="Horizontal" Spacing="10">
                         <TextBlock Text="{Binding Name}" Width="300" />
                         <TextBlock Text="{Binding FullPath}" Width="400" />
                         <TextBlock Text="{Binding Type}" Width="100" />
                     </StackPanel>
                 </DataTemplate>
-            </ListView.ItemTemplate>
-        </ListView>
+            </ListBox.ItemTemplate>
+        </ListBox>
     </Grid>
-</Page>
+</UserControl>

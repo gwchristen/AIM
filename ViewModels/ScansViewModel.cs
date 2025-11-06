@@ -2,7 +2,7 @@
 using AIM.Views;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using Microsoft.UI.Xaml;
+
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -140,7 +140,7 @@ public partial class ScansViewModel : ObservableObject
         // Navigate to Preview tab and load file
         if (MainWindow.Instance != null)
         {
-            MainWindow.Instance.MainFrame.Navigate(typeof(PreviewPage));
+            // MainWindow.Instance.MainFrame.Navigate(typeof(PreviewPage));
             // Set the selected tab
             MainWindow.Instance.IsPreviewSelected = true;
             MainWindow.Instance.IsBrowseSelected = false;
@@ -150,12 +150,14 @@ public partial class ScansViewModel : ObservableObject
             MainWindow.Instance.IsStatsSelected = false;
             MainWindow.Instance.IsSettingsSelected = false;
 
+            // TODO: Implement navigation in Avalonia
             // Load the file in Preview
-            if (MainWindow.Instance.MainFrame.Content is PreviewPage previewPage)
-            {
-                var fileItem = new FileItem { FullPath = file.FullPath, Name = file.Name, Type = file.Type };
-                await previewPage.ViewModel.LoadFileContent(fileItem);
-            }
+            // if (MainWindow.Instance.MainFrame.Content is PreviewPage previewPage)
+            // {
+            //     var fileItem = new FileItem { FullPath = file.FullPath, Name = file.Name, Type = file.Type };
+            //     await previewPage.ViewModel.LoadFileContent(fileItem);
+            // }
+            await Task.CompletedTask;
         }
     }
 

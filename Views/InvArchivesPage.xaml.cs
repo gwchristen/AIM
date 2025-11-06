@@ -1,11 +1,17 @@
-using Microsoft.UI.Xaml.Controls;
+using Avalonia.Controls;
+using Avalonia.Markup.Xaml;
 
 namespace AIM.Views;
 
-public sealed partial class InvArchivesPage : Page
+public partial class InvArchivesPage : UserControl
 {
     public InvArchivesPage()
     {
         InitializeComponent();
+    }
+
+    private void InitializeComponent()
+    {
+        AvaloniaXamlLoader.Load(this);
     }
 }

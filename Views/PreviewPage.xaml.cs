@@ -1,13 +1,12 @@
-using AIM.Models;
 using AIM.ViewModels;
-using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Navigation;
+using Avalonia.Controls;
+using Avalonia.Markup.Xaml;
 
 namespace AIM.Views;
 
-public sealed partial class PreviewPage : Page
+public partial class PreviewPage : UserControl
 {
-    public PreviewViewModel ViewModel { get; set; }
+    public PreviewViewModel ViewModel { get; }
 
     public PreviewPage()
     {
@@ -16,12 +15,8 @@ public sealed partial class PreviewPage : Page
         DataContext = ViewModel;
     }
 
-    protected override async void OnNavigatedTo(NavigationEventArgs e)
+    private void InitializeComponent()
     {
-        base.OnNavigatedTo(e);
-        if (e.Parameter is FileItem file)
-        {
-            await ViewModel.LoadFileContent(file);
-        }
+        AvaloniaXamlLoader.Load(this);
     }
 }

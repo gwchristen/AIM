@@ -1,69 +1,152 @@
-using AIM.Models;
-using AIM.ViewModels;
 using AIM.Views;
-using CommunityToolkit.Mvvm.ComponentModel;
-using Microsoft.UI.Xaml;
-using Microsoft.UI.Xaml.Controls;
+using AIM.ViewModels;
+using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Interactivity;
+using Avalonia.Markup.Xaml;
+using Avalonia.Platform.Storage;
 using System;
+using System.Linq;
 using System.Threading.Tasks;
-using Windows.Storage.Pickers;
 
 namespace AIM;
 
-[ObservableObject]
-public sealed partial class MainWindow : Window
+public partial class MainWindow : Window
 {
     public static MainWindow? Instance { get; private set; }
 
     public MainViewModel ViewModel { get; }
 
-    [ObservableProperty]
+    private ContentControl? _mainContent;
+    private Button? _browseButton;
+    private Button? _previewButton;
+    private Button? _searchButton;
+    private Button? _scansButton;
+    private Button? _invArchivesButton;
+    private Button? _statsButton;
+    private Button? _settingsButton;
+
     private bool isBrowseSelected = true;
-
-    [ObservableProperty]
     private bool isPreviewSelected;
-
-    [ObservableProperty]
     private bool isSearchSelected;
-
-    [ObservableProperty]
     private bool isScansSelected;
-
-    [ObservableProperty]
     private bool isInvArchivesSelected;
-
-    [ObservableProperty]
     private bool isStatsSelected;
-
-    [ObservableProperty]
     private bool isSettingsSelected;
+
+    public bool IsBrowseSelected
+    {
+        get => isBrowseSelected;
+        set => isBrowseSelected = value;
+    }
+
+    public bool IsPreviewSelected
+    {
+        get => isPreviewSelected;
+        set => isPreviewSelected = value;
+    }
+
+    public bool IsSearchSelected
+    {
+        get => isSearchSelected;
+        set => isSearchSelected = value;
+    }
+
+    public bool IsScansSelected
+    {
+        get => isScansSelected;
+        set => isScansSelected = value;
+    }
+
+    public bool IsInvArchivesSelected
+    {
+        get => isInvArchivesSelected;
+        set => isInvArchivesSelected = value;
+    }
+
+    public bool IsStatsSelected
+    {
+        get => isStatsSelected;
+        set => isStatsSelected = value;
+    }
+
+    public bool IsSettingsSelected
+    {
+        get => isSettingsSelected;
+        set => isSettingsSelected = value;
+    }
 
     public MainWindow()
     {
         Instance = this;
         ViewModel = new MainViewModel();
+        DataContext = ViewModel;
+        
         InitializeComponent();
-        MainFrame.Navigate(typeof(BrowsePage));
+        
+        // Get references to controls
+        _mainContent = this.FindControl<ContentControl>("MainContent");
+        _browseButton = this.FindControl<Button>("BrowseButton");
+        _previewButton = this.FindControl<Button>("PreviewButton");
+        _searchButton = this.FindControl<Button>("SearchButton");
+        _scansButton = this.FindControl<Button>("ScansButton");
+        _invArchivesButton = this.FindControl<Button>("InvArchivesButton");
+        _statsButton = this.FindControl<Button>("StatsButton");
+        _settingsButton = this.FindControl<Button>("SettingsButton");
+        
+        NavigateTo(new BrowsePage());
     }
 
-    private void SelectCustomRootButton_Click(object sender, RoutedEventArgs e)
+    private void InitializeComponent()
     {
-        var folderPicker = new FolderPicker();
-        folderPicker.SuggestedStartLocation = PickerLocationId.Desktop;
-        var hwnd = WinRT.Interop.WindowNative.GetWindowHandle(this);
-        WinRT.Interop.InitializeWithWindow.Initialize(folderPicker, hwnd);
-        folderPicker.PickSingleFolderAsync().AsTask().ContinueWith(t =>
+        AvaloniaXamlLoader.Load(this);
+    }
+
+    private void NavigateTo(UserControl page)
+    {
+        if (_mainContent != null)
         {
-            if (t.Result != null)
-            {
-                ViewModel.SelectedRoot = t.Result.Path;
-            }
-        }, TaskScheduler.FromCurrentSynchronizationContext());
+            _mainContent.Content = page;
+        }
     }
 
-    private void BrowseButton_Click(object sender, RoutedEventArgs e)
+    private void UpdateNavigationSelection(Button selectedButton)
     {
-        MainFrame.Navigate(typeof(BrowsePage));
+        // Remove selected class from all buttons
+        _browseButton?.Classes.Remove("selected");
+        _previewButton?.Classes.Remove("selected");
+        _searchButton?.Classes.Remove("selected");
+        _scansButton?.Classes.Remove("selected");
+        _invArchivesButton?.Classes.Remove("selected");
+        _statsButton?.Classes.Remove("selected");
+        _settingsButton?.Classes.Remove("selected");
+        
+        // Add selected class to the clicked button
+        selectedButton?.Classes.Add("selected");
+    }
+
+    private async void SelectCustomRootButton_Click(object? sender, RoutedEventArgs e)
+    {
+        var storageProvider = StorageProvider;
+        if (storageProvider == null) return;
+
+        var folders = await storageProvider.OpenFolderPickerAsync(new FolderPickerOpenOptions
+        {
+            Title = "Select Root Folder",
+            AllowMultiple = false
+        });
+
+        if (folders.Count > 0)
+        {
+            var folder = folders[0];
+            ViewModel.SelectedRoot = folder.Path.LocalPath;
+        }
+    }
+
+    private void BrowseButton_Click(object? sender, RoutedEventArgs e)
+    {
+        NavigateTo(new BrowsePage());
+        UpdateNavigationSelection(sender as Button);
         IsBrowseSelected = true;
         IsPreviewSelected = false;
         IsSearchSelected = false;
@@ -73,9 +156,10 @@ public sealed partial class MainWindow : Window
         IsSettingsSelected = false;
     }
 
-    private void PreviewButton_Click(object sender, RoutedEventArgs e)
+    private void PreviewButton_Click(object? sender, RoutedEventArgs e)
     {
-        MainFrame.Navigate(typeof(PreviewPage));
+        NavigateTo(new PreviewPage());
+        UpdateNavigationSelection(sender as Button);
         IsBrowseSelected = false;
         IsPreviewSelected = true;
         IsSearchSelected = false;
@@ -85,9 +169,10 @@ public sealed partial class MainWindow : Window
         IsSettingsSelected = false;
     }
 
-    private void SearchButton_Click(object sender, RoutedEventArgs e)
+    private void SearchButton_Click(object? sender, RoutedEventArgs e)
     {
-        MainFrame.Navigate(typeof(SearchPage));
+        NavigateTo(new SearchPage());
+        UpdateNavigationSelection(sender as Button);
         IsBrowseSelected = false;
         IsPreviewSelected = false;
         IsSearchSelected = true;
@@ -97,9 +182,10 @@ public sealed partial class MainWindow : Window
         IsSettingsSelected = false;
     }
 
-    private void ScansButton_Click(object sender, RoutedEventArgs e)
+    private void ScansButton_Click(object? sender, RoutedEventArgs e)
     {
-        MainFrame.Navigate(typeof(ScansPage));
+        NavigateTo(new ScansPage());
+        UpdateNavigationSelection(sender as Button);
         IsBrowseSelected = false;
         IsPreviewSelected = false;
         IsSearchSelected = false;
@@ -109,9 +195,10 @@ public sealed partial class MainWindow : Window
         IsSettingsSelected = false;
     }
 
-    private void InvArchivesButton_Click(object sender, RoutedEventArgs e)
+    private void InvArchivesButton_Click(object? sender, RoutedEventArgs e)
     {
-        MainFrame.Navigate(typeof(InvArchivesPage));
+        NavigateTo(new InvArchivesPage());
+        UpdateNavigationSelection(sender as Button);
         IsBrowseSelected = false;
         IsPreviewSelected = false;
         IsSearchSelected = false;
@@ -121,9 +208,10 @@ public sealed partial class MainWindow : Window
         IsSettingsSelected = false;
     }
 
-    private void StatsButton_Click(object sender, RoutedEventArgs e)
+    private void StatsButton_Click(object? sender, RoutedEventArgs e)
     {
-        MainFrame.Navigate(typeof(StatsPage));
+        NavigateTo(new StatsPage());
+        UpdateNavigationSelection(sender as Button);
         IsBrowseSelected = false;
         IsPreviewSelected = false;
         IsSearchSelected = false;
@@ -133,9 +221,10 @@ public sealed partial class MainWindow : Window
         IsSettingsSelected = false;
     }
 
-    private void SettingsButton_Click(object sender, RoutedEventArgs e)
+    private void SettingsButton_Click(object? sender, RoutedEventArgs e)
     {
-        MainFrame.Navigate(typeof(SettingsPage));
+        NavigateTo(new SettingsPage());
+        UpdateNavigationSelection(sender as Button);
         IsBrowseSelected = false;
         IsPreviewSelected = false;
         IsSearchSelected = false;

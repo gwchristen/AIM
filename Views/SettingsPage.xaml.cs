@@ -1,14 +1,15 @@
 using AIM.ViewModels;
-using Microsoft.UI.Xaml.Controls;
+using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Interactivity;
+using Avalonia.Markup.Xaml;
+using Avalonia.Platform.Storage;
 using System;
-using System.ComponentModel;
-using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
-using Windows.Storage.Pickers;
 
 namespace AIM.Views;
 
-public sealed partial class SettingsPage : Page, INotifyPropertyChanged
+public partial class SettingsPage : UserControl
 {
     public MainViewModel ViewModel { get; }
 
@@ -17,68 +18,64 @@ public sealed partial class SettingsPage : Page, INotifyPropertyChanged
     public bool IsLocked
     {
         get => _isLocked;
-        set
-        {
-            if (_isLocked != value)
-            {
-                _isLocked = value;
-                OnPropertyChanged();
-            }
-        }
-    }
-
-    public event PropertyChangedEventHandler PropertyChanged;
-
-    private void OnPropertyChanged([CallerMemberName] string propertyName = null)
-    {
-        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        set => _isLocked = value;
     }
 
     public SettingsPage()
     {
         InitializeComponent();
-        ViewModel = MainWindow.Instance.ViewModel;
+        ViewModel = MainWindow.Instance!.ViewModel;
+        DataContext = this;
     }
 
-    private async void BrowseRootDirectory_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
+    private void InitializeComponent()
+    {
+        AvaloniaXamlLoader.Load(this);
+    }
+
+    private async void BrowseRootDirectory_Click(object? sender, RoutedEventArgs e)
     {
         await BrowseFolderAsync(path => ViewModel.DefaultRootDirectory = path);
     }
 
-    private async void BrowseArchivePath_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
+    private async void BrowseArchivePath_Click(object? sender, RoutedEventArgs e)
     {
         await BrowseFolderAsync(path => ViewModel.ArchivePath = path);
     }
 
-    private async void BrowseShippedDirectory_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
+    private async void BrowseShippedDirectory_Click(object? sender, RoutedEventArgs e)
     {
         await BrowseFolderAsync(path => ViewModel.ShippedDirectory = path);
     }
 
-    private async void BrowseFileScansDirectory_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
+    private async void BrowseFileScansDirectory_Click(object? sender, RoutedEventArgs e)
     {
         await BrowseFolderAsync(path => ViewModel.FileScansDirectory = path);
     }
 
-    private async void BrowseInventoryArchiveDirectory_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
+    private async void BrowseInventoryArchiveDirectory_Click(object? sender, RoutedEventArgs e)
     {
         await BrowseFolderAsync(path => ViewModel.InventoryArchiveDirectory = path);
     }
 
     private async Task BrowseFolderAsync(Action<string> setPath)
     {
-        var folderPicker = new FolderPicker();
-        folderPicker.SuggestedStartLocation = PickerLocationId.Desktop;
-        var hwnd = WinRT.Interop.WindowNative.GetWindowHandle(MainWindow.Instance);
-        WinRT.Interop.InitializeWithWindow.Initialize(folderPicker, hwnd);
-        var folder = await folderPicker.PickSingleFolderAsync();
-        if (folder != null)
+        var topLevel = TopLevel.GetTopLevel(this);
+        if (topLevel == null) return;
+
+        var folders = await topLevel.StorageProvider.OpenFolderPickerAsync(new FolderPickerOpenOptions
         {
-            setPath(folder.Path);
+            Title = "Select Folder",
+            AllowMultiple = false
+        });
+
+        if (folders.Count > 0)
+        {
+            setPath(folders[0].Path.LocalPath);
         }
     }
 
-    private async void LockButton_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
+    private void LockButton_Click(object? sender, RoutedEventArgs e)
     {
         if (!IsLocked)
         {
@@ -86,31 +83,61 @@ public sealed partial class SettingsPage : Page, INotifyPropertyChanged
         }
     }
 
-    private async void UnlockButton_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
+    private async void UnlockButton_Click(object? sender, RoutedEventArgs e)
     {
         if (IsLocked)
         {
-            var dialog = new ContentDialog
+            var passwordBox = new TextBox { PasswordChar = '*', Width = 200 };
+            var dialog = new Window
             {
                 Title = "Enter Password",
-                Content = new PasswordBox(),
-                PrimaryButtonText = "Unlock",
-                CloseButtonText = "Cancel",
-                XamlRoot = this.XamlRoot
-            };
-            var result = await dialog.ShowAsync();
-            if (result == ContentDialogResult.Primary)
-            {
-                var password = ((PasswordBox)dialog.Content).Password;
-                if (password == ViewModel.Password)
+                Width = 300,
+                Height = 150,
+                Content = new StackPanel
                 {
-                    IsLocked = false;
+                    Margin = new Thickness(20),
+                    Spacing = 10,
+                    Children =
+                    {
+                        new TextBlock { Text = "Password:" },
+                        passwordBox,
+                        new StackPanel
+                        {
+                            Orientation = Avalonia.Layout.Orientation.Horizontal,
+                            HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Right,
+                            Spacing = 10,
+                            Children =
+                            {
+                                new Button { Content = "Cancel", Width = 80, Tag = "Cancel" },
+                                new Button { Content = "Unlock", Width = 80, Tag = "OK" }
+                            }
+                        }
+                    }
                 }
+            };
+
+            bool result = false;
+            foreach (var child in ((StackPanel)((StackPanel)dialog.Content).Children[2]).Children)
+            {
+                if (child is Button btn)
+                {
+                    btn.Click += (s, args) =>
+                    {
+                        result = btn.Tag?.ToString() == "OK";
+                        dialog.Close();
+                    };
+                }
+            }
+
+            await dialog.ShowDialog(MainWindow.Instance!);
+            if (result && passwordBox.Text == ViewModel.Password)
+            {
+                IsLocked = false;
             }
         }
     }
 
-    private void SaveButton_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
+    private void SaveButton_Click(object? sender, RoutedEventArgs e)
     {
         // Settings are saved automatically via bindings
     }

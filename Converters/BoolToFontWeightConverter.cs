@@ -1,18 +1,22 @@
-﻿using Microsoft.UI.Text;
-using Microsoft.UI.Xaml;
-using Microsoft.UI.Xaml.Data;
+using Avalonia.Data.Converters;
+using Avalonia.Media;
 using System;
+using System.Globalization;
 
 namespace AIM.Converters;
 
 public class BoolToFontWeightConverter : IValueConverter
 {
-    public object Convert(object value, Type targetType, object parameter, string language)
+    public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
     {
-        return (bool)value ? FontWeights.Bold : FontWeights.Normal;
+        if (value is bool boolValue)
+        {
+            return boolValue ? FontWeight.Bold : FontWeight.Normal;
+        }
+        return FontWeight.Normal;
     }
 
-    public object ConvertBack(object value, Type targetType, object parameter, string language)
+    public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
     {
         throw new NotImplementedException();
     }

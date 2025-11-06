@@ -1,16 +1,16 @@
 using AIM.Models;
 using AIM.ViewModels;
-using Microsoft.UI.Xaml;
-using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Input;
-using Microsoft.UI.Xaml.Navigation;
+using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Interactivity;
+using Avalonia.Markup.Xaml;
 using System;
 using System.IO;
 using System.Linq;
 
 namespace AIM.Views;
 
-public sealed partial class BrowsePage : Page
+public partial class BrowsePage : UserControl
 {
     public BrowseViewModel ViewModel { get; set; }
 
@@ -18,49 +18,112 @@ public sealed partial class BrowsePage : Page
     {
         InitializeComponent();
         ViewModel = new BrowseViewModel();
+        DataContext = ViewModel;
         ViewModel.RenameRequested += OnRenameRequested;
         ViewModel.DeleteRequested += OnDeleteRequested;
         ViewModel.ShipRequested += OnShipRequested;
     }
 
-    protected override void OnNavigatedTo(NavigationEventArgs e)
+    private void InitializeComponent()
     {
-        if (e.Parameter is DirectoryItem item)
-        {
-            ViewModel.UpdateLeftSelectedDirectory(item);
-        }
+        AvaloniaXamlLoader.Load(this);
     }
 
     private async void OnRenameRequested(string fullPath, string currentName)
     {
-        var dialog = new ContentDialog
+        var textBox = new TextBox { Text = currentName, Width = 300 };
+        var dialog = new Window
         {
             Title = "Rename File",
-            PrimaryButtonText = "Rename",
-            CloseButtonText = "Cancel",
-            Content = new TextBox { Text = currentName },
-            XamlRoot = this.XamlRoot
+            Width = 400,
+            Height = 150,
+            Content = new StackPanel
+            {
+                Margin = new Thickness(20),
+                Spacing = 10,
+                Children =
+                {
+                    new TextBlock { Text = "Enter new name:" },
+                    textBox,
+                    new StackPanel
+                    {
+                        Orientation = Avalonia.Layout.Orientation.Horizontal,
+                        HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Right,
+                        Spacing = 10,
+                        Children =
+                        {
+                            new Button { Content = "Cancel", Width = 80, Tag = "Cancel" },
+                            new Button { Content = "Rename", Width = 80, Tag = "OK" }
+                        }
+                    }
+                }
+            }
         };
-        var result = await dialog.ShowAsync();
-        if (result == ContentDialogResult.Primary)
+
+        bool result = false;
+        foreach (var child in ((StackPanel)((StackPanel)dialog.Content).Children[2]).Children)
         {
-            var newName = ((TextBox)dialog.Content).Text;
-            ViewModel.CompleteRename(newName);
+            if (child is Button btn)
+            {
+                btn.Click += (s, e) =>
+                {
+                    result = btn.Tag?.ToString() == "OK";
+                    dialog.Close();
+                };
+            }
+        }
+
+        await dialog.ShowDialog(MainWindow.Instance!);
+        if (result)
+        {
+            ViewModel.CompleteRename(textBox.Text);
         }
     }
 
     private async void OnDeleteRequested(FileItem file)
     {
-        var dialog = new ContentDialog
+        var dialog = new Window
         {
             Title = "Delete File",
-            Content = "Move to archive?",
-            PrimaryButtonText = "Yes",
-            CloseButtonText = "No",
-            XamlRoot = this.XamlRoot
+            Width = 300,
+            Height = 150,
+            Content = new StackPanel
+            {
+                Margin = new Thickness(20),
+                Spacing = 10,
+                Children =
+                {
+                    new TextBlock { Text = "Move to archive?" },
+                    new StackPanel
+                    {
+                        Orientation = Avalonia.Layout.Orientation.Horizontal,
+                        HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Right,
+                        Spacing = 10,
+                        Children =
+                        {
+                            new Button { Content = "No", Width = 80, Tag = "Cancel" },
+                            new Button { Content = "Yes", Width = 80, Tag = "OK" }
+                        }
+                    }
+                }
+            }
         };
-        var result = await dialog.ShowAsync();
-        if (result == ContentDialogResult.Primary)
+
+        bool result = false;
+        foreach (var child in ((StackPanel)((StackPanel)dialog.Content).Children[1]).Children)
+        {
+            if (child is Button btn)
+            {
+                btn.Click += (s, e) =>
+                {
+                    result = btn.Tag?.ToString() == "OK";
+                    dialog.Close();
+                };
+            }
+        }
+
+        await dialog.ShowDialog(MainWindow.Instance!);
+        if (result)
         {
             ViewModel.CompleteDelete();
         }
@@ -68,62 +131,54 @@ public sealed partial class BrowsePage : Page
 
     private async void OnShipRequested(FileItem file)
     {
-        var dialog = new ContentDialog
+        var dialog = new Window
         {
             Title = "Ship File",
-            Content = "Move to shipped folder?",
-            PrimaryButtonText = "Yes",
-            CloseButtonText = "No",
-            XamlRoot = this.XamlRoot
+            Width = 300,
+            Height = 150,
+            Content = new StackPanel
+            {
+                Margin = new Thickness(20),
+                Spacing = 10,
+                Children =
+                {
+                    new TextBlock { Text = "Move to shipped folder?" },
+                    new StackPanel
+                    {
+                        Orientation = Avalonia.Layout.Orientation.Horizontal,
+                        HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Right,
+                        Spacing = 10,
+                        Children =
+                        {
+                            new Button { Content = "No", Width = 80, Tag = "Cancel" },
+                            new Button { Content = "Yes", Width = 80, Tag = "OK" }
+                        }
+                    }
+                }
+            }
         };
-        var result = await dialog.ShowAsync();
-        if (result == ContentDialogResult.Primary)
+
+        bool result = false;
+        foreach (var child in ((StackPanel)((StackPanel)dialog.Content).Children[1]).Children)
+        {
+            if (child is Button btn)
+            {
+                btn.Click += (s, e) =>
+                {
+                    result = btn.Tag?.ToString() == "OK";
+                    dialog.Close();
+                };
+            }
+        }
+
+        await dialog.ShowDialog(MainWindow.Instance!);
+        if (result)
         {
             ViewModel.CompleteShip();
         }
     }
 
-    private void FilesDataGrid_SelectionChanged(object sender, SelectionChangedEventArgs e)
-    {
-        // Selection is bound
-    }
-
-    private void LeftLevel1_SelectionChanged(object sender, SelectionChangedEventArgs e)
-    {
-        ViewModel.LeftLevel2.Clear();
-        ViewModel.LeftLevel3.Clear();
-        if (ViewModel.SelectedLeftLevel1 != null)
-        {
-            foreach (var sub in ViewModel.SelectedLeftLevel1.SubDirectories.Where(s => ViewModel.HasContents(s)))
-            {
-                ViewModel.LeftLevel2.Add(sub);
-            }
-        }
-        ViewModel.SelectedLeftLevel2 = null;
-        ViewModel.SelectedLeftLevel3 = null;
-        ViewModel.UpdateLeftSelectedDirectory();
-    }
-
-    private void LeftLevel2_SelectionChanged(object sender, SelectionChangedEventArgs e)
-    {
-        ViewModel.LeftLevel3.Clear();
-        if (ViewModel.SelectedLeftLevel2 != null)
-        {
-            foreach (var sub in ViewModel.SelectedLeftLevel2.SubDirectories.Where(s => ViewModel.HasContents(s)))
-            {
-                ViewModel.LeftLevel3.Add(sub);
-            }
-        }
-        ViewModel.SelectedLeftLevel3 = null;
-        ViewModel.UpdateLeftSelectedDirectory();
-    }
-
-    private void LeftLevel3_SelectionChanged(object sender, SelectionChangedEventArgs e)
-    {
-        ViewModel.UpdateLeftSelectedDirectory();
-    }
-
-    private void ClearLeftLevel1_Click(object sender, RoutedEventArgs e)
+    private void ClearLeftLevel1_Click(object? sender, RoutedEventArgs e)
     {
         ViewModel.SelectedLeftLevel1 = null;
         ViewModel.LeftLevel2.Clear();
@@ -131,55 +186,20 @@ public sealed partial class BrowsePage : Page
         ViewModel.UpdateLeftSelectedDirectory();
     }
 
-    private void ClearLeftLevel2_Click(object sender, RoutedEventArgs e)
+    private void ClearLeftLevel2_Click(object? sender, RoutedEventArgs e)
     {
         ViewModel.SelectedLeftLevel2 = null;
         ViewModel.LeftLevel3.Clear();
         ViewModel.UpdateLeftSelectedDirectory();
     }
 
-    private void ClearLeftLevel3_Click(object sender, RoutedEventArgs e)
+    private void ClearLeftLevel3_Click(object? sender, RoutedEventArgs e)
     {
         ViewModel.SelectedLeftLevel3 = null;
         ViewModel.UpdateLeftSelectedDirectory();
     }
 
-    private void RightLevel1_SelectionChanged(object sender, SelectionChangedEventArgs e)
-    {
-        ViewModel.RightLevel2.Clear();
-        ViewModel.RightLevel3.Clear();
-        if (ViewModel.SelectedRightLevel1 != null)
-        {
-            foreach (var sub in ViewModel.SelectedRightLevel1.SubDirectories)
-            {
-                ViewModel.RightLevel2.Add(sub);
-            }
-        }
-        ViewModel.SelectedRightLevel2 = null;
-        ViewModel.SelectedRightLevel3 = null;
-        ViewModel.UpdateRightSelectedDirectory();
-    }
-
-    private void RightLevel2_SelectionChanged(object sender, SelectionChangedEventArgs e)
-    {
-        ViewModel.RightLevel3.Clear();
-        if (ViewModel.SelectedRightLevel2 != null)
-        {
-            foreach (var sub in ViewModel.SelectedRightLevel2.SubDirectories)
-            {
-                ViewModel.RightLevel3.Add(sub);
-            }
-        }
-        ViewModel.SelectedRightLevel3 = null;
-        ViewModel.UpdateRightSelectedDirectory();
-    }
-
-    private void RightLevel3_SelectionChanged(object sender, SelectionChangedEventArgs e)
-    {
-        ViewModel.UpdateRightSelectedDirectory();
-    }
-
-    private void ClearRightLevel1_Click(object sender, RoutedEventArgs e)
+    private void ClearRightLevel1_Click(object? sender, RoutedEventArgs e)
     {
         ViewModel.SelectedRightLevel1 = null;
         ViewModel.RightLevel2.Clear();
@@ -187,65 +207,16 @@ public sealed partial class BrowsePage : Page
         ViewModel.UpdateRightSelectedDirectory();
     }
 
-    private void ClearRightLevel2_Click(object sender, RoutedEventArgs e)
+    private void ClearRightLevel2_Click(object? sender, RoutedEventArgs e)
     {
         ViewModel.SelectedRightLevel2 = null;
         ViewModel.RightLevel3.Clear();
         ViewModel.UpdateRightSelectedDirectory();
     }
 
-    private void ClearRightLevel3_Click(object sender, RoutedEventArgs e)
+    private void ClearRightLevel3_Click(object? sender, RoutedEventArgs e)
     {
         ViewModel.SelectedRightLevel3 = null;
         ViewModel.UpdateRightSelectedDirectory();
-    }
-
-    private void FilteredContents_SelectionChanged(object sender, SelectionChangedEventArgs e)
-    {
-        if (ViewModel.SelectedContent?.IsFolder == true)
-        {
-            var item = new DirectoryItem { Name = ViewModel.SelectedContent.Name, FullPath = ViewModel.SelectedContent.FullPath };
-            try
-            {
-                var subs = Directory.GetDirectories(item.FullPath).Select(d => new DirectoryItem { Name = Path.GetFileName(d), FullPath = d });
-                foreach (var sub in subs)
-                {
-                    item.SubDirectories.Add(sub);
-                }
-            }
-            catch { }
-            ViewModel.UpdateRightSelectedDirectory(item);
-        }
-    }
-
-    private void FilesDataGrid_DoubleTapped(object sender, DoubleTappedRoutedEventArgs e)
-    {
-        var selectedFile = ViewModel.SelectedFile;
-        if (selectedFile != null)
-        {
-            var mainWindow = MainWindow.Instance;
-            if (mainWindow != null)
-            {
-                mainWindow.MainFrame.Navigate(typeof(PreviewPage), selectedFile);
-            }
-        }
-    }
-
-    private void RightFilteredContents_SelectionChanged(object sender, SelectionChangedEventArgs e)
-    {
-        if (ViewModel.SelectedRightContent?.IsFolder == true)
-        {
-            var item = new DirectoryItem { Name = ViewModel.SelectedRightContent.Name, FullPath = ViewModel.SelectedRightContent.FullPath };
-            try
-            {
-                var subs = Directory.GetDirectories(item.FullPath).Select(d => new DirectoryItem { Name = Path.GetFileName(d), FullPath = d });
-                foreach (var sub in subs)
-                {
-                    item.SubDirectories.Add(sub);
-                }
-            }
-            catch { }
-            ViewModel.NavigateToRightDirectory(item);
-        }
     }
 }
