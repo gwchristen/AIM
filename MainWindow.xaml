@@ -8,24 +8,63 @@
     mc:Ignorable="d"
     Title="AIM">
     
-    <Grid>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="200"/>
-            <ColumnDefinition Width="*"/>
-        </Grid.ColumnDefinitions>
-
-        <StackPanel Grid.Column="0" Orientation="Vertical" Margin="10,10,10,10">
-            <RadioButton Content="Select Root" GroupName="Navigation" Style="{StaticResource TileRadioButton}" Click="SelectCustomRootButton_Click"/>
-            <RadioButton Content="Refresh Tree" GroupName="Navigation" Style="{StaticResource TileRadioButton}" Command="{x:Bind ViewModel.RefreshTreeCommand}"/>
-            <RadioButton Content="Browse" GroupName="Navigation" Style="{StaticResource TileRadioButton}" IsChecked="True" Click="BrowseButton_Click"/>
-            <RadioButton Content="Preview" GroupName="Navigation" Style="{StaticResource TileRadioButton}" Click="PreviewButton_Click"/>
-            <RadioButton Content="Search" GroupName="Navigation" Style="{StaticResource TileRadioButton}" Click="SearchButton_Click"/>
-            <RadioButton Content="Scans" GroupName="Navigation" Style="{StaticResource TileRadioButton}" Click="ScansButton_Click"/>
-            <RadioButton Content="Inv Archives" GroupName="Navigation" Style="{StaticResource TileRadioButton}" Click="InvArchivesButton_Click"/>
-            <RadioButton Content="Stats" GroupName="Navigation" Style="{StaticResource TileRadioButton}" Click="StatsButton_Click"/>
-            <RadioButton Content="Settings" GroupName="Navigation" Style="{StaticResource TileRadioButton}" Click="SettingsButton_Click"/>
-        </StackPanel>
-
-        <Frame x:Name="MainFrame" x:FieldModifier="public" Grid.Column="1" />
-    </Grid>
+    <NavigationView x:Name="NavView"
+                    IsBackButtonVisible="Collapsed"
+                    IsSettingsVisible="False"
+                    SelectionChanged="NavView_SelectionChanged"
+                    Header="AIM">
+        <NavigationView.MenuItems>
+            <NavigationViewItem Content="Select Root" Tag="SelectRoot">
+                <NavigationViewItem.Icon>
+                    <FontIcon Glyph="&#xE8DA;"/>
+                </NavigationViewItem.Icon>
+            </NavigationViewItem>
+            <NavigationViewItem Content="Refresh Tree" Tag="RefreshTree">
+                <NavigationViewItem.Icon>
+                    <FontIcon Glyph="&#xE72C;"/>
+                </NavigationViewItem.Icon>
+            </NavigationViewItem>
+            <NavigationViewItemSeparator/>
+            <NavigationViewItem Content="Browse" Tag="Browse" IsSelected="True">
+                <NavigationViewItem.Icon>
+                    <FontIcon Glyph="&#xE8F1;"/>
+                </NavigationViewItem.Icon>
+            </NavigationViewItem>
+            <NavigationViewItem Content="Preview" Tag="Preview">
+                <NavigationViewItem.Icon>
+                    <FontIcon Glyph="&#xE8FF;"/>
+                </NavigationViewItem.Icon>
+            </NavigationViewItem>
+            <NavigationViewItem Content="Search" Tag="Search">
+                <NavigationViewItem.Icon>
+                    <FontIcon Glyph="&#xE721;"/>
+                </NavigationViewItem.Icon>
+            </NavigationViewItem>
+            <NavigationViewItem Content="Scans" Tag="Scans">
+                <NavigationViewItem.Icon>
+                    <FontIcon Glyph="&#xE7C1;"/>
+                </NavigationViewItem.Icon>
+            </NavigationViewItem>
+            <NavigationViewItem Content="Inv Archives" Tag="InvArchives">
+                <NavigationViewItem.Icon>
+                    <FontIcon Glyph="&#xE8B7;"/>
+                </NavigationViewItem.Icon>
+            </NavigationViewItem>
+            <NavigationViewItem Content="Stats" Tag="Stats">
+                <NavigationViewItem.Icon>
+                    <FontIcon Glyph="&#xE9D9;"/>
+                </NavigationViewItem.Icon>
+            </NavigationViewItem>
+        </NavigationView.MenuItems>
+        
+        <NavigationView.FooterMenuItems>
+            <NavigationViewItem Content="Settings" Tag="Settings">
+                <NavigationViewItem.Icon>
+                    <FontIcon Glyph="&#xE713;"/>
+                </NavigationViewItem.Icon>
+            </NavigationViewItem>
+        </NavigationView.FooterMenuItems>
+        
+        <Frame x:Name="MainFrame" x:FieldModifier="public"/>
+    </NavigationView>
 </Window>

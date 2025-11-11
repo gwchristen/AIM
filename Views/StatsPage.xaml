@@ -7,14 +7,17 @@
     mc:Ignorable="d"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
-    <Grid Margin="20">
+    <Grid Margin="24">
         <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
+        <TextBlock Grid.Row="0" Text="Statistics" Style="{ThemeResource TitleTextBlockStyle}" Margin="0,0,0,16"/>
+
         <!-- Stats Display -->
-        <Grid Grid.Row="0" Margin="0,0,0,20">
+        <Grid Grid.Row="1" Margin="0,0,0,24">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
@@ -27,30 +30,30 @@
             </Grid.ColumnDefinitions>
 
             <!-- Header row -->
-            <TextBlock Grid.Row="0" Grid.Column="0" Text="Total Inventory Count" FontSize="20" FontWeight="Bold" HorizontalAlignment="Center"/>
-            <TextBlock Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="2" Text="OpCo Inventory Stats" FontSize="18" FontWeight="SemiBold" HorizontalAlignment="Center"/>
+            <TextBlock Grid.Row="0" Grid.Column="0" Text="Total Inventory Count" Style="{ThemeResource SubtitleTextBlockStyle}" HorizontalAlignment="Center" Margin="0,0,0,12"/>
+            <TextBlock Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="2" Text="OpCo Inventory Stats" Style="{ThemeResource SubtitleTextBlockStyle}" HorizontalAlignment="Center" Margin="0,0,0,12"/>
 
             <!-- Row 2: Files -->
-            <TextBlock Grid.Row="1" Grid.Column="0" Text="{Binding TotalTextFilesText}" HorizontalAlignment="Center"/>
-            <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding OhioFilesText}" HorizontalAlignment="Center"/>
-            <TextBlock Grid.Row="1" Grid.Column="2" Text="{Binding ImFilesText}" HorizontalAlignment="Center"/>
+            <TextBlock Grid.Row="1" Grid.Column="0" Text="{Binding TotalTextFilesText}" HorizontalAlignment="Center" Margin="0,4"/>
+            <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding OhioFilesText}" HorizontalAlignment="Center" Margin="0,4"/>
+            <TextBlock Grid.Row="1" Grid.Column="2" Text="{Binding ImFilesText}" HorizontalAlignment="Center" Margin="0,4"/>
 
             <!-- Row 3: Devices -->
-            <TextBlock Grid.Row="2" Grid.Column="0" Text="{Binding TotalLinesText}" HorizontalAlignment="Center"/>
-            <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding OhioLinesText}" HorizontalAlignment="Center"/>
-            <TextBlock Grid.Row="2" Grid.Column="2" Text="{Binding ImLinesText}" HorizontalAlignment="Center"/>
+            <TextBlock Grid.Row="2" Grid.Column="0" Text="{Binding TotalLinesText}" HorizontalAlignment="Center" Margin="0,4"/>
+            <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding OhioLinesText}" HorizontalAlignment="Center" Margin="0,4"/>
+            <TextBlock Grid.Row="2" Grid.Column="2" Text="{Binding ImLinesText}" HorizontalAlignment="Center" Margin="0,4"/>
         </Grid>
 
         <!-- Problematic Files -->
-        <StackPanel Grid.Row="1">
-            <TextBlock Text="Files with Lines !=17 Characters (Double-click to Preview)" FontSize="16"/>
-            <ListBox ItemsSource="{Binding ProblematicFiles}" DoubleTapped="ListBox_DoubleTapped">
-                <ListBox.ItemTemplate>
+        <StackPanel Grid.Row="2" Spacing="8">
+            <TextBlock Text="Files with Lines !=17 Characters (Double-click to Preview)" Style="{ThemeResource BodyStrongTextBlockStyle}"/>
+            <ListView ItemsSource="{Binding ProblematicFiles}" DoubleTapped="ListBox_DoubleTapped">
+                <ListView.ItemTemplate>
                     <DataTemplate>
                         <TextBlock Text="{Binding Path}" />
                     </DataTemplate>
-                </ListBox.ItemTemplate>
-            </ListBox>
+                </ListView.ItemTemplate>
+            </ListView>
         </StackPanel>
     </Grid>
 </Page>
