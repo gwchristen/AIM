@@ -8,33 +8,73 @@
     mc:Ignorable="d">
 
     <ScrollViewer>
-        <StackPanel Margin="20" Spacing="10">
-            <TextBlock Text="Settings" FontSize="24" FontWeight="Bold"/>
-            <StackPanel Orientation="Horizontal" Spacing="10">
-                <TextBox Header="Password" Text="{x:Bind ViewModel.Password, Mode=TwoWay}" Width="200"/>
-                <Button Content="Lock" Click="LockButton_Click"/>
-                <Button Content="Unlock" Click="UnlockButton_Click"/>
-                <Button Content="Save" Click="SaveButton_Click"/>
+        <StackPanel Margin="24" Spacing="16">
+            <TextBlock Text="Settings" Style="{ThemeResource TitleTextBlockStyle}"/>
+            
+            <StackPanel Spacing="8">
+                <TextBlock Text="Security" Style="{ThemeResource SubtitleTextBlockStyle}"/>
+                <StackPanel Orientation="Horizontal" Spacing="10">
+                    <TextBox Header="Password" Text="{x:Bind ViewModel.Password, Mode=TwoWay}" Width="200"/>
+                    <Button Content="Lock" Click="LockButton_Click" VerticalAlignment="Bottom"/>
+                    <Button Content="Unlock" Click="UnlockButton_Click" VerticalAlignment="Bottom"/>
+                    <Button Click="SaveButton_Click" Style="{ThemeResource AccentButtonStyle}" VerticalAlignment="Bottom">
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <FontIcon Glyph="&#xE74E;" FontSize="16"/>
+                            <TextBlock Text="Save"/>
+                        </StackPanel>
+                    </Button>
+                </StackPanel>
             </StackPanel>
-            <StackPanel Orientation="Horizontal" Margin="0,5">
-                <TextBox Header="Root Directory" Text="{x:Bind ViewModel.DefaultRootDirectory, Mode=TwoWay}" Width="300" IsEnabled="{x:Bind IsLocked, Mode=OneWay, Converter={StaticResource BoolNegationConverter}}"/>
-                <Button Content="Browse" Click="BrowseRootDirectory_Click" Margin="5,0,0,0"/>
-            </StackPanel>
-            <StackPanel Orientation="Horizontal" Margin="0,5">
-                <TextBox Header="Archive Path" Text="{x:Bind ViewModel.ArchivePath, Mode=TwoWay}" Width="300" IsEnabled="{x:Bind IsLocked, Mode=OneWay, Converter={StaticResource BoolNegationConverter}}"/>
-                <Button Content="Browse" Click="BrowseArchivePath_Click" Margin="5,0,0,0"/>
-            </StackPanel>
-            <StackPanel Orientation="Horizontal" Margin="0,5">
-                <TextBox Header="Shipped Directory" Text="{x:Bind ViewModel.ShippedDirectory, Mode=TwoWay}" Width="300" IsEnabled="{x:Bind IsLocked, Mode=OneWay, Converter={StaticResource BoolNegationConverter}}"/>
-                <Button Content="Browse" Click="BrowseShippedDirectory_Click" Margin="5,0,0,0"/>
-            </StackPanel>
-            <StackPanel Orientation="Horizontal" Margin="0,5">
-                <TextBox Header="File Scans Directory" Text="{x:Bind ViewModel.FileScansDirectory, Mode=TwoWay}" Width="300"/>
-                <Button Content="Browse" Click="BrowseFileScansDirectory_Click" Margin="5,0,0,0"/>
-            </StackPanel>
-            <StackPanel Orientation="Horizontal" Margin="0,5">
-                <TextBox Header="Inventory Archive Directory" Text="{x:Bind ViewModel.InventoryArchiveDirectory, Mode=TwoWay}" Width="300" IsEnabled="{x:Bind IsLocked, Mode=OneWay, Converter={StaticResource BoolNegationConverter}}"/>
-                <Button Content="Browse" Click="BrowseInventoryArchiveDirectory_Click" Margin="5,0,0,0"/>
+            
+            <StackPanel Spacing="12">
+                <TextBlock Text="Directories" Style="{ThemeResource SubtitleTextBlockStyle}"/>
+                <StackPanel Spacing="8">
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <TextBox Header="Root Directory" Text="{x:Bind ViewModel.DefaultRootDirectory, Mode=TwoWay}" Width="400" IsEnabled="{x:Bind IsLocked, Mode=OneWay, Converter={StaticResource BoolNegationConverter}}"/>
+                        <Button Click="BrowseRootDirectory_Click" VerticalAlignment="Bottom">
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <FontIcon Glyph="&#xE8DA;" FontSize="16"/>
+                                <TextBlock Text="Browse"/>
+                            </StackPanel>
+                        </Button>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <TextBox Header="Archive Path" Text="{x:Bind ViewModel.ArchivePath, Mode=TwoWay}" Width="400" IsEnabled="{x:Bind IsLocked, Mode=OneWay, Converter={StaticResource BoolNegationConverter}}"/>
+                        <Button Click="BrowseArchivePath_Click" VerticalAlignment="Bottom">
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <FontIcon Glyph="&#xE8DA;" FontSize="16"/>
+                                <TextBlock Text="Browse"/>
+                            </StackPanel>
+                        </Button>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <TextBox Header="Shipped Directory" Text="{x:Bind ViewModel.ShippedDirectory, Mode=TwoWay}" Width="400" IsEnabled="{x:Bind IsLocked, Mode=OneWay, Converter={StaticResource BoolNegationConverter}}"/>
+                        <Button Click="BrowseShippedDirectory_Click" VerticalAlignment="Bottom">
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <FontIcon Glyph="&#xE8DA;" FontSize="16"/>
+                                <TextBlock Text="Browse"/>
+                            </StackPanel>
+                        </Button>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <TextBox Header="File Scans Directory" Text="{x:Bind ViewModel.FileScansDirectory, Mode=TwoWay}" Width="400"/>
+                        <Button Click="BrowseFileScansDirectory_Click" VerticalAlignment="Bottom">
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <FontIcon Glyph="&#xE8DA;" FontSize="16"/>
+                                <TextBlock Text="Browse"/>
+                            </StackPanel>
+                        </Button>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <TextBox Header="Inventory Archive Directory" Text="{x:Bind ViewModel.InventoryArchiveDirectory, Mode=TwoWay}" Width="400" IsEnabled="{x:Bind IsLocked, Mode=OneWay, Converter={StaticResource BoolNegationConverter}}"/>
+                        <Button Click="BrowseInventoryArchiveDirectory_Click" VerticalAlignment="Bottom">
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <FontIcon Glyph="&#xE8DA;" FontSize="16"/>
+                                <TextBlock Text="Browse"/>
+                            </StackPanel>
+                        </Button>
+                    </StackPanel>
+                </StackPanel>
             </StackPanel>
         </StackPanel>
     </ScrollViewer>
