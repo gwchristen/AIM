@@ -35,9 +35,9 @@
             </StackPanel>
             
             <ToggleSwitch Header="Search in file contents" IsOn="{x:Bind ViewModel.IsContentSearch, Mode=TwoWay}"/>
+            
+            <TextBlock Text="{Binding StatusMessage}" Style="{ThemeResource BodyStrongTextBlockStyle}" Visibility="{Binding StatusMessage, Converter={StaticResource StringToVisibilityConverter}}"/>
         </StackPanel>
-        
-        <InfoBar Grid.Row="1" IsOpen="{Binding StatusMessage, Converter={StaticResource BoolToVisibilityConverter}}" Severity="Error" Message="{Binding StatusMessage}" Margin="0,8,0,8"/>
         
         <ListView Grid.Row="4" ItemsSource="{x:Bind ViewModel.SearchResults}" SelectionChanged="ResultsListView_SelectionChanged" Margin="0,8,0,0">
             <ListView.ItemTemplate>
