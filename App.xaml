@@ -7,6 +7,7 @@
     <Application.Resources>
         <ResourceDictionary>
             <SolidColorBrush x:Key="TabViewButtonBackground" Color="Transparent"/>
+            <StaticResource x:Key="TabViewButtonForeground" ResourceKey="TextFillColorPrimaryBrush"/>
             <converters:BoolToSymbolConverter x:Key="BoolToSymbolConverter"/>
             <converters:BoolNegationConverter x:Key="BoolNegationConverter"/>
             <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
