@@ -6,7 +6,6 @@ using Microsoft.UI.Composition.SystemBackdrops;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using System;
-using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using Windows.Storage.Pickers;
 using WinRT;
