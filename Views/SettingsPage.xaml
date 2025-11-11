@@ -17,13 +17,11 @@
                     <TextBox Header="Password" Text="{x:Bind ViewModel.Password, Mode=TwoWay}" Width="200"/>
                     <Button Content="Lock" Click="LockButton_Click" VerticalAlignment="Bottom"/>
                     <Button Content="Unlock" Click="UnlockButton_Click" VerticalAlignment="Bottom"/>
-                    <Button Content="Save" Click="SaveButton_Click" Style="{ThemeResource AccentButtonStyle}" VerticalAlignment="Bottom">
-                        <Button.Content>
-                            <StackPanel Orientation="Horizontal" Spacing="8">
-                                <FontIcon Glyph="&#xE74E;" FontSize="16"/>
-                                <TextBlock Text="Save"/>
-                            </StackPanel>
-                        </Button.Content>
+                    <Button Click="SaveButton_Click" Style="{ThemeResource AccentButtonStyle}" VerticalAlignment="Bottom">
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <FontIcon Glyph="&#xE74E;" FontSize="16"/>
+                            <TextBlock Text="Save"/>
+                        </StackPanel>
                     </Button>
                 </StackPanel>
             </StackPanel>
