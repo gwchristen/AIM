@@ -1,5 +1,6 @@
 using AIM.Models;
 using AIM.ViewModels;
+using CommunityToolkit.Mvvm.DependencyInjection; // Add this using statement
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Input;
@@ -17,11 +18,19 @@ public sealed partial class BrowsePage : Page
     public BrowsePage()
     {
         InitializeComponent();
-        ViewModel = new BrowseViewModel();
+
+        // == THIS IS THE CHANGE ==
+        // Old way: ViewModel = new BrowseViewModel();
+        // New way: Request the ViewModel from the DI container.
+        ViewModel = Ioc.Default.GetRequiredService<BrowseViewModel>();
+
+        // The rest of the constructor remains the same
         ViewModel.RenameRequested += OnRenameRequested;
         ViewModel.DeleteRequested += OnDeleteRequested;
         ViewModel.ShipRequested += OnShipRequested;
     }
+
+    // ... All other methods in this file remain unchanged ...
 
     protected override void OnNavigatedTo(NavigationEventArgs e)
     {

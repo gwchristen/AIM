@@ -1,9 +1,7 @@
 ﻿using AIM.Models;
-using AIM.Views;
+using AIM.Services;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using Microsoft.UI.Xaml;
-using System;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
@@ -14,6 +12,7 @@ namespace AIM.ViewModels;
 public partial class StatsViewModel : ObservableObject
 {
     private readonly MainViewModel _mainViewModel;
+    private readonly INavigationService _navigationService;
 
     [ObservableProperty]
     private string totalTextFilesText;
@@ -36,9 +35,10 @@ public partial class StatsViewModel : ObservableObject
     [ObservableProperty]
     private ObservableCollection<ProblematicFile> problematicFiles = new();
 
-    public StatsViewModel(MainViewModel mainViewModel)
+    public StatsViewModel(MainViewModel mainViewModel, INavigationService navigationService)
     {
         _mainViewModel = mainViewModel;
+        _navigationService = navigationService;
         LoadStats();
     }
 
@@ -54,18 +54,16 @@ public partial class StatsViewModel : ObservableObject
             string imLines = "I&M Lines: 0";
             var probFiles = new ObservableCollection<ProblematicFile>();
 
-            if (!Directory.Exists(_mainViewModel.SelectedRoot))
+            if (string.IsNullOrEmpty(_mainViewModel.SelectedRoot) || !Directory.Exists(_mainViewModel.SelectedRoot))
             {
-                // Use defaults
+                // Directory doesn't exist, use default values.
             }
             else
             {
-                // Get all text files in root
                 var textFiles = Directory.EnumerateFiles(_mainViewModel.SelectedRoot, "*.txt", SearchOption.AllDirectories).ToList();
                 var totalFiles = textFiles.Count;
                 totalTextFiles = $"Total Text Files: {totalFiles}";
 
-                // Subdirs
                 var ohioDir = Path.Combine(_mainViewModel.SelectedRoot, "Ohio");
                 var imDir = Path.Combine(_mainViewModel.SelectedRoot, "I&M");
                 var ohioFileCount = Directory.Exists(ohioDir) ? Directory.EnumerateFiles(ohioDir, "*.txt", SearchOption.AllDirectories).Count() : 0;
@@ -73,17 +71,14 @@ public partial class StatsViewModel : ObservableObject
                 ohioFiles = $"Ohio Files: {ohioFileCount}";
                 imFiles = $"I&M Files: {imFileCount}";
 
-                // Total lines (non-blank)
                 var totalLineCount = textFiles.Sum(f => File.ReadAllLines(f).Count(l => !string.IsNullOrWhiteSpace(l)));
                 totalLines = $"Total Devices: {totalLineCount}";
 
-                // Lines per subdir
                 var ohioLineCount = Directory.Exists(ohioDir) ? Directory.EnumerateFiles(ohioDir, "*.txt", SearchOption.AllDirectories).Sum(f => File.ReadAllLines(f).Count(l => !string.IsNullOrWhiteSpace(l))) : 0;
                 var imLineCount = Directory.Exists(imDir) ? Directory.EnumerateFiles(imDir, "*.txt", SearchOption.AllDirectories).Sum(f => File.ReadAllLines(f).Count(l => !string.IsNullOrWhiteSpace(l))) : 0;
                 ohioLines = $"Ohio Devices: {ohioLineCount}";
                 imLines = $"I&M Devices: {imLineCount}";
 
-                // Problematic files (lines not equal to 17 chars)
                 foreach (var file in textFiles)
                 {
                     var lines = File.ReadAllLines(file);
@@ -94,8 +89,9 @@ public partial class StatsViewModel : ObservableObject
                 }
             }
 
-            // Update UI on main thread
-            MainWindow.Instance.DispatcherQueue.TryEnqueue(() =>
+            // ** THIS IS THE CORRECTED SECTION **
+            // Use the DispatcherQueue from the main window to safely update UI properties.
+            App.MainWindow.DispatcherQueue.TryEnqueue(() =>
             {
                 TotalTextFilesText = totalTextFiles;
                 TotalLinesText = totalLines;
@@ -109,33 +105,18 @@ public partial class StatsViewModel : ObservableObject
     }
 
     [RelayCommand]
-    public async Task OpenFile(ProblematicFile file)
+    public void OpenFile(ProblematicFile file)
     {
-        // Navigate to Preview tab and load file
-        if (MainWindow.Instance != null)
-        {
-            MainWindow.Instance.MainFrame.Navigate(typeof(PreviewPage));
-            // Set the selected tab
-            MainWindow.Instance.IsPreviewSelected = true;
-            MainWindow.Instance.IsBrowseSelected = false;
-            MainWindow.Instance.IsSearchSelected = false;
-            MainWindow.Instance.IsScansSelected = false;
-            MainWindow.Instance.IsInvArchivesSelected = false;
-            MainWindow.Instance.IsStatsSelected = false;
-            MainWindow.Instance.IsSettingsSelected = false;
+        if (file == null) return;
 
-            // Load the file in Preview
-            if (MainWindow.Instance.MainFrame.Content is PreviewPage previewPage)
-            {
-                var fileItem = new FileItem
-                {
-                    FullPath = file.Path,
-                    Name = Path.GetFileName(file.Path),
-                    Type = GetFileType(file.Path)
-                };
-                await previewPage.ViewModel.LoadFileContent(fileItem);
-            }
-        }
+        var fileItem = new FileItem
+        {
+            FullPath = file.Path,
+            Name = Path.GetFileName(file.Path),
+            Type = GetFileType(file.Path)
+        };
+
+        _navigationService.NavigateTo(typeof(Views.PreviewPage), fileItem);
     }
 
     private FileType GetFileType(string path)

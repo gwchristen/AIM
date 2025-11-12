@@ -1,7 +1,9 @@
 using AIM.Models;
 using AIM.ViewModels;
 using AIM.Views;
+using AIM.Services; // Added for NavigationService
 using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.DependencyInjection;
 using Microsoft.UI.Composition.SystemBackdrops;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
@@ -17,47 +19,40 @@ namespace AIM;
 public sealed partial class MainWindow : Window
 {
     public static MainWindow? Instance { get; private set; }
-
     public MainViewModel ViewModel { get; }
 
-    [ObservableProperty]
-    private bool isBrowseSelected = true;
-
-    [ObservableProperty]
-    private bool isPreviewSelected;
-
-    [ObservableProperty]
-    private bool isSearchSelected;
-
-    [ObservableProperty]
-    private bool isScansSelected;
-
-    [ObservableProperty]
-    private bool isInvArchivesSelected;
-
-    [ObservableProperty]
-    private bool isStatsSelected;
-
-    [ObservableProperty]
-    private bool isSettingsSelected;
+    [ObservableProperty] private bool isBrowseSelected = true;
+    [ObservableProperty] private bool isPreviewSelected;
+    [ObservableProperty] private bool isSearchSelected;
+    [ObservableProperty] private bool isScansSelected;
+    [ObservableProperty] private bool isInvArchivesSelected;
+    [ObservableProperty] private bool isStatsSelected;
+    [ObservableProperty] private bool isSettingsSelected;
 
     public MainWindow()
     {
         Instance = this;
-        ViewModel = new MainViewModel();
+        ViewModel = Ioc.Default.GetRequiredService<MainViewModel>();
         InitializeComponent();
-        
-        // Apply Mica backdrop
+
+        // Give the NavigationService a reference to our frame
+        var navigationService = Ioc.Default.GetRequiredService<INavigationService>();
+        navigationService.SetFrame(this.MainFrame);
+
         SystemBackdrop = new MicaBackdrop() { Kind = MicaKind.Base };
-        
-        MainFrame.Navigate(typeof(BrowsePage));
+
+        // Use the service to perform initial navigation
+        navigationService.NavigateTo(typeof(BrowsePage));
     }
 
     private void NavView_SelectionChanged(NavigationView sender, NavigationViewSelectionChangedEventArgs args)
     {
+        // Get the navigation service
+        var navigationService = Ioc.Default.GetRequiredService<INavigationService>();
+
         if (args.IsSettingsSelected)
         {
-            MainFrame.Navigate(typeof(SettingsPage));
+            navigationService.NavigateTo(typeof(SettingsPage));
             return;
         }
 
@@ -69,14 +64,12 @@ public sealed partial class MainWindow : Window
             {
                 case "SelectRoot":
                     SelectCustomRoot();
-                    // Don't navigate, keep current page
                     break;
                 case "RefreshTree":
                     ViewModel.RefreshTreeCommand.Execute(null);
-                    // Don't navigate, keep current page
                     break;
                 case "Browse":
-                    MainFrame.Navigate(typeof(BrowsePage));
+                    navigationService.NavigateTo(typeof(BrowsePage));
                     IsBrowseSelected = true;
                     IsPreviewSelected = false;
                     IsSearchSelected = false;
@@ -86,7 +79,7 @@ public sealed partial class MainWindow : Window
                     IsSettingsSelected = false;
                     break;
                 case "Preview":
-                    MainFrame.Navigate(typeof(PreviewPage));
+                    navigationService.NavigateTo(typeof(PreviewPage));
                     IsBrowseSelected = false;
                     IsPreviewSelected = true;
                     IsSearchSelected = false;
@@ -96,7 +89,7 @@ public sealed partial class MainWindow : Window
                     IsSettingsSelected = false;
                     break;
                 case "Search":
-                    MainFrame.Navigate(typeof(SearchPage));
+                    navigationService.NavigateTo(typeof(SearchPage));
                     IsBrowseSelected = false;
                     IsPreviewSelected = false;
                     IsSearchSelected = true;
@@ -106,7 +99,7 @@ public sealed partial class MainWindow : Window
                     IsSettingsSelected = false;
                     break;
                 case "Scans":
-                    MainFrame.Navigate(typeof(ScansPage));
+                    navigationService.NavigateTo(typeof(ScansPage));
                     IsBrowseSelected = false;
                     IsPreviewSelected = false;
                     IsSearchSelected = false;
@@ -116,7 +109,7 @@ public sealed partial class MainWindow : Window
                     IsSettingsSelected = false;
                     break;
                 case "InvArchives":
-                    MainFrame.Navigate(typeof(InvArchivesPage));
+                    navigationService.NavigateTo(typeof(InvArchivesPage));
                     IsBrowseSelected = false;
                     IsPreviewSelected = false;
                     IsSearchSelected = false;
@@ -126,7 +119,7 @@ public sealed partial class MainWindow : Window
                     IsSettingsSelected = false;
                     break;
                 case "Stats":
-                    MainFrame.Navigate(typeof(StatsPage));
+                    navigationService.NavigateTo(typeof(StatsPage));
                     IsBrowseSelected = false;
                     IsPreviewSelected = false;
                     IsSearchSelected = false;
@@ -136,7 +129,7 @@ public sealed partial class MainWindow : Window
                     IsSettingsSelected = false;
                     break;
                 case "Settings":
-                    MainFrame.Navigate(typeof(SettingsPage));
+                    navigationService.NavigateTo(typeof(SettingsPage));
                     IsBrowseSelected = false;
                     IsPreviewSelected = false;
                     IsSearchSelected = false;

@@ -1,4 +1,5 @@
 using AIM.ViewModels;
+using CommunityToolkit.Mvvm.DependencyInjection;
 using Microsoft.UI.Xaml.Controls;
 using System;
 using System.ComponentModel;
@@ -10,9 +11,10 @@ namespace AIM.Views;
 
 public sealed partial class SettingsPage : Page, INotifyPropertyChanged
 {
+    // Reverted to use MainViewModel, where the settings properties live
     public MainViewModel ViewModel { get; }
 
-    private bool _isLocked = false;
+    private bool _isLocked = true; // Default to locked
 
     public bool IsLocked
     {
@@ -37,7 +39,9 @@ public sealed partial class SettingsPage : Page, INotifyPropertyChanged
     public SettingsPage()
     {
         InitializeComponent();
-        ViewModel = MainWindow.Instance.ViewModel;
+        // Request the existing MainViewModel from the DI container
+        ViewModel = Ioc.Default.GetRequiredService<MainViewModel>();
+        DataContext = ViewModel; // Set the DataContext
     }
 
     private async void BrowseRootDirectory_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
@@ -69,7 +73,8 @@ public sealed partial class SettingsPage : Page, INotifyPropertyChanged
     {
         var folderPicker = new FolderPicker();
         folderPicker.SuggestedStartLocation = PickerLocationId.Desktop;
-        var hwnd = WinRT.Interop.WindowNative.GetWindowHandle(MainWindow.Instance);
+        // Use the newly exposed App.MainWindow property
+        var hwnd = WinRT.Interop.WindowNative.GetWindowHandle(App.MainWindow);
         WinRT.Interop.InitializeWithWindow.Initialize(folderPicker, hwnd);
         var folder = await folderPicker.PickSingleFolderAsync();
         if (folder != null)
@@ -78,7 +83,7 @@ public sealed partial class SettingsPage : Page, INotifyPropertyChanged
         }
     }
 
-    private async void LockButton_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
+    private void LockButton_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
     {
         if (!IsLocked)
         {
@@ -112,6 +117,6 @@ public sealed partial class SettingsPage : Page, INotifyPropertyChanged
 
     private void SaveButton_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
     {
-        // Settings are saved automatically via bindings
+        // Settings are saved automatically via bindings in your MainViewModel
     }
 }

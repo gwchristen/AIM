@@ -1,4 +1,5 @@
 using AIM.ViewModels;
+using CommunityToolkit.Mvvm.DependencyInjection; // Added
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using System.Linq;
@@ -13,7 +14,11 @@ public sealed partial class ScansPage : Page
     public ScansPage()
     {
         this.InitializeComponent();
-        ViewModel = new ScansViewModel();
+
+        // The ONLY change is here:
+        ViewModel = Ioc.Default.GetRequiredService<ScansViewModel>();
+
+        // All of your original logic is preserved:
         ViewModel.SelectedDirectoryChanged += OnSelectedDirectoryChanged;
         ViewModel.SortingDone += UpdateSelection;
         DataContext = ViewModel;

@@ -4,7 +4,7 @@
     <DebuggerFlavor>ProjectDebugger</DebuggerFlavor>
   </PropertyGroup>
   <PropertyGroup>
-    <ActiveDebugProfile>AIM (Unpackaged)</ActiveDebugProfile>
+    <ActiveDebugProfile>AIM (Package)</ActiveDebugProfile>
   </PropertyGroup>
   <ItemGroup>
     <None Update="App.xaml">

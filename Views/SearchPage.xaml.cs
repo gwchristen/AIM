@@ -1,5 +1,6 @@
 using AIM.Models;
 using AIM.ViewModels;
+using CommunityToolkit.Mvvm.DependencyInjection; // Added
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 
@@ -12,12 +13,17 @@ public sealed partial class SearchPage : Page
     public SearchPage()
     {
         this.InitializeComponent();
-        ViewModel = new SearchViewModel();
+
+        // The ONLY change is here:
+        ViewModel = Ioc.Default.GetRequiredService<SearchViewModel>();
+
+        // Your original DataContext assignment is preserved:
         DataContext = ViewModel;
     }
 
     private void ResultsListView_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
+        // All of your original logic is preserved:
         if (sender is ListView listView && listView.SelectedItem is Models.FileItem file)
         {
             // Navigate to Preview tab
