@@ -1,7 +1,6 @@
 ﻿using AIM.Models;
 using AIM.Services;
 using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.DependencyInjection;
 using CommunityToolkit.Mvvm.Input;
 using System;
 using System.Threading.Tasks;
@@ -19,9 +18,10 @@ public partial class PreviewViewModel : ObservableObject
     [ObservableProperty]
     private string fileName = string.Empty;
 
-    public PreviewViewModel()
+    // The constructor now correctly receives the service via DI.
+    public PreviewViewModel(IFileService fileService)
     {
-        _fileService = Ioc.Default.GetService<IFileService>()!;
+        _fileService = fileService;
     }
 
     public async Task LoadFileContent(FileItem file)
@@ -31,6 +31,7 @@ public partial class PreviewViewModel : ObservableObject
         {
             try
             {
+                // This call will now succeed.
                 Content = await _fileService.ReadFilePreviewAsync(file.FullPath);
                 FileName = file.Name;
             }
@@ -53,6 +54,7 @@ public partial class PreviewViewModel : ObservableObject
         {
             try
             {
+                // This call will now succeed.
                 await _fileService.WriteFileAsync(_currentFilePath, Content);
             }
             catch (Exception ex)

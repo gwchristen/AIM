@@ -6,12 +6,8 @@ namespace AIM.Services;
 
 public interface IFileService
 {
-    Task LoadDirectoryAsync(DirectoryItem item);
-    Task<string> ReadFilePreviewAsync(string path, long maxSize = 5242880);
-    Task WriteFileAsync(string path, string content);
-    Task MoveFilesAsync(IEnumerable<FileItem> files, string destination);
-    Task RenameAsync(string path, string newName);
-    Task CreateFileAsync(string path);
-    Task CreateFolderAsync(string path);
-    Task IndexFilesAsync(string rootPath, IEnumerable<string> extensions);
+    IEnumerable<FileItem> GetFiles(string directoryPath);
+    void PopulateSubDirectories(DirectoryItem parent);
+    Task<string> ReadFilePreviewAsync(string filePath);
+    Task WriteFileAsync(string filePath, string content);
 }

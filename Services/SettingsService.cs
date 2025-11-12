@@ -1,27 +1,33 @@
-﻿using System.Collections.Generic;
+﻿using AIM.Models;
 using System.IO;
 using System.Text.Json;
-using System.Threading.Tasks;
 
 namespace AIM.Services;
 
 public class SettingsService : ISettingsService
 {
-    private const string SettingsFile = "settings.json";
+    private readonly string _settingsFilePath;
 
-    public async Task<Dictionary<string, string>> LoadSettingsAsync()
+    public SettingsService()
     {
-        if (File.Exists(SettingsFile))
-        {
-            string json = await File.ReadAllTextAsync(SettingsFile);
-            return JsonSerializer.Deserialize<Dictionary<string, string>>(json) ?? new();
-        }
-        return new();
+        var appDataFolder = Path.Combine(System.Environment.GetFolderPath(System.Environment.SpecialFolder.ApplicationData), "AIM");
+        Directory.CreateDirectory(appDataFolder);
+        _settingsFilePath = Path.Combine(appDataFolder, "settings.json");
     }
 
-    public async Task SaveSettingsAsync(Dictionary<string, string> settings)
+    public AppSettings LoadSettings()
     {
-        string json = JsonSerializer.Serialize(settings);
-        await File.WriteAllTextAsync(SettingsFile, json);
+        if (File.Exists(_settingsFilePath))
+        {
+            var json = File.ReadAllText(_settingsFilePath);
+            return JsonSerializer.Deserialize<AppSettings>(json) ?? new AppSettings();
+        }
+        return new AppSettings(); // Return a new instance if file doesn't exist
+    }
+
+    public void SaveSettings(AppSettings settings)
+    {
+        var json = JsonSerializer.Serialize(settings, new JsonSerializerOptions { WriteIndented = true });
+        File.WriteAllText(_settingsFilePath, json);
     }
 }

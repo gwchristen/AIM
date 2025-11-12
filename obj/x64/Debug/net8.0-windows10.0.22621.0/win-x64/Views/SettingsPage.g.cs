@@ -248,7 +248,7 @@ namespace AIM.Views
                     }
                 }
             }
-            private void Update_ViewModel(global::AIM.ViewModels.MainViewModel obj, int phase)
+            private void Update_ViewModel(global::AIM.ViewModels.SettingsViewModel obj, int phase)
             {
                 this.bindingsTracking.UpdateChildListeners_ViewModel(obj);
                 if (obj != null)
@@ -530,7 +530,7 @@ namespace AIM.Views
                     if (bindings != null)
                     {
                         string propName = e.PropertyName;
-                        global::AIM.ViewModels.MainViewModel obj = sender as global::AIM.ViewModels.MainViewModel;
+                        global::AIM.ViewModels.SettingsViewModel obj = sender as global::AIM.ViewModels.SettingsViewModel;
                         if (global::System.String.IsNullOrEmpty(propName))
                         {
                             if (obj != null)
@@ -601,8 +601,8 @@ namespace AIM.Views
                         }
                     }
                 }
-                private global::AIM.ViewModels.MainViewModel cache_ViewModel = null;
-                public void UpdateChildListeners_ViewModel(global::AIM.ViewModels.MainViewModel obj)
+                private global::AIM.ViewModels.SettingsViewModel cache_ViewModel = null;
+                public void UpdateChildListeners_ViewModel(global::AIM.ViewModels.SettingsViewModel obj)
                 {
                     if (obj != cache_ViewModel)
                     {

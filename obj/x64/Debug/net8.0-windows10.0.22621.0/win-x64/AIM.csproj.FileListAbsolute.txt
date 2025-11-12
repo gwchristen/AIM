@@ -333,6 +333,8 @@ C:\Users\Pirate\source\repos\AIM\bin\x64\Debug\net8.0-windows10.0.22621.0\win-x6
 C:\Users\Pirate\source\repos\AIM\bin\x64\Debug\net8.0-windows10.0.22621.0\win-x64\Microsoft.ML.OnnxRuntime.dll
 C:\Users\Pirate\source\repos\AIM\bin\x64\Debug\net8.0-windows10.0.22621.0\win-x64\Microsoft.Windows.Widgets.Projection.dll
 C:\Users\Pirate\source\repos\AIM\bin\x64\Debug\net8.0-windows10.0.22621.0\win-x64\Microsoft.WinUI.dll
+C:\Users\Pirate\source\repos\AIM\bin\x64\Debug\net8.0-windows10.0.22621.0\win-x64\Microsoft.Xaml.Interactions.dll
+C:\Users\Pirate\source\repos\AIM\bin\x64\Debug\net8.0-windows10.0.22621.0\win-x64\Microsoft.Xaml.Interactivity.dll
 C:\Users\Pirate\source\repos\AIM\bin\x64\Debug\net8.0-windows10.0.22621.0\win-x64\Serilog.dll
 C:\Users\Pirate\source\repos\AIM\bin\x64\Debug\net8.0-windows10.0.22621.0\win-x64\Serilog.Extensions.Logging.dll
 C:\Users\Pirate\source\repos\AIM\bin\x64\Debug\net8.0-windows10.0.22621.0\win-x64\Serilog.Sinks.File.dll
@@ -591,6 +593,8 @@ C:\Users\Pirate\source\repos\AIM\obj\x64\Debug\net8.0-windows10.0.22621.0\win-x6
 C:\Users\Pirate\source\repos\AIM\obj\x64\Debug\net8.0-windows10.0.22621.0\win-x64\AIM.sourcelink.json
 C:\Users\Pirate\source\repos\AIM\obj\x64\Debug\net8.0-windows10.0.22621.0\win-x64\AIM.csproj.Up2Date
 C:\Users\Pirate\source\repos\AIM\obj\x64\Debug\net8.0-windows10.0.22621.0\win-x64\CommunityToolkit.WinUI.UI.Controls.DataGrid.pri.xml
+C:\Users\Pirate\source\repos\AIM\obj\x64\Debug\net8.0-windows10.0.22621.0\win-x64\Microsoft.Xaml.Interactions.pri.xml
+C:\Users\Pirate\source\repos\AIM\obj\x64\Debug\net8.0-windows10.0.22621.0\win-x64\Microsoft.Xaml.Interactivity.pri.xml
 C:\Users\Pirate\source\repos\AIM\obj\x64\Debug\net8.0-windows10.0.22621.0\win-x64\WinUI3XamlPreview.pri.xml
 C:\Users\Pirate\source\repos\AIM\obj\x64\Debug\net8.0-windows10.0.22621.0\win-x64\Microsoft.UI.pri.xml
 C:\Users\Pirate\source\repos\AIM\obj\x64\Debug\net8.0-windows10.0.22621.0\win-x64\Microsoft.UI.Xaml.Controls.pri.xml

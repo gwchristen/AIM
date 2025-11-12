@@ -1,9 +1,12 @@
-﻿using System;
+﻿using Microsoft.UI.Xaml.Controls;
+using System;
 
 namespace AIM.Services;
 
 public interface INavigationService
 {
-    void SetFrame(Microsoft.UI.Xaml.Controls.Frame frame);
-    void NavigateTo(Type pageType, object parameter = null);
+    void Initialize(Frame frame);
+
+    void NavigateTo(Type pageType);
+    void NavigateTo(Type pageType, object parameter);
 }

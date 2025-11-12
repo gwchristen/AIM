@@ -15,6 +15,7 @@
           "Microsoft.Extensions.DependencyInjection": "9.0.9",
           "Microsoft.Windows.SDK.BuildTools": "10.0.26100.6584",
           "Microsoft.WindowsAppSDK": "1.8.250916003",
+          "Microsoft.Xaml.Behaviors.WinUI.Managed": "2.0.9",
           "Serilog": "4.3.0",
           "Serilog.Extensions.Logging": "9.0.3-dev-02320",
           "Serilog.Sinks.File": "7.0.0",
@@ -1055,6 +1056,21 @@
           }
         }
       },
+      "Microsoft.Xaml.Behaviors.WinUI.Managed/2.0.9": {
+        "dependencies": {
+          "Microsoft.WindowsAppSDK": "1.8.250916003"
+        },
+        "runtime": {
+          "lib/net5.0-windows10.0.17763.0/Microsoft.Xaml.Interactions.dll": {
+            "assemblyVersion": "1.0.0.0",
+            "fileVersion": "1.0.0.0"
+          },
+          "lib/net5.0-windows10.0.17763.0/Microsoft.Xaml.Interactivity.dll": {
+            "assemblyVersion": "1.0.0.0",
+            "fileVersion": "1.0.0.0"
+          }
+        }
+      },
       "Serilog/4.3.0": {
         "runtime": {
           "lib/net8.0/Serilog.dll": {
@@ -1364,6 +1380,13 @@
       "sha512": "sha512-6oskwUluqlDGwUcwYlY3GWTMLajyjh9e790SmWzCCMDRV6sunYbqp7DkiSLzn8nhgSbGvmj6zG92JnkYRlbrXw==",
       "path": "microsoft.windowsappsdk.winui/1.8.250906003",
       "hashPath": "microsoft.windowsappsdk.winui.1.8.250906003.nupkg.sha512"
+    },
+    "Microsoft.Xaml.Behaviors.WinUI.Managed/2.0.9": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-rGIUCwQZB1degP2+Cc7hBbGOwuokyUxMh97umT+dpqJ8X71y2DKsXrKzDDQc8lKdWbloJbVDpzB9X42yZiS8tA==",
+      "path": "microsoft.xaml.behaviors.winui.managed/2.0.9",
+      "hashPath": "microsoft.xaml.behaviors.winui.managed.2.0.9.nupkg.sha512"
     },
     "Serilog/4.3.0": {
       "type": "package",

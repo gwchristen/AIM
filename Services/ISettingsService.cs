@@ -1,10 +1,9 @@
-﻿using System.Collections.Generic;
-using System.Threading.Tasks;
+﻿using AIM.Models;
 
 namespace AIM.Services;
 
 public interface ISettingsService
 {
-    Task<Dictionary<string, string>> LoadSettingsAsync();
-    Task SaveSettingsAsync(Dictionary<string, string> settings);
+    AppSettings LoadSettings();
+    void SaveSettings(AppSettings settings);
 }

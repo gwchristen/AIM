@@ -5,18 +5,24 @@ namespace AIM.Services;
 
 public class NavigationService : INavigationService
 {
+    // --- THIS IS THE FIX ---
+    // A private field to hold the main navigation frame.
     private Frame _frame;
 
-    public void SetFrame(Frame frame)
+    // --- THIS IS THE FIX ---
+    // The implementation of the Initialize method.
+    public void Initialize(Frame frame)
     {
         _frame = frame;
     }
 
-    public void NavigateTo(Type pageType, object parameter = null)
+    public void NavigateTo(Type pageType)
     {
-        if (_frame != null && _frame.CurrentSourcePageType != pageType)
-        {
-            _frame.Navigate(pageType, parameter);
-        }
+        _frame?.Navigate(pageType);
+    }
+
+    public void NavigateTo(Type pageType, object parameter)
+    {
+        _frame?.Navigate(pageType, parameter);
     }
 }

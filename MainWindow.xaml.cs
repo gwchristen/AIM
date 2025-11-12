@@ -1,159 +1,90 @@
-using AIM.Models;
+using AIM.Services;
 using AIM.ViewModels;
 using AIM.Views;
-using AIM.Services; // Added for NavigationService
-using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.DependencyInjection;
-using Microsoft.UI.Composition.SystemBackdrops;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Media;
-using System;
-using System.Threading.Tasks;
-using Windows.Storage.Pickers;
-using WinRT;
+using System; // Required for Type
 
 namespace AIM;
 
-[ObservableObject]
 public sealed partial class MainWindow : Window
 {
-    public static MainWindow? Instance { get; private set; }
-    public MainViewModel ViewModel { get; }
-
-    [ObservableProperty] private bool isBrowseSelected = true;
-    [ObservableProperty] private bool isPreviewSelected;
-    [ObservableProperty] private bool isSearchSelected;
-    [ObservableProperty] private bool isScansSelected;
-    [ObservableProperty] private bool isInvArchivesSelected;
-    [ObservableProperty] private bool isStatsSelected;
-    [ObservableProperty] private bool isSettingsSelected;
+    private readonly INavigationService _navigationService;
+    private readonly MainViewModel _mainViewModel;
 
     public MainWindow()
     {
-        Instance = this;
-        ViewModel = Ioc.Default.GetRequiredService<MainViewModel>();
-        InitializeComponent();
+        this.InitializeComponent();
+        this.Title = "AIM";
 
-        // Give the NavigationService a reference to our frame
-        var navigationService = Ioc.Default.GetRequiredService<INavigationService>();
-        navigationService.SetFrame(this.MainFrame);
+        // Get services from the DI container
+        _navigationService = Ioc.Default.GetRequiredService<INavigationService>();
+        _mainViewModel = Ioc.Default.GetRequiredService<MainViewModel>();
 
-        SystemBackdrop = new MicaBackdrop() { Kind = MicaKind.Base };
-
-        // Use the service to perform initial navigation
-        navigationService.NavigateTo(typeof(BrowsePage));
+        var infoBarService = Ioc.Default.GetRequiredService<IInfoBarService>();
+        infoBarService.Initialize(AppInfoBar);
     }
 
-    private void NavView_SelectionChanged(NavigationView sender, NavigationViewSelectionChangedEventArgs args)
+    private void NavView_Loaded(object sender, RoutedEventArgs e)
     {
-        // Get the navigation service
-        var navigationService = Ioc.Default.GetRequiredService<INavigationService>();
+        _navigationService.Initialize(ContentFrame);
+        // Navigate to the initial page
+        _navigationService.NavigateTo(typeof(BrowsePage));
+    }
 
-        if (args.IsSettingsSelected)
+    private void NavView_ItemInvoked(NavigationView sender, NavigationViewItemInvokedEventArgs args)
+    {
+        if (args.InvokedItemContainer is not NavigationViewItem item)
         {
-            navigationService.NavigateTo(typeof(SettingsPage));
             return;
         }
 
-        var selectedItem = args.SelectedItem as NavigationViewItem;
-        if (selectedItem != null)
-        {
-            var tag = selectedItem.Tag?.ToString();
-            switch (tag)
-            {
-                case "SelectRoot":
-                    SelectCustomRoot();
-                    break;
-                case "RefreshTree":
-                    ViewModel.RefreshTreeCommand.Execute(null);
-                    break;
-                case "Browse":
-                    navigationService.NavigateTo(typeof(BrowsePage));
-                    IsBrowseSelected = true;
-                    IsPreviewSelected = false;
-                    IsSearchSelected = false;
-                    IsScansSelected = false;
-                    IsInvArchivesSelected = false;
-                    IsStatsSelected = false;
-                    IsSettingsSelected = false;
-                    break;
-                case "Preview":
-                    navigationService.NavigateTo(typeof(PreviewPage));
-                    IsBrowseSelected = false;
-                    IsPreviewSelected = true;
-                    IsSearchSelected = false;
-                    IsScansSelected = false;
-                    IsInvArchivesSelected = false;
-                    IsStatsSelected = false;
-                    IsSettingsSelected = false;
-                    break;
-                case "Search":
-                    navigationService.NavigateTo(typeof(SearchPage));
-                    IsBrowseSelected = false;
-                    IsPreviewSelected = false;
-                    IsSearchSelected = true;
-                    IsScansSelected = false;
-                    IsInvArchivesSelected = false;
-                    IsStatsSelected = false;
-                    IsSettingsSelected = false;
-                    break;
-                case "Scans":
-                    navigationService.NavigateTo(typeof(ScansPage));
-                    IsBrowseSelected = false;
-                    IsPreviewSelected = false;
-                    IsSearchSelected = false;
-                    IsScansSelected = true;
-                    IsInvArchivesSelected = false;
-                    IsStatsSelected = false;
-                    IsSettingsSelected = false;
-                    break;
-                case "InvArchives":
-                    navigationService.NavigateTo(typeof(InvArchivesPage));
-                    IsBrowseSelected = false;
-                    IsPreviewSelected = false;
-                    IsSearchSelected = false;
-                    IsScansSelected = false;
-                    IsInvArchivesSelected = true;
-                    IsStatsSelected = false;
-                    IsSettingsSelected = false;
-                    break;
-                case "Stats":
-                    navigationService.NavigateTo(typeof(StatsPage));
-                    IsBrowseSelected = false;
-                    IsPreviewSelected = false;
-                    IsSearchSelected = false;
-                    IsScansSelected = false;
-                    IsInvArchivesSelected = false;
-                    IsStatsSelected = true;
-                    IsSettingsSelected = false;
-                    break;
-                case "Settings":
-                    navigationService.NavigateTo(typeof(SettingsPage));
-                    IsBrowseSelected = false;
-                    IsPreviewSelected = false;
-                    IsSearchSelected = false;
-                    IsScansSelected = false;
-                    IsInvArchivesSelected = false;
-                    IsStatsSelected = false;
-                    IsSettingsSelected = true;
-                    break;
-            }
-        }
-    }
+        var tag = item.Tag?.ToString();
+        Type pageType = null;
 
-    private void SelectCustomRoot()
-    {
-        var folderPicker = new FolderPicker();
-        folderPicker.SuggestedStartLocation = PickerLocationId.Desktop;
-        var hwnd = WinRT.Interop.WindowNative.GetWindowHandle(this);
-        WinRT.Interop.InitializeWithWindow.Initialize(folderPicker, hwnd);
-        folderPicker.PickSingleFolderAsync().AsTask().ContinueWith(t =>
+        // This switch statement maps your original tags to the correct pages.
+        switch (tag)
         {
-            if (t.Result != null)
-            {
-                ViewModel.SelectedRoot = t.Result.Path;
-            }
-        }, TaskScheduler.FromCurrentSynchronizationContext());
+            case "Browse":
+                pageType = typeof(BrowsePage);
+                break;
+            case "Preview":
+                pageType = typeof(PreviewPage);
+                break;
+            case "Search":
+                pageType = typeof(SearchPage);
+                break;
+            case "Scans":
+                pageType = typeof(ScansPage);
+                break;
+            case "Settings":
+                pageType = typeof(SettingsPage);
+                break;
+
+            // TODO: Add cases for "InvArchives" and "Stats" when their pages exist
+            // case "InvArchives":
+            //     pageType = typeof(InvArchivesPage);
+            //     break;
+            // case "Stats":
+            //     pageType = typeof(StatsPage);
+            //     break;
+
+            // These are commands, not pages, so we handle them directly.
+            case "SelectRoot":
+                // We will add the SelectRootDirectoryCommand to MainViewModel later
+                // _mainViewModel.SelectRootDirectoryCommand.Execute(null);
+                return; // Stop after executing the command
+            case "RefreshTree":
+                // The existing logic already rebuilds the tree when the root changes.
+                // We can add a dedicated refresh command if needed.
+                // _mainViewModel.RefreshTreeCommand.Execute(null);
+                return; // Stop after executing the command
+        }
+
+        if (pageType != null)
+        {
+            _navigationService.NavigateTo(pageType);
+        }
     }
 }

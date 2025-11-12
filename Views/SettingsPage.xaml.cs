@@ -1,5 +1,6 @@
 using AIM.ViewModels;
 using CommunityToolkit.Mvvm.DependencyInjection;
+using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using System;
 using System.ComponentModel;
@@ -11,10 +12,10 @@ namespace AIM.Views;
 
 public sealed partial class SettingsPage : Page, INotifyPropertyChanged
 {
-    // Reverted to use MainViewModel, where the settings properties live
-    public MainViewModel ViewModel { get; }
+    // Correctly uses SettingsViewModel now
+    public SettingsViewModel ViewModel { get; }
 
-    private bool _isLocked = true; // Default to locked
+    private bool _isLocked = true;
 
     public bool IsLocked
     {
@@ -39,32 +40,32 @@ public sealed partial class SettingsPage : Page, INotifyPropertyChanged
     public SettingsPage()
     {
         InitializeComponent();
-        // Request the existing MainViewModel from the DI container
-        ViewModel = Ioc.Default.GetRequiredService<MainViewModel>();
-        DataContext = ViewModel; // Set the DataContext
+        // Request the correct ViewModel from the DI container
+        ViewModel = Ioc.Default.GetRequiredService<SettingsViewModel>();
+        DataContext = ViewModel;
     }
 
-    private async void BrowseRootDirectory_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
+    private async void BrowseRootDirectory_Click(object sender, RoutedEventArgs e)
     {
         await BrowseFolderAsync(path => ViewModel.DefaultRootDirectory = path);
     }
 
-    private async void BrowseArchivePath_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
+    private async void BrowseArchivePath_Click(object sender, RoutedEventArgs e)
     {
         await BrowseFolderAsync(path => ViewModel.ArchivePath = path);
     }
 
-    private async void BrowseShippedDirectory_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
+    private async void BrowseShippedDirectory_Click(object sender, RoutedEventArgs e)
     {
         await BrowseFolderAsync(path => ViewModel.ShippedDirectory = path);
     }
 
-    private async void BrowseFileScansDirectory_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
+    private async void BrowseFileScansDirectory_Click(object sender, RoutedEventArgs e)
     {
         await BrowseFolderAsync(path => ViewModel.FileScansDirectory = path);
     }
 
-    private async void BrowseInventoryArchiveDirectory_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
+    private async void BrowseInventoryArchiveDirectory_Click(object sender, RoutedEventArgs e)
     {
         await BrowseFolderAsync(path => ViewModel.InventoryArchiveDirectory = path);
     }
@@ -73,7 +74,6 @@ public sealed partial class SettingsPage : Page, INotifyPropertyChanged
     {
         var folderPicker = new FolderPicker();
         folderPicker.SuggestedStartLocation = PickerLocationId.Desktop;
-        // Use the newly exposed App.MainWindow property
         var hwnd = WinRT.Interop.WindowNative.GetWindowHandle(App.MainWindow);
         WinRT.Interop.InitializeWithWindow.Initialize(folderPicker, hwnd);
         var folder = await folderPicker.PickSingleFolderAsync();
@@ -83,7 +83,7 @@ public sealed partial class SettingsPage : Page, INotifyPropertyChanged
         }
     }
 
-    private void LockButton_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
+    private void LockButton_Click(object sender, RoutedEventArgs e)
     {
         if (!IsLocked)
         {
@@ -91,7 +91,7 @@ public sealed partial class SettingsPage : Page, INotifyPropertyChanged
         }
     }
 
-    private async void UnlockButton_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
+    private async void UnlockButton_Click(object sender, RoutedEventArgs e)
     {
         if (IsLocked)
         {
@@ -107,6 +107,7 @@ public sealed partial class SettingsPage : Page, INotifyPropertyChanged
             if (result == ContentDialogResult.Primary)
             {
                 var password = ((PasswordBox)dialog.Content).Password;
+                // Now checks the password on the correct ViewModel
                 if (password == ViewModel.Password)
                 {
                     IsLocked = false;
@@ -115,8 +116,9 @@ public sealed partial class SettingsPage : Page, INotifyPropertyChanged
         }
     }
 
-    private void SaveButton_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
+    private void SaveButton_Click(object sender, RoutedEventArgs e)
     {
-        // Settings are saved automatically via bindings in your MainViewModel
+        // Executes the SaveSettingsCommand on the SettingsViewModel
+        ViewModel.SaveSettingsCommand.Execute(null);
     }
 }

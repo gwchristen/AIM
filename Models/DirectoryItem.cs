@@ -1,12 +1,10 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 
 namespace AIM.Models;
 
-public partial class DirectoryItem : ObservableObject
+public class DirectoryItem
 {
-    public string Name { get; set; } = string.Empty;
-    public string FullPath { get; set; } = string.Empty;
-    public bool IsExpanded { get; set; } = false;
-    public ObservableCollection<DirectoryItem> SubDirectories { get; } = new();
+    public string Name { get; set; }
+    public string FullPath { get; set; }
+    public ObservableCollection<DirectoryItem> SubDirectories { get; set; } = new();
 }

@@ -1,6 +1,4 @@
 ﻿using AIM.Models;
-using AIM.Services;
-using CommunityToolkit.Mvvm.DependencyInjection;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -13,9 +11,10 @@ public class SearchService : ISearchService
 {
     private readonly IFileService _fileService;
 
-    public SearchService()
+    // Use constructor injection instead of the service locator.
+    public SearchService(IFileService fileService)
     {
-        _fileService = Ioc.Default.GetService<IFileService>();
+        _fileService = fileService;
     }
 
     public async Task<IEnumerable<FileItem>> SearchFilesAsync(string query, string rootPath)
@@ -76,6 +75,7 @@ public class SearchService : ISearchService
                 {
                     try
                     {
+                        // This call will now succeed because IFileService has the method.
                         var content = await _fileService.ReadFilePreviewAsync(f);
                         if (content.Contains(query, StringComparison.OrdinalIgnoreCase))
                         {

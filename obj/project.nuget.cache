@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "A3N4FPHDX3w=",
+  "dgSpecHash": "2Xbwtddtzeg=",
   "success": true,
   "projectFilePath": "C:\\Users\\Pirate\\source\\repos\\AIM\\AIM.csproj",
   "expectedPackageFiles": [
@@ -26,6 +26,7 @@
     "C:\\Users\\Pirate\\.nuget\\packages\\microsoft.windowsappsdk.runtime\\1.8.250916003\\microsoft.windowsappsdk.runtime.1.8.250916003.nupkg.sha512",
     "C:\\Users\\Pirate\\.nuget\\packages\\microsoft.windowsappsdk.widgets\\1.8.250904007\\microsoft.windowsappsdk.widgets.1.8.250904007.nupkg.sha512",
     "C:\\Users\\Pirate\\.nuget\\packages\\microsoft.windowsappsdk.winui\\1.8.250906003\\microsoft.windowsappsdk.winui.1.8.250906003.nupkg.sha512",
+    "C:\\Users\\Pirate\\.nuget\\packages\\microsoft.xaml.behaviors.winui.managed\\2.0.9\\microsoft.xaml.behaviors.winui.managed.2.0.9.nupkg.sha512",
     "C:\\Users\\Pirate\\.nuget\\packages\\serilog\\4.3.0\\serilog.4.3.0.nupkg.sha512",
     "C:\\Users\\Pirate\\.nuget\\packages\\serilog.extensions.logging\\9.0.3-dev-02320\\serilog.extensions.logging.9.0.3-dev-02320.nupkg.sha512",
     "C:\\Users\\Pirate\\.nuget\\packages\\serilog.sinks.file\\7.0.0\\serilog.sinks.file.7.0.0.nupkg.sha512",

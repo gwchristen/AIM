@@ -30,17 +30,17 @@
     <AppXManifest Include="C:\Users\Pirate\source\repos\AIM\bin\x64\Debug\net8.0-windows10.0.22621.0\win-x64\AppxManifest.xml">
       <PackagePath>AppxManifest.xml</PackagePath>
       <ReRegisterAppIfChanged>true</ReRegisterAppIfChanged>
-      <Modified>2025-11-12T03:30:28.662</Modified>
+      <Modified>2025-11-12T20:59:29.145</Modified>
     </AppXManifest>
   </ItemGroup>
   <ItemGroup>
     <AppxPackagedFile Include="C:\Users\Pirate\source\repos\AIM\bin\x64\Debug\net8.0-windows10.0.22621.0\win-x64\AIM.runtimeconfig.json">
       <PackagePath>AIM.runtimeconfig.json</PackagePath>
-      <Modified>2025-11-12T03:30:23.404</Modified>
+      <Modified>2025-11-12T20:59:17.406</Modified>
     </AppxPackagedFile>
     <AppxPackagedFile Include="C:\Users\Pirate\source\repos\AIM\obj\x64\Debug\net8.0-windows10.0.22621.0\win-x64\apphost.exe">
       <PackagePath>AIM.exe</PackagePath>
-      <Modified>2025-11-12T03:30:28.264</Modified>
+      <Modified>2025-11-12T20:59:28.689</Modified>
     </AppxPackagedFile>
     <AppxPackagedFile Include="C:\Users\Pirate\source\repos\AIM\obj\x64\Debug\net8.0-windows10.0.22621.0\win-x64\MsixContent\CoreMessagingXP.dll">
       <PackagePath>CoreMessagingXP.dll</PackagePath>
@@ -1136,7 +1136,7 @@
     </AppxPackagedFile>
     <AppxPackagedFile Include="C:\Users\Pirate\source\repos\AIM\obj\x64\Debug\net8.0-windows10.0.22621.0\win-x64\AIM.dll">
       <PackagePath>AIM.dll</PackagePath>
-      <Modified>2025-11-12T03:30:28.260</Modified>
+      <Modified>2025-11-12T20:59:28.686</Modified>
     </AppxPackagedFile>
     <AppxPackagedFile Include="C:\Users\Pirate\.nuget\packages\microsoft.netcore.app.runtime.win-x64\8.0.22\runtimes\win-x64\lib\net8.0\Microsoft.CSharp.dll">
       <PackagePath>Microsoft.CSharp.dll</PackagePath>
@@ -2014,6 +2014,14 @@
       <PackagePath>Microsoft.WinUI.dll</PackagePath>
       <Modified>2025-09-07T02:47:34.000</Modified>
     </AppxPackagedFile>
+    <AppxPackagedFile Include="C:\Users\Pirate\.nuget\packages\microsoft.xaml.behaviors.winui.managed\2.0.9\lib\net5.0-windows10.0.17763.0\Microsoft.Xaml.Interactions.dll">
+      <PackagePath>Microsoft.Xaml.Interactions.dll</PackagePath>
+      <Modified>2022-09-29T14:12:08.000</Modified>
+    </AppxPackagedFile>
+    <AppxPackagedFile Include="C:\Users\Pirate\.nuget\packages\microsoft.xaml.behaviors.winui.managed\2.0.9\lib\net5.0-windows10.0.17763.0\Microsoft.Xaml.Interactivity.dll">
+      <PackagePath>Microsoft.Xaml.Interactivity.dll</PackagePath>
+      <Modified>2022-09-29T14:11:44.000</Modified>
+    </AppxPackagedFile>
     <AppxPackagedFile Include="C:\Users\Pirate\.nuget\packages\serilog\4.3.0\lib\net8.0\Serilog.dll">
       <PackagePath>Serilog.dll</PackagePath>
       <Modified>2025-05-18T21:22:28.000</Modified>
@@ -2136,7 +2144,7 @@
     </AppxPackagedFile>
     <AppxPackagedFile Include="C:\Users\Pirate\source\repos\AIM\bin\x64\Debug\net8.0-windows10.0.22621.0\win-x64\AIM.deps.json">
       <PackagePath>AIM.deps.json</PackagePath>
-      <Modified>2025-11-12T03:30:23.402</Modified>
+      <Modified>2025-11-12T20:59:17.405</Modified>
     </AppxPackagedFile>
     <AppxPackagedFile Include="C:\Users\Pirate\.nuget\packages\winui3xamlpreview\0.8.2\runtimes\win-x64\native\WinUI3XamlPreview\Assets\LockScreenLogo.scale-200.png">
       <PackagePath>WinUI3XamlPreview\Assets\LockScreenLogo.scale-200.png</PackagePath>
@@ -2169,6 +2177,14 @@
     <AppxPackagedFile Include="C:\Users\Pirate\.nuget\packages\communitytoolkit.winui.ui.controls.datagrid\7.1.2\lib\net5.0-windows10.0.18362\CommunityToolkit.WinUI.UI.Controls.DataGrid.pri">
       <PackagePath>CommunityToolkit.WinUI.UI.Controls.DataGrid.pri</PackagePath>
       <Modified>2021-11-18T21:49:46.000</Modified>
+    </AppxPackagedFile>
+    <AppxPackagedFile Include="C:\Users\Pirate\.nuget\packages\microsoft.xaml.behaviors.winui.managed\2.0.9\lib\net5.0-windows10.0.17763.0\Microsoft.Xaml.Interactions.pri">
+      <PackagePath>Microsoft.Xaml.Interactions.pri</PackagePath>
+      <Modified>2022-09-29T14:11:46.000</Modified>
+    </AppxPackagedFile>
+    <AppxPackagedFile Include="C:\Users\Pirate\.nuget\packages\microsoft.xaml.behaviors.winui.managed\2.0.9\lib\net5.0-windows10.0.17763.0\Microsoft.Xaml.Interactivity.pri">
+      <PackagePath>Microsoft.Xaml.Interactivity.pri</PackagePath>
+      <Modified>2022-09-29T14:11:22.000</Modified>
     </AppxPackagedFile>
     <AppxPackagedFile Include="C:\Users\Pirate\source\repos\AIM\Assets\LockScreenLogo.scale-200.png">
       <PackagePath>Assets\LockScreenLogo.scale-200.png</PackagePath>
@@ -2204,7 +2220,7 @@
     </AppxPackagedFile>
     <AppxPackagedFile Include="C:\Users\Pirate\source\repos\AIM\bin\x64\Debug\net8.0-windows10.0.22621.0\win-x64\resources.pri">
       <PackagePath>resources.pri</PackagePath>
-      <Modified>2025-11-12T03:30:23.632</Modified>
+      <Modified>2025-11-12T20:59:17.639</Modified>
     </AppxPackagedFile>
   </ItemGroup>
   <ItemGroup>

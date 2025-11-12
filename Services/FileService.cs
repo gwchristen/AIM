@@ -1,7 +1,5 @@
 ﻿using AIM.Models;
-using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -10,67 +8,45 @@ namespace AIM.Services;
 
 public class FileService : IFileService
 {
-    public async Task LoadDirectoryAsync(DirectoryItem item)
+    public IEnumerable<FileItem> GetFiles(string directoryPath)
     {
-        if (item == null) return;
+        if (string.IsNullOrEmpty(directoryPath) || !Directory.Exists(directoryPath))
+        {
+            return Enumerable.Empty<FileItem>();
+        }
+
         try
         {
-            var subDirs = Directory.GetDirectories(item.FullPath)
-                .Select(d => new DirectoryItem { Name = Path.GetFileName(d), FullPath = d })
-                .ToList();
-            item.SubDirectories.Clear();
-            foreach (var sub in subDirs)
+            return Directory.GetFiles(directoryPath).Select(f => new FileItem { Name = Path.GetFileName(f), FullPath = f });
+        }
+        catch (IOException)
+        {
+            return Enumerable.Empty<FileItem>();
+        }
+    }
+
+    public void PopulateSubDirectories(DirectoryItem parent)
+    {
+        try
+        {
+            var subs = Directory.GetDirectories(parent.FullPath);
+            foreach (var sub in subs)
             {
-                item.SubDirectories.Add(sub);
+                var child = new DirectoryItem { Name = Path.GetFileName(sub), FullPath = sub };
+                PopulateSubDirectories(child);
+                parent.SubDirectories.Add(child);
             }
         }
-        catch (UnauthorizedAccessException)
-        {
-            // Handle access denied (optional: log or skip)
-        }
+        catch { /* Ignore errors */ }
     }
 
-    public async Task<string> ReadFilePreviewAsync(string path, long maxSize = 5242880)
+    public async Task<string> ReadFilePreviewAsync(string filePath)
     {
-        using var stream = new FileStream(path, FileMode.Open, FileAccess.Read);
-        using var reader = new StreamReader(stream);
-        var buffer = new char[maxSize];
-        int charsRead = await reader.ReadAsync(buffer, 0, (int)maxSize);
-        return new string(buffer, 0, charsRead);
+        return await File.ReadAllTextAsync(filePath);
     }
 
-    public async Task WriteFileAsync(string path, string content)
+    public async Task WriteFileAsync(string filePath, string content)
     {
-        await File.WriteAllTextAsync(path, content);
-    }
-
-    public async Task MoveFilesAsync(IEnumerable<FileItem> files, string destination)
-    {
-        foreach (var file in files)
-        {
-            string destPath = Path.Combine(destination, Path.GetFileName(file.FullPath));
-            File.Move(file.FullPath, destPath);
-        }
-    }
-
-    public async Task RenameAsync(string path, string newName)
-    {
-        string newPath = Path.Combine(Path.GetDirectoryName(path)!, newName);
-        File.Move(path, newPath);
-    }
-
-    public async Task CreateFileAsync(string path)
-    {
-        File.Create(path).Close();
-    }
-
-    public async Task CreateFolderAsync(string path)
-    {
-        Directory.CreateDirectory(path);
-    }
-
-    public async Task IndexFilesAsync(string rootPath, IEnumerable<string> extensions)
-    {
-        // Placeholder for indexing
+        await File.WriteAllTextAsync(filePath, content);
     }
 }

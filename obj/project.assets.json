@@ -498,6 +498,28 @@
           "buildTransitive/Microsoft.WindowsAppSDK.WinUI.targets": {}
         }
       },
+      "Microsoft.Xaml.Behaviors.WinUI.Managed/2.0.9": {
+        "type": "package",
+        "dependencies": {
+          "Microsoft.WindowsAppSDK": "1.0.0"
+        },
+        "compile": {
+          "lib/net5.0-windows10.0.17763.0/Microsoft.Xaml.Interactions.dll": {
+            "related": ".pdb;.pri;.xml"
+          },
+          "lib/net5.0-windows10.0.17763.0/Microsoft.Xaml.Interactivity.dll": {
+            "related": ".pdb;.pri;.xml"
+          }
+        },
+        "runtime": {
+          "lib/net5.0-windows10.0.17763.0/Microsoft.Xaml.Interactions.dll": {
+            "related": ".pdb;.pri;.xml"
+          },
+          "lib/net5.0-windows10.0.17763.0/Microsoft.Xaml.Interactivity.dll": {
+            "related": ".pdb;.pri;.xml"
+          }
+        }
+      },
       "Serilog/4.3.0": {
         "type": "package",
         "compile": {
@@ -1149,6 +1171,28 @@
           "buildTransitive/Microsoft.WindowsAppSDK.WinUI.targets": {}
         }
       },
+      "Microsoft.Xaml.Behaviors.WinUI.Managed/2.0.9": {
+        "type": "package",
+        "dependencies": {
+          "Microsoft.WindowsAppSDK": "1.0.0"
+        },
+        "compile": {
+          "lib/net5.0-windows10.0.17763.0/Microsoft.Xaml.Interactions.dll": {
+            "related": ".pdb;.pri;.xml"
+          },
+          "lib/net5.0-windows10.0.17763.0/Microsoft.Xaml.Interactivity.dll": {
+            "related": ".pdb;.pri;.xml"
+          }
+        },
+        "runtime": {
+          "lib/net5.0-windows10.0.17763.0/Microsoft.Xaml.Interactions.dll": {
+            "related": ".pdb;.pri;.xml"
+          },
+          "lib/net5.0-windows10.0.17763.0/Microsoft.Xaml.Interactivity.dll": {
+            "related": ".pdb;.pri;.xml"
+          }
+        }
+      },
       "Serilog/4.3.0": {
         "type": "package",
         "compile": {
@@ -1730,6 +1774,28 @@
         "build": {
           "buildTransitive/Microsoft.WindowsAppSDK.WinUI.props": {},
           "buildTransitive/Microsoft.WindowsAppSDK.WinUI.targets": {}
+        }
+      },
+      "Microsoft.Xaml.Behaviors.WinUI.Managed/2.0.9": {
+        "type": "package",
+        "dependencies": {
+          "Microsoft.WindowsAppSDK": "1.0.0"
+        },
+        "compile": {
+          "lib/net5.0-windows10.0.17763.0/Microsoft.Xaml.Interactions.dll": {
+            "related": ".pdb;.pri;.xml"
+          },
+          "lib/net5.0-windows10.0.17763.0/Microsoft.Xaml.Interactivity.dll": {
+            "related": ".pdb;.pri;.xml"
+          }
+        },
+        "runtime": {
+          "lib/net5.0-windows10.0.17763.0/Microsoft.Xaml.Interactions.dll": {
+            "related": ".pdb;.pri;.xml"
+          },
+          "lib/net5.0-windows10.0.17763.0/Microsoft.Xaml.Interactivity.dll": {
+            "related": ".pdb;.pri;.xml"
+          }
         }
       },
       "Serilog/4.3.0": {
@@ -2327,6 +2393,28 @@
         "build": {
           "buildTransitive/Microsoft.WindowsAppSDK.WinUI.props": {},
           "buildTransitive/Microsoft.WindowsAppSDK.WinUI.targets": {}
+        }
+      },
+      "Microsoft.Xaml.Behaviors.WinUI.Managed/2.0.9": {
+        "type": "package",
+        "dependencies": {
+          "Microsoft.WindowsAppSDK": "1.0.0"
+        },
+        "compile": {
+          "lib/net5.0-windows10.0.17763.0/Microsoft.Xaml.Interactions.dll": {
+            "related": ".pdb;.pri;.xml"
+          },
+          "lib/net5.0-windows10.0.17763.0/Microsoft.Xaml.Interactivity.dll": {
+            "related": ".pdb;.pri;.xml"
+          }
+        },
+        "runtime": {
+          "lib/net5.0-windows10.0.17763.0/Microsoft.Xaml.Interactions.dll": {
+            "related": ".pdb;.pri;.xml"
+          },
+          "lib/net5.0-windows10.0.17763.0/Microsoft.Xaml.Interactivity.dll": {
+            "related": ".pdb;.pri;.xml"
+          }
         }
       },
       "Serilog/4.3.0": {
@@ -4665,6 +4753,67 @@
         "tools/x86/GenXbf.dll"
       ]
     },
+    "Microsoft.Xaml.Behaviors.WinUI.Managed/2.0.9": {
+      "sha512": "rGIUCwQZB1degP2+Cc7hBbGOwuokyUxMh97umT+dpqJ8X71y2DKsXrKzDDQc8lKdWbloJbVDpzB9X42yZiS8tA==",
+      "type": "package",
+      "path": "microsoft.xaml.behaviors.winui.managed/2.0.9",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "lib/net5.0-windows10.0.17763.0/Design/Microsoft.Xaml.Interactions.DesignTools.dll",
+        "lib/net5.0-windows10.0.17763.0/Design/Microsoft.Xaml.Interactions.DesignTools.pdb",
+        "lib/net5.0-windows10.0.17763.0/Design/Microsoft.Xaml.Interactivity.DesignTools.dll",
+        "lib/net5.0-windows10.0.17763.0/Design/Microsoft.Xaml.Interactivity.DesignTools.pdb",
+        "lib/net5.0-windows10.0.17763.0/Microsoft.Xaml.Interactions.dll",
+        "lib/net5.0-windows10.0.17763.0/Microsoft.Xaml.Interactions.pdb",
+        "lib/net5.0-windows10.0.17763.0/Microsoft.Xaml.Interactions.pri",
+        "lib/net5.0-windows10.0.17763.0/Microsoft.Xaml.Interactions.xml",
+        "lib/net5.0-windows10.0.17763.0/Microsoft.Xaml.Interactivity.dll",
+        "lib/net5.0-windows10.0.17763.0/Microsoft.Xaml.Interactivity.pdb",
+        "lib/net5.0-windows10.0.17763.0/Microsoft.Xaml.Interactivity.pri",
+        "lib/net5.0-windows10.0.17763.0/Microsoft.Xaml.Interactivity.xml",
+        "microsoft.xaml.behaviors.winui.managed.2.0.9.nupkg.sha512",
+        "microsoft.xaml.behaviors.winui.managed.nuspec",
+        "src/BehaviorsSDKManaged/Microsoft.Xaml.Interactions.DesignTools/MetadataTableProvider.SurfaceIsolation.cs",
+        "src/BehaviorsSDKManaged/Microsoft.Xaml.Interactions.DesignTools/Properties/AssemblyInfo.cs",
+        "src/BehaviorsSDKManaged/Microsoft.Xaml.Interactions.WinUI/Core/CallMethodAction.cs",
+        "src/BehaviorsSDKManaged/Microsoft.Xaml.Interactions.WinUI/Core/ChangePropertyAction.cs",
+        "src/BehaviorsSDKManaged/Microsoft.Xaml.Interactions.WinUI/Core/ComparisonConditionType.cs",
+        "src/BehaviorsSDKManaged/Microsoft.Xaml.Interactions.WinUI/Core/DataBindingHelper.cs",
+        "src/BehaviorsSDKManaged/Microsoft.Xaml.Interactions.WinUI/Core/DataTriggerBehavior.cs",
+        "src/BehaviorsSDKManaged/Microsoft.Xaml.Interactions.WinUI/Core/EventTriggerBehavior.cs",
+        "src/BehaviorsSDKManaged/Microsoft.Xaml.Interactions.WinUI/Core/GoToStateAction.cs",
+        "src/BehaviorsSDKManaged/Microsoft.Xaml.Interactions.WinUI/Core/IncrementalUpdateBehavior.cs",
+        "src/BehaviorsSDKManaged/Microsoft.Xaml.Interactions.WinUI/Core/InvokeCommandAction.cs",
+        "src/BehaviorsSDKManaged/Microsoft.Xaml.Interactions.WinUI/Core/NavigateToPageAction.cs",
+        "src/BehaviorsSDKManaged/Microsoft.Xaml.Interactions.WinUI/Core/ResourceHelper.cs",
+        "src/BehaviorsSDKManaged/Microsoft.Xaml.Interactions.WinUI/Core/TypeConverterHelper.cs",
+        "src/BehaviorsSDKManaged/Microsoft.Xaml.Interactions.WinUI/GlobalSuppressions.cs",
+        "src/BehaviorsSDKManaged/Microsoft.Xaml.Interactions.WinUI/Media/ControlStoryboardAction.cs",
+        "src/BehaviorsSDKManaged/Microsoft.Xaml.Interactions.WinUI/Media/ControlStoryboardOption.cs",
+        "src/BehaviorsSDKManaged/Microsoft.Xaml.Interactions.WinUI/Media/PlaySoundAction.cs",
+        "src/BehaviorsSDKManaged/Microsoft.Xaml.Interactions.WinUI/Utility/IVisualTreeHelper.cs",
+        "src/BehaviorsSDKManaged/Microsoft.Xaml.Interactions.WinUI/Utility/UwpVisualTreeHelper.cs",
+        "src/BehaviorsSDKManaged/Microsoft.Xaml.Interactivity.DesignTools/MetadataTableProvider.SurfaceIsolation.cs",
+        "src/BehaviorsSDKManaged/Microsoft.Xaml.Interactivity.DesignTools/Properties/AssemblyInfo.cs",
+        "src/BehaviorsSDKManaged/Microsoft.Xaml.Interactivity.WinUI/ActionCollection.cs",
+        "src/BehaviorsSDKManaged/Microsoft.Xaml.Interactivity.WinUI/Behavior.cs",
+        "src/BehaviorsSDKManaged/Microsoft.Xaml.Interactivity.WinUI/BehaviorCollection.cs",
+        "src/BehaviorsSDKManaged/Microsoft.Xaml.Interactivity.WinUI/BehaviorOfT.cs",
+        "src/BehaviorsSDKManaged/Microsoft.Xaml.Interactivity.WinUI/CustomPropertyValueEditorAttribute.cs",
+        "src/BehaviorsSDKManaged/Microsoft.Xaml.Interactivity.WinUI/DefaultEventAttribute.cs",
+        "src/BehaviorsSDKManaged/Microsoft.Xaml.Interactivity.WinUI/GlobalSuppressions.cs",
+        "src/BehaviorsSDKManaged/Microsoft.Xaml.Interactivity.WinUI/IAction.cs",
+        "src/BehaviorsSDKManaged/Microsoft.Xaml.Interactivity.WinUI/IBehavior.cs",
+        "src/BehaviorsSDKManaged/Microsoft.Xaml.Interactivity.WinUI/ITrigger.cs",
+        "src/BehaviorsSDKManaged/Microsoft.Xaml.Interactivity.WinUI/Interaction.cs",
+        "src/BehaviorsSDKManaged/Microsoft.Xaml.Interactivity.WinUI/ResourceHelper.cs",
+        "src/BehaviorsSDKManaged/Microsoft.Xaml.Interactivity.WinUI/Trigger.cs",
+        "src/BehaviorsSDKManaged/Microsoft.Xaml.Interactivity.WinUI/TriggerOfT.cs",
+        "src/BehaviorsSDKManaged/Microsoft.Xaml.Interactivity.WinUI/TypeConstraintAttribute.cs",
+        "src/BehaviorsSDKManaged/Microsoft.Xaml.Interactivity.WinUI/VisualStateUtilities.cs"
+      ]
+    },
     "Serilog/4.3.0": {
       "sha512": "+cDryFR0GRhsGOnZSKwaDzRRl4MupvJ42FhCE4zhQRVanX0Jpg6WuCBk59OVhVDPmab1bB+nRykAnykYELA9qQ==",
       "type": "package",
@@ -4962,6 +5111,7 @@
       "Microsoft.Extensions.DependencyInjection >= 9.0.9",
       "Microsoft.Windows.SDK.BuildTools >= 10.0.26100.6584",
       "Microsoft.WindowsAppSDK >= 1.8.250916003",
+      "Microsoft.Xaml.Behaviors.WinUI.Managed >= 2.0.9",
       "Serilog >= 4.3.0",
       "Serilog.Extensions.Logging >= 9.0.3-dev-02320",
       "Serilog.Sinks.File >= 7.0.0",
@@ -5043,6 +5193,10 @@
           "Microsoft.WindowsAppSDK": {
             "target": "Package",
             "version": "[1.8.250916003, )"
+          },
+          "Microsoft.Xaml.Behaviors.WinUI.Managed": {
+            "target": "Package",
+            "version": "[2.0.9, )"
           },
           "Serilog": {
             "target": "Package",
