@@ -28,7 +28,8 @@
             </Button>
         </StackPanel>
 
-        <StackPanel Grid.Row="1" Orientation="Horizontal" Spacing="16" Margin="0,0,0,24">
+        <!-- THE FIX: Added HorizontalAlignment="Center" to this StackPanel -->
+        <StackPanel Grid.Row="1" Orientation="Horizontal" Spacing="16" Margin="0,0,0,24" HorizontalAlignment="Center">
             <Border Background="{ThemeResource LayerFillColorDefaultBrush}" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="4" MinWidth="200" Padding="16">
                 <StackPanel Spacing="4">
                     <TextBlock Text="Total Files" Style="{ThemeResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
@@ -51,89 +52,46 @@
 
         <Grid Grid.Row="2" ColumnSpacing="24">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
 
             <StackPanel Grid.Column="0" Spacing="16">
-                <Border Background="{ThemeResource LayerFillColorDefaultBrush}" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="4" Padding="16">
-                    <Grid>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="*"/>
-                        </Grid.RowDefinitions>
-                        <TextBlock Grid.Row="0" Text="Files by OpCo" Style="{ThemeResource SubtitleTextBlockStyle}" HorizontalAlignment="Center" Margin="0,0,0,12"/>
-                        <Grid Grid.Row="1">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="Auto"/>
-                            </Grid.ColumnDefinitions>
-                            <lvc:PieChart Grid.Column="0" Series="{Binding OpCoFileSeries, Mode=OneWay}" LegendPosition="Hidden" Background="Transparent" Height="120"/>
-                            <ItemsRepeater Grid.Column="1" ItemsSource="{Binding FileLegendItems, Mode=OneWay}" VerticalAlignment="Center" Margin="12,0,0,0">
-                                <ItemsRepeater.ItemTemplate>
-                                    <DataTemplate x:DataType="viewmodels:LegendItem">
-                                        <StackPanel Orientation="Horizontal" Spacing="8" Margin="0,6">
-                                            <Rectangle Fill="{x:Bind ColorBrush}" Width="12" Height="12" VerticalAlignment="Center" RadiusX="2" RadiusY="2"/>
-                                            <StackPanel>
-                                                <TextBlock Text="{x:Bind Name}" FontWeight="SemiBold"/>
-                                                <TextBlock Foreground="{ThemeResource TextFillColorSecondaryBrush}" FontSize="12">
-                                                    <Run Text="{x:Bind Count, Mode=OneWay}"/>
-                                                    <Run Text=" ("/><Run Text="{x:Bind Percentage, Mode=OneWay, Converter={StaticResource PercentageConverter}}"/><Run Text=")"/>
-                                                </TextBlock>
-                                            </StackPanel>
-                                        </StackPanel>
-                                    </DataTemplate>
-                                </ItemsRepeater.ItemTemplate>
-                            </ItemsRepeater>
-                        </Grid>
-                    </Grid>
+                <Border Background="{ThemeResource LayerFillColorDefaultBrush}" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="4" Padding="4">
+                    <StackPanel>
+                        <TextBlock Text="Files by OpCo" Style="{ThemeResource SubtitleTextBlockStyle}" HorizontalAlignment="Center" Margin="0,0,0,4"/>
+                        <lvc:PieChart
+                            x:Name="FileChart"
+                            Height="180"
+                            Width="325"
+                            Series="{Binding OpCoFileSeries, Mode=OneWay}"
+                            LegendPosition="Bottom"
+                            LegendTextSize="12"
+                            Background="Transparent"/>
+                    </StackPanel>
                 </Border>
-                <Border Background="{ThemeResource LayerFillColorDefaultBrush}" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="4" Padding="16">
-                    <Grid>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="*"/>
-                        </Grid.RowDefinitions>
-                        <TextBlock Grid.Row="0" Text="Devices by OpCo" Style="{ThemeResource SubtitleTextBlockStyle}" HorizontalAlignment="Center" Margin="0,0,0,12"/>
-                        <Grid Grid.Row="1">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="Auto"/>
-                            </Grid.ColumnDefinitions>
-                            <lvc:PieChart Grid.Column="0" Series="{Binding OpCoDeviceSeries, Mode=OneWay}" LegendPosition="Hidden" Background="Transparent" Height="120"/>
-                            <ItemsRepeater Grid.Column="1" ItemsSource="{Binding DeviceLegendItems, Mode=OneWay}" VerticalAlignment="Center" Margin="12,0,0,0">
-                                <ItemsRepeater.ItemTemplate>
-                                    <DataTemplate x:DataType="viewmodels:LegendItem">
-                                        <StackPanel Orientation="Horizontal" Spacing="8" Margin="0,6">
-                                            <Rectangle Fill="{x:Bind ColorBrush}" Width="12" Height="12" VerticalAlignment="Center" RadiusX="2" RadiusY="2"/>
-                                            <StackPanel>
-                                                <TextBlock Text="{x:Bind Name}" FontWeight="SemiBold"/>
-                                                <TextBlock Foreground="{ThemeResource TextFillColorSecondaryBrush}" FontSize="12">
-                                                    <Run Text="{x:Bind Count, Mode=OneWay}"/>
-                                                    <Run Text=" ("/><Run Text="{x:Bind Percentage, Mode=OneWay, Converter={StaticResource PercentageConverter}}"/><Run Text=")"/>
-                                                </TextBlock>
-                                            </StackPanel>
-                                        </StackPanel>
-                                    </DataTemplate>
-                                </ItemsRepeater.ItemTemplate>
-                            </ItemsRepeater>
-                        </Grid>
-                    </Grid>
+                <Border Background="{ThemeResource LayerFillColorDefaultBrush}" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="4" Padding="4">
+                    <StackPanel>
+                        <TextBlock Text="Devices by OpCo" Style="{ThemeResource SubtitleTextBlockStyle}" HorizontalAlignment="Center" Margin="0,0,0,4"/>
+                        <lvc:PieChart
+                            x:Name="DeviceChart"
+                            Height="180"
+                            Width="325"
+                            Series="{Binding OpCoDeviceSeries, Mode=OneWay}"
+                            LegendPosition="Bottom"
+                            LegendTextSize="12"
+                            Background="Transparent"/>
+                    </StackPanel>
                 </Border>
             </StackPanel>
 
-            <!-- THE FIX: This section was missing from my previous response -->
             <Grid Grid.Column="1">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
                 <TextBlock Grid.Row="0" Text="Files with Lines !=17 Characters (Double-click to Preview)" Style="{ThemeResource BodyStrongTextBlockStyle}"/>
-                <ListView 
-                    x:Name="ProblematicFilesListView" Grid.Row="1" Margin="0,8,0,0" 
-                    ItemsSource="{Binding ProblematicFiles, Mode=OneWay}"
-                    IsItemClickEnabled="True"
-                    DoubleTapped="ProblematicFilesListView_DoubleTapped">
+                <ListView x:Name="ProblematicFilesListView" Grid.Row="1" Margin="0,8,0,0" ItemsSource="{Binding ProblematicFiles, Mode=OneWay}" IsItemClickEnabled="True" DoubleTapped="ProblematicFilesListView_DoubleTapped">
                     <ListView.ItemTemplate>
                         <DataTemplate x:DataType="models:ProblematicFile">
                             <TextBlock Text="{x:Bind Path}" ToolTipService.ToolTip="{x:Bind Path}" Padding="0,8"/>

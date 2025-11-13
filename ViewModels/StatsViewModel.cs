@@ -16,34 +16,29 @@ using Windows.UI;
 
 namespace AIM.ViewModels;
 
-public class LegendItem
-{
-    public string Name { get; set; }
-    public long Count { get; set; }
-    public double Percentage { get; set; }
-    public SolidColorBrush ColorBrush { get; set; }
-}
-
 public partial class StatsViewModel : ObservableObject
 {
     private readonly INavigationService _navigationService;
     private readonly ISettingsService _settingsService;
 
-    // THE FIX: Updated the colors as requested. Ohio is first, I&M is second.
+    // THE FIX: Define the requested colors. Ohio (Red) is first, I&M (Blue) is second.
     private readonly List<SKColor> _chartColors = new()
     {
         new SKColor(248, 113, 113), // Light Red
         new SKColor(96, 165, 250)   // Light Blue
     };
 
+    public ISeries[] OpCoFileSeries { get; private set; } = new ISeries[0];
+    public ISeries[] OpCoDeviceSeries { get; private set; } = new ISeries[0];
+
+    // THE FIX: The custom LegendItem class and collections are no longer needed.
+    // public ObservableCollection<FinalLegendItem> FileLegendItems { get; } = new();
+    // public ObservableCollection<FinalLegendItem> DeviceLegendItems { get; } = new();
+
     public long TotalFileCount { get; private set; }
     public long TotalDeviceCount { get; private set; }
     public long ProblematicFileCount { get; private set; }
-    public ISeries[] OpCoFileSeries { get; private set; } = new ISeries[0];
-    public ISeries[] OpCoDeviceSeries { get; private set; } = new ISeries[0];
     public ObservableCollection<ProblematicFile> ProblematicFiles { get; } = new();
-    public ObservableCollection<LegendItem> FileLegendItems { get; } = new();
-    public ObservableCollection<LegendItem> DeviceLegendItems { get; } = new();
 
     public StatsViewModel(INavigationService navigationService, ISettingsService settingsService)
     {
@@ -80,7 +75,7 @@ public partial class StatsViewModel : ObservableObject
                     if (file.StartsWith(Path.Combine(rootPath, "Ohio"), System.StringComparison.OrdinalIgnoreCase)) ohioLineCount += nonEmptyLines.Count;
                     if (file.StartsWith(Path.Combine(rootPath, "I&M"), System.StringComparison.OrdinalIgnoreCase)) imLineCount += nonEmptyLines.Count;
                 }
-                catch (IOException) { /* Skip */ }
+                catch (IOException) { /* Skip locked files */ }
             }
             var deviceData = new[] { ("Ohio", ohioLineCount), ("I&M", imLineCount) };
             long totalDevices = deviceData.Sum(x => x.Item2);
@@ -93,40 +88,31 @@ public partial class StatsViewModel : ObservableObject
                 ProblematicFiles.Clear();
                 foreach (var pf in probFiles) ProblematicFiles.Add(pf);
 
-                var fileSeries = new List<ISeries>();
-                FileLegendItems.Clear();
-                for (int i = 0; i < fileData.Length; i++)
+                // THE FIX: Create the series and format the Name property for the built-in legend.
+                OpCoFileSeries = fileData.Select((data, index) =>
                 {
-                    var (name, count) = fileData[i];
-                    var color = _chartColors[i % _chartColors.Count];
-                    fileSeries.Add(new PieSeries<long> { Name = name, Values = new[] { count }, Fill = new SolidColorPaint(color) });
-                    FileLegendItems.Add(new LegendItem
+                    var (name, count) = data;
+                    double percentage = totalFiles == 0 ? 0 : (double)count / totalFiles;
+                    return new PieSeries<long>
                     {
-                        Name = name,
-                        Count = count,
-                        Percentage = totalFiles == 0 ? 0 : (double)count / totalFiles,
-                        ColorBrush = new SolidColorBrush(Color.FromArgb(color.Alpha, color.Red, color.Green, color.Blue))
-                    });
-                }
-                OpCoFileSeries = fileSeries.ToArray();
+                        Values = new[] { count },
+                        Name = $"{name} {count} ({percentage:P1})", // Format the legend text here
+                        Fill = new SolidColorPaint(_chartColors[index % _chartColors.Count])
+                    };
+                }).ToArray();
                 OnPropertyChanged(nameof(OpCoFileSeries));
 
-                var deviceSeries = new List<ISeries>();
-                DeviceLegendItems.Clear();
-                for (int i = 0; i < deviceData.Length; i++)
+                OpCoDeviceSeries = deviceData.Select((data, index) =>
                 {
-                    var (name, count) = deviceData[i];
-                    var color = _chartColors[i % _chartColors.Count];
-                    deviceSeries.Add(new PieSeries<long> { Name = name, Values = new[] { count }, Fill = new SolidColorPaint(color) });
-                    DeviceLegendItems.Add(new LegendItem
+                    var (name, count) = data;
+                    double percentage = totalDevices == 0 ? 0 : (double)count / totalDevices;
+                    return new PieSeries<long>
                     {
-                        Name = name,
-                        Count = count,
-                        Percentage = totalDevices == 0 ? 0 : (double)count / totalDevices,
-                        ColorBrush = new SolidColorBrush(Color.FromArgb(color.Alpha, color.Red, color.Green, color.Blue))
-                    });
-                }
-                OpCoDeviceSeries = deviceSeries.ToArray();
+                        Values = new[] { count },
+                        Name = $"{name} {count} ({percentage:P1})", // Format the legend text here
+                        Fill = new SolidColorPaint(_chartColors[index % _chartColors.Count])
+                    };
+                }).ToArray();
                 OnPropertyChanged(nameof(OpCoDeviceSeries));
             });
         });
