@@ -59,9 +59,17 @@
               "target": "Package",
               "version": "[8.4.0, )"
             },
+            "CommunityToolkit.WinUI.Controls.Primitives": {
+              "target": "Package",
+              "version": "[8.2.250402, )"
+            },
             "CommunityToolkit.WinUI.UI.Controls.DataGrid": {
               "target": "Package",
               "version": "[7.1.2, )"
+            },
+            "LiveChartsCore.SkiaSharpView.WinUI": {
+              "target": "Package",
+              "version": "[2.0.0-rc6.1, )"
             },
             "Microsoft.Extensions.DependencyInjection": {
               "target": "Package",
@@ -90,6 +98,10 @@
             "Serilog.Sinks.File": {
               "target": "Package",
               "version": "[7.0.0, )"
+            },
+            "SkiaSharp.Views.WinUI": {
+              "target": "Package",
+              "version": "[3.119.1, )"
             },
             "System.Text.Json": {
               "target": "Package",

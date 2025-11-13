@@ -1,24 +1,7 @@
 {
   "Version": 1,
   "WorkspaceRootPath": "C:\\Users\\Pirate\\source\\repos\\AIM\\",
-  "Documents": [
-    {
-      "AbsoluteMoniker": "D:0:0:{4D4877E1-9EE6-48A1-9CC8-DDBB06D18AA5}|AIM.csproj|c:\\users\\pirate\\source\\repos\\aim\\views\\browsepage.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{4D4877E1-9EE6-48A1-9CC8-DDBB06D18AA5}|AIM.csproj|solutionrelative:views\\browsepage.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{4D4877E1-9EE6-48A1-9CC8-DDBB06D18AA5}|AIM.csproj|c:\\users\\pirate\\source\\repos\\aim\\views\\browsepage.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}",
-      "RelativeMoniker": "D:0:0:{4D4877E1-9EE6-48A1-9CC8-DDBB06D18AA5}|AIM.csproj|solutionrelative:views\\browsepage.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{4D4877E1-9EE6-48A1-9CC8-DDBB06D18AA5}|AIM.csproj|c:\\users\\pirate\\source\\repos\\aim\\viewmodels\\browseviewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{4D4877E1-9EE6-48A1-9CC8-DDBB06D18AA5}|AIM.csproj|solutionrelative:viewmodels\\browseviewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{4D4877E1-9EE6-48A1-9CC8-DDBB06D18AA5}|AIM.csproj|c:\\users\\pirate\\source\\repos\\aim\\models\\contentitem.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{4D4877E1-9EE6-48A1-9CC8-DDBB06D18AA5}|AIM.csproj|solutionrelative:models\\contentitem.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    }
-  ],
+  "Documents": [],
   "DocumentGroupContainers": [
     {
       "Orientation": 0,
@@ -26,61 +9,11 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 2,
+          "SelectedChildIndex": -1,
           "Children": [
             {
               "$type": "Bookmark",
               "Name": "ST:0:0:{aa2115a1-9712-457b-9047-dbb71ca2cdd2}"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 3,
-              "Title": "ContentItem.cs",
-              "DocumentMoniker": "C:\\Users\\Pirate\\source\\repos\\AIM\\Models\\ContentItem.cs",
-              "RelativeDocumentMoniker": "Models\\ContentItem.cs",
-              "ToolTip": "C:\\Users\\Pirate\\source\\repos\\AIM\\Models\\ContentItem.cs",
-              "RelativeToolTip": "Models\\ContentItem.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAABQAAAABAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-11-13T03:08:53.705Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 0,
-              "Title": "BrowsePage.xaml.cs",
-              "DocumentMoniker": "C:\\Users\\Pirate\\source\\repos\\AIM\\Views\\BrowsePage.xaml.cs",
-              "RelativeDocumentMoniker": "Views\\BrowsePage.xaml.cs",
-              "ToolTip": "C:\\Users\\Pirate\\source\\repos\\AIM\\Views\\BrowsePage.xaml.cs",
-              "RelativeToolTip": "Views\\BrowsePage.xaml.cs",
-              "ViewState": "AgIAAGAAAAAAAAAAAAAowIQAAAANAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-11-13T02:07:40.6Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 1,
-              "Title": "BrowsePage.xaml",
-              "DocumentMoniker": "C:\\Users\\Pirate\\source\\repos\\AIM\\Views\\BrowsePage.xaml",
-              "RelativeDocumentMoniker": "Views\\BrowsePage.xaml",
-              "ToolTip": "C:\\Users\\Pirate\\source\\repos\\AIM\\Views\\BrowsePage.xaml",
-              "RelativeToolTip": "Views\\BrowsePage.xaml",
-              "ViewState": "AgIAAJEAAAAAAAAAAAAYwK0AAAAAAQAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003549|",
-              "WhenOpened": "2025-11-13T02:07:27.299Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 2,
-              "Title": "BrowseViewModel.cs",
-              "DocumentMoniker": "C:\\Users\\Pirate\\source\\repos\\AIM\\ViewModels\\BrowseViewModel.cs",
-              "RelativeDocumentMoniker": "ViewModels\\BrowseViewModel.cs",
-              "ToolTip": "C:\\Users\\Pirate\\source\\repos\\AIM\\ViewModels\\BrowseViewModel.cs",
-              "RelativeToolTip": "ViewModels\\BrowseViewModel.cs",
-              "ViewState": "AgIAADgBAAAAAAAAAAAowF8BAAABAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-11-13T01:57:26.939Z"
             }
           ]
         }

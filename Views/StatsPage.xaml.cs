@@ -1,9 +1,9 @@
 using AIM.Models;
 using AIM.ViewModels;
-using AIM.Services;
-using CommunityToolkit.Mvvm.DependencyInjection; // Added
+using CommunityToolkit.Mvvm.DependencyInjection;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Input;
+using Microsoft.UI.Xaml.Navigation;
 
 namespace AIM.Views;
 
@@ -14,20 +14,21 @@ public sealed partial class StatsPage : Page
     public StatsPage()
     {
         this.InitializeComponent();
-
-        // The ONLY change is here:
         ViewModel = Ioc.Default.GetRequiredService<StatsViewModel>();
-
-        // Your original DataContext assignment is preserved
-        DataContext = ViewModel;
+        this.DataContext = ViewModel;
     }
 
-    // All of your original event handler logic is preserved
-    private void ListBox_DoubleTapped(object sender, Microsoft.UI.Xaml.Input.DoubleTappedRoutedEventArgs e)
+    protected override void OnNavigatedTo(NavigationEventArgs e)
     {
-        if (sender is ListBox listBox && listBox.SelectedItem is ProblematicFile file)
+        base.OnNavigatedTo(e);
+        ViewModel.LoadStatsCommand.Execute(null);
+    }
+
+    private void ProblematicFilesListView_DoubleTapped(object sender, DoubleTappedRoutedEventArgs e)
+    {
+        if (ProblematicFilesListView.SelectedItem is ProblematicFile selectedFile)
         {
-            ViewModel.OpenFileCommand.Execute(file);
+            ViewModel.OpenFile(selectedFile);
         }
     }
 }

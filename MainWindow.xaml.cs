@@ -62,12 +62,14 @@ public sealed partial class MainWindow : Window
                 pageType = typeof(SettingsPage);
                 break;
 
-            // TODO: Add cases for "InvArchives" and "Stats" when their pages exist
+            // THE FIX: Uncommented the case for the "Stats" tag.
+            case "Stats":
+                pageType = typeof(StatsPage);
+                break;
+
+            // TODO: Add case for "InvArchives" when the page exists
             // case "InvArchives":
             //     pageType = typeof(InvArchivesPage);
-            //     break;
-            // case "Stats":
-            //     pageType = typeof(StatsPage);
             //     break;
 
             // These are commands, not pages, so we handle them directly.

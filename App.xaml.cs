@@ -23,19 +23,18 @@ public partial class App : Application
                 .AddSingleton<ISearchService, SearchService>()
                 .AddSingleton<INavigationService, NavigationService>()
                 .AddSingleton<IInfoBarService, InfoBarService>()
-                .AddSingleton<IDialogService, DialogService>() // The fix from the last step
+                .AddSingleton<IDialogService, DialogService>()
 
                 // Register ViewModels
-                // THIS IS THE FIX: Simple, clean registration. The container will resolve its dependencies.
                 .AddSingleton<MainViewModel>()
                 .AddTransient<BrowseViewModel>()
                 .AddTransient<ScansViewModel>()
                 .AddTransient<SearchViewModel>()
                 .AddTransient<SettingsViewModel>()
                 .AddTransient<PreviewViewModel>()
+                // THE FIX: Register the StatsViewModel so the container knows how to create it.
+                .AddTransient<StatsViewModel>()
                 .BuildServiceProvider());
-
-
     }
 
     protected override void OnLaunched(LaunchActivatedEventArgs args)
