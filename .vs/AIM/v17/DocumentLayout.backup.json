@@ -3,36 +3,20 @@
   "WorkspaceRootPath": "C:\\Users\\Pirate\\source\\repos\\AIM\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{4D4877E1-9EE6-48A1-9CC8-DDBB06D18AA5}|AIM.csproj|c:\\users\\pirate\\source\\repos\\aim\\views\\scanspage.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{4D4877E1-9EE6-48A1-9CC8-DDBB06D18AA5}|AIM.csproj|solutionrelative:views\\scanspage.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{4D4877E1-9EE6-48A1-9CC8-DDBB06D18AA5}|AIM.csproj|c:\\users\\pirate\\source\\repos\\aim\\views\\browsepage.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{4D4877E1-9EE6-48A1-9CC8-DDBB06D18AA5}|AIM.csproj|solutionrelative:views\\browsepage.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{4D4877E1-9EE6-48A1-9CC8-DDBB06D18AA5}|AIM.csproj|c:\\users\\pirate\\source\\repos\\aim\\views\\scanspage.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}",
-      "RelativeMoniker": "D:0:0:{4D4877E1-9EE6-48A1-9CC8-DDBB06D18AA5}|AIM.csproj|solutionrelative:views\\scanspage.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}"
+      "AbsoluteMoniker": "D:0:0:{4D4877E1-9EE6-48A1-9CC8-DDBB06D18AA5}|AIM.csproj|c:\\users\\pirate\\source\\repos\\aim\\views\\browsepage.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}",
+      "RelativeMoniker": "D:0:0:{4D4877E1-9EE6-48A1-9CC8-DDBB06D18AA5}|AIM.csproj|solutionrelative:views\\browsepage.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\Pirate\\source\\repos\\AIM\\obj\\x64\\Debug\\net8.0-windows10.0.22621.0\\win-x64\\App.g.i.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:obj\\x64\\Debug\\net8.0-windows10.0.22621.0\\win-x64\\App.g.i.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{4D4877E1-9EE6-48A1-9CC8-DDBB06D18AA5}|AIM.csproj|c:\\users\\pirate\\source\\repos\\aim\\viewmodels\\browseviewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{4D4877E1-9EE6-48A1-9CC8-DDBB06D18AA5}|AIM.csproj|solutionrelative:viewmodels\\browseviewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{4D4877E1-9EE6-48A1-9CC8-DDBB06D18AA5}|AIM.csproj|c:\\users\\pirate\\source\\repos\\aim\\models\\scantreeitem.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{4D4877E1-9EE6-48A1-9CC8-DDBB06D18AA5}|AIM.csproj|solutionrelative:models\\scantreeitem.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{4D4877E1-9EE6-48A1-9CC8-DDBB06D18AA5}|AIM.csproj|c:\\users\\pirate\\source\\repos\\aim\\viewmodels\\scansviewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{4D4877E1-9EE6-48A1-9CC8-DDBB06D18AA5}|AIM.csproj|solutionrelative:viewmodels\\scansviewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{4D4877E1-9EE6-48A1-9CC8-DDBB06D18AA5}|AIM.csproj|c:\\users\\pirate\\source\\repos\\aim\\models\\breadcrumbitem.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{4D4877E1-9EE6-48A1-9CC8-DDBB06D18AA5}|AIM.csproj|solutionrelative:models\\breadcrumbitem.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{4D4877E1-9EE6-48A1-9CC8-DDBB06D18AA5}|AIM.csproj|c:\\users\\pirate\\source\\repos\\aim\\mainwindow.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{4D4877E1-9EE6-48A1-9CC8-DDBB06D18AA5}|AIM.csproj|solutionrelative:mainwindow.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{4D4877E1-9EE6-48A1-9CC8-DDBB06D18AA5}|AIM.csproj|c:\\users\\pirate\\source\\repos\\aim\\mainwindow.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}",
-      "RelativeMoniker": "D:0:0:{4D4877E1-9EE6-48A1-9CC8-DDBB06D18AA5}|AIM.csproj|solutionrelative:mainwindow.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}"
+      "AbsoluteMoniker": "D:0:0:{4D4877E1-9EE6-48A1-9CC8-DDBB06D18AA5}|AIM.csproj|c:\\users\\pirate\\source\\repos\\aim\\models\\contentitem.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{4D4877E1-9EE6-48A1-9CC8-DDBB06D18AA5}|AIM.csproj|solutionrelative:models\\contentitem.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
   "DocumentGroupContainers": [
@@ -50,104 +34,54 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
-              "Title": "App.g.i.cs",
-              "DocumentMoniker": "C:\\Users\\Pirate\\source\\repos\\AIM\\obj\\x64\\Debug\\net8.0-windows10.0.22621.0\\win-x64\\App.g.i.cs",
-              "RelativeDocumentMoniker": "obj\\x64\\Debug\\net8.0-windows10.0.22621.0\\win-x64\\App.g.i.cs",
-              "ToolTip": "C:\\Users\\Pirate\\source\\repos\\AIM\\obj\\x64\\Debug\\net8.0-windows10.0.22621.0\\win-x64\\App.g.i.cs",
-              "RelativeToolTip": "obj\\x64\\Debug\\net8.0-windows10.0.22621.0\\win-x64\\App.g.i.cs",
-              "ViewState": "AgIAAC8AAAAAAAAAAAAWwEQAAABEAAAAAAAAAA==",
+              "DocumentIndex": 3,
+              "Title": "ContentItem.cs",
+              "DocumentMoniker": "C:\\Users\\Pirate\\source\\repos\\AIM\\Models\\ContentItem.cs",
+              "RelativeDocumentMoniker": "Models\\ContentItem.cs",
+              "ToolTip": "C:\\Users\\Pirate\\source\\repos\\AIM\\Models\\ContentItem.cs",
+              "RelativeToolTip": "Models\\ContentItem.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABQAAAABAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-11-12T20:57:49.909Z",
+              "WhenOpened": "2025-11-13T03:08:53.705Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
               "DocumentIndex": 0,
-              "Title": "ScansPage.xaml.cs",
-              "DocumentMoniker": "C:\\Users\\Pirate\\source\\repos\\AIM\\Views\\ScansPage.xaml.cs",
-              "RelativeDocumentMoniker": "Views\\ScansPage.xaml.cs",
-              "ToolTip": "C:\\Users\\Pirate\\source\\repos\\AIM\\Views\\ScansPage.xaml.cs",
-              "RelativeToolTip": "Views\\ScansPage.xaml.cs",
-              "ViewState": "AgIAAAEAAAAAAAAAAAAAABIAAAANAAAAAAAAAA==",
+              "Title": "BrowsePage.xaml.cs",
+              "DocumentMoniker": "C:\\Users\\Pirate\\source\\repos\\AIM\\Views\\BrowsePage.xaml.cs",
+              "RelativeDocumentMoniker": "Views\\BrowsePage.xaml.cs",
+              "ToolTip": "C:\\Users\\Pirate\\source\\repos\\AIM\\Views\\BrowsePage.xaml.cs",
+              "RelativeToolTip": "Views\\BrowsePage.xaml.cs",
+              "ViewState": "AgIAAGAAAAAAAAAAAAAowIQAAAANAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-11-12T16:08:38.334Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 5,
-              "Title": "BreadcrumbItem.cs",
-              "DocumentMoniker": "C:\\Users\\Pirate\\source\\repos\\AIM\\Models\\BreadcrumbItem.cs",
-              "RelativeDocumentMoniker": "Models\\BreadcrumbItem.cs",
-              "ToolTip": "C:\\Users\\Pirate\\source\\repos\\AIM\\Models\\BreadcrumbItem.cs",
-              "RelativeToolTip": "Models\\BreadcrumbItem.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAYAAAAkAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-11-12T16:04:03.591Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 3,
-              "Title": "ScanTreeItem.cs",
-              "DocumentMoniker": "C:\\Users\\Pirate\\source\\repos\\AIM\\Models\\ScanTreeItem.cs",
-              "RelativeDocumentMoniker": "Models\\ScanTreeItem.cs",
-              "ToolTip": "C:\\Users\\Pirate\\source\\repos\\AIM\\Models\\ScanTreeItem.cs",
-              "RelativeToolTip": "Models\\ScanTreeItem.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAcwCUAAAABAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-11-12T15:35:49.818Z",
+              "WhenOpened": "2025-11-13T02:07:40.6Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
               "DocumentIndex": 1,
-              "Title": "ScansPage.xaml",
-              "DocumentMoniker": "C:\\Users\\Pirate\\source\\repos\\AIM\\Views\\ScansPage.xaml",
-              "RelativeDocumentMoniker": "Views\\ScansPage.xaml",
-              "ToolTip": "C:\\Users\\Pirate\\source\\repos\\AIM\\Views\\ScansPage.xaml",
-              "RelativeToolTip": "Views\\ScansPage.xaml",
-              "ViewState": "AgIAALMAAAAAAAAAAAAWwMgAAAAHAAAAAAAAAA==",
+              "Title": "BrowsePage.xaml",
+              "DocumentMoniker": "C:\\Users\\Pirate\\source\\repos\\AIM\\Views\\BrowsePage.xaml",
+              "RelativeDocumentMoniker": "Views\\BrowsePage.xaml",
+              "ToolTip": "C:\\Users\\Pirate\\source\\repos\\AIM\\Views\\BrowsePage.xaml",
+              "RelativeToolTip": "Views\\BrowsePage.xaml",
+              "ViewState": "AgIAAJEAAAAAAAAAAAAYwK0AAAAAAQAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003549|",
-              "WhenOpened": "2025-11-12T15:28:55.547Z",
+              "WhenOpened": "2025-11-13T02:07:27.299Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 4,
-              "Title": "ScansViewModel.cs",
-              "DocumentMoniker": "C:\\Users\\Pirate\\source\\repos\\AIM\\ViewModels\\ScansViewModel.cs",
-              "RelativeDocumentMoniker": "ViewModels\\ScansViewModel.cs",
-              "ToolTip": "C:\\Users\\Pirate\\source\\repos\\AIM\\ViewModels\\ScansViewModel.cs",
-              "RelativeToolTip": "ViewModels\\ScansViewModel.cs",
-              "ViewState": "AgIAAOcAAAAAAAAAAAAowA8BAAABAAAAAAAAAA==",
+              "DocumentIndex": 2,
+              "Title": "BrowseViewModel.cs",
+              "DocumentMoniker": "C:\\Users\\Pirate\\source\\repos\\AIM\\ViewModels\\BrowseViewModel.cs",
+              "RelativeDocumentMoniker": "ViewModels\\BrowseViewModel.cs",
+              "ToolTip": "C:\\Users\\Pirate\\source\\repos\\AIM\\ViewModels\\BrowseViewModel.cs",
+              "RelativeToolTip": "ViewModels\\BrowseViewModel.cs",
+              "ViewState": "AgIAADgBAAAAAAAAAAAowF8BAAABAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-11-12T14:45:14.83Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 6,
-              "Title": "MainWindow.xaml.cs",
-              "DocumentMoniker": "C:\\Users\\Pirate\\source\\repos\\AIM\\MainWindow.xaml.cs",
-              "RelativeDocumentMoniker": "MainWindow.xaml.cs",
-              "ToolTip": "C:\\Users\\Pirate\\source\\repos\\AIM\\MainWindow.xaml.cs",
-              "RelativeToolTip": "MainWindow.xaml.cs",
-              "ViewState": "AgIAAAwAAAAAAAAAAAAAwB4AAAAmAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-11-12T14:35:03.885Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 7,
-              "Title": "MainWindow.xaml",
-              "DocumentMoniker": "C:\\Users\\Pirate\\source\\repos\\AIM\\MainWindow.xaml",
-              "RelativeDocumentMoniker": "MainWindow.xaml",
-              "ToolTip": "C:\\Users\\Pirate\\source\\repos\\AIM\\MainWindow.xaml",
-              "RelativeToolTip": "MainWindow.xaml",
-              "ViewState": "AgIAADIAAAAAAAAAAAAowFkAAAAJAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003549|",
-              "WhenOpened": "2025-11-12T14:34:55.944Z",
+              "WhenOpened": "2025-11-13T01:57:26.939Z",
               "EditorCaption": ""
             }
           ]

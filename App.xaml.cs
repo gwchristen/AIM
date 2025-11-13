@@ -34,6 +34,8 @@ public partial class App : Application
                 .AddTransient<SettingsViewModel>()
                 .AddTransient<PreviewViewModel>()
                 .BuildServiceProvider());
+
+
     }
 
     protected override void OnLaunched(LaunchActivatedEventArgs args)

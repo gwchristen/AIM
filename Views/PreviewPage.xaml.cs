@@ -1,4 +1,3 @@
-using AIM.Models;
 using AIM.ViewModels;
 using CommunityToolkit.Mvvm.DependencyInjection;
 using Microsoft.UI.Xaml.Controls;
@@ -14,21 +13,19 @@ public sealed partial class PreviewPage : Page
     {
         this.InitializeComponent();
         ViewModel = Ioc.Default.GetRequiredService<PreviewViewModel>();
-        // Set DataContext so XAML bindings work
-        DataContext = ViewModel;
     }
 
-    protected override void OnNavigatedTo(NavigationEventArgs e)
+    protected override async void OnNavigatedTo(NavigationEventArgs e)
     {
         base.OnNavigatedTo(e);
+        await ViewModel.OnNavigatedTo(e.Parameter);
+    }
 
-        // This is the updated logic:
-        // Check if the navigation parameter is a FileItem
-        if (e.Parameter is FileItem fileItem)
+    private void GoBackButton_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
+    {
+        if (Frame.CanGoBack)
         {
-            // Call the method on the ViewModel to load the file,
-            // instead of trying to set a property.
-            ViewModel.LoadFileContent(fileItem);
+            Frame.GoBack();
         }
     }
 }
