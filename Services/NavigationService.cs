@@ -5,12 +5,10 @@ namespace AIM.Services;
 
 public class NavigationService : INavigationService
 {
-    // --- THIS IS THE FIX ---
-    // A private field to hold the main navigation frame.
-    private Frame _frame;
+    private Frame? _frame;
 
-    // --- THIS IS THE FIX ---
-    // The implementation of the Initialize method.
+    public bool CanGoBack => _frame?.CanGoBack ?? false;
+
     public void Initialize(Frame frame)
     {
         _frame = frame;
@@ -18,11 +16,27 @@ public class NavigationService : INavigationService
 
     public void NavigateTo(Type pageType)
     {
-        _frame?.Navigate(pageType);
+        if (_frame == null)
+        {
+            throw new InvalidOperationException("Navigation frame has not been initialized.");
+        }
+        _frame.Navigate(pageType);
     }
 
     public void NavigateTo(Type pageType, object parameter)
     {
-        _frame?.Navigate(pageType, parameter);
+        if (_frame == null)
+        {
+            throw new InvalidOperationException("Navigation frame has not been initialized.");
+        }
+        _frame.Navigate(pageType, parameter);
+    }
+
+    public void GoBack()
+    {
+        if (CanGoBack)
+        {
+            _frame?.GoBack();
+        }
     }
 }

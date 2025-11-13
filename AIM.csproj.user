@@ -16,10 +16,22 @@
     <None Update="Package.appxmanifest">
       <SubType>Designer</SubType>
     </None>
+    <Page Update="Views\PrintableFormPage.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="Views\InventoryAdminPage.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="Views\InventoryViewerPage.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="Views\InventoryArchivePage.xaml">
+      <SubType>Designer</SubType>
+    </Page>
     <Page Update="Views\StatsPage.xaml">
       <SubType>Designer</SubType>
     </Page>
-    <Page Update="Views\InvArchivesPage.xaml">
+    <Page Update="Views\InventoryPage.xaml">
       <SubType>Designer</SubType>
     </Page>
     <Page Update="Views\ScansPage.xaml">

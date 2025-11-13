@@ -2,40 +2,51 @@
 using Microsoft.UI.Dispatching;
 using Microsoft.UI.Xaml.Controls;
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace AIM.Services;
 
 public class InfoBarService : IInfoBarService
 {
-    private InfoBar _infoBar;
-    private DispatcherQueue _dispatcherQueue;
+    private InfoBar? _appInfoBar;
+    private Timer? _timer;
 
     public void Initialize(InfoBar infoBar)
     {
-        _infoBar = infoBar;
-        _dispatcherQueue = DispatcherQueue.GetForCurrentThread();
+        _appInfoBar = infoBar;
+        // Using System.Threading.Timer is safer across different threads.
+        _timer = new Timer(_ => Hide(), null, Timeout.Infinite, Timeout.Infinite);
     }
 
-    public void Show(string title, string message, InfoBarSeverity severity = InfoBarSeverity.Informational, int autoHideDelay = 5000)
+    public void Show(string title, string message, InfoBarSeverity severity, int autoHideDelay = 5000)
     {
-        // Ensure the call is made on the UI thread
-        _dispatcherQueue.TryEnqueue(async () =>
+        // THE FIX: We no longer try to auto-find the control. We just check if it's there.
+        if (_appInfoBar == null)
         {
-            _infoBar.Title = title;
-            _infoBar.Message = message;
-            _infoBar.Severity = severity;
-            _infoBar.IsOpen = true;
+            return; // If not initialized, do nothing. This prevents the crash.
+        }
 
-            if (autoHideDelay > 0)
-            {
-                await Task.Delay(autoHideDelay);
-                // Check if it's still the same message before closing
-                if (_infoBar.Title == title && _infoBar.Message == message)
-                {
-                    _infoBar.IsOpen = false;
-                }
-            }
+        // Ensure this UI update happens on the UI thread.
+        _appInfoBar.DispatcherQueue.TryEnqueue(() =>
+        {
+            _appInfoBar.Title = title;
+            _appInfoBar.Message = message;
+            _appInfoBar.Severity = severity;
+            _appInfoBar.IsOpen = true;
+
+            // Stop any previous timer and start a new one if needed.
+            _timer?.Change(autoHideDelay > 0 ? autoHideDelay : Timeout.Infinite, Timeout.Infinite);
+        });
+    }
+
+    private void Hide()
+    {
+        if (_appInfoBar == null) return;
+
+        _appInfoBar.DispatcherQueue.TryEnqueue(() =>
+        {
+            _appInfoBar.IsOpen = false;
         });
     }
 }

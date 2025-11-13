@@ -1,33 +1,49 @@
 ﻿using AIM.Models;
+using System;
 using System.IO;
 using System.Text.Json;
+using Windows.Storage;
 
 namespace AIM.Services;
 
 public class SettingsService : ISettingsService
 {
-    private readonly string _settingsFilePath;
+    private readonly string _settingsPath;
 
     public SettingsService()
     {
-        var appDataFolder = Path.Combine(System.Environment.GetFolderPath(System.Environment.SpecialFolder.ApplicationData), "AIM");
-        Directory.CreateDirectory(appDataFolder);
-        _settingsFilePath = Path.Combine(appDataFolder, "settings.json");
+        var appDataFolder = ApplicationData.Current.LocalFolder.Path;
+        _settingsPath = Path.Combine(appDataFolder, "settings.json");
     }
 
+    // This now correctly returns the AppSettings object, fixing the error.
     public AppSettings LoadSettings()
     {
-        if (File.Exists(_settingsFilePath))
+        try
         {
-            var json = File.ReadAllText(_settingsFilePath);
-            return JsonSerializer.Deserialize<AppSettings>(json) ?? new AppSettings();
+            if (File.Exists(_settingsPath))
+            {
+                var json = File.ReadAllText(_settingsPath);
+                return JsonSerializer.Deserialize<AppSettings>(json) ?? new AppSettings();
+            }
         }
-        return new AppSettings(); // Return a new instance if file doesn't exist
+        catch (Exception)
+        {
+            // If deserialization fails, return default settings
+        }
+        return new AppSettings();
     }
 
     public void SaveSettings(AppSettings settings)
     {
-        var json = JsonSerializer.Serialize(settings, new JsonSerializerOptions { WriteIndented = true });
-        File.WriteAllText(_settingsFilePath, json);
+        try
+        {
+            var json = JsonSerializer.Serialize(settings, new JsonSerializerOptions { WriteIndented = true });
+            File.WriteAllText(_settingsPath, json);
+        }
+        catch (Exception)
+        {
+            // Handle save error if necessary
+        }
     }
 }

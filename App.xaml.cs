@@ -1,45 +1,78 @@
 ﻿using AIM.Services;
 using AIM.ViewModels;
+using AIM.Views;
 using CommunityToolkit.Mvvm.DependencyInjection;
+using CommunityToolkit.Mvvm.Messaging;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Xaml;
+using System;
 
 namespace AIM;
 
 public partial class App : Application
 {
-    public static new App Current => (App)Application.Current;
-    public static Window MainWindow { get; set; }
-
     public App()
     {
         this.InitializeComponent();
-
-        Ioc.Default.ConfigureServices(
-            new ServiceCollection()
-                // Register services as Singletons
-                .AddSingleton<ISettingsService, SettingsService>()
-                .AddSingleton<IFileService, FileService>()
-                .AddSingleton<ISearchService, SearchService>()
-                .AddSingleton<INavigationService, NavigationService>()
-                .AddSingleton<IInfoBarService, InfoBarService>()
-                .AddSingleton<IDialogService, DialogService>()
-
-                // Register ViewModels
-                .AddSingleton<MainViewModel>()
-                .AddTransient<BrowseViewModel>()
-                .AddTransient<ScansViewModel>()
-                .AddTransient<SearchViewModel>()
-                .AddTransient<SettingsViewModel>()
-                .AddTransient<PreviewViewModel>()
-                // THE FIX: Register the StatsViewModel so the container knows how to create it.
-                .AddTransient<StatsViewModel>()
-                .BuildServiceProvider());
     }
+
+    public static Window? MainWindow { get; private set; }
+    public IServiceProvider Services { get; private set; }
 
     protected override void OnLaunched(LaunchActivatedEventArgs args)
     {
+        Services = ConfigureServices();
+        Ioc.Default.ConfigureServices(Services);
+
         MainWindow = new MainWindow();
         MainWindow.Activate();
+    }
+
+    private static IServiceProvider ConfigureServices()
+    {
+        var services = new ServiceCollection();
+
+        // Services
+        services.AddSingleton<INavigationService, NavigationService>();
+        services.AddSingleton<ISettingsService, SettingsService>();
+        services.AddSingleton<IFileService, FileService>();
+        services.AddSingleton<IDialogService, DialogService>();
+        services.AddSingleton<IInfoBarService, InfoBarService>();
+        services.AddSingleton<ISearchService, SearchService>();
+        // THE FIX: Register the new DirectoryOperationService
+        services.AddSingleton<DirectoryOperationService>();
+        services.AddSingleton<IMessenger>(WeakReferenceMessenger.Default); // Add Messenger
+        services.AddSingleton<IPrintService, PrintService>(); // Register PrintService
+
+
+
+        // ViewModels
+        services.AddTransient<MainViewModel>();
+        services.AddTransient<BrowseViewModel>();
+        services.AddTransient<PreviewViewModel>();
+        services.AddTransient<SearchViewModel>();
+        services.AddTransient<ScansViewModel>();
+        services.AddTransient<StatsViewModel>();
+        services.AddTransient<InventoryArchiveViewModel>();
+        services.AddTransient<InventoryViewerViewModel>();
+        services.AddTransient<InventoryAdminViewModel>();
+        services.AddTransient<SettingsViewModel>();
+        services.AddTransient<PrintableFormViewModel>();
+
+
+        // Pages
+        services.AddTransient<BrowsePage>();
+        services.AddTransient<PreviewPage>();
+        services.AddTransient<SearchPage>();
+        services.AddTransient<ScansPage>();
+        services.AddTransient<StatsPage>();
+        services.AddTransient<InventoryArchivePage>();
+        services.AddTransient<InventoryViewerPage>();
+        services.AddTransient<InventoryAdminPage>();
+        services.AddTransient<SettingsPage>();
+        services.AddTransient<PrintableFormPage>();
+
+
+        return services.BuildServiceProvider();
     }
 }

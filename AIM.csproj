@@ -15,7 +15,11 @@
   </PropertyGroup>
   <ItemGroup>
     <None Remove="Views\BrowsePage.xaml" />
+    <None Remove="Views\InventoryAdminPage.xaml" />
+    <None Remove="Views\InventoryArchivePage.xaml" />
+    <None Remove="Views\InventoryViewerPage.xaml" />
     <None Remove="Views\PreviewPage.xaml" />
+    <None Remove="Views\PrintableFormPage.xaml" />
     <None Remove="Views\ScansPage.xaml" />
     <None Remove="Views\SearchPage.xaml" />
     <None Remove="Views\SettingsPage.xaml" />
@@ -65,12 +69,32 @@
     <Folder Include="Helpers\" />
   </ItemGroup>
   <ItemGroup>
+    <Page Update="Views\PrintableFormPage.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <Page Update="Views\InventoryAdminPage.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <Page Update="Views\InventoryViewerPage.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <Page Update="Views\InventoryArchivePage.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+  </ItemGroup>
+  <ItemGroup>
     <Page Update="Views\StatsPage.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>
   </ItemGroup>
   <ItemGroup>
-    <Page Update="Views\InvArchivesPage.xaml">
+    <Page Update="Views\InventoryPage.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>
   </ItemGroup>
