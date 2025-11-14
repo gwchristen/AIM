@@ -12,11 +12,15 @@
             <SolidColorBrush x:Key="TabViewButtonBackground" Color="Transparent"/>
             <StaticResource x:Key="TabViewButtonForeground" ResourceKey="TextFillColorPrimaryBrush"/>
             
-            <converters:BoolNegationConverter x:Key="BoolNegationConverter"/>
-            <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
-            <converters:BoolToFontWeightConverter x:Key="BoolToFontWeightConverter"/>
-            <converters:StringToVisibilityConverter x:Key="StringToVisibilityConverter"/>
-            <converters:PercentageConverter x:Key="PercentageConverter"/>
+            <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
+            <converters:InverseBoolToVisibilityConverter x:Key="InverseBoolToVisibilityConverter" />
+            <converters:StringToVisibilityConverter x:Key="StringToVisibilityConverter" />
+            <converters:InverseBoolConverter x:Key="InverseBoolConverter" />
+            <converters:BoolToFontWeightConverter x:Key="BoolToFontWeightConverter" />
+            <converters:PercentageConverter x:Key="PercentageConverter" />
+            <converters:BoolToTextWrappingConverter x:Key="BoolToTextWrappingConverter" />
+            <converters:BoolToSymbolConverter x:Key="BoolToSymbolConverter" />
+            <converters:BoolNegationConverter x:Key="BoolNegationConverter" />
 
             <Style TargetType="RadioButton" x:Key="TileRadioButton">
                 <Setter Property="Background" Value="Transparent"/>

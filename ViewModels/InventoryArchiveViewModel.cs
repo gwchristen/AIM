@@ -1,4 +1,5 @@
-﻿using AIM.Services;
+﻿using AIM.Models;
+using AIM.Services;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using System;
@@ -14,6 +15,8 @@ public partial class InventoryArchiveViewModel : ObservableObject
 {
     private readonly IDialogService _dialogService;
     private readonly INavigationService _navigationService;
+    // THE FIX: Add a field for the settings service.
+    private readonly ISettingsService _settingsService;
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(IsFolderSelected))]
@@ -24,15 +27,17 @@ public partial class InventoryArchiveViewModel : ObservableObject
     [ObservableProperty]
     private ObservableCollection<string> _archivedDirectories;
 
-    private readonly string _archiveBasePath;
+    // THE FIX: The hardcoded _archiveBasePath field is removed.
 
-    public InventoryArchiveViewModel(IDialogService dialogService, INavigationService navigationService)
+    // THE FIX: The constructor now accepts ISettingsService. Your DI container will provide it automatically.
+    public InventoryArchiveViewModel(IDialogService dialogService, INavigationService navigationService, ISettingsService settingsService)
     {
         _dialogService = dialogService;
         _navigationService = navigationService;
+        _settingsService = settingsService; // Store the injected service.
         _archivedDirectories = new ObservableCollection<string>();
 
-        _archiveBasePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "AIM_Archives");
+        // THE FIX: The hardcoded path initialization is removed from the constructor.
     }
 
     [RelayCommand]
@@ -58,10 +63,20 @@ public partial class InventoryArchiveViewModel : ObservableObject
     private void LoadArchivedDirectories()
     {
         ArchivedDirectories.Clear();
+        // THE FIX: Load settings to get the archive path instead of using the hardcoded field.
+        AppSettings settings = _settingsService.LoadSettings();
+        string archiveBasePath = settings.InventoryArchiveDirectory;
+
+        if (string.IsNullOrEmpty(archiveBasePath))
+        {
+            // If the path isn't set, we do nothing. This is expected if the user hasn't configured it.
+            return;
+        }
+
         try
         {
-            Directory.CreateDirectory(_archiveBasePath);
-            var dirs = Directory.GetDirectories(_archiveBasePath).Select(Path.GetFileName);
+            Directory.CreateDirectory(archiveBasePath); // Ensures the directory exists.
+            var dirs = Directory.GetDirectories(archiveBasePath).Select(Path.GetFileName);
             foreach (var dir in dirs)
             {
                 if (dir != null) ArchivedDirectories.Add(dir);
@@ -69,8 +84,8 @@ public partial class InventoryArchiveViewModel : ObservableObject
         }
         catch (Exception ex)
         {
-            // THE FIX: Calling your existing error dialog method
-            _dialogService.ShowErrorDialogAsync("Error Loading Archives", $"Could not read the archive directory at '{_archiveBasePath}'.\nError: {ex.Message}");
+            // Keep the method synchronous by not awaiting the dialog task.
+            _ = _dialogService.ShowErrorDialogAsync("Error Loading Archives", $"Could not read the archive directory at '{archiveBasePath}'.\nError: {ex.Message}");
         }
     }
 
@@ -83,17 +98,26 @@ public partial class InventoryArchiveViewModel : ObservableObject
             return;
         }
 
+        // THE FIX: Load settings to get the configured archive path.
+        AppSettings settings = _settingsService.LoadSettings();
+        string archiveBasePath = settings.InventoryArchiveDirectory;
+
+        if (string.IsNullOrEmpty(archiveBasePath))
+        {
+            await _dialogService.ShowInfoDialog("Archive Directory Not Set", "The Inventory Archive Directory has not been configured in the settings. Cannot archive the folder.");
+            return;
+        }
+
         var (result, newName) = await _dialogService.ShowTextInputDialog("Name Your Archive", "Enter a name for this archive:", Path.GetFileName(SelectedFolderToArchive));
 
         if (result == Microsoft.UI.Xaml.Controls.ContentDialogResult.Primary && !string.IsNullOrWhiteSpace(newName))
         {
-            string destinationPath = Path.Combine(_archiveBasePath, newName);
+            string destinationPath = Path.Combine(archiveBasePath, newName);
 
             try
             {
                 if (Directory.Exists(destinationPath))
                 {
-                    // THE FIX: Calling your existing error dialog method
                     await _dialogService.ShowErrorDialogAsync("Archive Exists", $"An archive with the name '{newName}' already exists. Please choose a different name.");
                     return;
                 }
@@ -102,11 +126,11 @@ public partial class InventoryArchiveViewModel : ObservableObject
                 await _dialogService.ShowSuccessDialog("Archive Complete", $"The folder has been successfully archived as '{newName}'.");
 
                 SelectedFolderToArchive = null;
+                // Reload the directory list. This method is synchronous.
                 LoadArchivedDirectories();
             }
             catch (Exception ex)
             {
-                // THE FIX: Calling your existing error dialog method
                 await _dialogService.ShowErrorDialogAsync("Archiving Failed", $"An error occurred while moving the folder.\nError: {ex.Message}");
             }
         }
@@ -117,7 +141,17 @@ public partial class InventoryArchiveViewModel : ObservableObject
     {
         if (string.IsNullOrEmpty(folderName)) return;
 
-        string fullPath = Path.Combine(_archiveBasePath, folderName);
+        // THE FIX: Load settings to ensure the correct path is used for navigation.
+        AppSettings settings = _settingsService.LoadSettings();
+        string archiveBasePath = settings.InventoryArchiveDirectory;
+
+        if (string.IsNullOrEmpty(archiveBasePath))
+        {
+            _ = _dialogService.ShowErrorDialogAsync("Archive Path Missing", "The Inventory Archive Directory is not set in settings. Cannot open the folder.");
+            return;
+        }
+
+        string fullPath = Path.Combine(archiveBasePath, folderName);
         _navigationService.NavigateTo(typeof(Views.InventoryViewerPage), fullPath);
     }
 }
