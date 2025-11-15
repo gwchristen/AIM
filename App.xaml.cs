@@ -3,6 +3,7 @@ using AIM.ViewModels;
 using AIM.Views;
 using CommunityToolkit.Mvvm.DependencyInjection;
 using CommunityToolkit.Mvvm.Messaging;
+using LiveChartsCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Xaml;
 using System;
@@ -26,6 +27,7 @@ public partial class App : Application
 
         MainWindow = new MainWindow();
         MainWindow.Activate();
+        
     }
 
     private static IServiceProvider ConfigureServices()

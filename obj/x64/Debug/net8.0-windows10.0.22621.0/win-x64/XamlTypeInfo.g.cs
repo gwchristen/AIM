@@ -325,77 +325,77 @@ namespace AIM.AIM_XamlTypeInfo
             _typeNameTable[95] = "Windows.UI.Text.FontWeight";
             _typeNameTable[96] = "AIM.Views.BrowsePage";
             _typeNameTable[97] = "Microsoft.UI.Xaml.Controls.Page";
-            _typeNameTable[98] = "AIM.Views.DirAnalysisPage";
-            _typeNameTable[99] = "AIM.ViewModels.DirAnalysisViewModel";
-            _typeNameTable[100] = "AIM.Views.FormGeneratorPage";
-            _typeNameTable[101] = "AIM.ViewModels.FormGeneratorViewModel";
-            _typeNameTable[102] = "Microsoft.UI.Xaml.Controls.Expander";
-            _typeNameTable[103] = "Microsoft.UI.Xaml.Controls.ExpandDirection";
-            _typeNameTable[104] = "Microsoft.UI.Xaml.Controls.ExpanderTemplateSettings";
-            _typeNameTable[105] = "AIM.Views.InventoryAdminPage";
-            _typeNameTable[106] = "AIM.ViewModels.InventoryAdminViewModel";
-            _typeNameTable[107] = "Microsoft.UI.Xaml.Controls.TabView";
-            _typeNameTable[108] = "Microsoft.UI.Xaml.Controls.TabViewCloseButtonOverlayMode";
-            _typeNameTable[109] = "Microsoft.UI.Xaml.Controls.TabViewWidthMode";
-            _typeNameTable[110] = "Microsoft.UI.Xaml.Controls.TabViewItem";
-            _typeNameTable[111] = "Microsoft.UI.Xaml.Controls.ListViewItem";
-            _typeNameTable[112] = "Microsoft.UI.Xaml.Controls.TabViewItemTemplateSettings";
-            _typeNameTable[113] = "AIM.Views.InventoryAdminToolsPage";
-            _typeNameTable[114] = "AIM.Views.InventoryArchivePage";
-            _typeNameTable[115] = "AIM.Views.InvArchivesPage";
-            _typeNameTable[116] = "AIM.ViewModels.InventoryViewModel";
-            _typeNameTable[117] = "Microsoft.UI.Xaml.Controls.ProgressRing";
-            _typeNameTable[118] = "Microsoft.UI.Xaml.Controls.ProgressRingTemplateSettings";
-            _typeNameTable[119] = "Microsoft.UI.Xaml.Controls.TreeView";
-            _typeNameTable[120] = "Microsoft.UI.Xaml.Media.Animation.TransitionCollection";
-            _typeNameTable[121] = "System.Collections.Generic.IList`1<Microsoft.UI.Xaml.Controls.TreeViewNode>";
-            _typeNameTable[122] = "Microsoft.UI.Xaml.Controls.TreeViewNode";
-            _typeNameTable[123] = "Microsoft.UI.Xaml.Controls.TreeViewSelectionMode";
-            _typeNameTable[124] = "Microsoft.UI.Xaml.Controls.TreeViewItem";
-            _typeNameTable[125] = "Microsoft.UI.Xaml.Controls.TreeViewItemTemplateSettings";
-            _typeNameTable[126] = "AIM.Views.InventoryViewerPage";
-            _typeNameTable[127] = "AIM.ViewModels.InventoryViewerViewModel";
-            _typeNameTable[128] = "AIM.Views.PreviewPage";
-            _typeNameTable[129] = "AIM.ViewModels.PreviewViewModel";
-            _typeNameTable[130] = "AIM.Converters.FormRowTemplateSelector";
-            _typeNameTable[131] = "AIM.Views.PrintableFormPage";
-            _typeNameTable[132] = "AIM.ViewModels.PrintableFormViewModel";
-            _typeNameTable[133] = "Microsoft.Xaml.Interactivity.Interaction";
-            _typeNameTable[134] = "Microsoft.Xaml.Interactivity.BehaviorCollection";
-            _typeNameTable[135] = "Microsoft.UI.Xaml.DependencyObjectCollection";
-            _typeNameTable[136] = "Microsoft.Xaml.Interactions.Core.EventTriggerBehavior";
-            _typeNameTable[137] = "Microsoft.Xaml.Interactivity.Trigger";
-            _typeNameTable[138] = "Microsoft.Xaml.Interactivity.Behavior";
-            _typeNameTable[139] = "Microsoft.Xaml.Interactivity.ActionCollection";
-            _typeNameTable[140] = "Microsoft.Xaml.Interactions.Core.InvokeCommandAction";
-            _typeNameTable[141] = "Microsoft.UI.Xaml.Data.IValueConverter";
-            _typeNameTable[142] = "AIM.Views.ScansPage";
-            _typeNameTable[143] = "AIM.ViewModels.ScansViewModel";
-            _typeNameTable[144] = "AIM.Views.SearchPage";
-            _typeNameTable[145] = "AIM.ViewModels.SearchViewModel";
-            _typeNameTable[146] = "AIM.Views.SettingsPage";
-            _typeNameTable[147] = "AIM.ViewModels.SettingsViewModel";
-            _typeNameTable[148] = "LiveChartsCore.SkiaSharpView.WinUI.PieChart";
-            _typeNameTable[149] = "LiveChartsGeneratedCode.SourceGenPieChart";
-            _typeNameTable[150] = "LiveChartsGeneratedCode.SourceGenChart";
-            _typeNameTable[151] = "System.Collections.Generic.IEnumerable`1<LiveChartsCore.ISeries>";
-            _typeNameTable[152] = "LiveChartsCore.Measure.LegendPosition";
-            _typeNameTable[153] = "LiveChartsCore.Chart";
-            _typeNameTable[154] = "LiveChartsCore.Kernel.Sketches.IChartTooltip";
-            _typeNameTable[155] = "LiveChartsCore.Kernel.Sketches.IChartLegend";
-            _typeNameTable[156] = "LiveChartsCore.Themes.Theme";
-            _typeNameTable[157] = "TimeSpan";
-            _typeNameTable[158] = "LiveChartsCore.Motion.CoreMotionCanvas";
-            _typeNameTable[159] = "System.Func`2<Single, Single>";
-            _typeNameTable[160] = "System.MulticastDelegate";
-            _typeNameTable[161] = "System.Delegate";
-            _typeNameTable[162] = "LiveChartsCore.Measure.Margin";
-            _typeNameTable[163] = "LiveChartsCore.Measure.TooltipPosition";
-            _typeNameTable[164] = "LiveChartsCore.Painting.Paint";
-            _typeNameTable[165] = "LiveChartsCore.Drawing.Animatable";
-            _typeNameTable[166] = "LiveChartsCore.Kernel.IChartElement";
-            _typeNameTable[167] = "System.Collections.Generic.IEnumerable`1<LiveChartsCore.Kernel.IChartElement>";
-            _typeNameTable[168] = "System.Collections.Generic.IEnumerable`1<Object>";
+            _typeNameTable[98] = "LiveChartsCore.SkiaSharpView.WinUI.PieChart";
+            _typeNameTable[99] = "LiveChartsGeneratedCode.SourceGenPieChart";
+            _typeNameTable[100] = "LiveChartsGeneratedCode.SourceGenChart";
+            _typeNameTable[101] = "System.Collections.Generic.IEnumerable`1<LiveChartsCore.ISeries>";
+            _typeNameTable[102] = "LiveChartsCore.Measure.LegendPosition";
+            _typeNameTable[103] = "LiveChartsCore.Chart";
+            _typeNameTable[104] = "LiveChartsCore.Kernel.Sketches.IChartTooltip";
+            _typeNameTable[105] = "LiveChartsCore.Kernel.Sketches.IChartLegend";
+            _typeNameTable[106] = "LiveChartsCore.Themes.Theme";
+            _typeNameTable[107] = "TimeSpan";
+            _typeNameTable[108] = "LiveChartsCore.Motion.CoreMotionCanvas";
+            _typeNameTable[109] = "System.Func`2<Single, Single>";
+            _typeNameTable[110] = "System.MulticastDelegate";
+            _typeNameTable[111] = "System.Delegate";
+            _typeNameTable[112] = "LiveChartsCore.Measure.Margin";
+            _typeNameTable[113] = "LiveChartsCore.Measure.TooltipPosition";
+            _typeNameTable[114] = "LiveChartsCore.Painting.Paint";
+            _typeNameTable[115] = "LiveChartsCore.Drawing.Animatable";
+            _typeNameTable[116] = "LiveChartsCore.Kernel.IChartElement";
+            _typeNameTable[117] = "System.Collections.Generic.IEnumerable`1<LiveChartsCore.Kernel.IChartElement>";
+            _typeNameTable[118] = "System.Collections.Generic.IEnumerable`1<Object>";
+            _typeNameTable[119] = "AIM.Views.DirAnalysisPage";
+            _typeNameTable[120] = "AIM.ViewModels.DirAnalysisViewModel";
+            _typeNameTable[121] = "AIM.Views.FormGeneratorPage";
+            _typeNameTable[122] = "AIM.ViewModels.FormGeneratorViewModel";
+            _typeNameTable[123] = "Microsoft.UI.Xaml.Controls.Expander";
+            _typeNameTable[124] = "Microsoft.UI.Xaml.Controls.ExpandDirection";
+            _typeNameTable[125] = "Microsoft.UI.Xaml.Controls.ExpanderTemplateSettings";
+            _typeNameTable[126] = "AIM.Views.InventoryAdminPage";
+            _typeNameTable[127] = "AIM.ViewModels.InventoryAdminViewModel";
+            _typeNameTable[128] = "Microsoft.UI.Xaml.Controls.TabView";
+            _typeNameTable[129] = "Microsoft.UI.Xaml.Controls.TabViewCloseButtonOverlayMode";
+            _typeNameTable[130] = "Microsoft.UI.Xaml.Controls.TabViewWidthMode";
+            _typeNameTable[131] = "Microsoft.UI.Xaml.Controls.TabViewItem";
+            _typeNameTable[132] = "Microsoft.UI.Xaml.Controls.ListViewItem";
+            _typeNameTable[133] = "Microsoft.UI.Xaml.Controls.TabViewItemTemplateSettings";
+            _typeNameTable[134] = "AIM.Views.InventoryAdminToolsPage";
+            _typeNameTable[135] = "AIM.Views.InventoryArchivePage";
+            _typeNameTable[136] = "AIM.Views.InvArchivesPage";
+            _typeNameTable[137] = "AIM.ViewModels.InventoryViewModel";
+            _typeNameTable[138] = "Microsoft.UI.Xaml.Controls.ProgressRing";
+            _typeNameTable[139] = "Microsoft.UI.Xaml.Controls.ProgressRingTemplateSettings";
+            _typeNameTable[140] = "Microsoft.UI.Xaml.Controls.TreeView";
+            _typeNameTable[141] = "Microsoft.UI.Xaml.Media.Animation.TransitionCollection";
+            _typeNameTable[142] = "System.Collections.Generic.IList`1<Microsoft.UI.Xaml.Controls.TreeViewNode>";
+            _typeNameTable[143] = "Microsoft.UI.Xaml.Controls.TreeViewNode";
+            _typeNameTable[144] = "Microsoft.UI.Xaml.Controls.TreeViewSelectionMode";
+            _typeNameTable[145] = "Microsoft.UI.Xaml.Controls.TreeViewItem";
+            _typeNameTable[146] = "Microsoft.UI.Xaml.Controls.TreeViewItemTemplateSettings";
+            _typeNameTable[147] = "AIM.Views.InventoryViewerPage";
+            _typeNameTable[148] = "AIM.ViewModels.InventoryViewerViewModel";
+            _typeNameTable[149] = "AIM.Views.PreviewPage";
+            _typeNameTable[150] = "AIM.ViewModels.PreviewViewModel";
+            _typeNameTable[151] = "AIM.Converters.FormRowTemplateSelector";
+            _typeNameTable[152] = "AIM.Views.PrintableFormPage";
+            _typeNameTable[153] = "AIM.ViewModels.PrintableFormViewModel";
+            _typeNameTable[154] = "Microsoft.Xaml.Interactivity.Interaction";
+            _typeNameTable[155] = "Microsoft.Xaml.Interactivity.BehaviorCollection";
+            _typeNameTable[156] = "Microsoft.UI.Xaml.DependencyObjectCollection";
+            _typeNameTable[157] = "Microsoft.Xaml.Interactions.Core.EventTriggerBehavior";
+            _typeNameTable[158] = "Microsoft.Xaml.Interactivity.Trigger";
+            _typeNameTable[159] = "Microsoft.Xaml.Interactivity.Behavior";
+            _typeNameTable[160] = "Microsoft.Xaml.Interactivity.ActionCollection";
+            _typeNameTable[161] = "Microsoft.Xaml.Interactions.Core.InvokeCommandAction";
+            _typeNameTable[162] = "Microsoft.UI.Xaml.Data.IValueConverter";
+            _typeNameTable[163] = "AIM.Views.ScansPage";
+            _typeNameTable[164] = "AIM.ViewModels.ScansViewModel";
+            _typeNameTable[165] = "AIM.Views.SearchPage";
+            _typeNameTable[166] = "AIM.ViewModels.SearchViewModel";
+            _typeNameTable[167] = "AIM.Views.SettingsPage";
+            _typeNameTable[168] = "AIM.ViewModels.SettingsViewModel";
             _typeNameTable[169] = "AIM.Views.StatsPage";
             _typeNameTable[170] = "AIM.ViewModels.StatsViewModel";
             _typeNameTable[171] = "WinUI3XamlPreview.ScaleValue";
@@ -499,77 +499,77 @@ namespace AIM.AIM_XamlTypeInfo
             _typeTable[95] = typeof(global::Windows.UI.Text.FontWeight);
             _typeTable[96] = typeof(global::AIM.Views.BrowsePage);
             _typeTable[97] = typeof(global::Microsoft.UI.Xaml.Controls.Page);
-            _typeTable[98] = typeof(global::AIM.Views.DirAnalysisPage);
-            _typeTable[99] = typeof(global::AIM.ViewModels.DirAnalysisViewModel);
-            _typeTable[100] = typeof(global::AIM.Views.FormGeneratorPage);
-            _typeTable[101] = typeof(global::AIM.ViewModels.FormGeneratorViewModel);
-            _typeTable[102] = typeof(global::Microsoft.UI.Xaml.Controls.Expander);
-            _typeTable[103] = typeof(global::Microsoft.UI.Xaml.Controls.ExpandDirection);
-            _typeTable[104] = typeof(global::Microsoft.UI.Xaml.Controls.ExpanderTemplateSettings);
-            _typeTable[105] = typeof(global::AIM.Views.InventoryAdminPage);
-            _typeTable[106] = typeof(global::AIM.ViewModels.InventoryAdminViewModel);
-            _typeTable[107] = typeof(global::Microsoft.UI.Xaml.Controls.TabView);
-            _typeTable[108] = typeof(global::Microsoft.UI.Xaml.Controls.TabViewCloseButtonOverlayMode);
-            _typeTable[109] = typeof(global::Microsoft.UI.Xaml.Controls.TabViewWidthMode);
-            _typeTable[110] = typeof(global::Microsoft.UI.Xaml.Controls.TabViewItem);
-            _typeTable[111] = typeof(global::Microsoft.UI.Xaml.Controls.ListViewItem);
-            _typeTable[112] = typeof(global::Microsoft.UI.Xaml.Controls.TabViewItemTemplateSettings);
-            _typeTable[113] = typeof(global::AIM.Views.InventoryAdminToolsPage);
-            _typeTable[114] = typeof(global::AIM.Views.InventoryArchivePage);
-            _typeTable[115] = typeof(global::AIM.Views.InvArchivesPage);
-            _typeTable[116] = typeof(global::AIM.ViewModels.InventoryViewModel);
-            _typeTable[117] = typeof(global::Microsoft.UI.Xaml.Controls.ProgressRing);
-            _typeTable[118] = typeof(global::Microsoft.UI.Xaml.Controls.ProgressRingTemplateSettings);
-            _typeTable[119] = typeof(global::Microsoft.UI.Xaml.Controls.TreeView);
-            _typeTable[120] = typeof(global::Microsoft.UI.Xaml.Media.Animation.TransitionCollection);
-            _typeTable[121] = typeof(global::System.Collections.Generic.IList<global::Microsoft.UI.Xaml.Controls.TreeViewNode>);
-            _typeTable[122] = typeof(global::Microsoft.UI.Xaml.Controls.TreeViewNode);
-            _typeTable[123] = typeof(global::Microsoft.UI.Xaml.Controls.TreeViewSelectionMode);
-            _typeTable[124] = typeof(global::Microsoft.UI.Xaml.Controls.TreeViewItem);
-            _typeTable[125] = typeof(global::Microsoft.UI.Xaml.Controls.TreeViewItemTemplateSettings);
-            _typeTable[126] = typeof(global::AIM.Views.InventoryViewerPage);
-            _typeTable[127] = typeof(global::AIM.ViewModels.InventoryViewerViewModel);
-            _typeTable[128] = typeof(global::AIM.Views.PreviewPage);
-            _typeTable[129] = typeof(global::AIM.ViewModels.PreviewViewModel);
-            _typeTable[130] = typeof(global::AIM.Converters.FormRowTemplateSelector);
-            _typeTable[131] = typeof(global::AIM.Views.PrintableFormPage);
-            _typeTable[132] = typeof(global::AIM.ViewModels.PrintableFormViewModel);
-            _typeTable[133] = typeof(global::Microsoft.Xaml.Interactivity.Interaction);
-            _typeTable[134] = typeof(global::Microsoft.Xaml.Interactivity.BehaviorCollection);
-            _typeTable[135] = typeof(global::Microsoft.UI.Xaml.DependencyObjectCollection);
-            _typeTable[136] = typeof(global::Microsoft.Xaml.Interactions.Core.EventTriggerBehavior);
-            _typeTable[137] = typeof(global::Microsoft.Xaml.Interactivity.Trigger);
-            _typeTable[138] = typeof(global::Microsoft.Xaml.Interactivity.Behavior);
-            _typeTable[139] = typeof(global::Microsoft.Xaml.Interactivity.ActionCollection);
-            _typeTable[140] = typeof(global::Microsoft.Xaml.Interactions.Core.InvokeCommandAction);
-            _typeTable[141] = typeof(global::Microsoft.UI.Xaml.Data.IValueConverter);
-            _typeTable[142] = typeof(global::AIM.Views.ScansPage);
-            _typeTable[143] = typeof(global::AIM.ViewModels.ScansViewModel);
-            _typeTable[144] = typeof(global::AIM.Views.SearchPage);
-            _typeTable[145] = typeof(global::AIM.ViewModels.SearchViewModel);
-            _typeTable[146] = typeof(global::AIM.Views.SettingsPage);
-            _typeTable[147] = typeof(global::AIM.ViewModels.SettingsViewModel);
-            _typeTable[148] = typeof(global::LiveChartsCore.SkiaSharpView.WinUI.PieChart);
-            _typeTable[149] = typeof(global::LiveChartsGeneratedCode.SourceGenPieChart);
-            _typeTable[150] = typeof(global::LiveChartsGeneratedCode.SourceGenChart);
-            _typeTable[151] = typeof(global::System.Collections.Generic.IEnumerable<global::LiveChartsCore.ISeries>);
-            _typeTable[152] = typeof(global::LiveChartsCore.Measure.LegendPosition);
-            _typeTable[153] = typeof(global::LiveChartsCore.Chart);
-            _typeTable[154] = typeof(global::LiveChartsCore.Kernel.Sketches.IChartTooltip);
-            _typeTable[155] = typeof(global::LiveChartsCore.Kernel.Sketches.IChartLegend);
-            _typeTable[156] = typeof(global::LiveChartsCore.Themes.Theme);
-            _typeTable[157] = typeof(global::System.TimeSpan);
-            _typeTable[158] = typeof(global::LiveChartsCore.Motion.CoreMotionCanvas);
-            _typeTable[159] = typeof(global::System.Func<global::System.Single, global::System.Single>);
-            _typeTable[160] = typeof(global::System.MulticastDelegate);
-            _typeTable[161] = typeof(global::System.Delegate);
-            _typeTable[162] = typeof(global::LiveChartsCore.Measure.Margin);
-            _typeTable[163] = typeof(global::LiveChartsCore.Measure.TooltipPosition);
-            _typeTable[164] = typeof(global::LiveChartsCore.Painting.Paint);
-            _typeTable[165] = typeof(global::LiveChartsCore.Drawing.Animatable);
-            _typeTable[166] = typeof(global::LiveChartsCore.Kernel.IChartElement);
-            _typeTable[167] = typeof(global::System.Collections.Generic.IEnumerable<global::LiveChartsCore.Kernel.IChartElement>);
-            _typeTable[168] = typeof(global::System.Collections.Generic.IEnumerable<global::System.Object>);
+            _typeTable[98] = typeof(global::LiveChartsCore.SkiaSharpView.WinUI.PieChart);
+            _typeTable[99] = typeof(global::LiveChartsGeneratedCode.SourceGenPieChart);
+            _typeTable[100] = typeof(global::LiveChartsGeneratedCode.SourceGenChart);
+            _typeTable[101] = typeof(global::System.Collections.Generic.IEnumerable<global::LiveChartsCore.ISeries>);
+            _typeTable[102] = typeof(global::LiveChartsCore.Measure.LegendPosition);
+            _typeTable[103] = typeof(global::LiveChartsCore.Chart);
+            _typeTable[104] = typeof(global::LiveChartsCore.Kernel.Sketches.IChartTooltip);
+            _typeTable[105] = typeof(global::LiveChartsCore.Kernel.Sketches.IChartLegend);
+            _typeTable[106] = typeof(global::LiveChartsCore.Themes.Theme);
+            _typeTable[107] = typeof(global::System.TimeSpan);
+            _typeTable[108] = typeof(global::LiveChartsCore.Motion.CoreMotionCanvas);
+            _typeTable[109] = typeof(global::System.Func<global::System.Single, global::System.Single>);
+            _typeTable[110] = typeof(global::System.MulticastDelegate);
+            _typeTable[111] = typeof(global::System.Delegate);
+            _typeTable[112] = typeof(global::LiveChartsCore.Measure.Margin);
+            _typeTable[113] = typeof(global::LiveChartsCore.Measure.TooltipPosition);
+            _typeTable[114] = typeof(global::LiveChartsCore.Painting.Paint);
+            _typeTable[115] = typeof(global::LiveChartsCore.Drawing.Animatable);
+            _typeTable[116] = typeof(global::LiveChartsCore.Kernel.IChartElement);
+            _typeTable[117] = typeof(global::System.Collections.Generic.IEnumerable<global::LiveChartsCore.Kernel.IChartElement>);
+            _typeTable[118] = typeof(global::System.Collections.Generic.IEnumerable<global::System.Object>);
+            _typeTable[119] = typeof(global::AIM.Views.DirAnalysisPage);
+            _typeTable[120] = typeof(global::AIM.ViewModels.DirAnalysisViewModel);
+            _typeTable[121] = typeof(global::AIM.Views.FormGeneratorPage);
+            _typeTable[122] = typeof(global::AIM.ViewModels.FormGeneratorViewModel);
+            _typeTable[123] = typeof(global::Microsoft.UI.Xaml.Controls.Expander);
+            _typeTable[124] = typeof(global::Microsoft.UI.Xaml.Controls.ExpandDirection);
+            _typeTable[125] = typeof(global::Microsoft.UI.Xaml.Controls.ExpanderTemplateSettings);
+            _typeTable[126] = typeof(global::AIM.Views.InventoryAdminPage);
+            _typeTable[127] = typeof(global::AIM.ViewModels.InventoryAdminViewModel);
+            _typeTable[128] = typeof(global::Microsoft.UI.Xaml.Controls.TabView);
+            _typeTable[129] = typeof(global::Microsoft.UI.Xaml.Controls.TabViewCloseButtonOverlayMode);
+            _typeTable[130] = typeof(global::Microsoft.UI.Xaml.Controls.TabViewWidthMode);
+            _typeTable[131] = typeof(global::Microsoft.UI.Xaml.Controls.TabViewItem);
+            _typeTable[132] = typeof(global::Microsoft.UI.Xaml.Controls.ListViewItem);
+            _typeTable[133] = typeof(global::Microsoft.UI.Xaml.Controls.TabViewItemTemplateSettings);
+            _typeTable[134] = typeof(global::AIM.Views.InventoryAdminToolsPage);
+            _typeTable[135] = typeof(global::AIM.Views.InventoryArchivePage);
+            _typeTable[136] = typeof(global::AIM.Views.InvArchivesPage);
+            _typeTable[137] = typeof(global::AIM.ViewModels.InventoryViewModel);
+            _typeTable[138] = typeof(global::Microsoft.UI.Xaml.Controls.ProgressRing);
+            _typeTable[139] = typeof(global::Microsoft.UI.Xaml.Controls.ProgressRingTemplateSettings);
+            _typeTable[140] = typeof(global::Microsoft.UI.Xaml.Controls.TreeView);
+            _typeTable[141] = typeof(global::Microsoft.UI.Xaml.Media.Animation.TransitionCollection);
+            _typeTable[142] = typeof(global::System.Collections.Generic.IList<global::Microsoft.UI.Xaml.Controls.TreeViewNode>);
+            _typeTable[143] = typeof(global::Microsoft.UI.Xaml.Controls.TreeViewNode);
+            _typeTable[144] = typeof(global::Microsoft.UI.Xaml.Controls.TreeViewSelectionMode);
+            _typeTable[145] = typeof(global::Microsoft.UI.Xaml.Controls.TreeViewItem);
+            _typeTable[146] = typeof(global::Microsoft.UI.Xaml.Controls.TreeViewItemTemplateSettings);
+            _typeTable[147] = typeof(global::AIM.Views.InventoryViewerPage);
+            _typeTable[148] = typeof(global::AIM.ViewModels.InventoryViewerViewModel);
+            _typeTable[149] = typeof(global::AIM.Views.PreviewPage);
+            _typeTable[150] = typeof(global::AIM.ViewModels.PreviewViewModel);
+            _typeTable[151] = typeof(global::AIM.Converters.FormRowTemplateSelector);
+            _typeTable[152] = typeof(global::AIM.Views.PrintableFormPage);
+            _typeTable[153] = typeof(global::AIM.ViewModels.PrintableFormViewModel);
+            _typeTable[154] = typeof(global::Microsoft.Xaml.Interactivity.Interaction);
+            _typeTable[155] = typeof(global::Microsoft.Xaml.Interactivity.BehaviorCollection);
+            _typeTable[156] = typeof(global::Microsoft.UI.Xaml.DependencyObjectCollection);
+            _typeTable[157] = typeof(global::Microsoft.Xaml.Interactions.Core.EventTriggerBehavior);
+            _typeTable[158] = typeof(global::Microsoft.Xaml.Interactivity.Trigger);
+            _typeTable[159] = typeof(global::Microsoft.Xaml.Interactivity.Behavior);
+            _typeTable[160] = typeof(global::Microsoft.Xaml.Interactivity.ActionCollection);
+            _typeTable[161] = typeof(global::Microsoft.Xaml.Interactions.Core.InvokeCommandAction);
+            _typeTable[162] = typeof(global::Microsoft.UI.Xaml.Data.IValueConverter);
+            _typeTable[163] = typeof(global::AIM.Views.ScansPage);
+            _typeTable[164] = typeof(global::AIM.ViewModels.ScansViewModel);
+            _typeTable[165] = typeof(global::AIM.Views.SearchPage);
+            _typeTable[166] = typeof(global::AIM.ViewModels.SearchViewModel);
+            _typeTable[167] = typeof(global::AIM.Views.SettingsPage);
+            _typeTable[168] = typeof(global::AIM.ViewModels.SettingsViewModel);
             _typeTable[169] = typeof(global::AIM.Views.StatsPage);
             _typeTable[170] = typeof(global::AIM.ViewModels.StatsViewModel);
             _typeTable[171] = typeof(global::WinUI3XamlPreview.ScaleValue);
@@ -642,38 +642,38 @@ namespace AIM.AIM_XamlTypeInfo
         private object Activate_90_DataGridTemplateColumn() { return new global::CommunityToolkit.WinUI.UI.Controls.DataGridTemplateColumn(); }
         private object Activate_91_DataGridTextColumn() { return new global::CommunityToolkit.WinUI.UI.Controls.DataGridTextColumn(); }
         private object Activate_96_BrowsePage() { return new global::AIM.Views.BrowsePage(); }
-        private object Activate_98_DirAnalysisPage() { return new global::AIM.Views.DirAnalysisPage(); }
-        private object Activate_100_FormGeneratorPage() { return new global::AIM.Views.FormGeneratorPage(); }
-        private object Activate_102_Expander() { return new global::Microsoft.UI.Xaml.Controls.Expander(); }
-        private object Activate_105_InventoryAdminPage() { return new global::AIM.Views.InventoryAdminPage(); }
-        private object Activate_107_TabView() { return new global::Microsoft.UI.Xaml.Controls.TabView(); }
-        private object Activate_110_TabViewItem() { return new global::Microsoft.UI.Xaml.Controls.TabViewItem(); }
-        private object Activate_112_TabViewItemTemplateSettings() { return new global::Microsoft.UI.Xaml.Controls.TabViewItemTemplateSettings(); }
-        private object Activate_113_InventoryAdminToolsPage() { return new global::AIM.Views.InventoryAdminToolsPage(); }
-        private object Activate_114_InventoryArchivePage() { return new global::AIM.Views.InventoryArchivePage(); }
-        private object Activate_115_InvArchivesPage() { return new global::AIM.Views.InvArchivesPage(); }
-        private object Activate_116_InventoryViewModel() { return new global::AIM.ViewModels.InventoryViewModel(); }
-        private object Activate_117_ProgressRing() { return new global::Microsoft.UI.Xaml.Controls.ProgressRing(); }
-        private object Activate_119_TreeView() { return new global::Microsoft.UI.Xaml.Controls.TreeView(); }
-        private object Activate_122_TreeViewNode() { return new global::Microsoft.UI.Xaml.Controls.TreeViewNode(); }
-        private object Activate_124_TreeViewItem() { return new global::Microsoft.UI.Xaml.Controls.TreeViewItem(); }
-        private object Activate_125_TreeViewItemTemplateSettings() { return new global::Microsoft.UI.Xaml.Controls.TreeViewItemTemplateSettings(); }
-        private object Activate_126_InventoryViewerPage() { return new global::AIM.Views.InventoryViewerPage(); }
-        private object Activate_128_PreviewPage() { return new global::AIM.Views.PreviewPage(); }
-        private object Activate_130_FormRowTemplateSelector() { return new global::AIM.Converters.FormRowTemplateSelector(); }
-        private object Activate_131_PrintableFormPage() { return new global::AIM.Views.PrintableFormPage(); }
-        private object Activate_134_BehaviorCollection() { return new global::Microsoft.Xaml.Interactivity.BehaviorCollection(); }
-        private object Activate_136_EventTriggerBehavior() { return new global::Microsoft.Xaml.Interactions.Core.EventTriggerBehavior(); }
-        private object Activate_139_ActionCollection() { return new global::Microsoft.Xaml.Interactivity.ActionCollection(); }
-        private object Activate_140_InvokeCommandAction() { return new global::Microsoft.Xaml.Interactions.Core.InvokeCommandAction(); }
-        private object Activate_142_ScansPage() { return new global::AIM.Views.ScansPage(); }
-        private object Activate_144_SearchPage() { return new global::AIM.Views.SearchPage(); }
-        private object Activate_146_SettingsPage() { return new global::AIM.Views.SettingsPage(); }
-        private object Activate_148_PieChart() { return new global::LiveChartsCore.SkiaSharpView.WinUI.PieChart(); }
-        private object Activate_149_SourceGenPieChart() { return new global::LiveChartsGeneratedCode.SourceGenPieChart(); }
-        private object Activate_156_Theme() { return new global::LiveChartsCore.Themes.Theme(); }
-        private object Activate_158_CoreMotionCanvas() { return new global::LiveChartsCore.Motion.CoreMotionCanvas(); }
-        private object Activate_162_Margin() { return new global::LiveChartsCore.Measure.Margin(); }
+        private object Activate_98_PieChart() { return new global::LiveChartsCore.SkiaSharpView.WinUI.PieChart(); }
+        private object Activate_99_SourceGenPieChart() { return new global::LiveChartsGeneratedCode.SourceGenPieChart(); }
+        private object Activate_106_Theme() { return new global::LiveChartsCore.Themes.Theme(); }
+        private object Activate_108_CoreMotionCanvas() { return new global::LiveChartsCore.Motion.CoreMotionCanvas(); }
+        private object Activate_112_Margin() { return new global::LiveChartsCore.Measure.Margin(); }
+        private object Activate_119_DirAnalysisPage() { return new global::AIM.Views.DirAnalysisPage(); }
+        private object Activate_121_FormGeneratorPage() { return new global::AIM.Views.FormGeneratorPage(); }
+        private object Activate_123_Expander() { return new global::Microsoft.UI.Xaml.Controls.Expander(); }
+        private object Activate_126_InventoryAdminPage() { return new global::AIM.Views.InventoryAdminPage(); }
+        private object Activate_128_TabView() { return new global::Microsoft.UI.Xaml.Controls.TabView(); }
+        private object Activate_131_TabViewItem() { return new global::Microsoft.UI.Xaml.Controls.TabViewItem(); }
+        private object Activate_133_TabViewItemTemplateSettings() { return new global::Microsoft.UI.Xaml.Controls.TabViewItemTemplateSettings(); }
+        private object Activate_134_InventoryAdminToolsPage() { return new global::AIM.Views.InventoryAdminToolsPage(); }
+        private object Activate_135_InventoryArchivePage() { return new global::AIM.Views.InventoryArchivePage(); }
+        private object Activate_136_InvArchivesPage() { return new global::AIM.Views.InvArchivesPage(); }
+        private object Activate_137_InventoryViewModel() { return new global::AIM.ViewModels.InventoryViewModel(); }
+        private object Activate_138_ProgressRing() { return new global::Microsoft.UI.Xaml.Controls.ProgressRing(); }
+        private object Activate_140_TreeView() { return new global::Microsoft.UI.Xaml.Controls.TreeView(); }
+        private object Activate_143_TreeViewNode() { return new global::Microsoft.UI.Xaml.Controls.TreeViewNode(); }
+        private object Activate_145_TreeViewItem() { return new global::Microsoft.UI.Xaml.Controls.TreeViewItem(); }
+        private object Activate_146_TreeViewItemTemplateSettings() { return new global::Microsoft.UI.Xaml.Controls.TreeViewItemTemplateSettings(); }
+        private object Activate_147_InventoryViewerPage() { return new global::AIM.Views.InventoryViewerPage(); }
+        private object Activate_149_PreviewPage() { return new global::AIM.Views.PreviewPage(); }
+        private object Activate_151_FormRowTemplateSelector() { return new global::AIM.Converters.FormRowTemplateSelector(); }
+        private object Activate_152_PrintableFormPage() { return new global::AIM.Views.PrintableFormPage(); }
+        private object Activate_155_BehaviorCollection() { return new global::Microsoft.Xaml.Interactivity.BehaviorCollection(); }
+        private object Activate_157_EventTriggerBehavior() { return new global::Microsoft.Xaml.Interactions.Core.EventTriggerBehavior(); }
+        private object Activate_160_ActionCollection() { return new global::Microsoft.Xaml.Interactivity.ActionCollection(); }
+        private object Activate_161_InvokeCommandAction() { return new global::Microsoft.Xaml.Interactions.Core.InvokeCommandAction(); }
+        private object Activate_163_ScansPage() { return new global::AIM.Views.ScansPage(); }
+        private object Activate_165_SearchPage() { return new global::AIM.Views.SearchPage(); }
+        private object Activate_167_SettingsPage() { return new global::AIM.Views.SettingsPage(); }
         private object Activate_169_StatsPage() { return new global::AIM.Views.StatsPage(); }
         private void StaticInitializer_0_XamlControlsResources() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::Microsoft.UI.Xaml.Controls.XamlControlsResources).TypeHandle);
         private void StaticInitializer_4_BoolToVisibilityConverter() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::AIM.Converters.BoolToVisibilityConverter).TypeHandle);
@@ -743,73 +743,73 @@ namespace AIM.AIM_XamlTypeInfo
         private void StaticInitializer_94_FontStyle() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::Windows.UI.Text.FontStyle).TypeHandle);
         private void StaticInitializer_95_FontWeight() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::Windows.UI.Text.FontWeight).TypeHandle);
         private void StaticInitializer_96_BrowsePage() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::AIM.Views.BrowsePage).TypeHandle);
-        private void StaticInitializer_98_DirAnalysisPage() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::AIM.Views.DirAnalysisPage).TypeHandle);
-        private void StaticInitializer_99_DirAnalysisViewModel() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::AIM.ViewModels.DirAnalysisViewModel).TypeHandle);
-        private void StaticInitializer_100_FormGeneratorPage() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::AIM.Views.FormGeneratorPage).TypeHandle);
-        private void StaticInitializer_101_FormGeneratorViewModel() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::AIM.ViewModels.FormGeneratorViewModel).TypeHandle);
-        private void StaticInitializer_102_Expander() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::Microsoft.UI.Xaml.Controls.Expander).TypeHandle);
-        private void StaticInitializer_103_ExpandDirection() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::Microsoft.UI.Xaml.Controls.ExpandDirection).TypeHandle);
-        private void StaticInitializer_104_ExpanderTemplateSettings() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::Microsoft.UI.Xaml.Controls.ExpanderTemplateSettings).TypeHandle);
-        private void StaticInitializer_105_InventoryAdminPage() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::AIM.Views.InventoryAdminPage).TypeHandle);
-        private void StaticInitializer_106_InventoryAdminViewModel() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::AIM.ViewModels.InventoryAdminViewModel).TypeHandle);
-        private void StaticInitializer_107_TabView() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::Microsoft.UI.Xaml.Controls.TabView).TypeHandle);
-        private void StaticInitializer_108_TabViewCloseButtonOverlayMode() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::Microsoft.UI.Xaml.Controls.TabViewCloseButtonOverlayMode).TypeHandle);
-        private void StaticInitializer_109_TabViewWidthMode() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::Microsoft.UI.Xaml.Controls.TabViewWidthMode).TypeHandle);
-        private void StaticInitializer_110_TabViewItem() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::Microsoft.UI.Xaml.Controls.TabViewItem).TypeHandle);
-        private void StaticInitializer_112_TabViewItemTemplateSettings() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::Microsoft.UI.Xaml.Controls.TabViewItemTemplateSettings).TypeHandle);
-        private void StaticInitializer_113_InventoryAdminToolsPage() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::AIM.Views.InventoryAdminToolsPage).TypeHandle);
-        private void StaticInitializer_114_InventoryArchivePage() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::AIM.Views.InventoryArchivePage).TypeHandle);
-        private void StaticInitializer_115_InvArchivesPage() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::AIM.Views.InvArchivesPage).TypeHandle);
-        private void StaticInitializer_116_InventoryViewModel() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::AIM.ViewModels.InventoryViewModel).TypeHandle);
-        private void StaticInitializer_117_ProgressRing() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::Microsoft.UI.Xaml.Controls.ProgressRing).TypeHandle);
-        private void StaticInitializer_118_ProgressRingTemplateSettings() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::Microsoft.UI.Xaml.Controls.ProgressRingTemplateSettings).TypeHandle);
-        private void StaticInitializer_119_TreeView() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::Microsoft.UI.Xaml.Controls.TreeView).TypeHandle);
-        private void StaticInitializer_121_IList() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::System.Collections.Generic.IList<global::Microsoft.UI.Xaml.Controls.TreeViewNode>).TypeHandle);
-        private void StaticInitializer_122_TreeViewNode() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::Microsoft.UI.Xaml.Controls.TreeViewNode).TypeHandle);
-        private void StaticInitializer_123_TreeViewSelectionMode() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::Microsoft.UI.Xaml.Controls.TreeViewSelectionMode).TypeHandle);
-        private void StaticInitializer_124_TreeViewItem() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::Microsoft.UI.Xaml.Controls.TreeViewItem).TypeHandle);
-        private void StaticInitializer_125_TreeViewItemTemplateSettings() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::Microsoft.UI.Xaml.Controls.TreeViewItemTemplateSettings).TypeHandle);
-        private void StaticInitializer_126_InventoryViewerPage() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::AIM.Views.InventoryViewerPage).TypeHandle);
-        private void StaticInitializer_127_InventoryViewerViewModel() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::AIM.ViewModels.InventoryViewerViewModel).TypeHandle);
-        private void StaticInitializer_128_PreviewPage() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::AIM.Views.PreviewPage).TypeHandle);
-        private void StaticInitializer_129_PreviewViewModel() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::AIM.ViewModels.PreviewViewModel).TypeHandle);
-        private void StaticInitializer_130_FormRowTemplateSelector() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::AIM.Converters.FormRowTemplateSelector).TypeHandle);
-        private void StaticInitializer_131_PrintableFormPage() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::AIM.Views.PrintableFormPage).TypeHandle);
-        private void StaticInitializer_132_PrintableFormViewModel() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::AIM.ViewModels.PrintableFormViewModel).TypeHandle);
-        private void StaticInitializer_133_Interaction() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::Microsoft.Xaml.Interactivity.Interaction).TypeHandle);
-        private void StaticInitializer_134_BehaviorCollection() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::Microsoft.Xaml.Interactivity.BehaviorCollection).TypeHandle);
-        private void StaticInitializer_136_EventTriggerBehavior() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::Microsoft.Xaml.Interactions.Core.EventTriggerBehavior).TypeHandle);
-        private void StaticInitializer_137_Trigger() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::Microsoft.Xaml.Interactivity.Trigger).TypeHandle);
-        private void StaticInitializer_138_Behavior() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::Microsoft.Xaml.Interactivity.Behavior).TypeHandle);
-        private void StaticInitializer_139_ActionCollection() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::Microsoft.Xaml.Interactivity.ActionCollection).TypeHandle);
-        private void StaticInitializer_140_InvokeCommandAction() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::Microsoft.Xaml.Interactions.Core.InvokeCommandAction).TypeHandle);
-        private void StaticInitializer_142_ScansPage() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::AIM.Views.ScansPage).TypeHandle);
-        private void StaticInitializer_143_ScansViewModel() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::AIM.ViewModels.ScansViewModel).TypeHandle);
-        private void StaticInitializer_144_SearchPage() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::AIM.Views.SearchPage).TypeHandle);
-        private void StaticInitializer_145_SearchViewModel() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::AIM.ViewModels.SearchViewModel).TypeHandle);
-        private void StaticInitializer_146_SettingsPage() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::AIM.Views.SettingsPage).TypeHandle);
-        private void StaticInitializer_147_SettingsViewModel() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::AIM.ViewModels.SettingsViewModel).TypeHandle);
-        private void StaticInitializer_148_PieChart() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::LiveChartsCore.SkiaSharpView.WinUI.PieChart).TypeHandle);
-        private void StaticInitializer_149_SourceGenPieChart() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::LiveChartsGeneratedCode.SourceGenPieChart).TypeHandle);
-        private void StaticInitializer_150_SourceGenChart() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::LiveChartsGeneratedCode.SourceGenChart).TypeHandle);
-        private void StaticInitializer_151_IEnumerable() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::System.Collections.Generic.IEnumerable<global::LiveChartsCore.ISeries>).TypeHandle);
-        private void StaticInitializer_152_LegendPosition() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::LiveChartsCore.Measure.LegendPosition).TypeHandle);
-        private void StaticInitializer_153_Chart() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::LiveChartsCore.Chart).TypeHandle);
-        private void StaticInitializer_154_IChartTooltip() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::LiveChartsCore.Kernel.Sketches.IChartTooltip).TypeHandle);
-        private void StaticInitializer_155_IChartLegend() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::LiveChartsCore.Kernel.Sketches.IChartLegend).TypeHandle);
-        private void StaticInitializer_156_Theme() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::LiveChartsCore.Themes.Theme).TypeHandle);
-        private void StaticInitializer_157_TimeSpan() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::System.TimeSpan).TypeHandle);
-        private void StaticInitializer_158_CoreMotionCanvas() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::LiveChartsCore.Motion.CoreMotionCanvas).TypeHandle);
-        private void StaticInitializer_159_Func() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::System.Func<global::System.Single, global::System.Single>).TypeHandle);
-        private void StaticInitializer_160_MulticastDelegate() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::System.MulticastDelegate).TypeHandle);
-        private void StaticInitializer_161_Delegate() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::System.Delegate).TypeHandle);
-        private void StaticInitializer_162_Margin() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::LiveChartsCore.Measure.Margin).TypeHandle);
-        private void StaticInitializer_163_TooltipPosition() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::LiveChartsCore.Measure.TooltipPosition).TypeHandle);
-        private void StaticInitializer_164_Paint() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::LiveChartsCore.Painting.Paint).TypeHandle);
-        private void StaticInitializer_165_Animatable() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::LiveChartsCore.Drawing.Animatable).TypeHandle);
-        private void StaticInitializer_166_IChartElement() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::LiveChartsCore.Kernel.IChartElement).TypeHandle);
-        private void StaticInitializer_167_IEnumerable() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::System.Collections.Generic.IEnumerable<global::LiveChartsCore.Kernel.IChartElement>).TypeHandle);
-        private void StaticInitializer_168_IEnumerable() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::System.Collections.Generic.IEnumerable<global::System.Object>).TypeHandle);
+        private void StaticInitializer_98_PieChart() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::LiveChartsCore.SkiaSharpView.WinUI.PieChart).TypeHandle);
+        private void StaticInitializer_99_SourceGenPieChart() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::LiveChartsGeneratedCode.SourceGenPieChart).TypeHandle);
+        private void StaticInitializer_100_SourceGenChart() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::LiveChartsGeneratedCode.SourceGenChart).TypeHandle);
+        private void StaticInitializer_101_IEnumerable() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::System.Collections.Generic.IEnumerable<global::LiveChartsCore.ISeries>).TypeHandle);
+        private void StaticInitializer_102_LegendPosition() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::LiveChartsCore.Measure.LegendPosition).TypeHandle);
+        private void StaticInitializer_103_Chart() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::LiveChartsCore.Chart).TypeHandle);
+        private void StaticInitializer_104_IChartTooltip() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::LiveChartsCore.Kernel.Sketches.IChartTooltip).TypeHandle);
+        private void StaticInitializer_105_IChartLegend() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::LiveChartsCore.Kernel.Sketches.IChartLegend).TypeHandle);
+        private void StaticInitializer_106_Theme() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::LiveChartsCore.Themes.Theme).TypeHandle);
+        private void StaticInitializer_107_TimeSpan() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::System.TimeSpan).TypeHandle);
+        private void StaticInitializer_108_CoreMotionCanvas() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::LiveChartsCore.Motion.CoreMotionCanvas).TypeHandle);
+        private void StaticInitializer_109_Func() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::System.Func<global::System.Single, global::System.Single>).TypeHandle);
+        private void StaticInitializer_110_MulticastDelegate() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::System.MulticastDelegate).TypeHandle);
+        private void StaticInitializer_111_Delegate() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::System.Delegate).TypeHandle);
+        private void StaticInitializer_112_Margin() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::LiveChartsCore.Measure.Margin).TypeHandle);
+        private void StaticInitializer_113_TooltipPosition() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::LiveChartsCore.Measure.TooltipPosition).TypeHandle);
+        private void StaticInitializer_114_Paint() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::LiveChartsCore.Painting.Paint).TypeHandle);
+        private void StaticInitializer_115_Animatable() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::LiveChartsCore.Drawing.Animatable).TypeHandle);
+        private void StaticInitializer_116_IChartElement() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::LiveChartsCore.Kernel.IChartElement).TypeHandle);
+        private void StaticInitializer_117_IEnumerable() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::System.Collections.Generic.IEnumerable<global::LiveChartsCore.Kernel.IChartElement>).TypeHandle);
+        private void StaticInitializer_118_IEnumerable() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::System.Collections.Generic.IEnumerable<global::System.Object>).TypeHandle);
+        private void StaticInitializer_119_DirAnalysisPage() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::AIM.Views.DirAnalysisPage).TypeHandle);
+        private void StaticInitializer_120_DirAnalysisViewModel() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::AIM.ViewModels.DirAnalysisViewModel).TypeHandle);
+        private void StaticInitializer_121_FormGeneratorPage() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::AIM.Views.FormGeneratorPage).TypeHandle);
+        private void StaticInitializer_122_FormGeneratorViewModel() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::AIM.ViewModels.FormGeneratorViewModel).TypeHandle);
+        private void StaticInitializer_123_Expander() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::Microsoft.UI.Xaml.Controls.Expander).TypeHandle);
+        private void StaticInitializer_124_ExpandDirection() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::Microsoft.UI.Xaml.Controls.ExpandDirection).TypeHandle);
+        private void StaticInitializer_125_ExpanderTemplateSettings() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::Microsoft.UI.Xaml.Controls.ExpanderTemplateSettings).TypeHandle);
+        private void StaticInitializer_126_InventoryAdminPage() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::AIM.Views.InventoryAdminPage).TypeHandle);
+        private void StaticInitializer_127_InventoryAdminViewModel() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::AIM.ViewModels.InventoryAdminViewModel).TypeHandle);
+        private void StaticInitializer_128_TabView() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::Microsoft.UI.Xaml.Controls.TabView).TypeHandle);
+        private void StaticInitializer_129_TabViewCloseButtonOverlayMode() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::Microsoft.UI.Xaml.Controls.TabViewCloseButtonOverlayMode).TypeHandle);
+        private void StaticInitializer_130_TabViewWidthMode() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::Microsoft.UI.Xaml.Controls.TabViewWidthMode).TypeHandle);
+        private void StaticInitializer_131_TabViewItem() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::Microsoft.UI.Xaml.Controls.TabViewItem).TypeHandle);
+        private void StaticInitializer_133_TabViewItemTemplateSettings() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::Microsoft.UI.Xaml.Controls.TabViewItemTemplateSettings).TypeHandle);
+        private void StaticInitializer_134_InventoryAdminToolsPage() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::AIM.Views.InventoryAdminToolsPage).TypeHandle);
+        private void StaticInitializer_135_InventoryArchivePage() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::AIM.Views.InventoryArchivePage).TypeHandle);
+        private void StaticInitializer_136_InvArchivesPage() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::AIM.Views.InvArchivesPage).TypeHandle);
+        private void StaticInitializer_137_InventoryViewModel() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::AIM.ViewModels.InventoryViewModel).TypeHandle);
+        private void StaticInitializer_138_ProgressRing() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::Microsoft.UI.Xaml.Controls.ProgressRing).TypeHandle);
+        private void StaticInitializer_139_ProgressRingTemplateSettings() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::Microsoft.UI.Xaml.Controls.ProgressRingTemplateSettings).TypeHandle);
+        private void StaticInitializer_140_TreeView() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::Microsoft.UI.Xaml.Controls.TreeView).TypeHandle);
+        private void StaticInitializer_142_IList() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::System.Collections.Generic.IList<global::Microsoft.UI.Xaml.Controls.TreeViewNode>).TypeHandle);
+        private void StaticInitializer_143_TreeViewNode() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::Microsoft.UI.Xaml.Controls.TreeViewNode).TypeHandle);
+        private void StaticInitializer_144_TreeViewSelectionMode() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::Microsoft.UI.Xaml.Controls.TreeViewSelectionMode).TypeHandle);
+        private void StaticInitializer_145_TreeViewItem() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::Microsoft.UI.Xaml.Controls.TreeViewItem).TypeHandle);
+        private void StaticInitializer_146_TreeViewItemTemplateSettings() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::Microsoft.UI.Xaml.Controls.TreeViewItemTemplateSettings).TypeHandle);
+        private void StaticInitializer_147_InventoryViewerPage() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::AIM.Views.InventoryViewerPage).TypeHandle);
+        private void StaticInitializer_148_InventoryViewerViewModel() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::AIM.ViewModels.InventoryViewerViewModel).TypeHandle);
+        private void StaticInitializer_149_PreviewPage() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::AIM.Views.PreviewPage).TypeHandle);
+        private void StaticInitializer_150_PreviewViewModel() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::AIM.ViewModels.PreviewViewModel).TypeHandle);
+        private void StaticInitializer_151_FormRowTemplateSelector() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::AIM.Converters.FormRowTemplateSelector).TypeHandle);
+        private void StaticInitializer_152_PrintableFormPage() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::AIM.Views.PrintableFormPage).TypeHandle);
+        private void StaticInitializer_153_PrintableFormViewModel() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::AIM.ViewModels.PrintableFormViewModel).TypeHandle);
+        private void StaticInitializer_154_Interaction() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::Microsoft.Xaml.Interactivity.Interaction).TypeHandle);
+        private void StaticInitializer_155_BehaviorCollection() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::Microsoft.Xaml.Interactivity.BehaviorCollection).TypeHandle);
+        private void StaticInitializer_157_EventTriggerBehavior() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::Microsoft.Xaml.Interactions.Core.EventTriggerBehavior).TypeHandle);
+        private void StaticInitializer_158_Trigger() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::Microsoft.Xaml.Interactivity.Trigger).TypeHandle);
+        private void StaticInitializer_159_Behavior() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::Microsoft.Xaml.Interactivity.Behavior).TypeHandle);
+        private void StaticInitializer_160_ActionCollection() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::Microsoft.Xaml.Interactivity.ActionCollection).TypeHandle);
+        private void StaticInitializer_161_InvokeCommandAction() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::Microsoft.Xaml.Interactions.Core.InvokeCommandAction).TypeHandle);
+        private void StaticInitializer_163_ScansPage() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::AIM.Views.ScansPage).TypeHandle);
+        private void StaticInitializer_164_ScansViewModel() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::AIM.ViewModels.ScansViewModel).TypeHandle);
+        private void StaticInitializer_165_SearchPage() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::AIM.Views.SearchPage).TypeHandle);
+        private void StaticInitializer_166_SearchViewModel() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::AIM.ViewModels.SearchViewModel).TypeHandle);
+        private void StaticInitializer_167_SettingsPage() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::AIM.Views.SettingsPage).TypeHandle);
+        private void StaticInitializer_168_SettingsViewModel() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::AIM.ViewModels.SettingsViewModel).TypeHandle);
         private void StaticInitializer_169_StatsPage() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::AIM.Views.StatsPage).TypeHandle);
         private void StaticInitializer_170_StatsViewModel() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::AIM.ViewModels.StatsViewModel).TypeHandle);
         private void StaticInitializer_171_ScaleValue() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::WinUI3XamlPreview.ScaleValue).TypeHandle);
@@ -850,19 +850,19 @@ namespace AIM.AIM_XamlTypeInfo
             var newItem = (global::Microsoft.UI.Xaml.Style)item;
             collection.Add(newItem);
         }
-        private void VectorAdd_121_IList(object instance, object item)
+        private void VectorAdd_142_IList(object instance, object item)
         {
             var collection = (global::System.Collections.Generic.ICollection<global::Microsoft.UI.Xaml.Controls.TreeViewNode>)instance;
             var newItem = (global::Microsoft.UI.Xaml.Controls.TreeViewNode)item;
             collection.Add(newItem);
         }
-        private void VectorAdd_134_BehaviorCollection(object instance, object item)
+        private void VectorAdd_155_BehaviorCollection(object instance, object item)
         {
             var collection = (global::System.Collections.Generic.ICollection<global::Microsoft.UI.Xaml.DependencyObject>)instance;
             var newItem = (global::Microsoft.UI.Xaml.DependencyObject)item;
             collection.Add(newItem);
         }
-        private void VectorAdd_139_ActionCollection(object instance, object item)
+        private void VectorAdd_160_ActionCollection(object instance, object item)
         {
             var collection = (global::System.Collections.Generic.ICollection<global::Microsoft.UI.Xaml.DependencyObject>)instance;
             var newItem = (global::Microsoft.UI.Xaml.DependencyObject)item;
@@ -1681,44 +1681,235 @@ namespace AIM.AIM_XamlTypeInfo
                 xamlType = new global::AIM.AIM_XamlTypeInfo.XamlSystemBaseType(typeName, type);
                 break;
 
-            case 98:   //  AIM.Views.DirAnalysisPage
+            case 98:   //  LiveChartsCore.SkiaSharpView.WinUI.PieChart
+                userType = new global::AIM.AIM_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("LiveChartsGeneratedCode.SourceGenPieChart"));
+                userType.Activator = Activate_98_PieChart;
+                userType.StaticInitializer = StaticInitializer_98_PieChart;
+                xamlType = userType;
+                break;
+
+            case 99:   //  LiveChartsGeneratedCode.SourceGenPieChart
+                userType = new global::AIM.AIM_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("LiveChartsGeneratedCode.SourceGenChart"));
+                userType.Activator = Activate_99_SourceGenPieChart;
+                userType.StaticInitializer = StaticInitializer_99_SourceGenPieChart;
+                userType.AddMemberName("IsClockwise");
+                userType.AddMemberName("InitialRotation");
+                userType.AddMemberName("MaxAngle");
+                userType.AddMemberName("MaxValue");
+                userType.AddMemberName("MinValue");
+                xamlType = userType;
+                break;
+
+            case 100:   //  LiveChartsGeneratedCode.SourceGenChart
+                userType = new global::AIM.AIM_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("Microsoft.UI.Xaml.Controls.UserControl"));
+                userType.StaticInitializer = StaticInitializer_100_SourceGenChart;
+                userType.AddMemberName("Series");
+                userType.AddMemberName("LegendPosition");
+                userType.AddMemberName("CoreChart");
+                userType.AddMemberName("ForceGPU");
+                userType.AddMemberName("Tooltip");
+                userType.AddMemberName("Legend");
+                userType.AddMemberName("ChartTheme");
+                userType.AddMemberName("UpdaterThrottler");
+                userType.AddMemberName("AutoUpdateEnabled");
+                userType.AddMemberName("CoreCanvas");
+                userType.AddMemberName("UpdateStartedCommand");
+                userType.AddMemberName("DataPointerDownCommand");
+                userType.AddMemberName("HoveredPointsChangedCommand");
+                userType.AddMemberName("ChartPointPointerDownCommand");
+                userType.AddMemberName("VisualElementsPointerDownCommand");
+                userType.AddMemberName("PointerPressedCommand");
+                userType.AddMemberName("PointerMoveCommand");
+                userType.AddMemberName("PointerReleasedCommand");
+                userType.AddMemberName("AnimationsSpeed");
+                userType.AddMemberName("EasingFunction");
+                userType.AddMemberName("DrawMargin");
+                userType.AddMemberName("TooltipPosition");
+                userType.AddMemberName("LegendTextPaint");
+                userType.AddMemberName("LegendBackgroundPaint");
+                userType.AddMemberName("LegendTextSize");
+                userType.AddMemberName("TooltipTextPaint");
+                userType.AddMemberName("TooltipBackgroundPaint");
+                userType.AddMemberName("TooltipTextSize");
+                userType.AddMemberName("SyncContext");
+                userType.AddMemberName("Title");
+                userType.AddMemberName("VisualElements");
+                userType.AddMemberName("SeriesSource");
+                userType.AddMemberName("SeriesTemplate");
+                xamlType = userType;
+                break;
+
+            case 101:   //  System.Collections.Generic.IEnumerable`1<LiveChartsCore.ISeries>
+                userType = new global::AIM.AIM_XamlTypeInfo.XamlUserType(this, typeName, type, null);
+                userType.StaticInitializer = StaticInitializer_101_IEnumerable;
+                userType.SetIsReturnTypeStub();
+                xamlType = userType;
+                break;
+
+            case 102:   //  LiveChartsCore.Measure.LegendPosition
+                userType = new global::AIM.AIM_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("System.Enum"));
+                userType.StaticInitializer = StaticInitializer_102_LegendPosition;
+                userType.AddEnumValue("Hidden", global::LiveChartsCore.Measure.LegendPosition.Hidden);
+                userType.AddEnumValue("Top", global::LiveChartsCore.Measure.LegendPosition.Top);
+                userType.AddEnumValue("Left", global::LiveChartsCore.Measure.LegendPosition.Left);
+                userType.AddEnumValue("Right", global::LiveChartsCore.Measure.LegendPosition.Right);
+                userType.AddEnumValue("Bottom", global::LiveChartsCore.Measure.LegendPosition.Bottom);
+                xamlType = userType;
+                break;
+
+            case 103:   //  LiveChartsCore.Chart
+                userType = new global::AIM.AIM_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("Object"));
+                userType.StaticInitializer = StaticInitializer_103_Chart;
+                userType.SetIsReturnTypeStub();
+                xamlType = userType;
+                break;
+
+            case 104:   //  LiveChartsCore.Kernel.Sketches.IChartTooltip
+                userType = new global::AIM.AIM_XamlTypeInfo.XamlUserType(this, typeName, type, null);
+                userType.StaticInitializer = StaticInitializer_104_IChartTooltip;
+                userType.SetIsReturnTypeStub();
+                xamlType = userType;
+                break;
+
+            case 105:   //  LiveChartsCore.Kernel.Sketches.IChartLegend
+                userType = new global::AIM.AIM_XamlTypeInfo.XamlUserType(this, typeName, type, null);
+                userType.StaticInitializer = StaticInitializer_105_IChartLegend;
+                userType.SetIsReturnTypeStub();
+                xamlType = userType;
+                break;
+
+            case 106:   //  LiveChartsCore.Themes.Theme
+                userType = new global::AIM.AIM_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("Object"));
+                userType.StaticInitializer = StaticInitializer_106_Theme;
+                userType.SetIsReturnTypeStub();
+                xamlType = userType;
+                break;
+
+            case 107:   //  TimeSpan
+                userType = new global::AIM.AIM_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("System.ValueType"));
+                userType.StaticInitializer = StaticInitializer_107_TimeSpan;
+                userType.SetIsReturnTypeStub();
+                xamlType = userType;
+                break;
+
+            case 108:   //  LiveChartsCore.Motion.CoreMotionCanvas
+                userType = new global::AIM.AIM_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("Object"));
+                userType.StaticInitializer = StaticInitializer_108_CoreMotionCanvas;
+                userType.SetIsReturnTypeStub();
+                xamlType = userType;
+                break;
+
+            case 109:   //  System.Func`2<Single, Single>
+                userType = new global::AIM.AIM_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("System.MulticastDelegate"));
+                userType.StaticInitializer = StaticInitializer_109_Func;
+                userType.SetIsReturnTypeStub();
+                xamlType = userType;
+                break;
+
+            case 110:   //  System.MulticastDelegate
+                userType = new global::AIM.AIM_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("System.Delegate"));
+                userType.StaticInitializer = StaticInitializer_110_MulticastDelegate;
+                xamlType = userType;
+                break;
+
+            case 111:   //  System.Delegate
+                userType = new global::AIM.AIM_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("Object"));
+                userType.StaticInitializer = StaticInitializer_111_Delegate;
+                xamlType = userType;
+                break;
+
+            case 112:   //  LiveChartsCore.Measure.Margin
+                userType = new global::AIM.AIM_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("Object"));
+                userType.StaticInitializer = StaticInitializer_112_Margin;
+                userType.SetIsReturnTypeStub();
+                xamlType = userType;
+                break;
+
+            case 113:   //  LiveChartsCore.Measure.TooltipPosition
+                userType = new global::AIM.AIM_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("System.Enum"));
+                userType.StaticInitializer = StaticInitializer_113_TooltipPosition;
+                userType.AddEnumValue("Hidden", global::LiveChartsCore.Measure.TooltipPosition.Hidden);
+                userType.AddEnumValue("Auto", global::LiveChartsCore.Measure.TooltipPosition.Auto);
+                userType.AddEnumValue("Top", global::LiveChartsCore.Measure.TooltipPosition.Top);
+                userType.AddEnumValue("Bottom", global::LiveChartsCore.Measure.TooltipPosition.Bottom);
+                userType.AddEnumValue("Left", global::LiveChartsCore.Measure.TooltipPosition.Left);
+                userType.AddEnumValue("Right", global::LiveChartsCore.Measure.TooltipPosition.Right);
+                userType.AddEnumValue("Center", global::LiveChartsCore.Measure.TooltipPosition.Center);
+                xamlType = userType;
+                break;
+
+            case 114:   //  LiveChartsCore.Painting.Paint
+                userType = new global::AIM.AIM_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("LiveChartsCore.Drawing.Animatable"));
+                userType.StaticInitializer = StaticInitializer_114_Paint;
+                userType.SetIsReturnTypeStub();
+                xamlType = userType;
+                break;
+
+            case 115:   //  LiveChartsCore.Drawing.Animatable
+                userType = new global::AIM.AIM_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("Object"));
+                userType.StaticInitializer = StaticInitializer_115_Animatable;
+                xamlType = userType;
+                break;
+
+            case 116:   //  LiveChartsCore.Kernel.IChartElement
+                userType = new global::AIM.AIM_XamlTypeInfo.XamlUserType(this, typeName, type, null);
+                userType.StaticInitializer = StaticInitializer_116_IChartElement;
+                userType.SetIsReturnTypeStub();
+                xamlType = userType;
+                break;
+
+            case 117:   //  System.Collections.Generic.IEnumerable`1<LiveChartsCore.Kernel.IChartElement>
+                userType = new global::AIM.AIM_XamlTypeInfo.XamlUserType(this, typeName, type, null);
+                userType.StaticInitializer = StaticInitializer_117_IEnumerable;
+                userType.SetIsReturnTypeStub();
+                xamlType = userType;
+                break;
+
+            case 118:   //  System.Collections.Generic.IEnumerable`1<Object>
+                userType = new global::AIM.AIM_XamlTypeInfo.XamlUserType(this, typeName, type, null);
+                userType.StaticInitializer = StaticInitializer_118_IEnumerable;
+                userType.SetIsReturnTypeStub();
+                xamlType = userType;
+                break;
+
+            case 119:   //  AIM.Views.DirAnalysisPage
                 userType = new global::AIM.AIM_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("Microsoft.UI.Xaml.Controls.Page"));
-                userType.Activator = Activate_98_DirAnalysisPage;
-                userType.StaticInitializer = StaticInitializer_98_DirAnalysisPage;
+                userType.Activator = Activate_119_DirAnalysisPage;
+                userType.StaticInitializer = StaticInitializer_119_DirAnalysisPage;
                 userType.AddMemberName("ViewModel");
                 userType.SetIsLocalType();
                 xamlType = userType;
                 break;
 
-            case 99:   //  AIM.ViewModels.DirAnalysisViewModel
+            case 120:   //  AIM.ViewModels.DirAnalysisViewModel
                 userType = new global::AIM.AIM_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("CommunityToolkit.Mvvm.ComponentModel.ObservableObject"));
-                userType.StaticInitializer = StaticInitializer_99_DirAnalysisViewModel;
+                userType.StaticInitializer = StaticInitializer_120_DirAnalysisViewModel;
                 userType.SetIsReturnTypeStub();
                 userType.SetIsLocalType();
                 xamlType = userType;
                 break;
 
-            case 100:   //  AIM.Views.FormGeneratorPage
+            case 121:   //  AIM.Views.FormGeneratorPage
                 userType = new global::AIM.AIM_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("Microsoft.UI.Xaml.Controls.Page"));
-                userType.Activator = Activate_100_FormGeneratorPage;
-                userType.StaticInitializer = StaticInitializer_100_FormGeneratorPage;
+                userType.Activator = Activate_121_FormGeneratorPage;
+                userType.StaticInitializer = StaticInitializer_121_FormGeneratorPage;
                 userType.AddMemberName("ViewModel");
                 userType.SetIsLocalType();
                 xamlType = userType;
                 break;
 
-            case 101:   //  AIM.ViewModels.FormGeneratorViewModel
+            case 122:   //  AIM.ViewModels.FormGeneratorViewModel
                 userType = new global::AIM.AIM_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("CommunityToolkit.Mvvm.ComponentModel.ObservableObject"));
-                userType.StaticInitializer = StaticInitializer_101_FormGeneratorViewModel;
+                userType.StaticInitializer = StaticInitializer_122_FormGeneratorViewModel;
                 userType.SetIsReturnTypeStub();
                 userType.SetIsLocalType();
                 xamlType = userType;
                 break;
 
-            case 102:   //  Microsoft.UI.Xaml.Controls.Expander
+            case 123:   //  Microsoft.UI.Xaml.Controls.Expander
                 userType = new global::AIM.AIM_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("Microsoft.UI.Xaml.Controls.ContentControl"));
-                userType.Activator = Activate_102_Expander;
-                userType.StaticInitializer = StaticInitializer_102_Expander;
+                userType.Activator = Activate_123_Expander;
+                userType.StaticInitializer = StaticInitializer_123_Expander;
                 userType.AddMemberName("IsExpanded");
                 userType.AddMemberName("Header");
                 userType.AddMemberName("ExpandDirection");
@@ -1728,42 +1919,42 @@ namespace AIM.AIM_XamlTypeInfo
                 xamlType = userType;
                 break;
 
-            case 103:   //  Microsoft.UI.Xaml.Controls.ExpandDirection
+            case 124:   //  Microsoft.UI.Xaml.Controls.ExpandDirection
                 userType = new global::AIM.AIM_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("System.Enum"));
-                userType.StaticInitializer = StaticInitializer_103_ExpandDirection;
+                userType.StaticInitializer = StaticInitializer_124_ExpandDirection;
                 userType.AddEnumValue("Down", global::Microsoft.UI.Xaml.Controls.ExpandDirection.Down);
                 userType.AddEnumValue("Up", global::Microsoft.UI.Xaml.Controls.ExpandDirection.Up);
                 xamlType = userType;
                 break;
 
-            case 104:   //  Microsoft.UI.Xaml.Controls.ExpanderTemplateSettings
+            case 125:   //  Microsoft.UI.Xaml.Controls.ExpanderTemplateSettings
                 userType = new global::AIM.AIM_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("Microsoft.UI.Xaml.DependencyObject"));
-                userType.StaticInitializer = StaticInitializer_104_ExpanderTemplateSettings;
+                userType.StaticInitializer = StaticInitializer_125_ExpanderTemplateSettings;
                 userType.SetIsReturnTypeStub();
                 xamlType = userType;
                 break;
 
-            case 105:   //  AIM.Views.InventoryAdminPage
+            case 126:   //  AIM.Views.InventoryAdminPage
                 userType = new global::AIM.AIM_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("Microsoft.UI.Xaml.Controls.Page"));
-                userType.Activator = Activate_105_InventoryAdminPage;
-                userType.StaticInitializer = StaticInitializer_105_InventoryAdminPage;
+                userType.Activator = Activate_126_InventoryAdminPage;
+                userType.StaticInitializer = StaticInitializer_126_InventoryAdminPage;
                 userType.AddMemberName("ViewModel");
                 userType.SetIsLocalType();
                 xamlType = userType;
                 break;
 
-            case 106:   //  AIM.ViewModels.InventoryAdminViewModel
+            case 127:   //  AIM.ViewModels.InventoryAdminViewModel
                 userType = new global::AIM.AIM_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("CommunityToolkit.Mvvm.ComponentModel.ObservableObject"));
-                userType.StaticInitializer = StaticInitializer_106_InventoryAdminViewModel;
+                userType.StaticInitializer = StaticInitializer_127_InventoryAdminViewModel;
                 userType.SetIsReturnTypeStub();
                 userType.SetIsLocalType();
                 xamlType = userType;
                 break;
 
-            case 107:   //  Microsoft.UI.Xaml.Controls.TabView
+            case 128:   //  Microsoft.UI.Xaml.Controls.TabView
                 userType = new global::AIM.AIM_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("Microsoft.UI.Xaml.Controls.Control"));
-                userType.Activator = Activate_107_TabView;
-                userType.StaticInitializer = StaticInitializer_107_TabView;
+                userType.Activator = Activate_128_TabView;
+                userType.StaticInitializer = StaticInitializer_128_TabView;
                 userType.SetContentPropertyName("Microsoft.UI.Xaml.Controls.TabView.TabItems");
                 userType.AddMemberName("TabItems");
                 userType.AddMemberName("AddTabButtonCommand");
@@ -1787,28 +1978,28 @@ namespace AIM.AIM_XamlTypeInfo
                 xamlType = userType;
                 break;
 
-            case 108:   //  Microsoft.UI.Xaml.Controls.TabViewCloseButtonOverlayMode
+            case 129:   //  Microsoft.UI.Xaml.Controls.TabViewCloseButtonOverlayMode
                 userType = new global::AIM.AIM_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("System.Enum"));
-                userType.StaticInitializer = StaticInitializer_108_TabViewCloseButtonOverlayMode;
+                userType.StaticInitializer = StaticInitializer_129_TabViewCloseButtonOverlayMode;
                 userType.AddEnumValue("Auto", global::Microsoft.UI.Xaml.Controls.TabViewCloseButtonOverlayMode.Auto);
                 userType.AddEnumValue("OnPointerOver", global::Microsoft.UI.Xaml.Controls.TabViewCloseButtonOverlayMode.OnPointerOver);
                 userType.AddEnumValue("Always", global::Microsoft.UI.Xaml.Controls.TabViewCloseButtonOverlayMode.Always);
                 xamlType = userType;
                 break;
 
-            case 109:   //  Microsoft.UI.Xaml.Controls.TabViewWidthMode
+            case 130:   //  Microsoft.UI.Xaml.Controls.TabViewWidthMode
                 userType = new global::AIM.AIM_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("System.Enum"));
-                userType.StaticInitializer = StaticInitializer_109_TabViewWidthMode;
+                userType.StaticInitializer = StaticInitializer_130_TabViewWidthMode;
                 userType.AddEnumValue("Equal", global::Microsoft.UI.Xaml.Controls.TabViewWidthMode.Equal);
                 userType.AddEnumValue("SizeToContent", global::Microsoft.UI.Xaml.Controls.TabViewWidthMode.SizeToContent);
                 userType.AddEnumValue("Compact", global::Microsoft.UI.Xaml.Controls.TabViewWidthMode.Compact);
                 xamlType = userType;
                 break;
 
-            case 110:   //  Microsoft.UI.Xaml.Controls.TabViewItem
+            case 131:   //  Microsoft.UI.Xaml.Controls.TabViewItem
                 userType = new global::AIM.AIM_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("Microsoft.UI.Xaml.Controls.ListViewItem"));
-                userType.Activator = Activate_110_TabViewItem;
-                userType.StaticInitializer = StaticInitializer_110_TabViewItem;
+                userType.Activator = Activate_131_TabViewItem;
+                userType.StaticInitializer = StaticInitializer_131_TabViewItem;
                 userType.AddMemberName("Header");
                 userType.AddMemberName("IconSource");
                 userType.AddMemberName("HeaderTemplate");
@@ -1817,55 +2008,55 @@ namespace AIM.AIM_XamlTypeInfo
                 xamlType = userType;
                 break;
 
-            case 111:   //  Microsoft.UI.Xaml.Controls.ListViewItem
+            case 132:   //  Microsoft.UI.Xaml.Controls.ListViewItem
                 xamlType = new global::AIM.AIM_XamlTypeInfo.XamlSystemBaseType(typeName, type);
                 break;
 
-            case 112:   //  Microsoft.UI.Xaml.Controls.TabViewItemTemplateSettings
+            case 133:   //  Microsoft.UI.Xaml.Controls.TabViewItemTemplateSettings
                 userType = new global::AIM.AIM_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("Microsoft.UI.Xaml.DependencyObject"));
-                userType.StaticInitializer = StaticInitializer_112_TabViewItemTemplateSettings;
+                userType.StaticInitializer = StaticInitializer_133_TabViewItemTemplateSettings;
                 userType.SetIsReturnTypeStub();
                 xamlType = userType;
                 break;
 
-            case 113:   //  AIM.Views.InventoryAdminToolsPage
+            case 134:   //  AIM.Views.InventoryAdminToolsPage
                 userType = new global::AIM.AIM_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("Microsoft.UI.Xaml.Controls.Page"));
-                userType.Activator = Activate_113_InventoryAdminToolsPage;
-                userType.StaticInitializer = StaticInitializer_113_InventoryAdminToolsPage;
+                userType.Activator = Activate_134_InventoryAdminToolsPage;
+                userType.StaticInitializer = StaticInitializer_134_InventoryAdminToolsPage;
                 userType.SetIsLocalType();
                 xamlType = userType;
                 break;
 
-            case 114:   //  AIM.Views.InventoryArchivePage
+            case 135:   //  AIM.Views.InventoryArchivePage
                 userType = new global::AIM.AIM_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("Microsoft.UI.Xaml.Controls.Page"));
-                userType.Activator = Activate_114_InventoryArchivePage;
-                userType.StaticInitializer = StaticInitializer_114_InventoryArchivePage;
+                userType.Activator = Activate_135_InventoryArchivePage;
+                userType.StaticInitializer = StaticInitializer_135_InventoryArchivePage;
                 userType.AddMemberName("ViewModel");
                 userType.SetIsLocalType();
                 xamlType = userType;
                 break;
 
-            case 115:   //  AIM.Views.InvArchivesPage
+            case 136:   //  AIM.Views.InvArchivesPage
                 userType = new global::AIM.AIM_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("Microsoft.UI.Xaml.Controls.Page"));
-                userType.Activator = Activate_115_InvArchivesPage;
-                userType.StaticInitializer = StaticInitializer_115_InvArchivesPage;
+                userType.Activator = Activate_136_InvArchivesPage;
+                userType.StaticInitializer = StaticInitializer_136_InvArchivesPage;
                 userType.AddMemberName("ViewModel");
                 userType.SetIsLocalType();
                 xamlType = userType;
                 break;
 
-            case 116:   //  AIM.ViewModels.InventoryViewModel
+            case 137:   //  AIM.ViewModels.InventoryViewModel
                 userType = new global::AIM.AIM_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("CommunityToolkit.Mvvm.ComponentModel.ObservableObject"));
-                userType.StaticInitializer = StaticInitializer_116_InventoryViewModel;
+                userType.StaticInitializer = StaticInitializer_137_InventoryViewModel;
                 userType.SetIsReturnTypeStub();
                 userType.SetIsLocalType();
                 xamlType = userType;
                 break;
 
-            case 117:   //  Microsoft.UI.Xaml.Controls.ProgressRing
+            case 138:   //  Microsoft.UI.Xaml.Controls.ProgressRing
                 userType = new global::AIM.AIM_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("Microsoft.UI.Xaml.Controls.Control"));
-                userType.Activator = Activate_117_ProgressRing;
-                userType.StaticInitializer = StaticInitializer_117_ProgressRing;
+                userType.Activator = Activate_138_ProgressRing;
+                userType.StaticInitializer = StaticInitializer_138_ProgressRing;
                 userType.AddMemberName("IsActive");
                 userType.AddMemberName("IsIndeterminate");
                 userType.AddMemberName("Maximum");
@@ -1875,17 +2066,17 @@ namespace AIM.AIM_XamlTypeInfo
                 xamlType = userType;
                 break;
 
-            case 118:   //  Microsoft.UI.Xaml.Controls.ProgressRingTemplateSettings
+            case 139:   //  Microsoft.UI.Xaml.Controls.ProgressRingTemplateSettings
                 userType = new global::AIM.AIM_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("Microsoft.UI.Xaml.DependencyObject"));
-                userType.StaticInitializer = StaticInitializer_118_ProgressRingTemplateSettings;
+                userType.StaticInitializer = StaticInitializer_139_ProgressRingTemplateSettings;
                 userType.SetIsReturnTypeStub();
                 xamlType = userType;
                 break;
 
-            case 119:   //  Microsoft.UI.Xaml.Controls.TreeView
+            case 140:   //  Microsoft.UI.Xaml.Controls.TreeView
                 userType = new global::AIM.AIM_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("Microsoft.UI.Xaml.Controls.Control"));
-                userType.Activator = Activate_119_TreeView;
-                userType.StaticInitializer = StaticInitializer_119_TreeView;
+                userType.Activator = Activate_140_TreeView;
+                userType.StaticInitializer = StaticInitializer_140_TreeView;
                 userType.AddMemberName("ItemsSource");
                 userType.AddMemberName("ItemTemplate");
                 userType.AddMemberName("CanDragItems");
@@ -1903,22 +2094,22 @@ namespace AIM.AIM_XamlTypeInfo
                 xamlType = userType;
                 break;
 
-            case 120:   //  Microsoft.UI.Xaml.Media.Animation.TransitionCollection
+            case 141:   //  Microsoft.UI.Xaml.Media.Animation.TransitionCollection
                 xamlType = new global::AIM.AIM_XamlTypeInfo.XamlSystemBaseType(typeName, type);
                 break;
 
-            case 121:   //  System.Collections.Generic.IList`1<Microsoft.UI.Xaml.Controls.TreeViewNode>
+            case 142:   //  System.Collections.Generic.IList`1<Microsoft.UI.Xaml.Controls.TreeViewNode>
                 userType = new global::AIM.AIM_XamlTypeInfo.XamlUserType(this, typeName, type, null);
-                userType.StaticInitializer = StaticInitializer_121_IList;
-                userType.CollectionAdd = VectorAdd_121_IList;
+                userType.StaticInitializer = StaticInitializer_142_IList;
+                userType.CollectionAdd = VectorAdd_142_IList;
                 userType.SetIsReturnTypeStub();
                 xamlType = userType;
                 break;
 
-            case 122:   //  Microsoft.UI.Xaml.Controls.TreeViewNode
+            case 143:   //  Microsoft.UI.Xaml.Controls.TreeViewNode
                 userType = new global::AIM.AIM_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("Microsoft.UI.Xaml.DependencyObject"));
-                userType.Activator = Activate_122_TreeViewNode;
-                userType.StaticInitializer = StaticInitializer_122_TreeViewNode;
+                userType.Activator = Activate_143_TreeViewNode;
+                userType.StaticInitializer = StaticInitializer_143_TreeViewNode;
                 userType.AddMemberName("Children");
                 userType.AddMemberName("Content");
                 userType.AddMemberName("Depth");
@@ -1930,19 +2121,19 @@ namespace AIM.AIM_XamlTypeInfo
                 xamlType = userType;
                 break;
 
-            case 123:   //  Microsoft.UI.Xaml.Controls.TreeViewSelectionMode
+            case 144:   //  Microsoft.UI.Xaml.Controls.TreeViewSelectionMode
                 userType = new global::AIM.AIM_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("System.Enum"));
-                userType.StaticInitializer = StaticInitializer_123_TreeViewSelectionMode;
+                userType.StaticInitializer = StaticInitializer_144_TreeViewSelectionMode;
                 userType.AddEnumValue("None", global::Microsoft.UI.Xaml.Controls.TreeViewSelectionMode.None);
                 userType.AddEnumValue("Single", global::Microsoft.UI.Xaml.Controls.TreeViewSelectionMode.Single);
                 userType.AddEnumValue("Multiple", global::Microsoft.UI.Xaml.Controls.TreeViewSelectionMode.Multiple);
                 xamlType = userType;
                 break;
 
-            case 124:   //  Microsoft.UI.Xaml.Controls.TreeViewItem
+            case 145:   //  Microsoft.UI.Xaml.Controls.TreeViewItem
                 userType = new global::AIM.AIM_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("Microsoft.UI.Xaml.Controls.ListViewItem"));
-                userType.Activator = Activate_124_TreeViewItem;
-                userType.StaticInitializer = StaticInitializer_124_TreeViewItem;
+                userType.Activator = Activate_145_TreeViewItem;
+                userType.StaticInitializer = StaticInitializer_145_TreeViewItem;
                 userType.AddMemberName("ItemsSource");
                 userType.AddMemberName("IsExpanded");
                 userType.AddMemberName("CollapsedGlyph");
@@ -1955,51 +2146,51 @@ namespace AIM.AIM_XamlTypeInfo
                 xamlType = userType;
                 break;
 
-            case 125:   //  Microsoft.UI.Xaml.Controls.TreeViewItemTemplateSettings
+            case 146:   //  Microsoft.UI.Xaml.Controls.TreeViewItemTemplateSettings
                 userType = new global::AIM.AIM_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("Microsoft.UI.Xaml.DependencyObject"));
-                userType.StaticInitializer = StaticInitializer_125_TreeViewItemTemplateSettings;
+                userType.StaticInitializer = StaticInitializer_146_TreeViewItemTemplateSettings;
                 userType.SetIsReturnTypeStub();
                 xamlType = userType;
                 break;
 
-            case 126:   //  AIM.Views.InventoryViewerPage
+            case 147:   //  AIM.Views.InventoryViewerPage
                 userType = new global::AIM.AIM_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("Microsoft.UI.Xaml.Controls.Page"));
-                userType.Activator = Activate_126_InventoryViewerPage;
-                userType.StaticInitializer = StaticInitializer_126_InventoryViewerPage;
+                userType.Activator = Activate_147_InventoryViewerPage;
+                userType.StaticInitializer = StaticInitializer_147_InventoryViewerPage;
                 userType.AddMemberName("ViewModel");
                 userType.SetIsLocalType();
                 xamlType = userType;
                 break;
 
-            case 127:   //  AIM.ViewModels.InventoryViewerViewModel
+            case 148:   //  AIM.ViewModels.InventoryViewerViewModel
                 userType = new global::AIM.AIM_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("CommunityToolkit.Mvvm.ComponentModel.ObservableObject"));
-                userType.StaticInitializer = StaticInitializer_127_InventoryViewerViewModel;
+                userType.StaticInitializer = StaticInitializer_148_InventoryViewerViewModel;
                 userType.SetIsReturnTypeStub();
                 userType.SetIsLocalType();
                 xamlType = userType;
                 break;
 
-            case 128:   //  AIM.Views.PreviewPage
+            case 149:   //  AIM.Views.PreviewPage
                 userType = new global::AIM.AIM_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("Microsoft.UI.Xaml.Controls.Page"));
-                userType.Activator = Activate_128_PreviewPage;
-                userType.StaticInitializer = StaticInitializer_128_PreviewPage;
+                userType.Activator = Activate_149_PreviewPage;
+                userType.StaticInitializer = StaticInitializer_149_PreviewPage;
                 userType.AddMemberName("ViewModel");
                 userType.SetIsLocalType();
                 xamlType = userType;
                 break;
 
-            case 129:   //  AIM.ViewModels.PreviewViewModel
+            case 150:   //  AIM.ViewModels.PreviewViewModel
                 userType = new global::AIM.AIM_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("CommunityToolkit.Mvvm.ComponentModel.ObservableObject"));
-                userType.StaticInitializer = StaticInitializer_129_PreviewViewModel;
+                userType.StaticInitializer = StaticInitializer_150_PreviewViewModel;
                 userType.SetIsReturnTypeStub();
                 userType.SetIsLocalType();
                 xamlType = userType;
                 break;
 
-            case 130:   //  AIM.Converters.FormRowTemplateSelector
+            case 151:   //  AIM.Converters.FormRowTemplateSelector
                 userType = new global::AIM.AIM_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("Microsoft.UI.Xaml.Controls.DataTemplateSelector"));
-                userType.Activator = Activate_130_FormRowTemplateSelector;
-                userType.StaticInitializer = StaticInitializer_130_FormRowTemplateSelector;
+                userType.Activator = Activate_151_FormRowTemplateSelector;
+                userType.StaticInitializer = StaticInitializer_151_FormRowTemplateSelector;
                 userType.AddMemberName("Level2HeaderTemplate");
                 userType.AddMemberName("Level3Header_A_Template");
                 userType.AddMemberName("Level3Header_B_Template");
@@ -2010,79 +2201,79 @@ namespace AIM.AIM_XamlTypeInfo
                 xamlType = userType;
                 break;
 
-            case 131:   //  AIM.Views.PrintableFormPage
+            case 152:   //  AIM.Views.PrintableFormPage
                 userType = new global::AIM.AIM_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("Microsoft.UI.Xaml.Controls.Page"));
-                userType.Activator = Activate_131_PrintableFormPage;
-                userType.StaticInitializer = StaticInitializer_131_PrintableFormPage;
+                userType.Activator = Activate_152_PrintableFormPage;
+                userType.StaticInitializer = StaticInitializer_152_PrintableFormPage;
                 userType.AddMemberName("ViewModel");
                 userType.SetIsLocalType();
                 xamlType = userType;
                 break;
 
-            case 132:   //  AIM.ViewModels.PrintableFormViewModel
+            case 153:   //  AIM.ViewModels.PrintableFormViewModel
                 userType = new global::AIM.AIM_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("CommunityToolkit.Mvvm.ComponentModel.ObservableObject"));
-                userType.StaticInitializer = StaticInitializer_132_PrintableFormViewModel;
+                userType.StaticInitializer = StaticInitializer_153_PrintableFormViewModel;
                 userType.SetIsReturnTypeStub();
                 userType.SetIsLocalType();
                 xamlType = userType;
                 break;
 
-            case 133:   //  Microsoft.Xaml.Interactivity.Interaction
+            case 154:   //  Microsoft.Xaml.Interactivity.Interaction
                 userType = new global::AIM.AIM_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("Object"));
-                userType.StaticInitializer = StaticInitializer_133_Interaction;
+                userType.StaticInitializer = StaticInitializer_154_Interaction;
                 userType.AddMemberName("Behaviors");
                 xamlType = userType;
                 break;
 
-            case 134:   //  Microsoft.Xaml.Interactivity.BehaviorCollection
+            case 155:   //  Microsoft.Xaml.Interactivity.BehaviorCollection
                 userType = new global::AIM.AIM_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("Microsoft.UI.Xaml.DependencyObjectCollection"));
-                userType.StaticInitializer = StaticInitializer_134_BehaviorCollection;
-                userType.CollectionAdd = VectorAdd_134_BehaviorCollection;
+                userType.StaticInitializer = StaticInitializer_155_BehaviorCollection;
+                userType.CollectionAdd = VectorAdd_155_BehaviorCollection;
                 userType.SetIsReturnTypeStub();
                 xamlType = userType;
                 break;
 
-            case 135:   //  Microsoft.UI.Xaml.DependencyObjectCollection
+            case 156:   //  Microsoft.UI.Xaml.DependencyObjectCollection
                 xamlType = new global::AIM.AIM_XamlTypeInfo.XamlSystemBaseType(typeName, type);
                 break;
 
-            case 136:   //  Microsoft.Xaml.Interactions.Core.EventTriggerBehavior
+            case 157:   //  Microsoft.Xaml.Interactions.Core.EventTriggerBehavior
                 userType = new global::AIM.AIM_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("Microsoft.Xaml.Interactivity.Trigger"));
-                userType.Activator = Activate_136_EventTriggerBehavior;
-                userType.StaticInitializer = StaticInitializer_136_EventTriggerBehavior;
+                userType.Activator = Activate_157_EventTriggerBehavior;
+                userType.StaticInitializer = StaticInitializer_157_EventTriggerBehavior;
                 userType.SetContentPropertyName("Microsoft.Xaml.Interactivity.Trigger.Actions");
                 userType.AddMemberName("EventName");
                 userType.AddMemberName("SourceObject");
                 xamlType = userType;
                 break;
 
-            case 137:   //  Microsoft.Xaml.Interactivity.Trigger
+            case 158:   //  Microsoft.Xaml.Interactivity.Trigger
                 userType = new global::AIM.AIM_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("Microsoft.Xaml.Interactivity.Behavior"));
-                userType.StaticInitializer = StaticInitializer_137_Trigger;
+                userType.StaticInitializer = StaticInitializer_158_Trigger;
                 userType.SetContentPropertyName("Microsoft.Xaml.Interactivity.Trigger.Actions");
                 userType.AddMemberName("Actions");
                 xamlType = userType;
                 break;
 
-            case 138:   //  Microsoft.Xaml.Interactivity.Behavior
+            case 159:   //  Microsoft.Xaml.Interactivity.Behavior
                 userType = new global::AIM.AIM_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("Microsoft.UI.Xaml.DependencyObject"));
-                userType.StaticInitializer = StaticInitializer_138_Behavior;
+                userType.StaticInitializer = StaticInitializer_159_Behavior;
                 userType.AddMemberName("AssociatedObject");
                 xamlType = userType;
                 break;
 
-            case 139:   //  Microsoft.Xaml.Interactivity.ActionCollection
+            case 160:   //  Microsoft.Xaml.Interactivity.ActionCollection
                 userType = new global::AIM.AIM_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("Microsoft.UI.Xaml.DependencyObjectCollection"));
-                userType.StaticInitializer = StaticInitializer_139_ActionCollection;
-                userType.CollectionAdd = VectorAdd_139_ActionCollection;
+                userType.StaticInitializer = StaticInitializer_160_ActionCollection;
+                userType.CollectionAdd = VectorAdd_160_ActionCollection;
                 userType.SetIsReturnTypeStub();
                 xamlType = userType;
                 break;
 
-            case 140:   //  Microsoft.Xaml.Interactions.Core.InvokeCommandAction
+            case 161:   //  Microsoft.Xaml.Interactions.Core.InvokeCommandAction
                 userType = new global::AIM.AIM_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("Microsoft.UI.Xaml.DependencyObject"));
-                userType.Activator = Activate_140_InvokeCommandAction;
-                userType.StaticInitializer = StaticInitializer_140_InvokeCommandAction;
+                userType.Activator = Activate_161_InvokeCommandAction;
+                userType.StaticInitializer = StaticInitializer_161_InvokeCommandAction;
                 userType.AddMemberName("Command");
                 userType.AddMemberName("CommandParameter");
                 userType.AddMemberName("InputConverter");
@@ -2091,250 +2282,59 @@ namespace AIM.AIM_XamlTypeInfo
                 xamlType = userType;
                 break;
 
-            case 141:   //  Microsoft.UI.Xaml.Data.IValueConverter
+            case 162:   //  Microsoft.UI.Xaml.Data.IValueConverter
                 xamlType = new global::AIM.AIM_XamlTypeInfo.XamlSystemBaseType(typeName, type);
                 break;
 
-            case 142:   //  AIM.Views.ScansPage
+            case 163:   //  AIM.Views.ScansPage
                 userType = new global::AIM.AIM_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("Microsoft.UI.Xaml.Controls.Page"));
-                userType.Activator = Activate_142_ScansPage;
-                userType.StaticInitializer = StaticInitializer_142_ScansPage;
+                userType.Activator = Activate_163_ScansPage;
+                userType.StaticInitializer = StaticInitializer_163_ScansPage;
                 userType.AddMemberName("ViewModel");
                 userType.SetIsLocalType();
                 xamlType = userType;
                 break;
 
-            case 143:   //  AIM.ViewModels.ScansViewModel
+            case 164:   //  AIM.ViewModels.ScansViewModel
                 userType = new global::AIM.AIM_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("CommunityToolkit.Mvvm.ComponentModel.ObservableObject"));
-                userType.StaticInitializer = StaticInitializer_143_ScansViewModel;
+                userType.StaticInitializer = StaticInitializer_164_ScansViewModel;
                 userType.SetIsReturnTypeStub();
                 userType.SetIsLocalType();
                 xamlType = userType;
                 break;
 
-            case 144:   //  AIM.Views.SearchPage
+            case 165:   //  AIM.Views.SearchPage
                 userType = new global::AIM.AIM_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("Microsoft.UI.Xaml.Controls.Page"));
-                userType.Activator = Activate_144_SearchPage;
-                userType.StaticInitializer = StaticInitializer_144_SearchPage;
+                userType.Activator = Activate_165_SearchPage;
+                userType.StaticInitializer = StaticInitializer_165_SearchPage;
                 userType.AddMemberName("ViewModel");
                 userType.SetIsLocalType();
                 xamlType = userType;
                 break;
 
-            case 145:   //  AIM.ViewModels.SearchViewModel
+            case 166:   //  AIM.ViewModels.SearchViewModel
                 userType = new global::AIM.AIM_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("CommunityToolkit.Mvvm.ComponentModel.ObservableObject"));
-                userType.StaticInitializer = StaticInitializer_145_SearchViewModel;
+                userType.StaticInitializer = StaticInitializer_166_SearchViewModel;
                 userType.SetIsReturnTypeStub();
                 userType.SetIsLocalType();
                 xamlType = userType;
                 break;
 
-            case 146:   //  AIM.Views.SettingsPage
+            case 167:   //  AIM.Views.SettingsPage
                 userType = new global::AIM.AIM_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("Microsoft.UI.Xaml.Controls.Page"));
-                userType.Activator = Activate_146_SettingsPage;
-                userType.StaticInitializer = StaticInitializer_146_SettingsPage;
+                userType.Activator = Activate_167_SettingsPage;
+                userType.StaticInitializer = StaticInitializer_167_SettingsPage;
                 userType.AddMemberName("ViewModel");
                 userType.AddMemberName("IsLocked");
                 userType.SetIsLocalType();
                 xamlType = userType;
                 break;
 
-            case 147:   //  AIM.ViewModels.SettingsViewModel
+            case 168:   //  AIM.ViewModels.SettingsViewModel
                 userType = new global::AIM.AIM_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("CommunityToolkit.Mvvm.ComponentModel.ObservableObject"));
-                userType.StaticInitializer = StaticInitializer_147_SettingsViewModel;
+                userType.StaticInitializer = StaticInitializer_168_SettingsViewModel;
                 userType.SetIsReturnTypeStub();
                 userType.SetIsLocalType();
-                xamlType = userType;
-                break;
-
-            case 148:   //  LiveChartsCore.SkiaSharpView.WinUI.PieChart
-                userType = new global::AIM.AIM_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("LiveChartsGeneratedCode.SourceGenPieChart"));
-                userType.Activator = Activate_148_PieChart;
-                userType.StaticInitializer = StaticInitializer_148_PieChart;
-                xamlType = userType;
-                break;
-
-            case 149:   //  LiveChartsGeneratedCode.SourceGenPieChart
-                userType = new global::AIM.AIM_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("LiveChartsGeneratedCode.SourceGenChart"));
-                userType.Activator = Activate_149_SourceGenPieChart;
-                userType.StaticInitializer = StaticInitializer_149_SourceGenPieChart;
-                userType.AddMemberName("IsClockwise");
-                userType.AddMemberName("InitialRotation");
-                userType.AddMemberName("MaxAngle");
-                userType.AddMemberName("MaxValue");
-                userType.AddMemberName("MinValue");
-                xamlType = userType;
-                break;
-
-            case 150:   //  LiveChartsGeneratedCode.SourceGenChart
-                userType = new global::AIM.AIM_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("Microsoft.UI.Xaml.Controls.UserControl"));
-                userType.StaticInitializer = StaticInitializer_150_SourceGenChart;
-                userType.AddMemberName("Series");
-                userType.AddMemberName("LegendPosition");
-                userType.AddMemberName("LegendTextSize");
-                userType.AddMemberName("CoreChart");
-                userType.AddMemberName("ForceGPU");
-                userType.AddMemberName("Tooltip");
-                userType.AddMemberName("Legend");
-                userType.AddMemberName("ChartTheme");
-                userType.AddMemberName("UpdaterThrottler");
-                userType.AddMemberName("AutoUpdateEnabled");
-                userType.AddMemberName("CoreCanvas");
-                userType.AddMemberName("UpdateStartedCommand");
-                userType.AddMemberName("DataPointerDownCommand");
-                userType.AddMemberName("HoveredPointsChangedCommand");
-                userType.AddMemberName("ChartPointPointerDownCommand");
-                userType.AddMemberName("VisualElementsPointerDownCommand");
-                userType.AddMemberName("PointerPressedCommand");
-                userType.AddMemberName("PointerMoveCommand");
-                userType.AddMemberName("PointerReleasedCommand");
-                userType.AddMemberName("AnimationsSpeed");
-                userType.AddMemberName("EasingFunction");
-                userType.AddMemberName("DrawMargin");
-                userType.AddMemberName("TooltipPosition");
-                userType.AddMemberName("LegendTextPaint");
-                userType.AddMemberName("LegendBackgroundPaint");
-                userType.AddMemberName("TooltipTextPaint");
-                userType.AddMemberName("TooltipBackgroundPaint");
-                userType.AddMemberName("TooltipTextSize");
-                userType.AddMemberName("SyncContext");
-                userType.AddMemberName("Title");
-                userType.AddMemberName("VisualElements");
-                userType.AddMemberName("SeriesSource");
-                userType.AddMemberName("SeriesTemplate");
-                xamlType = userType;
-                break;
-
-            case 151:   //  System.Collections.Generic.IEnumerable`1<LiveChartsCore.ISeries>
-                userType = new global::AIM.AIM_XamlTypeInfo.XamlUserType(this, typeName, type, null);
-                userType.StaticInitializer = StaticInitializer_151_IEnumerable;
-                userType.SetIsReturnTypeStub();
-                xamlType = userType;
-                break;
-
-            case 152:   //  LiveChartsCore.Measure.LegendPosition
-                userType = new global::AIM.AIM_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("System.Enum"));
-                userType.StaticInitializer = StaticInitializer_152_LegendPosition;
-                userType.AddEnumValue("Hidden", global::LiveChartsCore.Measure.LegendPosition.Hidden);
-                userType.AddEnumValue("Top", global::LiveChartsCore.Measure.LegendPosition.Top);
-                userType.AddEnumValue("Left", global::LiveChartsCore.Measure.LegendPosition.Left);
-                userType.AddEnumValue("Right", global::LiveChartsCore.Measure.LegendPosition.Right);
-                userType.AddEnumValue("Bottom", global::LiveChartsCore.Measure.LegendPosition.Bottom);
-                xamlType = userType;
-                break;
-
-            case 153:   //  LiveChartsCore.Chart
-                userType = new global::AIM.AIM_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("Object"));
-                userType.StaticInitializer = StaticInitializer_153_Chart;
-                userType.SetIsReturnTypeStub();
-                xamlType = userType;
-                break;
-
-            case 154:   //  LiveChartsCore.Kernel.Sketches.IChartTooltip
-                userType = new global::AIM.AIM_XamlTypeInfo.XamlUserType(this, typeName, type, null);
-                userType.StaticInitializer = StaticInitializer_154_IChartTooltip;
-                userType.SetIsReturnTypeStub();
-                xamlType = userType;
-                break;
-
-            case 155:   //  LiveChartsCore.Kernel.Sketches.IChartLegend
-                userType = new global::AIM.AIM_XamlTypeInfo.XamlUserType(this, typeName, type, null);
-                userType.StaticInitializer = StaticInitializer_155_IChartLegend;
-                userType.SetIsReturnTypeStub();
-                xamlType = userType;
-                break;
-
-            case 156:   //  LiveChartsCore.Themes.Theme
-                userType = new global::AIM.AIM_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("Object"));
-                userType.StaticInitializer = StaticInitializer_156_Theme;
-                userType.SetIsReturnTypeStub();
-                xamlType = userType;
-                break;
-
-            case 157:   //  TimeSpan
-                userType = new global::AIM.AIM_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("System.ValueType"));
-                userType.StaticInitializer = StaticInitializer_157_TimeSpan;
-                userType.SetIsReturnTypeStub();
-                xamlType = userType;
-                break;
-
-            case 158:   //  LiveChartsCore.Motion.CoreMotionCanvas
-                userType = new global::AIM.AIM_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("Object"));
-                userType.StaticInitializer = StaticInitializer_158_CoreMotionCanvas;
-                userType.SetIsReturnTypeStub();
-                xamlType = userType;
-                break;
-
-            case 159:   //  System.Func`2<Single, Single>
-                userType = new global::AIM.AIM_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("System.MulticastDelegate"));
-                userType.StaticInitializer = StaticInitializer_159_Func;
-                userType.SetIsReturnTypeStub();
-                xamlType = userType;
-                break;
-
-            case 160:   //  System.MulticastDelegate
-                userType = new global::AIM.AIM_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("System.Delegate"));
-                userType.StaticInitializer = StaticInitializer_160_MulticastDelegate;
-                xamlType = userType;
-                break;
-
-            case 161:   //  System.Delegate
-                userType = new global::AIM.AIM_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("Object"));
-                userType.StaticInitializer = StaticInitializer_161_Delegate;
-                xamlType = userType;
-                break;
-
-            case 162:   //  LiveChartsCore.Measure.Margin
-                userType = new global::AIM.AIM_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("Object"));
-                userType.StaticInitializer = StaticInitializer_162_Margin;
-                userType.SetIsReturnTypeStub();
-                xamlType = userType;
-                break;
-
-            case 163:   //  LiveChartsCore.Measure.TooltipPosition
-                userType = new global::AIM.AIM_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("System.Enum"));
-                userType.StaticInitializer = StaticInitializer_163_TooltipPosition;
-                userType.AddEnumValue("Hidden", global::LiveChartsCore.Measure.TooltipPosition.Hidden);
-                userType.AddEnumValue("Auto", global::LiveChartsCore.Measure.TooltipPosition.Auto);
-                userType.AddEnumValue("Top", global::LiveChartsCore.Measure.TooltipPosition.Top);
-                userType.AddEnumValue("Bottom", global::LiveChartsCore.Measure.TooltipPosition.Bottom);
-                userType.AddEnumValue("Left", global::LiveChartsCore.Measure.TooltipPosition.Left);
-                userType.AddEnumValue("Right", global::LiveChartsCore.Measure.TooltipPosition.Right);
-                userType.AddEnumValue("Center", global::LiveChartsCore.Measure.TooltipPosition.Center);
-                xamlType = userType;
-                break;
-
-            case 164:   //  LiveChartsCore.Painting.Paint
-                userType = new global::AIM.AIM_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("LiveChartsCore.Drawing.Animatable"));
-                userType.StaticInitializer = StaticInitializer_164_Paint;
-                userType.SetIsReturnTypeStub();
-                xamlType = userType;
-                break;
-
-            case 165:   //  LiveChartsCore.Drawing.Animatable
-                userType = new global::AIM.AIM_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("Object"));
-                userType.StaticInitializer = StaticInitializer_165_Animatable;
-                xamlType = userType;
-                break;
-
-            case 166:   //  LiveChartsCore.Kernel.IChartElement
-                userType = new global::AIM.AIM_XamlTypeInfo.XamlUserType(this, typeName, type, null);
-                userType.StaticInitializer = StaticInitializer_166_IChartElement;
-                userType.SetIsReturnTypeStub();
-                xamlType = userType;
-                break;
-
-            case 167:   //  System.Collections.Generic.IEnumerable`1<LiveChartsCore.Kernel.IChartElement>
-                userType = new global::AIM.AIM_XamlTypeInfo.XamlUserType(this, typeName, type, null);
-                userType.StaticInitializer = StaticInitializer_167_IEnumerable;
-                userType.SetIsReturnTypeStub();
-                xamlType = userType;
-                break;
-
-            case 168:   //  System.Collections.Generic.IEnumerable`1<Object>
-                userType = new global::AIM.AIM_XamlTypeInfo.XamlUserType(this, typeName, type, null);
-                userType.StaticInitializer = StaticInitializer_168_IEnumerable;
-                userType.SetIsReturnTypeStub();
                 xamlType = userType;
                 break;
 
@@ -3848,1188 +3848,1188 @@ namespace AIM.AIM_XamlTypeInfo
             var that = (global::CommunityToolkit.WinUI.UI.Controls.DataGridBoundColumn)instance;
             that.ElementStyle = (global::Microsoft.UI.Xaml.Style)Value;
         }
-        private object get_152_DirAnalysisPage_ViewModel(object instance)
-        {
-            var that = (global::AIM.Views.DirAnalysisPage)instance;
-            return that.ViewModel;
-        }
-        private object get_153_FormGeneratorPage_ViewModel(object instance)
-        {
-            var that = (global::AIM.Views.FormGeneratorPage)instance;
-            return that.ViewModel;
-        }
-        private object get_154_Expander_IsExpanded(object instance)
-        {
-            var that = (global::Microsoft.UI.Xaml.Controls.Expander)instance;
-            return that.IsExpanded;
-        }
-        private void set_154_Expander_IsExpanded(object instance, object Value)
-        {
-            var that = (global::Microsoft.UI.Xaml.Controls.Expander)instance;
-            that.IsExpanded = (global::System.Boolean)Value;
-        }
-        private object get_155_Expander_Header(object instance)
-        {
-            var that = (global::Microsoft.UI.Xaml.Controls.Expander)instance;
-            return that.Header;
-        }
-        private void set_155_Expander_Header(object instance, object Value)
-        {
-            var that = (global::Microsoft.UI.Xaml.Controls.Expander)instance;
-            that.Header = (global::System.Object)Value;
-        }
-        private object get_156_Expander_ExpandDirection(object instance)
-        {
-            var that = (global::Microsoft.UI.Xaml.Controls.Expander)instance;
-            return that.ExpandDirection;
-        }
-        private void set_156_Expander_ExpandDirection(object instance, object Value)
-        {
-            var that = (global::Microsoft.UI.Xaml.Controls.Expander)instance;
-            that.ExpandDirection = (global::Microsoft.UI.Xaml.Controls.ExpandDirection)Value;
-        }
-        private object get_157_Expander_HeaderTemplate(object instance)
-        {
-            var that = (global::Microsoft.UI.Xaml.Controls.Expander)instance;
-            return that.HeaderTemplate;
-        }
-        private void set_157_Expander_HeaderTemplate(object instance, object Value)
-        {
-            var that = (global::Microsoft.UI.Xaml.Controls.Expander)instance;
-            that.HeaderTemplate = (global::Microsoft.UI.Xaml.DataTemplate)Value;
-        }
-        private object get_158_Expander_HeaderTemplateSelector(object instance)
-        {
-            var that = (global::Microsoft.UI.Xaml.Controls.Expander)instance;
-            return that.HeaderTemplateSelector;
-        }
-        private void set_158_Expander_HeaderTemplateSelector(object instance, object Value)
-        {
-            var that = (global::Microsoft.UI.Xaml.Controls.Expander)instance;
-            that.HeaderTemplateSelector = (global::Microsoft.UI.Xaml.Controls.DataTemplateSelector)Value;
-        }
-        private object get_159_Expander_TemplateSettings(object instance)
-        {
-            var that = (global::Microsoft.UI.Xaml.Controls.Expander)instance;
-            return that.TemplateSettings;
-        }
-        private object get_160_InventoryAdminPage_ViewModel(object instance)
-        {
-            var that = (global::AIM.Views.InventoryAdminPage)instance;
-            return that.ViewModel;
-        }
-        private object get_161_TabView_TabItems(object instance)
-        {
-            var that = (global::Microsoft.UI.Xaml.Controls.TabView)instance;
-            return that.TabItems;
-        }
-        private object get_162_TabView_AddTabButtonCommand(object instance)
-        {
-            var that = (global::Microsoft.UI.Xaml.Controls.TabView)instance;
-            return that.AddTabButtonCommand;
-        }
-        private void set_162_TabView_AddTabButtonCommand(object instance, object Value)
-        {
-            var that = (global::Microsoft.UI.Xaml.Controls.TabView)instance;
-            that.AddTabButtonCommand = (global::System.Windows.Input.ICommand)Value;
-        }
-        private object get_163_TabView_AddTabButtonCommandParameter(object instance)
-        {
-            var that = (global::Microsoft.UI.Xaml.Controls.TabView)instance;
-            return that.AddTabButtonCommandParameter;
-        }
-        private void set_163_TabView_AddTabButtonCommandParameter(object instance, object Value)
-        {
-            var that = (global::Microsoft.UI.Xaml.Controls.TabView)instance;
-            that.AddTabButtonCommandParameter = (global::System.Object)Value;
-        }
-        private object get_164_TabView_AllowDropTabs(object instance)
-        {
-            var that = (global::Microsoft.UI.Xaml.Controls.TabView)instance;
-            return that.AllowDropTabs;
-        }
-        private void set_164_TabView_AllowDropTabs(object instance, object Value)
-        {
-            var that = (global::Microsoft.UI.Xaml.Controls.TabView)instance;
-            that.AllowDropTabs = (global::System.Boolean)Value;
-        }
-        private object get_165_TabView_CanDragTabs(object instance)
-        {
-            var that = (global::Microsoft.UI.Xaml.Controls.TabView)instance;
-            return that.CanDragTabs;
-        }
-        private void set_165_TabView_CanDragTabs(object instance, object Value)
-        {
-            var that = (global::Microsoft.UI.Xaml.Controls.TabView)instance;
-            that.CanDragTabs = (global::System.Boolean)Value;
-        }
-        private object get_166_TabView_CanReorderTabs(object instance)
-        {
-            var that = (global::Microsoft.UI.Xaml.Controls.TabView)instance;
-            return that.CanReorderTabs;
-        }
-        private void set_166_TabView_CanReorderTabs(object instance, object Value)
-        {
-            var that = (global::Microsoft.UI.Xaml.Controls.TabView)instance;
-            that.CanReorderTabs = (global::System.Boolean)Value;
-        }
-        private object get_167_TabView_CanTearOutTabs(object instance)
-        {
-            var that = (global::Microsoft.UI.Xaml.Controls.TabView)instance;
-            return that.CanTearOutTabs;
-        }
-        private void set_167_TabView_CanTearOutTabs(object instance, object Value)
-        {
-            var that = (global::Microsoft.UI.Xaml.Controls.TabView)instance;
-            that.CanTearOutTabs = (global::System.Boolean)Value;
-        }
-        private object get_168_TabView_CloseButtonOverlayMode(object instance)
-        {
-            var that = (global::Microsoft.UI.Xaml.Controls.TabView)instance;
-            return that.CloseButtonOverlayMode;
-        }
-        private void set_168_TabView_CloseButtonOverlayMode(object instance, object Value)
-        {
-            var that = (global::Microsoft.UI.Xaml.Controls.TabView)instance;
-            that.CloseButtonOverlayMode = (global::Microsoft.UI.Xaml.Controls.TabViewCloseButtonOverlayMode)Value;
-        }
-        private object get_169_TabView_IsAddTabButtonVisible(object instance)
-        {
-            var that = (global::Microsoft.UI.Xaml.Controls.TabView)instance;
-            return that.IsAddTabButtonVisible;
-        }
-        private void set_169_TabView_IsAddTabButtonVisible(object instance, object Value)
-        {
-            var that = (global::Microsoft.UI.Xaml.Controls.TabView)instance;
-            that.IsAddTabButtonVisible = (global::System.Boolean)Value;
-        }
-        private object get_170_TabView_SelectedIndex(object instance)
-        {
-            var that = (global::Microsoft.UI.Xaml.Controls.TabView)instance;
-            return that.SelectedIndex;
-        }
-        private void set_170_TabView_SelectedIndex(object instance, object Value)
-        {
-            var that = (global::Microsoft.UI.Xaml.Controls.TabView)instance;
-            that.SelectedIndex = (global::System.Int32)Value;
-        }
-        private object get_171_TabView_SelectedItem(object instance)
-        {
-            var that = (global::Microsoft.UI.Xaml.Controls.TabView)instance;
-            return that.SelectedItem;
-        }
-        private void set_171_TabView_SelectedItem(object instance, object Value)
-        {
-            var that = (global::Microsoft.UI.Xaml.Controls.TabView)instance;
-            that.SelectedItem = (global::System.Object)Value;
-        }
-        private object get_172_TabView_TabItemTemplate(object instance)
-        {
-            var that = (global::Microsoft.UI.Xaml.Controls.TabView)instance;
-            return that.TabItemTemplate;
-        }
-        private void set_172_TabView_TabItemTemplate(object instance, object Value)
-        {
-            var that = (global::Microsoft.UI.Xaml.Controls.TabView)instance;
-            that.TabItemTemplate = (global::Microsoft.UI.Xaml.DataTemplate)Value;
-        }
-        private object get_173_TabView_TabItemTemplateSelector(object instance)
-        {
-            var that = (global::Microsoft.UI.Xaml.Controls.TabView)instance;
-            return that.TabItemTemplateSelector;
-        }
-        private void set_173_TabView_TabItemTemplateSelector(object instance, object Value)
-        {
-            var that = (global::Microsoft.UI.Xaml.Controls.TabView)instance;
-            that.TabItemTemplateSelector = (global::Microsoft.UI.Xaml.Controls.DataTemplateSelector)Value;
-        }
-        private object get_174_TabView_TabItemsSource(object instance)
-        {
-            var that = (global::Microsoft.UI.Xaml.Controls.TabView)instance;
-            return that.TabItemsSource;
-        }
-        private void set_174_TabView_TabItemsSource(object instance, object Value)
-        {
-            var that = (global::Microsoft.UI.Xaml.Controls.TabView)instance;
-            that.TabItemsSource = (global::System.Object)Value;
-        }
-        private object get_175_TabView_TabStripFooter(object instance)
-        {
-            var that = (global::Microsoft.UI.Xaml.Controls.TabView)instance;
-            return that.TabStripFooter;
-        }
-        private void set_175_TabView_TabStripFooter(object instance, object Value)
-        {
-            var that = (global::Microsoft.UI.Xaml.Controls.TabView)instance;
-            that.TabStripFooter = (global::System.Object)Value;
-        }
-        private object get_176_TabView_TabStripFooterTemplate(object instance)
-        {
-            var that = (global::Microsoft.UI.Xaml.Controls.TabView)instance;
-            return that.TabStripFooterTemplate;
-        }
-        private void set_176_TabView_TabStripFooterTemplate(object instance, object Value)
-        {
-            var that = (global::Microsoft.UI.Xaml.Controls.TabView)instance;
-            that.TabStripFooterTemplate = (global::Microsoft.UI.Xaml.DataTemplate)Value;
-        }
-        private object get_177_TabView_TabStripHeader(object instance)
-        {
-            var that = (global::Microsoft.UI.Xaml.Controls.TabView)instance;
-            return that.TabStripHeader;
-        }
-        private void set_177_TabView_TabStripHeader(object instance, object Value)
-        {
-            var that = (global::Microsoft.UI.Xaml.Controls.TabView)instance;
-            that.TabStripHeader = (global::System.Object)Value;
-        }
-        private object get_178_TabView_TabStripHeaderTemplate(object instance)
-        {
-            var that = (global::Microsoft.UI.Xaml.Controls.TabView)instance;
-            return that.TabStripHeaderTemplate;
-        }
-        private void set_178_TabView_TabStripHeaderTemplate(object instance, object Value)
-        {
-            var that = (global::Microsoft.UI.Xaml.Controls.TabView)instance;
-            that.TabStripHeaderTemplate = (global::Microsoft.UI.Xaml.DataTemplate)Value;
-        }
-        private object get_179_TabView_TabWidthMode(object instance)
-        {
-            var that = (global::Microsoft.UI.Xaml.Controls.TabView)instance;
-            return that.TabWidthMode;
-        }
-        private void set_179_TabView_TabWidthMode(object instance, object Value)
-        {
-            var that = (global::Microsoft.UI.Xaml.Controls.TabView)instance;
-            that.TabWidthMode = (global::Microsoft.UI.Xaml.Controls.TabViewWidthMode)Value;
-        }
-        private object get_180_TabViewItem_Header(object instance)
-        {
-            var that = (global::Microsoft.UI.Xaml.Controls.TabViewItem)instance;
-            return that.Header;
-        }
-        private void set_180_TabViewItem_Header(object instance, object Value)
-        {
-            var that = (global::Microsoft.UI.Xaml.Controls.TabViewItem)instance;
-            that.Header = (global::System.Object)Value;
-        }
-        private object get_181_TabViewItem_IconSource(object instance)
-        {
-            var that = (global::Microsoft.UI.Xaml.Controls.TabViewItem)instance;
-            return that.IconSource;
-        }
-        private void set_181_TabViewItem_IconSource(object instance, object Value)
-        {
-            var that = (global::Microsoft.UI.Xaml.Controls.TabViewItem)instance;
-            that.IconSource = (global::Microsoft.UI.Xaml.Controls.IconSource)Value;
-        }
-        private object get_182_TabViewItem_HeaderTemplate(object instance)
-        {
-            var that = (global::Microsoft.UI.Xaml.Controls.TabViewItem)instance;
-            return that.HeaderTemplate;
-        }
-        private void set_182_TabViewItem_HeaderTemplate(object instance, object Value)
-        {
-            var that = (global::Microsoft.UI.Xaml.Controls.TabViewItem)instance;
-            that.HeaderTemplate = (global::Microsoft.UI.Xaml.DataTemplate)Value;
-        }
-        private object get_183_TabViewItem_IsClosable(object instance)
-        {
-            var that = (global::Microsoft.UI.Xaml.Controls.TabViewItem)instance;
-            return that.IsClosable;
-        }
-        private void set_183_TabViewItem_IsClosable(object instance, object Value)
-        {
-            var that = (global::Microsoft.UI.Xaml.Controls.TabViewItem)instance;
-            that.IsClosable = (global::System.Boolean)Value;
-        }
-        private object get_184_TabViewItem_TabViewTemplateSettings(object instance)
-        {
-            var that = (global::Microsoft.UI.Xaml.Controls.TabViewItem)instance;
-            return that.TabViewTemplateSettings;
-        }
-        private object get_185_InventoryArchivePage_ViewModel(object instance)
-        {
-            var that = (global::AIM.Views.InventoryArchivePage)instance;
-            return that.ViewModel;
-        }
-        private object get_186_InvArchivesPage_ViewModel(object instance)
-        {
-            var that = (global::AIM.Views.InvArchivesPage)instance;
-            return that.ViewModel;
-        }
-        private object get_187_ProgressRing_IsActive(object instance)
-        {
-            var that = (global::Microsoft.UI.Xaml.Controls.ProgressRing)instance;
-            return that.IsActive;
-        }
-        private void set_187_ProgressRing_IsActive(object instance, object Value)
-        {
-            var that = (global::Microsoft.UI.Xaml.Controls.ProgressRing)instance;
-            that.IsActive = (global::System.Boolean)Value;
-        }
-        private object get_188_ProgressRing_IsIndeterminate(object instance)
-        {
-            var that = (global::Microsoft.UI.Xaml.Controls.ProgressRing)instance;
-            return that.IsIndeterminate;
-        }
-        private void set_188_ProgressRing_IsIndeterminate(object instance, object Value)
-        {
-            var that = (global::Microsoft.UI.Xaml.Controls.ProgressRing)instance;
-            that.IsIndeterminate = (global::System.Boolean)Value;
-        }
-        private object get_189_ProgressRing_Maximum(object instance)
-        {
-            var that = (global::Microsoft.UI.Xaml.Controls.ProgressRing)instance;
-            return that.Maximum;
-        }
-        private void set_189_ProgressRing_Maximum(object instance, object Value)
-        {
-            var that = (global::Microsoft.UI.Xaml.Controls.ProgressRing)instance;
-            that.Maximum = (global::System.Double)Value;
-        }
-        private object get_190_ProgressRing_Minimum(object instance)
-        {
-            var that = (global::Microsoft.UI.Xaml.Controls.ProgressRing)instance;
-            return that.Minimum;
-        }
-        private void set_190_ProgressRing_Minimum(object instance, object Value)
-        {
-            var that = (global::Microsoft.UI.Xaml.Controls.ProgressRing)instance;
-            that.Minimum = (global::System.Double)Value;
-        }
-        private object get_191_ProgressRing_TemplateSettings(object instance)
-        {
-            var that = (global::Microsoft.UI.Xaml.Controls.ProgressRing)instance;
-            return that.TemplateSettings;
-        }
-        private object get_192_ProgressRing_Value(object instance)
-        {
-            var that = (global::Microsoft.UI.Xaml.Controls.ProgressRing)instance;
-            return that.Value;
-        }
-        private void set_192_ProgressRing_Value(object instance, object Value)
-        {
-            var that = (global::Microsoft.UI.Xaml.Controls.ProgressRing)instance;
-            that.Value = (global::System.Double)Value;
-        }
-        private object get_193_TreeView_ItemsSource(object instance)
-        {
-            var that = (global::Microsoft.UI.Xaml.Controls.TreeView)instance;
-            return that.ItemsSource;
-        }
-        private void set_193_TreeView_ItemsSource(object instance, object Value)
-        {
-            var that = (global::Microsoft.UI.Xaml.Controls.TreeView)instance;
-            that.ItemsSource = (global::System.Object)Value;
-        }
-        private object get_194_TreeView_ItemTemplate(object instance)
-        {
-            var that = (global::Microsoft.UI.Xaml.Controls.TreeView)instance;
-            return that.ItemTemplate;
-        }
-        private void set_194_TreeView_ItemTemplate(object instance, object Value)
-        {
-            var that = (global::Microsoft.UI.Xaml.Controls.TreeView)instance;
-            that.ItemTemplate = (global::Microsoft.UI.Xaml.DataTemplate)Value;
-        }
-        private object get_195_TreeView_CanDragItems(object instance)
-        {
-            var that = (global::Microsoft.UI.Xaml.Controls.TreeView)instance;
-            return that.CanDragItems;
-        }
-        private void set_195_TreeView_CanDragItems(object instance, object Value)
-        {
-            var that = (global::Microsoft.UI.Xaml.Controls.TreeView)instance;
-            that.CanDragItems = (global::System.Boolean)Value;
-        }
-        private object get_196_TreeView_CanReorderItems(object instance)
-        {
-            var that = (global::Microsoft.UI.Xaml.Controls.TreeView)instance;
-            return that.CanReorderItems;
-        }
-        private void set_196_TreeView_CanReorderItems(object instance, object Value)
-        {
-            var that = (global::Microsoft.UI.Xaml.Controls.TreeView)instance;
-            that.CanReorderItems = (global::System.Boolean)Value;
-        }
-        private object get_197_TreeView_ItemContainerStyle(object instance)
-        {
-            var that = (global::Microsoft.UI.Xaml.Controls.TreeView)instance;
-            return that.ItemContainerStyle;
-        }
-        private void set_197_TreeView_ItemContainerStyle(object instance, object Value)
-        {
-            var that = (global::Microsoft.UI.Xaml.Controls.TreeView)instance;
-            that.ItemContainerStyle = (global::Microsoft.UI.Xaml.Style)Value;
-        }
-        private object get_198_TreeView_ItemContainerStyleSelector(object instance)
-        {
-            var that = (global::Microsoft.UI.Xaml.Controls.TreeView)instance;
-            return that.ItemContainerStyleSelector;
-        }
-        private void set_198_TreeView_ItemContainerStyleSelector(object instance, object Value)
-        {
-            var that = (global::Microsoft.UI.Xaml.Controls.TreeView)instance;
-            that.ItemContainerStyleSelector = (global::Microsoft.UI.Xaml.Controls.StyleSelector)Value;
-        }
-        private object get_199_TreeView_ItemContainerTransitions(object instance)
-        {
-            var that = (global::Microsoft.UI.Xaml.Controls.TreeView)instance;
-            return that.ItemContainerTransitions;
-        }
-        private void set_199_TreeView_ItemContainerTransitions(object instance, object Value)
-        {
-            var that = (global::Microsoft.UI.Xaml.Controls.TreeView)instance;
-            that.ItemContainerTransitions = (global::Microsoft.UI.Xaml.Media.Animation.TransitionCollection)Value;
-        }
-        private object get_200_TreeView_ItemTemplateSelector(object instance)
-        {
-            var that = (global::Microsoft.UI.Xaml.Controls.TreeView)instance;
-            return that.ItemTemplateSelector;
-        }
-        private void set_200_TreeView_ItemTemplateSelector(object instance, object Value)
-        {
-            var that = (global::Microsoft.UI.Xaml.Controls.TreeView)instance;
-            that.ItemTemplateSelector = (global::Microsoft.UI.Xaml.Controls.DataTemplateSelector)Value;
-        }
-        private object get_201_TreeView_RootNodes(object instance)
-        {
-            var that = (global::Microsoft.UI.Xaml.Controls.TreeView)instance;
-            return that.RootNodes;
-        }
-        private object get_202_TreeViewNode_Children(object instance)
-        {
-            var that = (global::Microsoft.UI.Xaml.Controls.TreeViewNode)instance;
-            return that.Children;
-        }
-        private object get_203_TreeViewNode_Content(object instance)
-        {
-            var that = (global::Microsoft.UI.Xaml.Controls.TreeViewNode)instance;
-            return that.Content;
-        }
-        private void set_203_TreeViewNode_Content(object instance, object Value)
-        {
-            var that = (global::Microsoft.UI.Xaml.Controls.TreeViewNode)instance;
-            that.Content = (global::System.Object)Value;
-        }
-        private object get_204_TreeViewNode_Depth(object instance)
-        {
-            var that = (global::Microsoft.UI.Xaml.Controls.TreeViewNode)instance;
-            return that.Depth;
-        }
-        private object get_205_TreeViewNode_HasChildren(object instance)
-        {
-            var that = (global::Microsoft.UI.Xaml.Controls.TreeViewNode)instance;
-            return that.HasChildren;
-        }
-        private object get_206_TreeViewNode_HasUnrealizedChildren(object instance)
-        {
-            var that = (global::Microsoft.UI.Xaml.Controls.TreeViewNode)instance;
-            return that.HasUnrealizedChildren;
-        }
-        private void set_206_TreeViewNode_HasUnrealizedChildren(object instance, object Value)
-        {
-            var that = (global::Microsoft.UI.Xaml.Controls.TreeViewNode)instance;
-            that.HasUnrealizedChildren = (global::System.Boolean)Value;
-        }
-        private object get_207_TreeViewNode_IsExpanded(object instance)
-        {
-            var that = (global::Microsoft.UI.Xaml.Controls.TreeViewNode)instance;
-            return that.IsExpanded;
-        }
-        private void set_207_TreeViewNode_IsExpanded(object instance, object Value)
-        {
-            var that = (global::Microsoft.UI.Xaml.Controls.TreeViewNode)instance;
-            that.IsExpanded = (global::System.Boolean)Value;
-        }
-        private object get_208_TreeViewNode_Parent(object instance)
-        {
-            var that = (global::Microsoft.UI.Xaml.Controls.TreeViewNode)instance;
-            return that.Parent;
-        }
-        private object get_209_TreeView_SelectedItem(object instance)
-        {
-            var that = (global::Microsoft.UI.Xaml.Controls.TreeView)instance;
-            return that.SelectedItem;
-        }
-        private void set_209_TreeView_SelectedItem(object instance, object Value)
-        {
-            var that = (global::Microsoft.UI.Xaml.Controls.TreeView)instance;
-            that.SelectedItem = (global::System.Object)Value;
-        }
-        private object get_210_TreeView_SelectedItems(object instance)
-        {
-            var that = (global::Microsoft.UI.Xaml.Controls.TreeView)instance;
-            return that.SelectedItems;
-        }
-        private object get_211_TreeView_SelectedNode(object instance)
-        {
-            var that = (global::Microsoft.UI.Xaml.Controls.TreeView)instance;
-            return that.SelectedNode;
-        }
-        private void set_211_TreeView_SelectedNode(object instance, object Value)
-        {
-            var that = (global::Microsoft.UI.Xaml.Controls.TreeView)instance;
-            that.SelectedNode = (global::Microsoft.UI.Xaml.Controls.TreeViewNode)Value;
-        }
-        private object get_212_TreeView_SelectedNodes(object instance)
-        {
-            var that = (global::Microsoft.UI.Xaml.Controls.TreeView)instance;
-            return that.SelectedNodes;
-        }
-        private object get_213_TreeView_SelectionMode(object instance)
-        {
-            var that = (global::Microsoft.UI.Xaml.Controls.TreeView)instance;
-            return that.SelectionMode;
-        }
-        private void set_213_TreeView_SelectionMode(object instance, object Value)
-        {
-            var that = (global::Microsoft.UI.Xaml.Controls.TreeView)instance;
-            that.SelectionMode = (global::Microsoft.UI.Xaml.Controls.TreeViewSelectionMode)Value;
-        }
-        private object get_214_TreeViewItem_ItemsSource(object instance)
-        {
-            var that = (global::Microsoft.UI.Xaml.Controls.TreeViewItem)instance;
-            return that.ItemsSource;
-        }
-        private void set_214_TreeViewItem_ItemsSource(object instance, object Value)
-        {
-            var that = (global::Microsoft.UI.Xaml.Controls.TreeViewItem)instance;
-            that.ItemsSource = (global::System.Object)Value;
-        }
-        private object get_215_TreeViewItem_IsExpanded(object instance)
-        {
-            var that = (global::Microsoft.UI.Xaml.Controls.TreeViewItem)instance;
-            return that.IsExpanded;
-        }
-        private void set_215_TreeViewItem_IsExpanded(object instance, object Value)
-        {
-            var that = (global::Microsoft.UI.Xaml.Controls.TreeViewItem)instance;
-            that.IsExpanded = (global::System.Boolean)Value;
-        }
-        private object get_216_TreeViewItem_CollapsedGlyph(object instance)
-        {
-            var that = (global::Microsoft.UI.Xaml.Controls.TreeViewItem)instance;
-            return that.CollapsedGlyph;
-        }
-        private void set_216_TreeViewItem_CollapsedGlyph(object instance, object Value)
-        {
-            var that = (global::Microsoft.UI.Xaml.Controls.TreeViewItem)instance;
-            that.CollapsedGlyph = (global::System.String)Value;
-        }
-        private object get_217_TreeViewItem_ExpandedGlyph(object instance)
-        {
-            var that = (global::Microsoft.UI.Xaml.Controls.TreeViewItem)instance;
-            return that.ExpandedGlyph;
-        }
-        private void set_217_TreeViewItem_ExpandedGlyph(object instance, object Value)
-        {
-            var that = (global::Microsoft.UI.Xaml.Controls.TreeViewItem)instance;
-            that.ExpandedGlyph = (global::System.String)Value;
-        }
-        private object get_218_TreeViewItem_GlyphBrush(object instance)
-        {
-            var that = (global::Microsoft.UI.Xaml.Controls.TreeViewItem)instance;
-            return that.GlyphBrush;
-        }
-        private void set_218_TreeViewItem_GlyphBrush(object instance, object Value)
-        {
-            var that = (global::Microsoft.UI.Xaml.Controls.TreeViewItem)instance;
-            that.GlyphBrush = (global::Microsoft.UI.Xaml.Media.Brush)Value;
-        }
-        private object get_219_TreeViewItem_GlyphOpacity(object instance)
-        {
-            var that = (global::Microsoft.UI.Xaml.Controls.TreeViewItem)instance;
-            return that.GlyphOpacity;
-        }
-        private void set_219_TreeViewItem_GlyphOpacity(object instance, object Value)
-        {
-            var that = (global::Microsoft.UI.Xaml.Controls.TreeViewItem)instance;
-            that.GlyphOpacity = (global::System.Double)Value;
-        }
-        private object get_220_TreeViewItem_GlyphSize(object instance)
-        {
-            var that = (global::Microsoft.UI.Xaml.Controls.TreeViewItem)instance;
-            return that.GlyphSize;
-        }
-        private void set_220_TreeViewItem_GlyphSize(object instance, object Value)
-        {
-            var that = (global::Microsoft.UI.Xaml.Controls.TreeViewItem)instance;
-            that.GlyphSize = (global::System.Double)Value;
-        }
-        private object get_221_TreeViewItem_HasUnrealizedChildren(object instance)
-        {
-            var that = (global::Microsoft.UI.Xaml.Controls.TreeViewItem)instance;
-            return that.HasUnrealizedChildren;
-        }
-        private void set_221_TreeViewItem_HasUnrealizedChildren(object instance, object Value)
-        {
-            var that = (global::Microsoft.UI.Xaml.Controls.TreeViewItem)instance;
-            that.HasUnrealizedChildren = (global::System.Boolean)Value;
-        }
-        private object get_222_TreeViewItem_TreeViewItemTemplateSettings(object instance)
-        {
-            var that = (global::Microsoft.UI.Xaml.Controls.TreeViewItem)instance;
-            return that.TreeViewItemTemplateSettings;
-        }
-        private object get_223_InventoryViewerPage_ViewModel(object instance)
-        {
-            var that = (global::AIM.Views.InventoryViewerPage)instance;
-            return that.ViewModel;
-        }
-        private object get_224_PreviewPage_ViewModel(object instance)
-        {
-            var that = (global::AIM.Views.PreviewPage)instance;
-            return that.ViewModel;
-        }
-        private object get_225_FormRowTemplateSelector_Level2HeaderTemplate(object instance)
-        {
-            var that = (global::AIM.Converters.FormRowTemplateSelector)instance;
-            return that.Level2HeaderTemplate;
-        }
-        private void set_225_FormRowTemplateSelector_Level2HeaderTemplate(object instance, object Value)
-        {
-            var that = (global::AIM.Converters.FormRowTemplateSelector)instance;
-            that.Level2HeaderTemplate = (global::Microsoft.UI.Xaml.DataTemplate)Value;
-        }
-        private object get_226_FormRowTemplateSelector_Level3Header_A_Template(object instance)
-        {
-            var that = (global::AIM.Converters.FormRowTemplateSelector)instance;
-            return that.Level3Header_A_Template;
-        }
-        private void set_226_FormRowTemplateSelector_Level3Header_A_Template(object instance, object Value)
-        {
-            var that = (global::AIM.Converters.FormRowTemplateSelector)instance;
-            that.Level3Header_A_Template = (global::Microsoft.UI.Xaml.DataTemplate)Value;
-        }
-        private object get_227_FormRowTemplateSelector_Level3Header_B_Template(object instance)
-        {
-            var that = (global::AIM.Converters.FormRowTemplateSelector)instance;
-            return that.Level3Header_B_Template;
-        }
-        private void set_227_FormRowTemplateSelector_Level3Header_B_Template(object instance, object Value)
-        {
-            var that = (global::AIM.Converters.FormRowTemplateSelector)instance;
-            that.Level3Header_B_Template = (global::Microsoft.UI.Xaml.DataTemplate)Value;
-        }
-        private object get_228_FormRowTemplateSelector_Level3Header_C_Template(object instance)
-        {
-            var that = (global::AIM.Converters.FormRowTemplateSelector)instance;
-            return that.Level3Header_C_Template;
-        }
-        private void set_228_FormRowTemplateSelector_Level3Header_C_Template(object instance, object Value)
-        {
-            var that = (global::AIM.Converters.FormRowTemplateSelector)instance;
-            that.Level3Header_C_Template = (global::Microsoft.UI.Xaml.DataTemplate)Value;
-        }
-        private object get_229_FormRowTemplateSelector_FileTemplate(object instance)
-        {
-            var that = (global::AIM.Converters.FormRowTemplateSelector)instance;
-            return that.FileTemplate;
-        }
-        private void set_229_FormRowTemplateSelector_FileTemplate(object instance, object Value)
-        {
-            var that = (global::AIM.Converters.FormRowTemplateSelector)instance;
-            that.FileTemplate = (global::Microsoft.UI.Xaml.DataTemplate)Value;
-        }
-        private object get_230_FormRowTemplateSelector_BlankTemplate(object instance)
-        {
-            var that = (global::AIM.Converters.FormRowTemplateSelector)instance;
-            return that.BlankTemplate;
-        }
-        private void set_230_FormRowTemplateSelector_BlankTemplate(object instance, object Value)
-        {
-            var that = (global::AIM.Converters.FormRowTemplateSelector)instance;
-            that.BlankTemplate = (global::Microsoft.UI.Xaml.DataTemplate)Value;
-        }
-        private object get_231_PrintableFormPage_ViewModel(object instance)
-        {
-            var that = (global::AIM.Views.PrintableFormPage)instance;
-            return that.ViewModel;
-        }
-        private object get_232_Interaction_Behaviors(object instance)
-        {
-            return global::Microsoft.Xaml.Interactivity.Interaction.GetBehaviors((global::Microsoft.UI.Xaml.DependencyObject)instance);
-        }
-        private void set_232_Interaction_Behaviors(object instance, object Value)
-        {
-            global::Microsoft.Xaml.Interactivity.Interaction.SetBehaviors((global::Microsoft.UI.Xaml.DependencyObject)instance, (global::Microsoft.Xaml.Interactivity.BehaviorCollection)Value);
-        }
-        private object get_233_Trigger_Actions(object instance)
-        {
-            var that = (global::Microsoft.Xaml.Interactivity.Trigger)instance;
-            return that.Actions;
-        }
-        private object get_234_EventTriggerBehavior_EventName(object instance)
-        {
-            var that = (global::Microsoft.Xaml.Interactions.Core.EventTriggerBehavior)instance;
-            return that.EventName;
-        }
-        private void set_234_EventTriggerBehavior_EventName(object instance, object Value)
-        {
-            var that = (global::Microsoft.Xaml.Interactions.Core.EventTriggerBehavior)instance;
-            that.EventName = (global::System.String)Value;
-        }
-        private object get_235_EventTriggerBehavior_SourceObject(object instance)
-        {
-            var that = (global::Microsoft.Xaml.Interactions.Core.EventTriggerBehavior)instance;
-            return that.SourceObject;
-        }
-        private void set_235_EventTriggerBehavior_SourceObject(object instance, object Value)
-        {
-            var that = (global::Microsoft.Xaml.Interactions.Core.EventTriggerBehavior)instance;
-            that.SourceObject = (global::System.Object)Value;
-        }
-        private object get_236_Behavior_AssociatedObject(object instance)
-        {
-            var that = (global::Microsoft.Xaml.Interactivity.Behavior)instance;
-            return that.AssociatedObject;
-        }
-        private object get_237_InvokeCommandAction_Command(object instance)
-        {
-            var that = (global::Microsoft.Xaml.Interactions.Core.InvokeCommandAction)instance;
-            return that.Command;
-        }
-        private void set_237_InvokeCommandAction_Command(object instance, object Value)
-        {
-            var that = (global::Microsoft.Xaml.Interactions.Core.InvokeCommandAction)instance;
-            that.Command = (global::System.Windows.Input.ICommand)Value;
-        }
-        private object get_238_InvokeCommandAction_CommandParameter(object instance)
-        {
-            var that = (global::Microsoft.Xaml.Interactions.Core.InvokeCommandAction)instance;
-            return that.CommandParameter;
-        }
-        private void set_238_InvokeCommandAction_CommandParameter(object instance, object Value)
-        {
-            var that = (global::Microsoft.Xaml.Interactions.Core.InvokeCommandAction)instance;
-            that.CommandParameter = (global::System.Object)Value;
-        }
-        private object get_239_InvokeCommandAction_InputConverter(object instance)
-        {
-            var that = (global::Microsoft.Xaml.Interactions.Core.InvokeCommandAction)instance;
-            return that.InputConverter;
-        }
-        private void set_239_InvokeCommandAction_InputConverter(object instance, object Value)
-        {
-            var that = (global::Microsoft.Xaml.Interactions.Core.InvokeCommandAction)instance;
-            that.InputConverter = (global::Microsoft.UI.Xaml.Data.IValueConverter)Value;
-        }
-        private object get_240_InvokeCommandAction_InputConverterParameter(object instance)
-        {
-            var that = (global::Microsoft.Xaml.Interactions.Core.InvokeCommandAction)instance;
-            return that.InputConverterParameter;
-        }
-        private void set_240_InvokeCommandAction_InputConverterParameter(object instance, object Value)
-        {
-            var that = (global::Microsoft.Xaml.Interactions.Core.InvokeCommandAction)instance;
-            that.InputConverterParameter = (global::System.Object)Value;
-        }
-        private object get_241_InvokeCommandAction_InputConverterLanguage(object instance)
-        {
-            var that = (global::Microsoft.Xaml.Interactions.Core.InvokeCommandAction)instance;
-            return that.InputConverterLanguage;
-        }
-        private void set_241_InvokeCommandAction_InputConverterLanguage(object instance, object Value)
-        {
-            var that = (global::Microsoft.Xaml.Interactions.Core.InvokeCommandAction)instance;
-            that.InputConverterLanguage = (global::System.String)Value;
-        }
-        private object get_242_ScansPage_ViewModel(object instance)
-        {
-            var that = (global::AIM.Views.ScansPage)instance;
-            return that.ViewModel;
-        }
-        private object get_243_SearchPage_ViewModel(object instance)
-        {
-            var that = (global::AIM.Views.SearchPage)instance;
-            return that.ViewModel;
-        }
-        private object get_244_SettingsPage_ViewModel(object instance)
-        {
-            var that = (global::AIM.Views.SettingsPage)instance;
-            return that.ViewModel;
-        }
-        private object get_245_SettingsPage_IsLocked(object instance)
-        {
-            var that = (global::AIM.Views.SettingsPage)instance;
-            return that.IsLocked;
-        }
-        private void set_245_SettingsPage_IsLocked(object instance, object Value)
-        {
-            var that = (global::AIM.Views.SettingsPage)instance;
-            that.IsLocked = (global::System.Boolean)Value;
-        }
-        private object get_246_SourceGenChart_Series(object instance)
+        private object get_152_SourceGenChart_Series(object instance)
         {
             var that = (global::LiveChartsGeneratedCode.SourceGenChart)instance;
             return that.Series;
         }
-        private void set_246_SourceGenChart_Series(object instance, object Value)
+        private void set_152_SourceGenChart_Series(object instance, object Value)
         {
             var that = (global::LiveChartsGeneratedCode.SourceGenChart)instance;
             that.Series = (global::System.Collections.Generic.IEnumerable<global::LiveChartsCore.ISeries>)Value;
         }
-        private object get_247_SourceGenChart_LegendPosition(object instance)
+        private object get_153_SourceGenChart_LegendPosition(object instance)
         {
             var that = (global::LiveChartsGeneratedCode.SourceGenChart)instance;
             return that.LegendPosition;
         }
-        private void set_247_SourceGenChart_LegendPosition(object instance, object Value)
+        private void set_153_SourceGenChart_LegendPosition(object instance, object Value)
         {
             var that = (global::LiveChartsGeneratedCode.SourceGenChart)instance;
             that.LegendPosition = (global::LiveChartsCore.Measure.LegendPosition)Value;
         }
-        private object get_248_SourceGenChart_LegendTextSize(object instance)
-        {
-            var that = (global::LiveChartsGeneratedCode.SourceGenChart)instance;
-            return that.LegendTextSize;
-        }
-        private void set_248_SourceGenChart_LegendTextSize(object instance, object Value)
-        {
-            var that = (global::LiveChartsGeneratedCode.SourceGenChart)instance;
-            that.LegendTextSize = (global::System.Double)Value;
-        }
-        private object get_249_SourceGenPieChart_IsClockwise(object instance)
+        private object get_154_SourceGenPieChart_IsClockwise(object instance)
         {
             var that = (global::LiveChartsGeneratedCode.SourceGenPieChart)instance;
             return that.IsClockwise;
         }
-        private void set_249_SourceGenPieChart_IsClockwise(object instance, object Value)
+        private void set_154_SourceGenPieChart_IsClockwise(object instance, object Value)
         {
             var that = (global::LiveChartsGeneratedCode.SourceGenPieChart)instance;
             that.IsClockwise = (global::System.Boolean)Value;
         }
-        private object get_250_SourceGenPieChart_InitialRotation(object instance)
+        private object get_155_SourceGenPieChart_InitialRotation(object instance)
         {
             var that = (global::LiveChartsGeneratedCode.SourceGenPieChart)instance;
             return that.InitialRotation;
         }
-        private void set_250_SourceGenPieChart_InitialRotation(object instance, object Value)
+        private void set_155_SourceGenPieChart_InitialRotation(object instance, object Value)
         {
             var that = (global::LiveChartsGeneratedCode.SourceGenPieChart)instance;
             that.InitialRotation = (global::System.Double)Value;
         }
-        private object get_251_SourceGenPieChart_MaxAngle(object instance)
+        private object get_156_SourceGenPieChart_MaxAngle(object instance)
         {
             var that = (global::LiveChartsGeneratedCode.SourceGenPieChart)instance;
             return that.MaxAngle;
         }
-        private void set_251_SourceGenPieChart_MaxAngle(object instance, object Value)
+        private void set_156_SourceGenPieChart_MaxAngle(object instance, object Value)
         {
             var that = (global::LiveChartsGeneratedCode.SourceGenPieChart)instance;
             that.MaxAngle = (global::System.Double)Value;
         }
-        private object get_252_SourceGenPieChart_MaxValue(object instance)
+        private object get_157_SourceGenPieChart_MaxValue(object instance)
         {
             var that = (global::LiveChartsGeneratedCode.SourceGenPieChart)instance;
             return that.MaxValue;
         }
-        private void set_252_SourceGenPieChart_MaxValue(object instance, object Value)
+        private void set_157_SourceGenPieChart_MaxValue(object instance, object Value)
         {
             var that = (global::LiveChartsGeneratedCode.SourceGenPieChart)instance;
             that.MaxValue = (global::System.Double)Value;
         }
-        private object get_253_SourceGenPieChart_MinValue(object instance)
+        private object get_158_SourceGenPieChart_MinValue(object instance)
         {
             var that = (global::LiveChartsGeneratedCode.SourceGenPieChart)instance;
             return that.MinValue;
         }
-        private void set_253_SourceGenPieChart_MinValue(object instance, object Value)
+        private void set_158_SourceGenPieChart_MinValue(object instance, object Value)
         {
             var that = (global::LiveChartsGeneratedCode.SourceGenPieChart)instance;
             that.MinValue = (global::System.Double)Value;
         }
-        private object get_254_SourceGenChart_CoreChart(object instance)
+        private object get_159_SourceGenChart_CoreChart(object instance)
         {
             var that = (global::LiveChartsGeneratedCode.SourceGenChart)instance;
             return that.CoreChart;
         }
-        private object get_255_SourceGenChart_ForceGPU(object instance)
+        private object get_160_SourceGenChart_ForceGPU(object instance)
         {
             var that = (global::LiveChartsGeneratedCode.SourceGenChart)instance;
             return that.ForceGPU;
         }
-        private void set_255_SourceGenChart_ForceGPU(object instance, object Value)
+        private void set_160_SourceGenChart_ForceGPU(object instance, object Value)
         {
             var that = (global::LiveChartsGeneratedCode.SourceGenChart)instance;
             that.ForceGPU = (global::System.Boolean)Value;
         }
-        private object get_256_SourceGenChart_Tooltip(object instance)
+        private object get_161_SourceGenChart_Tooltip(object instance)
         {
             var that = (global::LiveChartsGeneratedCode.SourceGenChart)instance;
             return that.Tooltip;
         }
-        private void set_256_SourceGenChart_Tooltip(object instance, object Value)
+        private void set_161_SourceGenChart_Tooltip(object instance, object Value)
         {
             var that = (global::LiveChartsGeneratedCode.SourceGenChart)instance;
             that.Tooltip = (global::LiveChartsCore.Kernel.Sketches.IChartTooltip)Value;
         }
-        private object get_257_SourceGenChart_Legend(object instance)
+        private object get_162_SourceGenChart_Legend(object instance)
         {
             var that = (global::LiveChartsGeneratedCode.SourceGenChart)instance;
             return that.Legend;
         }
-        private void set_257_SourceGenChart_Legend(object instance, object Value)
+        private void set_162_SourceGenChart_Legend(object instance, object Value)
         {
             var that = (global::LiveChartsGeneratedCode.SourceGenChart)instance;
             that.Legend = (global::LiveChartsCore.Kernel.Sketches.IChartLegend)Value;
         }
-        private object get_258_SourceGenChart_ChartTheme(object instance)
+        private object get_163_SourceGenChart_ChartTheme(object instance)
         {
             var that = (global::LiveChartsGeneratedCode.SourceGenChart)instance;
             return that.ChartTheme;
         }
-        private void set_258_SourceGenChart_ChartTheme(object instance, object Value)
+        private void set_163_SourceGenChart_ChartTheme(object instance, object Value)
         {
             var that = (global::LiveChartsGeneratedCode.SourceGenChart)instance;
             that.ChartTheme = (global::LiveChartsCore.Themes.Theme)Value;
         }
-        private object get_259_SourceGenChart_UpdaterThrottler(object instance)
+        private object get_164_SourceGenChart_UpdaterThrottler(object instance)
         {
             var that = (global::LiveChartsGeneratedCode.SourceGenChart)instance;
             return that.UpdaterThrottler;
         }
-        private void set_259_SourceGenChart_UpdaterThrottler(object instance, object Value)
+        private void set_164_SourceGenChart_UpdaterThrottler(object instance, object Value)
         {
             var that = (global::LiveChartsGeneratedCode.SourceGenChart)instance;
             that.UpdaterThrottler = (global::System.TimeSpan)Value;
         }
-        private object get_260_SourceGenChart_AutoUpdateEnabled(object instance)
+        private object get_165_SourceGenChart_AutoUpdateEnabled(object instance)
         {
             var that = (global::LiveChartsGeneratedCode.SourceGenChart)instance;
             return that.AutoUpdateEnabled;
         }
-        private void set_260_SourceGenChart_AutoUpdateEnabled(object instance, object Value)
+        private void set_165_SourceGenChart_AutoUpdateEnabled(object instance, object Value)
         {
             var that = (global::LiveChartsGeneratedCode.SourceGenChart)instance;
             that.AutoUpdateEnabled = (global::System.Boolean)Value;
         }
-        private object get_261_SourceGenChart_CoreCanvas(object instance)
+        private object get_166_SourceGenChart_CoreCanvas(object instance)
         {
             var that = (global::LiveChartsGeneratedCode.SourceGenChart)instance;
             return that.CoreCanvas;
         }
-        private object get_262_SourceGenChart_UpdateStartedCommand(object instance)
+        private object get_167_SourceGenChart_UpdateStartedCommand(object instance)
         {
             var that = (global::LiveChartsGeneratedCode.SourceGenChart)instance;
             return that.UpdateStartedCommand;
         }
-        private void set_262_SourceGenChart_UpdateStartedCommand(object instance, object Value)
+        private void set_167_SourceGenChart_UpdateStartedCommand(object instance, object Value)
         {
             var that = (global::LiveChartsGeneratedCode.SourceGenChart)instance;
             that.UpdateStartedCommand = (global::System.Windows.Input.ICommand)Value;
         }
-        private object get_263_SourceGenChart_DataPointerDownCommand(object instance)
+        private object get_168_SourceGenChart_DataPointerDownCommand(object instance)
         {
             var that = (global::LiveChartsGeneratedCode.SourceGenChart)instance;
             return that.DataPointerDownCommand;
         }
-        private void set_263_SourceGenChart_DataPointerDownCommand(object instance, object Value)
+        private void set_168_SourceGenChart_DataPointerDownCommand(object instance, object Value)
         {
             var that = (global::LiveChartsGeneratedCode.SourceGenChart)instance;
             that.DataPointerDownCommand = (global::System.Windows.Input.ICommand)Value;
         }
-        private object get_264_SourceGenChart_HoveredPointsChangedCommand(object instance)
+        private object get_169_SourceGenChart_HoveredPointsChangedCommand(object instance)
         {
             var that = (global::LiveChartsGeneratedCode.SourceGenChart)instance;
             return that.HoveredPointsChangedCommand;
         }
-        private void set_264_SourceGenChart_HoveredPointsChangedCommand(object instance, object Value)
+        private void set_169_SourceGenChart_HoveredPointsChangedCommand(object instance, object Value)
         {
             var that = (global::LiveChartsGeneratedCode.SourceGenChart)instance;
             that.HoveredPointsChangedCommand = (global::System.Windows.Input.ICommand)Value;
         }
-        private object get_265_SourceGenChart_ChartPointPointerDownCommand(object instance)
+        private object get_170_SourceGenChart_ChartPointPointerDownCommand(object instance)
         {
             var that = (global::LiveChartsGeneratedCode.SourceGenChart)instance;
             return that.ChartPointPointerDownCommand;
         }
-        private void set_265_SourceGenChart_ChartPointPointerDownCommand(object instance, object Value)
+        private void set_170_SourceGenChart_ChartPointPointerDownCommand(object instance, object Value)
         {
             var that = (global::LiveChartsGeneratedCode.SourceGenChart)instance;
             that.ChartPointPointerDownCommand = (global::System.Windows.Input.ICommand)Value;
         }
-        private object get_266_SourceGenChart_VisualElementsPointerDownCommand(object instance)
+        private object get_171_SourceGenChart_VisualElementsPointerDownCommand(object instance)
         {
             var that = (global::LiveChartsGeneratedCode.SourceGenChart)instance;
             return that.VisualElementsPointerDownCommand;
         }
-        private void set_266_SourceGenChart_VisualElementsPointerDownCommand(object instance, object Value)
+        private void set_171_SourceGenChart_VisualElementsPointerDownCommand(object instance, object Value)
         {
             var that = (global::LiveChartsGeneratedCode.SourceGenChart)instance;
             that.VisualElementsPointerDownCommand = (global::System.Windows.Input.ICommand)Value;
         }
-        private object get_267_SourceGenChart_PointerPressedCommand(object instance)
+        private object get_172_SourceGenChart_PointerPressedCommand(object instance)
         {
             var that = (global::LiveChartsGeneratedCode.SourceGenChart)instance;
             return that.PointerPressedCommand;
         }
-        private void set_267_SourceGenChart_PointerPressedCommand(object instance, object Value)
+        private void set_172_SourceGenChart_PointerPressedCommand(object instance, object Value)
         {
             var that = (global::LiveChartsGeneratedCode.SourceGenChart)instance;
             that.PointerPressedCommand = (global::System.Windows.Input.ICommand)Value;
         }
-        private object get_268_SourceGenChart_PointerMoveCommand(object instance)
+        private object get_173_SourceGenChart_PointerMoveCommand(object instance)
         {
             var that = (global::LiveChartsGeneratedCode.SourceGenChart)instance;
             return that.PointerMoveCommand;
         }
-        private void set_268_SourceGenChart_PointerMoveCommand(object instance, object Value)
+        private void set_173_SourceGenChart_PointerMoveCommand(object instance, object Value)
         {
             var that = (global::LiveChartsGeneratedCode.SourceGenChart)instance;
             that.PointerMoveCommand = (global::System.Windows.Input.ICommand)Value;
         }
-        private object get_269_SourceGenChart_PointerReleasedCommand(object instance)
+        private object get_174_SourceGenChart_PointerReleasedCommand(object instance)
         {
             var that = (global::LiveChartsGeneratedCode.SourceGenChart)instance;
             return that.PointerReleasedCommand;
         }
-        private void set_269_SourceGenChart_PointerReleasedCommand(object instance, object Value)
+        private void set_174_SourceGenChart_PointerReleasedCommand(object instance, object Value)
         {
             var that = (global::LiveChartsGeneratedCode.SourceGenChart)instance;
             that.PointerReleasedCommand = (global::System.Windows.Input.ICommand)Value;
         }
-        private object get_270_SourceGenChart_AnimationsSpeed(object instance)
+        private object get_175_SourceGenChart_AnimationsSpeed(object instance)
         {
             var that = (global::LiveChartsGeneratedCode.SourceGenChart)instance;
             return that.AnimationsSpeed;
         }
-        private void set_270_SourceGenChart_AnimationsSpeed(object instance, object Value)
+        private void set_175_SourceGenChart_AnimationsSpeed(object instance, object Value)
         {
             var that = (global::LiveChartsGeneratedCode.SourceGenChart)instance;
             that.AnimationsSpeed = (global::System.TimeSpan)Value;
         }
-        private object get_271_SourceGenChart_EasingFunction(object instance)
+        private object get_176_SourceGenChart_EasingFunction(object instance)
         {
             var that = (global::LiveChartsGeneratedCode.SourceGenChart)instance;
             return that.EasingFunction;
         }
-        private void set_271_SourceGenChart_EasingFunction(object instance, object Value)
+        private void set_176_SourceGenChart_EasingFunction(object instance, object Value)
         {
             var that = (global::LiveChartsGeneratedCode.SourceGenChart)instance;
             that.EasingFunction = (global::System.Func<global::System.Single, global::System.Single>)Value;
         }
-        private object get_272_SourceGenChart_DrawMargin(object instance)
+        private object get_177_SourceGenChart_DrawMargin(object instance)
         {
             var that = (global::LiveChartsGeneratedCode.SourceGenChart)instance;
             return that.DrawMargin;
         }
-        private void set_272_SourceGenChart_DrawMargin(object instance, object Value)
+        private void set_177_SourceGenChart_DrawMargin(object instance, object Value)
         {
             var that = (global::LiveChartsGeneratedCode.SourceGenChart)instance;
             that.DrawMargin = (global::LiveChartsCore.Measure.Margin)Value;
         }
-        private object get_273_SourceGenChart_TooltipPosition(object instance)
+        private object get_178_SourceGenChart_TooltipPosition(object instance)
         {
             var that = (global::LiveChartsGeneratedCode.SourceGenChart)instance;
             return that.TooltipPosition;
         }
-        private void set_273_SourceGenChart_TooltipPosition(object instance, object Value)
+        private void set_178_SourceGenChart_TooltipPosition(object instance, object Value)
         {
             var that = (global::LiveChartsGeneratedCode.SourceGenChart)instance;
             that.TooltipPosition = (global::LiveChartsCore.Measure.TooltipPosition)Value;
         }
-        private object get_274_SourceGenChart_LegendTextPaint(object instance)
+        private object get_179_SourceGenChart_LegendTextPaint(object instance)
         {
             var that = (global::LiveChartsGeneratedCode.SourceGenChart)instance;
             return that.LegendTextPaint;
         }
-        private void set_274_SourceGenChart_LegendTextPaint(object instance, object Value)
+        private void set_179_SourceGenChart_LegendTextPaint(object instance, object Value)
         {
             var that = (global::LiveChartsGeneratedCode.SourceGenChart)instance;
             that.LegendTextPaint = (global::LiveChartsCore.Painting.Paint)Value;
         }
-        private object get_275_SourceGenChart_LegendBackgroundPaint(object instance)
+        private object get_180_SourceGenChart_LegendBackgroundPaint(object instance)
         {
             var that = (global::LiveChartsGeneratedCode.SourceGenChart)instance;
             return that.LegendBackgroundPaint;
         }
-        private void set_275_SourceGenChart_LegendBackgroundPaint(object instance, object Value)
+        private void set_180_SourceGenChart_LegendBackgroundPaint(object instance, object Value)
         {
             var that = (global::LiveChartsGeneratedCode.SourceGenChart)instance;
             that.LegendBackgroundPaint = (global::LiveChartsCore.Painting.Paint)Value;
         }
-        private object get_276_SourceGenChart_TooltipTextPaint(object instance)
+        private object get_181_SourceGenChart_LegendTextSize(object instance)
+        {
+            var that = (global::LiveChartsGeneratedCode.SourceGenChart)instance;
+            return that.LegendTextSize;
+        }
+        private void set_181_SourceGenChart_LegendTextSize(object instance, object Value)
+        {
+            var that = (global::LiveChartsGeneratedCode.SourceGenChart)instance;
+            that.LegendTextSize = (global::System.Double)Value;
+        }
+        private object get_182_SourceGenChart_TooltipTextPaint(object instance)
         {
             var that = (global::LiveChartsGeneratedCode.SourceGenChart)instance;
             return that.TooltipTextPaint;
         }
-        private void set_276_SourceGenChart_TooltipTextPaint(object instance, object Value)
+        private void set_182_SourceGenChart_TooltipTextPaint(object instance, object Value)
         {
             var that = (global::LiveChartsGeneratedCode.SourceGenChart)instance;
             that.TooltipTextPaint = (global::LiveChartsCore.Painting.Paint)Value;
         }
-        private object get_277_SourceGenChart_TooltipBackgroundPaint(object instance)
+        private object get_183_SourceGenChart_TooltipBackgroundPaint(object instance)
         {
             var that = (global::LiveChartsGeneratedCode.SourceGenChart)instance;
             return that.TooltipBackgroundPaint;
         }
-        private void set_277_SourceGenChart_TooltipBackgroundPaint(object instance, object Value)
+        private void set_183_SourceGenChart_TooltipBackgroundPaint(object instance, object Value)
         {
             var that = (global::LiveChartsGeneratedCode.SourceGenChart)instance;
             that.TooltipBackgroundPaint = (global::LiveChartsCore.Painting.Paint)Value;
         }
-        private object get_278_SourceGenChart_TooltipTextSize(object instance)
+        private object get_184_SourceGenChart_TooltipTextSize(object instance)
         {
             var that = (global::LiveChartsGeneratedCode.SourceGenChart)instance;
             return that.TooltipTextSize;
         }
-        private void set_278_SourceGenChart_TooltipTextSize(object instance, object Value)
+        private void set_184_SourceGenChart_TooltipTextSize(object instance, object Value)
         {
             var that = (global::LiveChartsGeneratedCode.SourceGenChart)instance;
             that.TooltipTextSize = (global::System.Double)Value;
         }
-        private object get_279_SourceGenChart_SyncContext(object instance)
+        private object get_185_SourceGenChart_SyncContext(object instance)
         {
             var that = (global::LiveChartsGeneratedCode.SourceGenChart)instance;
             return that.SyncContext;
         }
-        private void set_279_SourceGenChart_SyncContext(object instance, object Value)
+        private void set_185_SourceGenChart_SyncContext(object instance, object Value)
         {
             var that = (global::LiveChartsGeneratedCode.SourceGenChart)instance;
             that.SyncContext = (global::System.Object)Value;
         }
-        private object get_280_SourceGenChart_Title(object instance)
+        private object get_186_SourceGenChart_Title(object instance)
         {
             var that = (global::LiveChartsGeneratedCode.SourceGenChart)instance;
             return that.Title;
         }
-        private void set_280_SourceGenChart_Title(object instance, object Value)
+        private void set_186_SourceGenChart_Title(object instance, object Value)
         {
             var that = (global::LiveChartsGeneratedCode.SourceGenChart)instance;
             that.Title = (global::LiveChartsCore.Kernel.IChartElement)Value;
         }
-        private object get_281_SourceGenChart_VisualElements(object instance)
+        private object get_187_SourceGenChart_VisualElements(object instance)
         {
             var that = (global::LiveChartsGeneratedCode.SourceGenChart)instance;
             return that.VisualElements;
         }
-        private void set_281_SourceGenChart_VisualElements(object instance, object Value)
+        private void set_187_SourceGenChart_VisualElements(object instance, object Value)
         {
             var that = (global::LiveChartsGeneratedCode.SourceGenChart)instance;
             that.VisualElements = (global::System.Collections.Generic.IEnumerable<global::LiveChartsCore.Kernel.IChartElement>)Value;
         }
-        private object get_282_SourceGenChart_SeriesSource(object instance)
+        private object get_188_SourceGenChart_SeriesSource(object instance)
         {
             var that = (global::LiveChartsGeneratedCode.SourceGenChart)instance;
             return that.SeriesSource;
         }
-        private void set_282_SourceGenChart_SeriesSource(object instance, object Value)
+        private void set_188_SourceGenChart_SeriesSource(object instance, object Value)
         {
             var that = (global::LiveChartsGeneratedCode.SourceGenChart)instance;
             that.SeriesSource = (global::System.Collections.Generic.IEnumerable<global::System.Object>)Value;
         }
-        private object get_283_SourceGenChart_SeriesTemplate(object instance)
+        private object get_189_SourceGenChart_SeriesTemplate(object instance)
         {
             var that = (global::LiveChartsGeneratedCode.SourceGenChart)instance;
             return that.SeriesTemplate;
         }
-        private void set_283_SourceGenChart_SeriesTemplate(object instance, object Value)
+        private void set_189_SourceGenChart_SeriesTemplate(object instance, object Value)
         {
             var that = (global::LiveChartsGeneratedCode.SourceGenChart)instance;
             that.SeriesTemplate = (global::Microsoft.UI.Xaml.DataTemplate)Value;
+        }
+        private object get_190_DirAnalysisPage_ViewModel(object instance)
+        {
+            var that = (global::AIM.Views.DirAnalysisPage)instance;
+            return that.ViewModel;
+        }
+        private object get_191_FormGeneratorPage_ViewModel(object instance)
+        {
+            var that = (global::AIM.Views.FormGeneratorPage)instance;
+            return that.ViewModel;
+        }
+        private object get_192_Expander_IsExpanded(object instance)
+        {
+            var that = (global::Microsoft.UI.Xaml.Controls.Expander)instance;
+            return that.IsExpanded;
+        }
+        private void set_192_Expander_IsExpanded(object instance, object Value)
+        {
+            var that = (global::Microsoft.UI.Xaml.Controls.Expander)instance;
+            that.IsExpanded = (global::System.Boolean)Value;
+        }
+        private object get_193_Expander_Header(object instance)
+        {
+            var that = (global::Microsoft.UI.Xaml.Controls.Expander)instance;
+            return that.Header;
+        }
+        private void set_193_Expander_Header(object instance, object Value)
+        {
+            var that = (global::Microsoft.UI.Xaml.Controls.Expander)instance;
+            that.Header = (global::System.Object)Value;
+        }
+        private object get_194_Expander_ExpandDirection(object instance)
+        {
+            var that = (global::Microsoft.UI.Xaml.Controls.Expander)instance;
+            return that.ExpandDirection;
+        }
+        private void set_194_Expander_ExpandDirection(object instance, object Value)
+        {
+            var that = (global::Microsoft.UI.Xaml.Controls.Expander)instance;
+            that.ExpandDirection = (global::Microsoft.UI.Xaml.Controls.ExpandDirection)Value;
+        }
+        private object get_195_Expander_HeaderTemplate(object instance)
+        {
+            var that = (global::Microsoft.UI.Xaml.Controls.Expander)instance;
+            return that.HeaderTemplate;
+        }
+        private void set_195_Expander_HeaderTemplate(object instance, object Value)
+        {
+            var that = (global::Microsoft.UI.Xaml.Controls.Expander)instance;
+            that.HeaderTemplate = (global::Microsoft.UI.Xaml.DataTemplate)Value;
+        }
+        private object get_196_Expander_HeaderTemplateSelector(object instance)
+        {
+            var that = (global::Microsoft.UI.Xaml.Controls.Expander)instance;
+            return that.HeaderTemplateSelector;
+        }
+        private void set_196_Expander_HeaderTemplateSelector(object instance, object Value)
+        {
+            var that = (global::Microsoft.UI.Xaml.Controls.Expander)instance;
+            that.HeaderTemplateSelector = (global::Microsoft.UI.Xaml.Controls.DataTemplateSelector)Value;
+        }
+        private object get_197_Expander_TemplateSettings(object instance)
+        {
+            var that = (global::Microsoft.UI.Xaml.Controls.Expander)instance;
+            return that.TemplateSettings;
+        }
+        private object get_198_InventoryAdminPage_ViewModel(object instance)
+        {
+            var that = (global::AIM.Views.InventoryAdminPage)instance;
+            return that.ViewModel;
+        }
+        private object get_199_TabView_TabItems(object instance)
+        {
+            var that = (global::Microsoft.UI.Xaml.Controls.TabView)instance;
+            return that.TabItems;
+        }
+        private object get_200_TabView_AddTabButtonCommand(object instance)
+        {
+            var that = (global::Microsoft.UI.Xaml.Controls.TabView)instance;
+            return that.AddTabButtonCommand;
+        }
+        private void set_200_TabView_AddTabButtonCommand(object instance, object Value)
+        {
+            var that = (global::Microsoft.UI.Xaml.Controls.TabView)instance;
+            that.AddTabButtonCommand = (global::System.Windows.Input.ICommand)Value;
+        }
+        private object get_201_TabView_AddTabButtonCommandParameter(object instance)
+        {
+            var that = (global::Microsoft.UI.Xaml.Controls.TabView)instance;
+            return that.AddTabButtonCommandParameter;
+        }
+        private void set_201_TabView_AddTabButtonCommandParameter(object instance, object Value)
+        {
+            var that = (global::Microsoft.UI.Xaml.Controls.TabView)instance;
+            that.AddTabButtonCommandParameter = (global::System.Object)Value;
+        }
+        private object get_202_TabView_AllowDropTabs(object instance)
+        {
+            var that = (global::Microsoft.UI.Xaml.Controls.TabView)instance;
+            return that.AllowDropTabs;
+        }
+        private void set_202_TabView_AllowDropTabs(object instance, object Value)
+        {
+            var that = (global::Microsoft.UI.Xaml.Controls.TabView)instance;
+            that.AllowDropTabs = (global::System.Boolean)Value;
+        }
+        private object get_203_TabView_CanDragTabs(object instance)
+        {
+            var that = (global::Microsoft.UI.Xaml.Controls.TabView)instance;
+            return that.CanDragTabs;
+        }
+        private void set_203_TabView_CanDragTabs(object instance, object Value)
+        {
+            var that = (global::Microsoft.UI.Xaml.Controls.TabView)instance;
+            that.CanDragTabs = (global::System.Boolean)Value;
+        }
+        private object get_204_TabView_CanReorderTabs(object instance)
+        {
+            var that = (global::Microsoft.UI.Xaml.Controls.TabView)instance;
+            return that.CanReorderTabs;
+        }
+        private void set_204_TabView_CanReorderTabs(object instance, object Value)
+        {
+            var that = (global::Microsoft.UI.Xaml.Controls.TabView)instance;
+            that.CanReorderTabs = (global::System.Boolean)Value;
+        }
+        private object get_205_TabView_CanTearOutTabs(object instance)
+        {
+            var that = (global::Microsoft.UI.Xaml.Controls.TabView)instance;
+            return that.CanTearOutTabs;
+        }
+        private void set_205_TabView_CanTearOutTabs(object instance, object Value)
+        {
+            var that = (global::Microsoft.UI.Xaml.Controls.TabView)instance;
+            that.CanTearOutTabs = (global::System.Boolean)Value;
+        }
+        private object get_206_TabView_CloseButtonOverlayMode(object instance)
+        {
+            var that = (global::Microsoft.UI.Xaml.Controls.TabView)instance;
+            return that.CloseButtonOverlayMode;
+        }
+        private void set_206_TabView_CloseButtonOverlayMode(object instance, object Value)
+        {
+            var that = (global::Microsoft.UI.Xaml.Controls.TabView)instance;
+            that.CloseButtonOverlayMode = (global::Microsoft.UI.Xaml.Controls.TabViewCloseButtonOverlayMode)Value;
+        }
+        private object get_207_TabView_IsAddTabButtonVisible(object instance)
+        {
+            var that = (global::Microsoft.UI.Xaml.Controls.TabView)instance;
+            return that.IsAddTabButtonVisible;
+        }
+        private void set_207_TabView_IsAddTabButtonVisible(object instance, object Value)
+        {
+            var that = (global::Microsoft.UI.Xaml.Controls.TabView)instance;
+            that.IsAddTabButtonVisible = (global::System.Boolean)Value;
+        }
+        private object get_208_TabView_SelectedIndex(object instance)
+        {
+            var that = (global::Microsoft.UI.Xaml.Controls.TabView)instance;
+            return that.SelectedIndex;
+        }
+        private void set_208_TabView_SelectedIndex(object instance, object Value)
+        {
+            var that = (global::Microsoft.UI.Xaml.Controls.TabView)instance;
+            that.SelectedIndex = (global::System.Int32)Value;
+        }
+        private object get_209_TabView_SelectedItem(object instance)
+        {
+            var that = (global::Microsoft.UI.Xaml.Controls.TabView)instance;
+            return that.SelectedItem;
+        }
+        private void set_209_TabView_SelectedItem(object instance, object Value)
+        {
+            var that = (global::Microsoft.UI.Xaml.Controls.TabView)instance;
+            that.SelectedItem = (global::System.Object)Value;
+        }
+        private object get_210_TabView_TabItemTemplate(object instance)
+        {
+            var that = (global::Microsoft.UI.Xaml.Controls.TabView)instance;
+            return that.TabItemTemplate;
+        }
+        private void set_210_TabView_TabItemTemplate(object instance, object Value)
+        {
+            var that = (global::Microsoft.UI.Xaml.Controls.TabView)instance;
+            that.TabItemTemplate = (global::Microsoft.UI.Xaml.DataTemplate)Value;
+        }
+        private object get_211_TabView_TabItemTemplateSelector(object instance)
+        {
+            var that = (global::Microsoft.UI.Xaml.Controls.TabView)instance;
+            return that.TabItemTemplateSelector;
+        }
+        private void set_211_TabView_TabItemTemplateSelector(object instance, object Value)
+        {
+            var that = (global::Microsoft.UI.Xaml.Controls.TabView)instance;
+            that.TabItemTemplateSelector = (global::Microsoft.UI.Xaml.Controls.DataTemplateSelector)Value;
+        }
+        private object get_212_TabView_TabItemsSource(object instance)
+        {
+            var that = (global::Microsoft.UI.Xaml.Controls.TabView)instance;
+            return that.TabItemsSource;
+        }
+        private void set_212_TabView_TabItemsSource(object instance, object Value)
+        {
+            var that = (global::Microsoft.UI.Xaml.Controls.TabView)instance;
+            that.TabItemsSource = (global::System.Object)Value;
+        }
+        private object get_213_TabView_TabStripFooter(object instance)
+        {
+            var that = (global::Microsoft.UI.Xaml.Controls.TabView)instance;
+            return that.TabStripFooter;
+        }
+        private void set_213_TabView_TabStripFooter(object instance, object Value)
+        {
+            var that = (global::Microsoft.UI.Xaml.Controls.TabView)instance;
+            that.TabStripFooter = (global::System.Object)Value;
+        }
+        private object get_214_TabView_TabStripFooterTemplate(object instance)
+        {
+            var that = (global::Microsoft.UI.Xaml.Controls.TabView)instance;
+            return that.TabStripFooterTemplate;
+        }
+        private void set_214_TabView_TabStripFooterTemplate(object instance, object Value)
+        {
+            var that = (global::Microsoft.UI.Xaml.Controls.TabView)instance;
+            that.TabStripFooterTemplate = (global::Microsoft.UI.Xaml.DataTemplate)Value;
+        }
+        private object get_215_TabView_TabStripHeader(object instance)
+        {
+            var that = (global::Microsoft.UI.Xaml.Controls.TabView)instance;
+            return that.TabStripHeader;
+        }
+        private void set_215_TabView_TabStripHeader(object instance, object Value)
+        {
+            var that = (global::Microsoft.UI.Xaml.Controls.TabView)instance;
+            that.TabStripHeader = (global::System.Object)Value;
+        }
+        private object get_216_TabView_TabStripHeaderTemplate(object instance)
+        {
+            var that = (global::Microsoft.UI.Xaml.Controls.TabView)instance;
+            return that.TabStripHeaderTemplate;
+        }
+        private void set_216_TabView_TabStripHeaderTemplate(object instance, object Value)
+        {
+            var that = (global::Microsoft.UI.Xaml.Controls.TabView)instance;
+            that.TabStripHeaderTemplate = (global::Microsoft.UI.Xaml.DataTemplate)Value;
+        }
+        private object get_217_TabView_TabWidthMode(object instance)
+        {
+            var that = (global::Microsoft.UI.Xaml.Controls.TabView)instance;
+            return that.TabWidthMode;
+        }
+        private void set_217_TabView_TabWidthMode(object instance, object Value)
+        {
+            var that = (global::Microsoft.UI.Xaml.Controls.TabView)instance;
+            that.TabWidthMode = (global::Microsoft.UI.Xaml.Controls.TabViewWidthMode)Value;
+        }
+        private object get_218_TabViewItem_Header(object instance)
+        {
+            var that = (global::Microsoft.UI.Xaml.Controls.TabViewItem)instance;
+            return that.Header;
+        }
+        private void set_218_TabViewItem_Header(object instance, object Value)
+        {
+            var that = (global::Microsoft.UI.Xaml.Controls.TabViewItem)instance;
+            that.Header = (global::System.Object)Value;
+        }
+        private object get_219_TabViewItem_IconSource(object instance)
+        {
+            var that = (global::Microsoft.UI.Xaml.Controls.TabViewItem)instance;
+            return that.IconSource;
+        }
+        private void set_219_TabViewItem_IconSource(object instance, object Value)
+        {
+            var that = (global::Microsoft.UI.Xaml.Controls.TabViewItem)instance;
+            that.IconSource = (global::Microsoft.UI.Xaml.Controls.IconSource)Value;
+        }
+        private object get_220_TabViewItem_HeaderTemplate(object instance)
+        {
+            var that = (global::Microsoft.UI.Xaml.Controls.TabViewItem)instance;
+            return that.HeaderTemplate;
+        }
+        private void set_220_TabViewItem_HeaderTemplate(object instance, object Value)
+        {
+            var that = (global::Microsoft.UI.Xaml.Controls.TabViewItem)instance;
+            that.HeaderTemplate = (global::Microsoft.UI.Xaml.DataTemplate)Value;
+        }
+        private object get_221_TabViewItem_IsClosable(object instance)
+        {
+            var that = (global::Microsoft.UI.Xaml.Controls.TabViewItem)instance;
+            return that.IsClosable;
+        }
+        private void set_221_TabViewItem_IsClosable(object instance, object Value)
+        {
+            var that = (global::Microsoft.UI.Xaml.Controls.TabViewItem)instance;
+            that.IsClosable = (global::System.Boolean)Value;
+        }
+        private object get_222_TabViewItem_TabViewTemplateSettings(object instance)
+        {
+            var that = (global::Microsoft.UI.Xaml.Controls.TabViewItem)instance;
+            return that.TabViewTemplateSettings;
+        }
+        private object get_223_InventoryArchivePage_ViewModel(object instance)
+        {
+            var that = (global::AIM.Views.InventoryArchivePage)instance;
+            return that.ViewModel;
+        }
+        private object get_224_InvArchivesPage_ViewModel(object instance)
+        {
+            var that = (global::AIM.Views.InvArchivesPage)instance;
+            return that.ViewModel;
+        }
+        private object get_225_ProgressRing_IsActive(object instance)
+        {
+            var that = (global::Microsoft.UI.Xaml.Controls.ProgressRing)instance;
+            return that.IsActive;
+        }
+        private void set_225_ProgressRing_IsActive(object instance, object Value)
+        {
+            var that = (global::Microsoft.UI.Xaml.Controls.ProgressRing)instance;
+            that.IsActive = (global::System.Boolean)Value;
+        }
+        private object get_226_ProgressRing_IsIndeterminate(object instance)
+        {
+            var that = (global::Microsoft.UI.Xaml.Controls.ProgressRing)instance;
+            return that.IsIndeterminate;
+        }
+        private void set_226_ProgressRing_IsIndeterminate(object instance, object Value)
+        {
+            var that = (global::Microsoft.UI.Xaml.Controls.ProgressRing)instance;
+            that.IsIndeterminate = (global::System.Boolean)Value;
+        }
+        private object get_227_ProgressRing_Maximum(object instance)
+        {
+            var that = (global::Microsoft.UI.Xaml.Controls.ProgressRing)instance;
+            return that.Maximum;
+        }
+        private void set_227_ProgressRing_Maximum(object instance, object Value)
+        {
+            var that = (global::Microsoft.UI.Xaml.Controls.ProgressRing)instance;
+            that.Maximum = (global::System.Double)Value;
+        }
+        private object get_228_ProgressRing_Minimum(object instance)
+        {
+            var that = (global::Microsoft.UI.Xaml.Controls.ProgressRing)instance;
+            return that.Minimum;
+        }
+        private void set_228_ProgressRing_Minimum(object instance, object Value)
+        {
+            var that = (global::Microsoft.UI.Xaml.Controls.ProgressRing)instance;
+            that.Minimum = (global::System.Double)Value;
+        }
+        private object get_229_ProgressRing_TemplateSettings(object instance)
+        {
+            var that = (global::Microsoft.UI.Xaml.Controls.ProgressRing)instance;
+            return that.TemplateSettings;
+        }
+        private object get_230_ProgressRing_Value(object instance)
+        {
+            var that = (global::Microsoft.UI.Xaml.Controls.ProgressRing)instance;
+            return that.Value;
+        }
+        private void set_230_ProgressRing_Value(object instance, object Value)
+        {
+            var that = (global::Microsoft.UI.Xaml.Controls.ProgressRing)instance;
+            that.Value = (global::System.Double)Value;
+        }
+        private object get_231_TreeView_ItemsSource(object instance)
+        {
+            var that = (global::Microsoft.UI.Xaml.Controls.TreeView)instance;
+            return that.ItemsSource;
+        }
+        private void set_231_TreeView_ItemsSource(object instance, object Value)
+        {
+            var that = (global::Microsoft.UI.Xaml.Controls.TreeView)instance;
+            that.ItemsSource = (global::System.Object)Value;
+        }
+        private object get_232_TreeView_ItemTemplate(object instance)
+        {
+            var that = (global::Microsoft.UI.Xaml.Controls.TreeView)instance;
+            return that.ItemTemplate;
+        }
+        private void set_232_TreeView_ItemTemplate(object instance, object Value)
+        {
+            var that = (global::Microsoft.UI.Xaml.Controls.TreeView)instance;
+            that.ItemTemplate = (global::Microsoft.UI.Xaml.DataTemplate)Value;
+        }
+        private object get_233_TreeView_CanDragItems(object instance)
+        {
+            var that = (global::Microsoft.UI.Xaml.Controls.TreeView)instance;
+            return that.CanDragItems;
+        }
+        private void set_233_TreeView_CanDragItems(object instance, object Value)
+        {
+            var that = (global::Microsoft.UI.Xaml.Controls.TreeView)instance;
+            that.CanDragItems = (global::System.Boolean)Value;
+        }
+        private object get_234_TreeView_CanReorderItems(object instance)
+        {
+            var that = (global::Microsoft.UI.Xaml.Controls.TreeView)instance;
+            return that.CanReorderItems;
+        }
+        private void set_234_TreeView_CanReorderItems(object instance, object Value)
+        {
+            var that = (global::Microsoft.UI.Xaml.Controls.TreeView)instance;
+            that.CanReorderItems = (global::System.Boolean)Value;
+        }
+        private object get_235_TreeView_ItemContainerStyle(object instance)
+        {
+            var that = (global::Microsoft.UI.Xaml.Controls.TreeView)instance;
+            return that.ItemContainerStyle;
+        }
+        private void set_235_TreeView_ItemContainerStyle(object instance, object Value)
+        {
+            var that = (global::Microsoft.UI.Xaml.Controls.TreeView)instance;
+            that.ItemContainerStyle = (global::Microsoft.UI.Xaml.Style)Value;
+        }
+        private object get_236_TreeView_ItemContainerStyleSelector(object instance)
+        {
+            var that = (global::Microsoft.UI.Xaml.Controls.TreeView)instance;
+            return that.ItemContainerStyleSelector;
+        }
+        private void set_236_TreeView_ItemContainerStyleSelector(object instance, object Value)
+        {
+            var that = (global::Microsoft.UI.Xaml.Controls.TreeView)instance;
+            that.ItemContainerStyleSelector = (global::Microsoft.UI.Xaml.Controls.StyleSelector)Value;
+        }
+        private object get_237_TreeView_ItemContainerTransitions(object instance)
+        {
+            var that = (global::Microsoft.UI.Xaml.Controls.TreeView)instance;
+            return that.ItemContainerTransitions;
+        }
+        private void set_237_TreeView_ItemContainerTransitions(object instance, object Value)
+        {
+            var that = (global::Microsoft.UI.Xaml.Controls.TreeView)instance;
+            that.ItemContainerTransitions = (global::Microsoft.UI.Xaml.Media.Animation.TransitionCollection)Value;
+        }
+        private object get_238_TreeView_ItemTemplateSelector(object instance)
+        {
+            var that = (global::Microsoft.UI.Xaml.Controls.TreeView)instance;
+            return that.ItemTemplateSelector;
+        }
+        private void set_238_TreeView_ItemTemplateSelector(object instance, object Value)
+        {
+            var that = (global::Microsoft.UI.Xaml.Controls.TreeView)instance;
+            that.ItemTemplateSelector = (global::Microsoft.UI.Xaml.Controls.DataTemplateSelector)Value;
+        }
+        private object get_239_TreeView_RootNodes(object instance)
+        {
+            var that = (global::Microsoft.UI.Xaml.Controls.TreeView)instance;
+            return that.RootNodes;
+        }
+        private object get_240_TreeViewNode_Children(object instance)
+        {
+            var that = (global::Microsoft.UI.Xaml.Controls.TreeViewNode)instance;
+            return that.Children;
+        }
+        private object get_241_TreeViewNode_Content(object instance)
+        {
+            var that = (global::Microsoft.UI.Xaml.Controls.TreeViewNode)instance;
+            return that.Content;
+        }
+        private void set_241_TreeViewNode_Content(object instance, object Value)
+        {
+            var that = (global::Microsoft.UI.Xaml.Controls.TreeViewNode)instance;
+            that.Content = (global::System.Object)Value;
+        }
+        private object get_242_TreeViewNode_Depth(object instance)
+        {
+            var that = (global::Microsoft.UI.Xaml.Controls.TreeViewNode)instance;
+            return that.Depth;
+        }
+        private object get_243_TreeViewNode_HasChildren(object instance)
+        {
+            var that = (global::Microsoft.UI.Xaml.Controls.TreeViewNode)instance;
+            return that.HasChildren;
+        }
+        private object get_244_TreeViewNode_HasUnrealizedChildren(object instance)
+        {
+            var that = (global::Microsoft.UI.Xaml.Controls.TreeViewNode)instance;
+            return that.HasUnrealizedChildren;
+        }
+        private void set_244_TreeViewNode_HasUnrealizedChildren(object instance, object Value)
+        {
+            var that = (global::Microsoft.UI.Xaml.Controls.TreeViewNode)instance;
+            that.HasUnrealizedChildren = (global::System.Boolean)Value;
+        }
+        private object get_245_TreeViewNode_IsExpanded(object instance)
+        {
+            var that = (global::Microsoft.UI.Xaml.Controls.TreeViewNode)instance;
+            return that.IsExpanded;
+        }
+        private void set_245_TreeViewNode_IsExpanded(object instance, object Value)
+        {
+            var that = (global::Microsoft.UI.Xaml.Controls.TreeViewNode)instance;
+            that.IsExpanded = (global::System.Boolean)Value;
+        }
+        private object get_246_TreeViewNode_Parent(object instance)
+        {
+            var that = (global::Microsoft.UI.Xaml.Controls.TreeViewNode)instance;
+            return that.Parent;
+        }
+        private object get_247_TreeView_SelectedItem(object instance)
+        {
+            var that = (global::Microsoft.UI.Xaml.Controls.TreeView)instance;
+            return that.SelectedItem;
+        }
+        private void set_247_TreeView_SelectedItem(object instance, object Value)
+        {
+            var that = (global::Microsoft.UI.Xaml.Controls.TreeView)instance;
+            that.SelectedItem = (global::System.Object)Value;
+        }
+        private object get_248_TreeView_SelectedItems(object instance)
+        {
+            var that = (global::Microsoft.UI.Xaml.Controls.TreeView)instance;
+            return that.SelectedItems;
+        }
+        private object get_249_TreeView_SelectedNode(object instance)
+        {
+            var that = (global::Microsoft.UI.Xaml.Controls.TreeView)instance;
+            return that.SelectedNode;
+        }
+        private void set_249_TreeView_SelectedNode(object instance, object Value)
+        {
+            var that = (global::Microsoft.UI.Xaml.Controls.TreeView)instance;
+            that.SelectedNode = (global::Microsoft.UI.Xaml.Controls.TreeViewNode)Value;
+        }
+        private object get_250_TreeView_SelectedNodes(object instance)
+        {
+            var that = (global::Microsoft.UI.Xaml.Controls.TreeView)instance;
+            return that.SelectedNodes;
+        }
+        private object get_251_TreeView_SelectionMode(object instance)
+        {
+            var that = (global::Microsoft.UI.Xaml.Controls.TreeView)instance;
+            return that.SelectionMode;
+        }
+        private void set_251_TreeView_SelectionMode(object instance, object Value)
+        {
+            var that = (global::Microsoft.UI.Xaml.Controls.TreeView)instance;
+            that.SelectionMode = (global::Microsoft.UI.Xaml.Controls.TreeViewSelectionMode)Value;
+        }
+        private object get_252_TreeViewItem_ItemsSource(object instance)
+        {
+            var that = (global::Microsoft.UI.Xaml.Controls.TreeViewItem)instance;
+            return that.ItemsSource;
+        }
+        private void set_252_TreeViewItem_ItemsSource(object instance, object Value)
+        {
+            var that = (global::Microsoft.UI.Xaml.Controls.TreeViewItem)instance;
+            that.ItemsSource = (global::System.Object)Value;
+        }
+        private object get_253_TreeViewItem_IsExpanded(object instance)
+        {
+            var that = (global::Microsoft.UI.Xaml.Controls.TreeViewItem)instance;
+            return that.IsExpanded;
+        }
+        private void set_253_TreeViewItem_IsExpanded(object instance, object Value)
+        {
+            var that = (global::Microsoft.UI.Xaml.Controls.TreeViewItem)instance;
+            that.IsExpanded = (global::System.Boolean)Value;
+        }
+        private object get_254_TreeViewItem_CollapsedGlyph(object instance)
+        {
+            var that = (global::Microsoft.UI.Xaml.Controls.TreeViewItem)instance;
+            return that.CollapsedGlyph;
+        }
+        private void set_254_TreeViewItem_CollapsedGlyph(object instance, object Value)
+        {
+            var that = (global::Microsoft.UI.Xaml.Controls.TreeViewItem)instance;
+            that.CollapsedGlyph = (global::System.String)Value;
+        }
+        private object get_255_TreeViewItem_ExpandedGlyph(object instance)
+        {
+            var that = (global::Microsoft.UI.Xaml.Controls.TreeViewItem)instance;
+            return that.ExpandedGlyph;
+        }
+        private void set_255_TreeViewItem_ExpandedGlyph(object instance, object Value)
+        {
+            var that = (global::Microsoft.UI.Xaml.Controls.TreeViewItem)instance;
+            that.ExpandedGlyph = (global::System.String)Value;
+        }
+        private object get_256_TreeViewItem_GlyphBrush(object instance)
+        {
+            var that = (global::Microsoft.UI.Xaml.Controls.TreeViewItem)instance;
+            return that.GlyphBrush;
+        }
+        private void set_256_TreeViewItem_GlyphBrush(object instance, object Value)
+        {
+            var that = (global::Microsoft.UI.Xaml.Controls.TreeViewItem)instance;
+            that.GlyphBrush = (global::Microsoft.UI.Xaml.Media.Brush)Value;
+        }
+        private object get_257_TreeViewItem_GlyphOpacity(object instance)
+        {
+            var that = (global::Microsoft.UI.Xaml.Controls.TreeViewItem)instance;
+            return that.GlyphOpacity;
+        }
+        private void set_257_TreeViewItem_GlyphOpacity(object instance, object Value)
+        {
+            var that = (global::Microsoft.UI.Xaml.Controls.TreeViewItem)instance;
+            that.GlyphOpacity = (global::System.Double)Value;
+        }
+        private object get_258_TreeViewItem_GlyphSize(object instance)
+        {
+            var that = (global::Microsoft.UI.Xaml.Controls.TreeViewItem)instance;
+            return that.GlyphSize;
+        }
+        private void set_258_TreeViewItem_GlyphSize(object instance, object Value)
+        {
+            var that = (global::Microsoft.UI.Xaml.Controls.TreeViewItem)instance;
+            that.GlyphSize = (global::System.Double)Value;
+        }
+        private object get_259_TreeViewItem_HasUnrealizedChildren(object instance)
+        {
+            var that = (global::Microsoft.UI.Xaml.Controls.TreeViewItem)instance;
+            return that.HasUnrealizedChildren;
+        }
+        private void set_259_TreeViewItem_HasUnrealizedChildren(object instance, object Value)
+        {
+            var that = (global::Microsoft.UI.Xaml.Controls.TreeViewItem)instance;
+            that.HasUnrealizedChildren = (global::System.Boolean)Value;
+        }
+        private object get_260_TreeViewItem_TreeViewItemTemplateSettings(object instance)
+        {
+            var that = (global::Microsoft.UI.Xaml.Controls.TreeViewItem)instance;
+            return that.TreeViewItemTemplateSettings;
+        }
+        private object get_261_InventoryViewerPage_ViewModel(object instance)
+        {
+            var that = (global::AIM.Views.InventoryViewerPage)instance;
+            return that.ViewModel;
+        }
+        private object get_262_PreviewPage_ViewModel(object instance)
+        {
+            var that = (global::AIM.Views.PreviewPage)instance;
+            return that.ViewModel;
+        }
+        private object get_263_FormRowTemplateSelector_Level2HeaderTemplate(object instance)
+        {
+            var that = (global::AIM.Converters.FormRowTemplateSelector)instance;
+            return that.Level2HeaderTemplate;
+        }
+        private void set_263_FormRowTemplateSelector_Level2HeaderTemplate(object instance, object Value)
+        {
+            var that = (global::AIM.Converters.FormRowTemplateSelector)instance;
+            that.Level2HeaderTemplate = (global::Microsoft.UI.Xaml.DataTemplate)Value;
+        }
+        private object get_264_FormRowTemplateSelector_Level3Header_A_Template(object instance)
+        {
+            var that = (global::AIM.Converters.FormRowTemplateSelector)instance;
+            return that.Level3Header_A_Template;
+        }
+        private void set_264_FormRowTemplateSelector_Level3Header_A_Template(object instance, object Value)
+        {
+            var that = (global::AIM.Converters.FormRowTemplateSelector)instance;
+            that.Level3Header_A_Template = (global::Microsoft.UI.Xaml.DataTemplate)Value;
+        }
+        private object get_265_FormRowTemplateSelector_Level3Header_B_Template(object instance)
+        {
+            var that = (global::AIM.Converters.FormRowTemplateSelector)instance;
+            return that.Level3Header_B_Template;
+        }
+        private void set_265_FormRowTemplateSelector_Level3Header_B_Template(object instance, object Value)
+        {
+            var that = (global::AIM.Converters.FormRowTemplateSelector)instance;
+            that.Level3Header_B_Template = (global::Microsoft.UI.Xaml.DataTemplate)Value;
+        }
+        private object get_266_FormRowTemplateSelector_Level3Header_C_Template(object instance)
+        {
+            var that = (global::AIM.Converters.FormRowTemplateSelector)instance;
+            return that.Level3Header_C_Template;
+        }
+        private void set_266_FormRowTemplateSelector_Level3Header_C_Template(object instance, object Value)
+        {
+            var that = (global::AIM.Converters.FormRowTemplateSelector)instance;
+            that.Level3Header_C_Template = (global::Microsoft.UI.Xaml.DataTemplate)Value;
+        }
+        private object get_267_FormRowTemplateSelector_FileTemplate(object instance)
+        {
+            var that = (global::AIM.Converters.FormRowTemplateSelector)instance;
+            return that.FileTemplate;
+        }
+        private void set_267_FormRowTemplateSelector_FileTemplate(object instance, object Value)
+        {
+            var that = (global::AIM.Converters.FormRowTemplateSelector)instance;
+            that.FileTemplate = (global::Microsoft.UI.Xaml.DataTemplate)Value;
+        }
+        private object get_268_FormRowTemplateSelector_BlankTemplate(object instance)
+        {
+            var that = (global::AIM.Converters.FormRowTemplateSelector)instance;
+            return that.BlankTemplate;
+        }
+        private void set_268_FormRowTemplateSelector_BlankTemplate(object instance, object Value)
+        {
+            var that = (global::AIM.Converters.FormRowTemplateSelector)instance;
+            that.BlankTemplate = (global::Microsoft.UI.Xaml.DataTemplate)Value;
+        }
+        private object get_269_PrintableFormPage_ViewModel(object instance)
+        {
+            var that = (global::AIM.Views.PrintableFormPage)instance;
+            return that.ViewModel;
+        }
+        private object get_270_Interaction_Behaviors(object instance)
+        {
+            return global::Microsoft.Xaml.Interactivity.Interaction.GetBehaviors((global::Microsoft.UI.Xaml.DependencyObject)instance);
+        }
+        private void set_270_Interaction_Behaviors(object instance, object Value)
+        {
+            global::Microsoft.Xaml.Interactivity.Interaction.SetBehaviors((global::Microsoft.UI.Xaml.DependencyObject)instance, (global::Microsoft.Xaml.Interactivity.BehaviorCollection)Value);
+        }
+        private object get_271_Trigger_Actions(object instance)
+        {
+            var that = (global::Microsoft.Xaml.Interactivity.Trigger)instance;
+            return that.Actions;
+        }
+        private object get_272_EventTriggerBehavior_EventName(object instance)
+        {
+            var that = (global::Microsoft.Xaml.Interactions.Core.EventTriggerBehavior)instance;
+            return that.EventName;
+        }
+        private void set_272_EventTriggerBehavior_EventName(object instance, object Value)
+        {
+            var that = (global::Microsoft.Xaml.Interactions.Core.EventTriggerBehavior)instance;
+            that.EventName = (global::System.String)Value;
+        }
+        private object get_273_EventTriggerBehavior_SourceObject(object instance)
+        {
+            var that = (global::Microsoft.Xaml.Interactions.Core.EventTriggerBehavior)instance;
+            return that.SourceObject;
+        }
+        private void set_273_EventTriggerBehavior_SourceObject(object instance, object Value)
+        {
+            var that = (global::Microsoft.Xaml.Interactions.Core.EventTriggerBehavior)instance;
+            that.SourceObject = (global::System.Object)Value;
+        }
+        private object get_274_Behavior_AssociatedObject(object instance)
+        {
+            var that = (global::Microsoft.Xaml.Interactivity.Behavior)instance;
+            return that.AssociatedObject;
+        }
+        private object get_275_InvokeCommandAction_Command(object instance)
+        {
+            var that = (global::Microsoft.Xaml.Interactions.Core.InvokeCommandAction)instance;
+            return that.Command;
+        }
+        private void set_275_InvokeCommandAction_Command(object instance, object Value)
+        {
+            var that = (global::Microsoft.Xaml.Interactions.Core.InvokeCommandAction)instance;
+            that.Command = (global::System.Windows.Input.ICommand)Value;
+        }
+        private object get_276_InvokeCommandAction_CommandParameter(object instance)
+        {
+            var that = (global::Microsoft.Xaml.Interactions.Core.InvokeCommandAction)instance;
+            return that.CommandParameter;
+        }
+        private void set_276_InvokeCommandAction_CommandParameter(object instance, object Value)
+        {
+            var that = (global::Microsoft.Xaml.Interactions.Core.InvokeCommandAction)instance;
+            that.CommandParameter = (global::System.Object)Value;
+        }
+        private object get_277_InvokeCommandAction_InputConverter(object instance)
+        {
+            var that = (global::Microsoft.Xaml.Interactions.Core.InvokeCommandAction)instance;
+            return that.InputConverter;
+        }
+        private void set_277_InvokeCommandAction_InputConverter(object instance, object Value)
+        {
+            var that = (global::Microsoft.Xaml.Interactions.Core.InvokeCommandAction)instance;
+            that.InputConverter = (global::Microsoft.UI.Xaml.Data.IValueConverter)Value;
+        }
+        private object get_278_InvokeCommandAction_InputConverterParameter(object instance)
+        {
+            var that = (global::Microsoft.Xaml.Interactions.Core.InvokeCommandAction)instance;
+            return that.InputConverterParameter;
+        }
+        private void set_278_InvokeCommandAction_InputConverterParameter(object instance, object Value)
+        {
+            var that = (global::Microsoft.Xaml.Interactions.Core.InvokeCommandAction)instance;
+            that.InputConverterParameter = (global::System.Object)Value;
+        }
+        private object get_279_InvokeCommandAction_InputConverterLanguage(object instance)
+        {
+            var that = (global::Microsoft.Xaml.Interactions.Core.InvokeCommandAction)instance;
+            return that.InputConverterLanguage;
+        }
+        private void set_279_InvokeCommandAction_InputConverterLanguage(object instance, object Value)
+        {
+            var that = (global::Microsoft.Xaml.Interactions.Core.InvokeCommandAction)instance;
+            that.InputConverterLanguage = (global::System.String)Value;
+        }
+        private object get_280_ScansPage_ViewModel(object instance)
+        {
+            var that = (global::AIM.Views.ScansPage)instance;
+            return that.ViewModel;
+        }
+        private object get_281_SearchPage_ViewModel(object instance)
+        {
+            var that = (global::AIM.Views.SearchPage)instance;
+            return that.ViewModel;
+        }
+        private object get_282_SettingsPage_ViewModel(object instance)
+        {
+            var that = (global::AIM.Views.SettingsPage)instance;
+            return that.ViewModel;
+        }
+        private object get_283_SettingsPage_IsLocked(object instance)
+        {
+            var that = (global::AIM.Views.SettingsPage)instance;
+            return that.IsLocked;
+        }
+        private void set_283_SettingsPage_IsLocked(object instance, object Value)
+        {
+            var that = (global::AIM.Views.SettingsPage)instance;
+            that.IsLocked = (global::System.Boolean)Value;
         }
         private object get_284_StatsPage_ViewModel(object instance)
         {
@@ -6079,541 +6079,799 @@ namespace AIM.AIM_XamlTypeInfo
                 xamlMember.Getter = get_151_DataGridBoundColumn_ElementStyle;
                 xamlMember.Setter = set_151_DataGridBoundColumn_ElementStyle;
                 break;
+            case "LiveChartsGeneratedCode.SourceGenChart.Series":
+                userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("LiveChartsGeneratedCode.SourceGenChart");
+                xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "Series", "System.Collections.Generic.IEnumerable`1<LiveChartsCore.ISeries>");
+                xamlMember.SetIsDependencyProperty();
+                xamlMember.Getter = get_152_SourceGenChart_Series;
+                xamlMember.Setter = set_152_SourceGenChart_Series;
+                break;
+            case "LiveChartsGeneratedCode.SourceGenChart.LegendPosition":
+                userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("LiveChartsGeneratedCode.SourceGenChart");
+                xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "LegendPosition", "LiveChartsCore.Measure.LegendPosition");
+                xamlMember.SetIsDependencyProperty();
+                xamlMember.Getter = get_153_SourceGenChart_LegendPosition;
+                xamlMember.Setter = set_153_SourceGenChart_LegendPosition;
+                break;
+            case "LiveChartsGeneratedCode.SourceGenPieChart.IsClockwise":
+                userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("LiveChartsGeneratedCode.SourceGenPieChart");
+                xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "IsClockwise", "Boolean");
+                xamlMember.SetIsDependencyProperty();
+                xamlMember.Getter = get_154_SourceGenPieChart_IsClockwise;
+                xamlMember.Setter = set_154_SourceGenPieChart_IsClockwise;
+                break;
+            case "LiveChartsGeneratedCode.SourceGenPieChart.InitialRotation":
+                userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("LiveChartsGeneratedCode.SourceGenPieChart");
+                xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "InitialRotation", "Double");
+                xamlMember.SetIsDependencyProperty();
+                xamlMember.Getter = get_155_SourceGenPieChart_InitialRotation;
+                xamlMember.Setter = set_155_SourceGenPieChart_InitialRotation;
+                break;
+            case "LiveChartsGeneratedCode.SourceGenPieChart.MaxAngle":
+                userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("LiveChartsGeneratedCode.SourceGenPieChart");
+                xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "MaxAngle", "Double");
+                xamlMember.SetIsDependencyProperty();
+                xamlMember.Getter = get_156_SourceGenPieChart_MaxAngle;
+                xamlMember.Setter = set_156_SourceGenPieChart_MaxAngle;
+                break;
+            case "LiveChartsGeneratedCode.SourceGenPieChart.MaxValue":
+                userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("LiveChartsGeneratedCode.SourceGenPieChart");
+                xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "MaxValue", "Double");
+                xamlMember.SetIsDependencyProperty();
+                xamlMember.Getter = get_157_SourceGenPieChart_MaxValue;
+                xamlMember.Setter = set_157_SourceGenPieChart_MaxValue;
+                break;
+            case "LiveChartsGeneratedCode.SourceGenPieChart.MinValue":
+                userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("LiveChartsGeneratedCode.SourceGenPieChart");
+                xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "MinValue", "Double");
+                xamlMember.SetIsDependencyProperty();
+                xamlMember.Getter = get_158_SourceGenPieChart_MinValue;
+                xamlMember.Setter = set_158_SourceGenPieChart_MinValue;
+                break;
+            case "LiveChartsGeneratedCode.SourceGenChart.CoreChart":
+                userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("LiveChartsGeneratedCode.SourceGenChart");
+                xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "CoreChart", "LiveChartsCore.Chart");
+                xamlMember.Getter = get_159_SourceGenChart_CoreChart;
+                xamlMember.SetIsReadOnly();
+                break;
+            case "LiveChartsGeneratedCode.SourceGenChart.ForceGPU":
+                userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("LiveChartsGeneratedCode.SourceGenChart");
+                xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "ForceGPU", "Boolean");
+                xamlMember.Getter = get_160_SourceGenChart_ForceGPU;
+                xamlMember.Setter = set_160_SourceGenChart_ForceGPU;
+                break;
+            case "LiveChartsGeneratedCode.SourceGenChart.Tooltip":
+                userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("LiveChartsGeneratedCode.SourceGenChart");
+                xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "Tooltip", "LiveChartsCore.Kernel.Sketches.IChartTooltip");
+                xamlMember.Getter = get_161_SourceGenChart_Tooltip;
+                xamlMember.Setter = set_161_SourceGenChart_Tooltip;
+                break;
+            case "LiveChartsGeneratedCode.SourceGenChart.Legend":
+                userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("LiveChartsGeneratedCode.SourceGenChart");
+                xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "Legend", "LiveChartsCore.Kernel.Sketches.IChartLegend");
+                xamlMember.Getter = get_162_SourceGenChart_Legend;
+                xamlMember.Setter = set_162_SourceGenChart_Legend;
+                break;
+            case "LiveChartsGeneratedCode.SourceGenChart.ChartTheme":
+                userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("LiveChartsGeneratedCode.SourceGenChart");
+                xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "ChartTheme", "LiveChartsCore.Themes.Theme");
+                xamlMember.Getter = get_163_SourceGenChart_ChartTheme;
+                xamlMember.Setter = set_163_SourceGenChart_ChartTheme;
+                break;
+            case "LiveChartsGeneratedCode.SourceGenChart.UpdaterThrottler":
+                userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("LiveChartsGeneratedCode.SourceGenChart");
+                xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "UpdaterThrottler", "TimeSpan");
+                xamlMember.Getter = get_164_SourceGenChart_UpdaterThrottler;
+                xamlMember.Setter = set_164_SourceGenChart_UpdaterThrottler;
+                break;
+            case "LiveChartsGeneratedCode.SourceGenChart.AutoUpdateEnabled":
+                userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("LiveChartsGeneratedCode.SourceGenChart");
+                xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "AutoUpdateEnabled", "Boolean");
+                xamlMember.Getter = get_165_SourceGenChart_AutoUpdateEnabled;
+                xamlMember.Setter = set_165_SourceGenChart_AutoUpdateEnabled;
+                break;
+            case "LiveChartsGeneratedCode.SourceGenChart.CoreCanvas":
+                userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("LiveChartsGeneratedCode.SourceGenChart");
+                xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "CoreCanvas", "LiveChartsCore.Motion.CoreMotionCanvas");
+                xamlMember.Getter = get_166_SourceGenChart_CoreCanvas;
+                xamlMember.SetIsReadOnly();
+                break;
+            case "LiveChartsGeneratedCode.SourceGenChart.UpdateStartedCommand":
+                userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("LiveChartsGeneratedCode.SourceGenChart");
+                xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "UpdateStartedCommand", "System.Windows.Input.ICommand");
+                xamlMember.SetIsDependencyProperty();
+                xamlMember.Getter = get_167_SourceGenChart_UpdateStartedCommand;
+                xamlMember.Setter = set_167_SourceGenChart_UpdateStartedCommand;
+                break;
+            case "LiveChartsGeneratedCode.SourceGenChart.DataPointerDownCommand":
+                userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("LiveChartsGeneratedCode.SourceGenChart");
+                xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "DataPointerDownCommand", "System.Windows.Input.ICommand");
+                xamlMember.SetIsDependencyProperty();
+                xamlMember.Getter = get_168_SourceGenChart_DataPointerDownCommand;
+                xamlMember.Setter = set_168_SourceGenChart_DataPointerDownCommand;
+                break;
+            case "LiveChartsGeneratedCode.SourceGenChart.HoveredPointsChangedCommand":
+                userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("LiveChartsGeneratedCode.SourceGenChart");
+                xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "HoveredPointsChangedCommand", "System.Windows.Input.ICommand");
+                xamlMember.SetIsDependencyProperty();
+                xamlMember.Getter = get_169_SourceGenChart_HoveredPointsChangedCommand;
+                xamlMember.Setter = set_169_SourceGenChart_HoveredPointsChangedCommand;
+                break;
+            case "LiveChartsGeneratedCode.SourceGenChart.ChartPointPointerDownCommand":
+                userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("LiveChartsGeneratedCode.SourceGenChart");
+                xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "ChartPointPointerDownCommand", "System.Windows.Input.ICommand");
+                xamlMember.SetIsDependencyProperty();
+                xamlMember.Getter = get_170_SourceGenChart_ChartPointPointerDownCommand;
+                xamlMember.Setter = set_170_SourceGenChart_ChartPointPointerDownCommand;
+                break;
+            case "LiveChartsGeneratedCode.SourceGenChart.VisualElementsPointerDownCommand":
+                userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("LiveChartsGeneratedCode.SourceGenChart");
+                xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "VisualElementsPointerDownCommand", "System.Windows.Input.ICommand");
+                xamlMember.SetIsDependencyProperty();
+                xamlMember.Getter = get_171_SourceGenChart_VisualElementsPointerDownCommand;
+                xamlMember.Setter = set_171_SourceGenChart_VisualElementsPointerDownCommand;
+                break;
+            case "LiveChartsGeneratedCode.SourceGenChart.PointerPressedCommand":
+                userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("LiveChartsGeneratedCode.SourceGenChart");
+                xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "PointerPressedCommand", "System.Windows.Input.ICommand");
+                xamlMember.SetIsDependencyProperty();
+                xamlMember.Getter = get_172_SourceGenChart_PointerPressedCommand;
+                xamlMember.Setter = set_172_SourceGenChart_PointerPressedCommand;
+                break;
+            case "LiveChartsGeneratedCode.SourceGenChart.PointerMoveCommand":
+                userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("LiveChartsGeneratedCode.SourceGenChart");
+                xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "PointerMoveCommand", "System.Windows.Input.ICommand");
+                xamlMember.SetIsDependencyProperty();
+                xamlMember.Getter = get_173_SourceGenChart_PointerMoveCommand;
+                xamlMember.Setter = set_173_SourceGenChart_PointerMoveCommand;
+                break;
+            case "LiveChartsGeneratedCode.SourceGenChart.PointerReleasedCommand":
+                userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("LiveChartsGeneratedCode.SourceGenChart");
+                xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "PointerReleasedCommand", "System.Windows.Input.ICommand");
+                xamlMember.SetIsDependencyProperty();
+                xamlMember.Getter = get_174_SourceGenChart_PointerReleasedCommand;
+                xamlMember.Setter = set_174_SourceGenChart_PointerReleasedCommand;
+                break;
+            case "LiveChartsGeneratedCode.SourceGenChart.AnimationsSpeed":
+                userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("LiveChartsGeneratedCode.SourceGenChart");
+                xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "AnimationsSpeed", "TimeSpan");
+                xamlMember.SetIsDependencyProperty();
+                xamlMember.Getter = get_175_SourceGenChart_AnimationsSpeed;
+                xamlMember.Setter = set_175_SourceGenChart_AnimationsSpeed;
+                break;
+            case "LiveChartsGeneratedCode.SourceGenChart.EasingFunction":
+                userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("LiveChartsGeneratedCode.SourceGenChart");
+                xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "EasingFunction", "System.Func`2<Single, Single>");
+                xamlMember.SetIsDependencyProperty();
+                xamlMember.Getter = get_176_SourceGenChart_EasingFunction;
+                xamlMember.Setter = set_176_SourceGenChart_EasingFunction;
+                break;
+            case "LiveChartsGeneratedCode.SourceGenChart.DrawMargin":
+                userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("LiveChartsGeneratedCode.SourceGenChart");
+                xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "DrawMargin", "LiveChartsCore.Measure.Margin");
+                xamlMember.SetIsDependencyProperty();
+                xamlMember.Getter = get_177_SourceGenChart_DrawMargin;
+                xamlMember.Setter = set_177_SourceGenChart_DrawMargin;
+                break;
+            case "LiveChartsGeneratedCode.SourceGenChart.TooltipPosition":
+                userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("LiveChartsGeneratedCode.SourceGenChart");
+                xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "TooltipPosition", "LiveChartsCore.Measure.TooltipPosition");
+                xamlMember.SetIsDependencyProperty();
+                xamlMember.Getter = get_178_SourceGenChart_TooltipPosition;
+                xamlMember.Setter = set_178_SourceGenChart_TooltipPosition;
+                break;
+            case "LiveChartsGeneratedCode.SourceGenChart.LegendTextPaint":
+                userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("LiveChartsGeneratedCode.SourceGenChart");
+                xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "LegendTextPaint", "LiveChartsCore.Painting.Paint");
+                xamlMember.SetIsDependencyProperty();
+                xamlMember.Getter = get_179_SourceGenChart_LegendTextPaint;
+                xamlMember.Setter = set_179_SourceGenChart_LegendTextPaint;
+                break;
+            case "LiveChartsGeneratedCode.SourceGenChart.LegendBackgroundPaint":
+                userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("LiveChartsGeneratedCode.SourceGenChart");
+                xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "LegendBackgroundPaint", "LiveChartsCore.Painting.Paint");
+                xamlMember.SetIsDependencyProperty();
+                xamlMember.Getter = get_180_SourceGenChart_LegendBackgroundPaint;
+                xamlMember.Setter = set_180_SourceGenChart_LegendBackgroundPaint;
+                break;
+            case "LiveChartsGeneratedCode.SourceGenChart.LegendTextSize":
+                userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("LiveChartsGeneratedCode.SourceGenChart");
+                xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "LegendTextSize", "Double");
+                xamlMember.SetIsDependencyProperty();
+                xamlMember.Getter = get_181_SourceGenChart_LegendTextSize;
+                xamlMember.Setter = set_181_SourceGenChart_LegendTextSize;
+                break;
+            case "LiveChartsGeneratedCode.SourceGenChart.TooltipTextPaint":
+                userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("LiveChartsGeneratedCode.SourceGenChart");
+                xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "TooltipTextPaint", "LiveChartsCore.Painting.Paint");
+                xamlMember.SetIsDependencyProperty();
+                xamlMember.Getter = get_182_SourceGenChart_TooltipTextPaint;
+                xamlMember.Setter = set_182_SourceGenChart_TooltipTextPaint;
+                break;
+            case "LiveChartsGeneratedCode.SourceGenChart.TooltipBackgroundPaint":
+                userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("LiveChartsGeneratedCode.SourceGenChart");
+                xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "TooltipBackgroundPaint", "LiveChartsCore.Painting.Paint");
+                xamlMember.SetIsDependencyProperty();
+                xamlMember.Getter = get_183_SourceGenChart_TooltipBackgroundPaint;
+                xamlMember.Setter = set_183_SourceGenChart_TooltipBackgroundPaint;
+                break;
+            case "LiveChartsGeneratedCode.SourceGenChart.TooltipTextSize":
+                userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("LiveChartsGeneratedCode.SourceGenChart");
+                xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "TooltipTextSize", "Double");
+                xamlMember.SetIsDependencyProperty();
+                xamlMember.Getter = get_184_SourceGenChart_TooltipTextSize;
+                xamlMember.Setter = set_184_SourceGenChart_TooltipTextSize;
+                break;
+            case "LiveChartsGeneratedCode.SourceGenChart.SyncContext":
+                userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("LiveChartsGeneratedCode.SourceGenChart");
+                xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "SyncContext", "Object");
+                xamlMember.SetIsDependencyProperty();
+                xamlMember.Getter = get_185_SourceGenChart_SyncContext;
+                xamlMember.Setter = set_185_SourceGenChart_SyncContext;
+                break;
+            case "LiveChartsGeneratedCode.SourceGenChart.Title":
+                userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("LiveChartsGeneratedCode.SourceGenChart");
+                xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "Title", "LiveChartsCore.Kernel.IChartElement");
+                xamlMember.SetIsDependencyProperty();
+                xamlMember.Getter = get_186_SourceGenChart_Title;
+                xamlMember.Setter = set_186_SourceGenChart_Title;
+                break;
+            case "LiveChartsGeneratedCode.SourceGenChart.VisualElements":
+                userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("LiveChartsGeneratedCode.SourceGenChart");
+                xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "VisualElements", "System.Collections.Generic.IEnumerable`1<LiveChartsCore.Kernel.IChartElement>");
+                xamlMember.SetIsDependencyProperty();
+                xamlMember.Getter = get_187_SourceGenChart_VisualElements;
+                xamlMember.Setter = set_187_SourceGenChart_VisualElements;
+                break;
+            case "LiveChartsGeneratedCode.SourceGenChart.SeriesSource":
+                userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("LiveChartsGeneratedCode.SourceGenChart");
+                xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "SeriesSource", "System.Collections.Generic.IEnumerable`1<Object>");
+                xamlMember.SetIsDependencyProperty();
+                xamlMember.Getter = get_188_SourceGenChart_SeriesSource;
+                xamlMember.Setter = set_188_SourceGenChart_SeriesSource;
+                break;
+            case "LiveChartsGeneratedCode.SourceGenChart.SeriesTemplate":
+                userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("LiveChartsGeneratedCode.SourceGenChart");
+                xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "SeriesTemplate", "Microsoft.UI.Xaml.DataTemplate");
+                xamlMember.SetIsDependencyProperty();
+                xamlMember.Getter = get_189_SourceGenChart_SeriesTemplate;
+                xamlMember.Setter = set_189_SourceGenChart_SeriesTemplate;
+                break;
             case "AIM.Views.DirAnalysisPage.ViewModel":
                 userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("AIM.Views.DirAnalysisPage");
                 xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "ViewModel", "AIM.ViewModels.DirAnalysisViewModel");
-                xamlMember.Getter = get_152_DirAnalysisPage_ViewModel;
+                xamlMember.Getter = get_190_DirAnalysisPage_ViewModel;
                 xamlMember.SetIsReadOnly();
                 break;
             case "AIM.Views.FormGeneratorPage.ViewModel":
                 userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("AIM.Views.FormGeneratorPage");
                 xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "ViewModel", "AIM.ViewModels.FormGeneratorViewModel");
-                xamlMember.Getter = get_153_FormGeneratorPage_ViewModel;
+                xamlMember.Getter = get_191_FormGeneratorPage_ViewModel;
                 xamlMember.SetIsReadOnly();
                 break;
             case "Microsoft.UI.Xaml.Controls.Expander.IsExpanded":
                 userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Microsoft.UI.Xaml.Controls.Expander");
                 xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "IsExpanded", "Boolean");
                 xamlMember.SetIsDependencyProperty();
-                xamlMember.Getter = get_154_Expander_IsExpanded;
-                xamlMember.Setter = set_154_Expander_IsExpanded;
+                xamlMember.Getter = get_192_Expander_IsExpanded;
+                xamlMember.Setter = set_192_Expander_IsExpanded;
                 break;
             case "Microsoft.UI.Xaml.Controls.Expander.Header":
                 userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Microsoft.UI.Xaml.Controls.Expander");
                 xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "Header", "Object");
                 xamlMember.SetIsDependencyProperty();
-                xamlMember.Getter = get_155_Expander_Header;
-                xamlMember.Setter = set_155_Expander_Header;
+                xamlMember.Getter = get_193_Expander_Header;
+                xamlMember.Setter = set_193_Expander_Header;
                 break;
             case "Microsoft.UI.Xaml.Controls.Expander.ExpandDirection":
                 userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Microsoft.UI.Xaml.Controls.Expander");
                 xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "ExpandDirection", "Microsoft.UI.Xaml.Controls.ExpandDirection");
                 xamlMember.SetIsDependencyProperty();
-                xamlMember.Getter = get_156_Expander_ExpandDirection;
-                xamlMember.Setter = set_156_Expander_ExpandDirection;
+                xamlMember.Getter = get_194_Expander_ExpandDirection;
+                xamlMember.Setter = set_194_Expander_ExpandDirection;
                 break;
             case "Microsoft.UI.Xaml.Controls.Expander.HeaderTemplate":
                 userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Microsoft.UI.Xaml.Controls.Expander");
                 xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "HeaderTemplate", "Microsoft.UI.Xaml.DataTemplate");
                 xamlMember.SetIsDependencyProperty();
-                xamlMember.Getter = get_157_Expander_HeaderTemplate;
-                xamlMember.Setter = set_157_Expander_HeaderTemplate;
+                xamlMember.Getter = get_195_Expander_HeaderTemplate;
+                xamlMember.Setter = set_195_Expander_HeaderTemplate;
                 break;
             case "Microsoft.UI.Xaml.Controls.Expander.HeaderTemplateSelector":
                 userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Microsoft.UI.Xaml.Controls.Expander");
                 xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "HeaderTemplateSelector", "Microsoft.UI.Xaml.Controls.DataTemplateSelector");
                 xamlMember.SetIsDependencyProperty();
-                xamlMember.Getter = get_158_Expander_HeaderTemplateSelector;
-                xamlMember.Setter = set_158_Expander_HeaderTemplateSelector;
+                xamlMember.Getter = get_196_Expander_HeaderTemplateSelector;
+                xamlMember.Setter = set_196_Expander_HeaderTemplateSelector;
                 break;
             case "Microsoft.UI.Xaml.Controls.Expander.TemplateSettings":
                 userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Microsoft.UI.Xaml.Controls.Expander");
                 xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "TemplateSettings", "Microsoft.UI.Xaml.Controls.ExpanderTemplateSettings");
-                xamlMember.Getter = get_159_Expander_TemplateSettings;
+                xamlMember.Getter = get_197_Expander_TemplateSettings;
                 xamlMember.SetIsReadOnly();
                 break;
             case "AIM.Views.InventoryAdminPage.ViewModel":
                 userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("AIM.Views.InventoryAdminPage");
                 xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "ViewModel", "AIM.ViewModels.InventoryAdminViewModel");
-                xamlMember.Getter = get_160_InventoryAdminPage_ViewModel;
+                xamlMember.Getter = get_198_InventoryAdminPage_ViewModel;
                 xamlMember.SetIsReadOnly();
                 break;
             case "Microsoft.UI.Xaml.Controls.TabView.TabItems":
                 userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Microsoft.UI.Xaml.Controls.TabView");
                 xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "TabItems", "System.Collections.Generic.IList`1<Object>");
                 xamlMember.SetIsDependencyProperty();
-                xamlMember.Getter = get_161_TabView_TabItems;
+                xamlMember.Getter = get_199_TabView_TabItems;
                 xamlMember.SetIsReadOnly();
                 break;
             case "Microsoft.UI.Xaml.Controls.TabView.AddTabButtonCommand":
                 userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Microsoft.UI.Xaml.Controls.TabView");
                 xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "AddTabButtonCommand", "System.Windows.Input.ICommand");
                 xamlMember.SetIsDependencyProperty();
-                xamlMember.Getter = get_162_TabView_AddTabButtonCommand;
-                xamlMember.Setter = set_162_TabView_AddTabButtonCommand;
+                xamlMember.Getter = get_200_TabView_AddTabButtonCommand;
+                xamlMember.Setter = set_200_TabView_AddTabButtonCommand;
                 break;
             case "Microsoft.UI.Xaml.Controls.TabView.AddTabButtonCommandParameter":
                 userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Microsoft.UI.Xaml.Controls.TabView");
                 xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "AddTabButtonCommandParameter", "Object");
                 xamlMember.SetIsDependencyProperty();
-                xamlMember.Getter = get_163_TabView_AddTabButtonCommandParameter;
-                xamlMember.Setter = set_163_TabView_AddTabButtonCommandParameter;
+                xamlMember.Getter = get_201_TabView_AddTabButtonCommandParameter;
+                xamlMember.Setter = set_201_TabView_AddTabButtonCommandParameter;
                 break;
             case "Microsoft.UI.Xaml.Controls.TabView.AllowDropTabs":
                 userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Microsoft.UI.Xaml.Controls.TabView");
                 xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "AllowDropTabs", "Boolean");
                 xamlMember.SetIsDependencyProperty();
-                xamlMember.Getter = get_164_TabView_AllowDropTabs;
-                xamlMember.Setter = set_164_TabView_AllowDropTabs;
+                xamlMember.Getter = get_202_TabView_AllowDropTabs;
+                xamlMember.Setter = set_202_TabView_AllowDropTabs;
                 break;
             case "Microsoft.UI.Xaml.Controls.TabView.CanDragTabs":
                 userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Microsoft.UI.Xaml.Controls.TabView");
                 xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "CanDragTabs", "Boolean");
                 xamlMember.SetIsDependencyProperty();
-                xamlMember.Getter = get_165_TabView_CanDragTabs;
-                xamlMember.Setter = set_165_TabView_CanDragTabs;
+                xamlMember.Getter = get_203_TabView_CanDragTabs;
+                xamlMember.Setter = set_203_TabView_CanDragTabs;
                 break;
             case "Microsoft.UI.Xaml.Controls.TabView.CanReorderTabs":
                 userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Microsoft.UI.Xaml.Controls.TabView");
                 xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "CanReorderTabs", "Boolean");
                 xamlMember.SetIsDependencyProperty();
-                xamlMember.Getter = get_166_TabView_CanReorderTabs;
-                xamlMember.Setter = set_166_TabView_CanReorderTabs;
+                xamlMember.Getter = get_204_TabView_CanReorderTabs;
+                xamlMember.Setter = set_204_TabView_CanReorderTabs;
                 break;
             case "Microsoft.UI.Xaml.Controls.TabView.CanTearOutTabs":
                 userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Microsoft.UI.Xaml.Controls.TabView");
                 xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "CanTearOutTabs", "Boolean");
                 xamlMember.SetIsDependencyProperty();
-                xamlMember.Getter = get_167_TabView_CanTearOutTabs;
-                xamlMember.Setter = set_167_TabView_CanTearOutTabs;
+                xamlMember.Getter = get_205_TabView_CanTearOutTabs;
+                xamlMember.Setter = set_205_TabView_CanTearOutTabs;
                 break;
             case "Microsoft.UI.Xaml.Controls.TabView.CloseButtonOverlayMode":
                 userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Microsoft.UI.Xaml.Controls.TabView");
                 xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "CloseButtonOverlayMode", "Microsoft.UI.Xaml.Controls.TabViewCloseButtonOverlayMode");
                 xamlMember.SetIsDependencyProperty();
-                xamlMember.Getter = get_168_TabView_CloseButtonOverlayMode;
-                xamlMember.Setter = set_168_TabView_CloseButtonOverlayMode;
+                xamlMember.Getter = get_206_TabView_CloseButtonOverlayMode;
+                xamlMember.Setter = set_206_TabView_CloseButtonOverlayMode;
                 break;
             case "Microsoft.UI.Xaml.Controls.TabView.IsAddTabButtonVisible":
                 userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Microsoft.UI.Xaml.Controls.TabView");
                 xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "IsAddTabButtonVisible", "Boolean");
                 xamlMember.SetIsDependencyProperty();
-                xamlMember.Getter = get_169_TabView_IsAddTabButtonVisible;
-                xamlMember.Setter = set_169_TabView_IsAddTabButtonVisible;
+                xamlMember.Getter = get_207_TabView_IsAddTabButtonVisible;
+                xamlMember.Setter = set_207_TabView_IsAddTabButtonVisible;
                 break;
             case "Microsoft.UI.Xaml.Controls.TabView.SelectedIndex":
                 userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Microsoft.UI.Xaml.Controls.TabView");
                 xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "SelectedIndex", "Int32");
                 xamlMember.SetIsDependencyProperty();
-                xamlMember.Getter = get_170_TabView_SelectedIndex;
-                xamlMember.Setter = set_170_TabView_SelectedIndex;
+                xamlMember.Getter = get_208_TabView_SelectedIndex;
+                xamlMember.Setter = set_208_TabView_SelectedIndex;
                 break;
             case "Microsoft.UI.Xaml.Controls.TabView.SelectedItem":
                 userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Microsoft.UI.Xaml.Controls.TabView");
                 xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "SelectedItem", "Object");
                 xamlMember.SetIsDependencyProperty();
-                xamlMember.Getter = get_171_TabView_SelectedItem;
-                xamlMember.Setter = set_171_TabView_SelectedItem;
+                xamlMember.Getter = get_209_TabView_SelectedItem;
+                xamlMember.Setter = set_209_TabView_SelectedItem;
                 break;
             case "Microsoft.UI.Xaml.Controls.TabView.TabItemTemplate":
                 userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Microsoft.UI.Xaml.Controls.TabView");
                 xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "TabItemTemplate", "Microsoft.UI.Xaml.DataTemplate");
                 xamlMember.SetIsDependencyProperty();
-                xamlMember.Getter = get_172_TabView_TabItemTemplate;
-                xamlMember.Setter = set_172_TabView_TabItemTemplate;
+                xamlMember.Getter = get_210_TabView_TabItemTemplate;
+                xamlMember.Setter = set_210_TabView_TabItemTemplate;
                 break;
             case "Microsoft.UI.Xaml.Controls.TabView.TabItemTemplateSelector":
                 userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Microsoft.UI.Xaml.Controls.TabView");
                 xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "TabItemTemplateSelector", "Microsoft.UI.Xaml.Controls.DataTemplateSelector");
                 xamlMember.SetIsDependencyProperty();
-                xamlMember.Getter = get_173_TabView_TabItemTemplateSelector;
-                xamlMember.Setter = set_173_TabView_TabItemTemplateSelector;
+                xamlMember.Getter = get_211_TabView_TabItemTemplateSelector;
+                xamlMember.Setter = set_211_TabView_TabItemTemplateSelector;
                 break;
             case "Microsoft.UI.Xaml.Controls.TabView.TabItemsSource":
                 userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Microsoft.UI.Xaml.Controls.TabView");
                 xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "TabItemsSource", "Object");
                 xamlMember.SetIsDependencyProperty();
-                xamlMember.Getter = get_174_TabView_TabItemsSource;
-                xamlMember.Setter = set_174_TabView_TabItemsSource;
+                xamlMember.Getter = get_212_TabView_TabItemsSource;
+                xamlMember.Setter = set_212_TabView_TabItemsSource;
                 break;
             case "Microsoft.UI.Xaml.Controls.TabView.TabStripFooter":
                 userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Microsoft.UI.Xaml.Controls.TabView");
                 xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "TabStripFooter", "Object");
                 xamlMember.SetIsDependencyProperty();
-                xamlMember.Getter = get_175_TabView_TabStripFooter;
-                xamlMember.Setter = set_175_TabView_TabStripFooter;
+                xamlMember.Getter = get_213_TabView_TabStripFooter;
+                xamlMember.Setter = set_213_TabView_TabStripFooter;
                 break;
             case "Microsoft.UI.Xaml.Controls.TabView.TabStripFooterTemplate":
                 userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Microsoft.UI.Xaml.Controls.TabView");
                 xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "TabStripFooterTemplate", "Microsoft.UI.Xaml.DataTemplate");
                 xamlMember.SetIsDependencyProperty();
-                xamlMember.Getter = get_176_TabView_TabStripFooterTemplate;
-                xamlMember.Setter = set_176_TabView_TabStripFooterTemplate;
+                xamlMember.Getter = get_214_TabView_TabStripFooterTemplate;
+                xamlMember.Setter = set_214_TabView_TabStripFooterTemplate;
                 break;
             case "Microsoft.UI.Xaml.Controls.TabView.TabStripHeader":
                 userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Microsoft.UI.Xaml.Controls.TabView");
                 xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "TabStripHeader", "Object");
                 xamlMember.SetIsDependencyProperty();
-                xamlMember.Getter = get_177_TabView_TabStripHeader;
-                xamlMember.Setter = set_177_TabView_TabStripHeader;
+                xamlMember.Getter = get_215_TabView_TabStripHeader;
+                xamlMember.Setter = set_215_TabView_TabStripHeader;
                 break;
             case "Microsoft.UI.Xaml.Controls.TabView.TabStripHeaderTemplate":
                 userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Microsoft.UI.Xaml.Controls.TabView");
                 xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "TabStripHeaderTemplate", "Microsoft.UI.Xaml.DataTemplate");
                 xamlMember.SetIsDependencyProperty();
-                xamlMember.Getter = get_178_TabView_TabStripHeaderTemplate;
-                xamlMember.Setter = set_178_TabView_TabStripHeaderTemplate;
+                xamlMember.Getter = get_216_TabView_TabStripHeaderTemplate;
+                xamlMember.Setter = set_216_TabView_TabStripHeaderTemplate;
                 break;
             case "Microsoft.UI.Xaml.Controls.TabView.TabWidthMode":
                 userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Microsoft.UI.Xaml.Controls.TabView");
                 xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "TabWidthMode", "Microsoft.UI.Xaml.Controls.TabViewWidthMode");
                 xamlMember.SetIsDependencyProperty();
-                xamlMember.Getter = get_179_TabView_TabWidthMode;
-                xamlMember.Setter = set_179_TabView_TabWidthMode;
+                xamlMember.Getter = get_217_TabView_TabWidthMode;
+                xamlMember.Setter = set_217_TabView_TabWidthMode;
                 break;
             case "Microsoft.UI.Xaml.Controls.TabViewItem.Header":
                 userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Microsoft.UI.Xaml.Controls.TabViewItem");
                 xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "Header", "Object");
                 xamlMember.SetIsDependencyProperty();
-                xamlMember.Getter = get_180_TabViewItem_Header;
-                xamlMember.Setter = set_180_TabViewItem_Header;
+                xamlMember.Getter = get_218_TabViewItem_Header;
+                xamlMember.Setter = set_218_TabViewItem_Header;
                 break;
             case "Microsoft.UI.Xaml.Controls.TabViewItem.IconSource":
                 userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Microsoft.UI.Xaml.Controls.TabViewItem");
                 xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "IconSource", "Microsoft.UI.Xaml.Controls.IconSource");
                 xamlMember.SetIsDependencyProperty();
-                xamlMember.Getter = get_181_TabViewItem_IconSource;
-                xamlMember.Setter = set_181_TabViewItem_IconSource;
+                xamlMember.Getter = get_219_TabViewItem_IconSource;
+                xamlMember.Setter = set_219_TabViewItem_IconSource;
                 break;
             case "Microsoft.UI.Xaml.Controls.TabViewItem.HeaderTemplate":
                 userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Microsoft.UI.Xaml.Controls.TabViewItem");
                 xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "HeaderTemplate", "Microsoft.UI.Xaml.DataTemplate");
                 xamlMember.SetIsDependencyProperty();
-                xamlMember.Getter = get_182_TabViewItem_HeaderTemplate;
-                xamlMember.Setter = set_182_TabViewItem_HeaderTemplate;
+                xamlMember.Getter = get_220_TabViewItem_HeaderTemplate;
+                xamlMember.Setter = set_220_TabViewItem_HeaderTemplate;
                 break;
             case "Microsoft.UI.Xaml.Controls.TabViewItem.IsClosable":
                 userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Microsoft.UI.Xaml.Controls.TabViewItem");
                 xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "IsClosable", "Boolean");
                 xamlMember.SetIsDependencyProperty();
-                xamlMember.Getter = get_183_TabViewItem_IsClosable;
-                xamlMember.Setter = set_183_TabViewItem_IsClosable;
+                xamlMember.Getter = get_221_TabViewItem_IsClosable;
+                xamlMember.Setter = set_221_TabViewItem_IsClosable;
                 break;
             case "Microsoft.UI.Xaml.Controls.TabViewItem.TabViewTemplateSettings":
                 userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Microsoft.UI.Xaml.Controls.TabViewItem");
                 xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "TabViewTemplateSettings", "Microsoft.UI.Xaml.Controls.TabViewItemTemplateSettings");
                 xamlMember.SetIsDependencyProperty();
-                xamlMember.Getter = get_184_TabViewItem_TabViewTemplateSettings;
+                xamlMember.Getter = get_222_TabViewItem_TabViewTemplateSettings;
                 xamlMember.SetIsReadOnly();
                 break;
             case "AIM.Views.InventoryArchivePage.ViewModel":
                 userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("AIM.Views.InventoryArchivePage");
                 xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "ViewModel", "AIM.ViewModels.InventoryArchiveViewModel");
-                xamlMember.Getter = get_185_InventoryArchivePage_ViewModel;
+                xamlMember.Getter = get_223_InventoryArchivePage_ViewModel;
                 xamlMember.SetIsReadOnly();
                 break;
             case "AIM.Views.InvArchivesPage.ViewModel":
                 userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("AIM.Views.InvArchivesPage");
                 xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "ViewModel", "AIM.ViewModels.InventoryViewModel");
-                xamlMember.Getter = get_186_InvArchivesPage_ViewModel;
+                xamlMember.Getter = get_224_InvArchivesPage_ViewModel;
                 xamlMember.SetIsReadOnly();
                 break;
             case "Microsoft.UI.Xaml.Controls.ProgressRing.IsActive":
                 userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Microsoft.UI.Xaml.Controls.ProgressRing");
                 xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "IsActive", "Boolean");
                 xamlMember.SetIsDependencyProperty();
-                xamlMember.Getter = get_187_ProgressRing_IsActive;
-                xamlMember.Setter = set_187_ProgressRing_IsActive;
+                xamlMember.Getter = get_225_ProgressRing_IsActive;
+                xamlMember.Setter = set_225_ProgressRing_IsActive;
                 break;
             case "Microsoft.UI.Xaml.Controls.ProgressRing.IsIndeterminate":
                 userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Microsoft.UI.Xaml.Controls.ProgressRing");
                 xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "IsIndeterminate", "Boolean");
                 xamlMember.SetIsDependencyProperty();
-                xamlMember.Getter = get_188_ProgressRing_IsIndeterminate;
-                xamlMember.Setter = set_188_ProgressRing_IsIndeterminate;
+                xamlMember.Getter = get_226_ProgressRing_IsIndeterminate;
+                xamlMember.Setter = set_226_ProgressRing_IsIndeterminate;
                 break;
             case "Microsoft.UI.Xaml.Controls.ProgressRing.Maximum":
                 userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Microsoft.UI.Xaml.Controls.ProgressRing");
                 xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "Maximum", "Double");
                 xamlMember.SetIsDependencyProperty();
-                xamlMember.Getter = get_189_ProgressRing_Maximum;
-                xamlMember.Setter = set_189_ProgressRing_Maximum;
+                xamlMember.Getter = get_227_ProgressRing_Maximum;
+                xamlMember.Setter = set_227_ProgressRing_Maximum;
                 break;
             case "Microsoft.UI.Xaml.Controls.ProgressRing.Minimum":
                 userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Microsoft.UI.Xaml.Controls.ProgressRing");
                 xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "Minimum", "Double");
                 xamlMember.SetIsDependencyProperty();
-                xamlMember.Getter = get_190_ProgressRing_Minimum;
-                xamlMember.Setter = set_190_ProgressRing_Minimum;
+                xamlMember.Getter = get_228_ProgressRing_Minimum;
+                xamlMember.Setter = set_228_ProgressRing_Minimum;
                 break;
             case "Microsoft.UI.Xaml.Controls.ProgressRing.TemplateSettings":
                 userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Microsoft.UI.Xaml.Controls.ProgressRing");
                 xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "TemplateSettings", "Microsoft.UI.Xaml.Controls.ProgressRingTemplateSettings");
-                xamlMember.Getter = get_191_ProgressRing_TemplateSettings;
+                xamlMember.Getter = get_229_ProgressRing_TemplateSettings;
                 xamlMember.SetIsReadOnly();
                 break;
             case "Microsoft.UI.Xaml.Controls.ProgressRing.Value":
                 userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Microsoft.UI.Xaml.Controls.ProgressRing");
                 xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "Value", "Double");
                 xamlMember.SetIsDependencyProperty();
-                xamlMember.Getter = get_192_ProgressRing_Value;
-                xamlMember.Setter = set_192_ProgressRing_Value;
+                xamlMember.Getter = get_230_ProgressRing_Value;
+                xamlMember.Setter = set_230_ProgressRing_Value;
                 break;
             case "Microsoft.UI.Xaml.Controls.TreeView.ItemsSource":
                 userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Microsoft.UI.Xaml.Controls.TreeView");
                 xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "ItemsSource", "Object");
                 xamlMember.SetIsDependencyProperty();
-                xamlMember.Getter = get_193_TreeView_ItemsSource;
-                xamlMember.Setter = set_193_TreeView_ItemsSource;
+                xamlMember.Getter = get_231_TreeView_ItemsSource;
+                xamlMember.Setter = set_231_TreeView_ItemsSource;
                 break;
             case "Microsoft.UI.Xaml.Controls.TreeView.ItemTemplate":
                 userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Microsoft.UI.Xaml.Controls.TreeView");
                 xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "ItemTemplate", "Microsoft.UI.Xaml.DataTemplate");
                 xamlMember.SetIsDependencyProperty();
-                xamlMember.Getter = get_194_TreeView_ItemTemplate;
-                xamlMember.Setter = set_194_TreeView_ItemTemplate;
+                xamlMember.Getter = get_232_TreeView_ItemTemplate;
+                xamlMember.Setter = set_232_TreeView_ItemTemplate;
                 break;
             case "Microsoft.UI.Xaml.Controls.TreeView.CanDragItems":
                 userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Microsoft.UI.Xaml.Controls.TreeView");
                 xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "CanDragItems", "Boolean");
                 xamlMember.SetIsDependencyProperty();
-                xamlMember.Getter = get_195_TreeView_CanDragItems;
-                xamlMember.Setter = set_195_TreeView_CanDragItems;
+                xamlMember.Getter = get_233_TreeView_CanDragItems;
+                xamlMember.Setter = set_233_TreeView_CanDragItems;
                 break;
             case "Microsoft.UI.Xaml.Controls.TreeView.CanReorderItems":
                 userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Microsoft.UI.Xaml.Controls.TreeView");
                 xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "CanReorderItems", "Boolean");
                 xamlMember.SetIsDependencyProperty();
-                xamlMember.Getter = get_196_TreeView_CanReorderItems;
-                xamlMember.Setter = set_196_TreeView_CanReorderItems;
+                xamlMember.Getter = get_234_TreeView_CanReorderItems;
+                xamlMember.Setter = set_234_TreeView_CanReorderItems;
                 break;
             case "Microsoft.UI.Xaml.Controls.TreeView.ItemContainerStyle":
                 userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Microsoft.UI.Xaml.Controls.TreeView");
                 xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "ItemContainerStyle", "Microsoft.UI.Xaml.Style");
                 xamlMember.SetIsDependencyProperty();
-                xamlMember.Getter = get_197_TreeView_ItemContainerStyle;
-                xamlMember.Setter = set_197_TreeView_ItemContainerStyle;
+                xamlMember.Getter = get_235_TreeView_ItemContainerStyle;
+                xamlMember.Setter = set_235_TreeView_ItemContainerStyle;
                 break;
             case "Microsoft.UI.Xaml.Controls.TreeView.ItemContainerStyleSelector":
                 userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Microsoft.UI.Xaml.Controls.TreeView");
                 xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "ItemContainerStyleSelector", "Microsoft.UI.Xaml.Controls.StyleSelector");
                 xamlMember.SetIsDependencyProperty();
-                xamlMember.Getter = get_198_TreeView_ItemContainerStyleSelector;
-                xamlMember.Setter = set_198_TreeView_ItemContainerStyleSelector;
+                xamlMember.Getter = get_236_TreeView_ItemContainerStyleSelector;
+                xamlMember.Setter = set_236_TreeView_ItemContainerStyleSelector;
                 break;
             case "Microsoft.UI.Xaml.Controls.TreeView.ItemContainerTransitions":
                 userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Microsoft.UI.Xaml.Controls.TreeView");
                 xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "ItemContainerTransitions", "Microsoft.UI.Xaml.Media.Animation.TransitionCollection");
                 xamlMember.SetIsDependencyProperty();
-                xamlMember.Getter = get_199_TreeView_ItemContainerTransitions;
-                xamlMember.Setter = set_199_TreeView_ItemContainerTransitions;
+                xamlMember.Getter = get_237_TreeView_ItemContainerTransitions;
+                xamlMember.Setter = set_237_TreeView_ItemContainerTransitions;
                 break;
             case "Microsoft.UI.Xaml.Controls.TreeView.ItemTemplateSelector":
                 userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Microsoft.UI.Xaml.Controls.TreeView");
                 xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "ItemTemplateSelector", "Microsoft.UI.Xaml.Controls.DataTemplateSelector");
                 xamlMember.SetIsDependencyProperty();
-                xamlMember.Getter = get_200_TreeView_ItemTemplateSelector;
-                xamlMember.Setter = set_200_TreeView_ItemTemplateSelector;
+                xamlMember.Getter = get_238_TreeView_ItemTemplateSelector;
+                xamlMember.Setter = set_238_TreeView_ItemTemplateSelector;
                 break;
             case "Microsoft.UI.Xaml.Controls.TreeView.RootNodes":
                 userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Microsoft.UI.Xaml.Controls.TreeView");
                 xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "RootNodes", "System.Collections.Generic.IList`1<Microsoft.UI.Xaml.Controls.TreeViewNode>");
-                xamlMember.Getter = get_201_TreeView_RootNodes;
+                xamlMember.Getter = get_239_TreeView_RootNodes;
                 xamlMember.SetIsReadOnly();
                 break;
             case "Microsoft.UI.Xaml.Controls.TreeViewNode.Children":
                 userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Microsoft.UI.Xaml.Controls.TreeViewNode");
                 xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "Children", "System.Collections.Generic.IList`1<Microsoft.UI.Xaml.Controls.TreeViewNode>");
-                xamlMember.Getter = get_202_TreeViewNode_Children;
+                xamlMember.Getter = get_240_TreeViewNode_Children;
                 xamlMember.SetIsReadOnly();
                 break;
             case "Microsoft.UI.Xaml.Controls.TreeViewNode.Content":
                 userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Microsoft.UI.Xaml.Controls.TreeViewNode");
                 xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "Content", "Object");
                 xamlMember.SetIsDependencyProperty();
-                xamlMember.Getter = get_203_TreeViewNode_Content;
-                xamlMember.Setter = set_203_TreeViewNode_Content;
+                xamlMember.Getter = get_241_TreeViewNode_Content;
+                xamlMember.Setter = set_241_TreeViewNode_Content;
                 break;
             case "Microsoft.UI.Xaml.Controls.TreeViewNode.Depth":
                 userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Microsoft.UI.Xaml.Controls.TreeViewNode");
                 xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "Depth", "Int32");
                 xamlMember.SetIsDependencyProperty();
-                xamlMember.Getter = get_204_TreeViewNode_Depth;
+                xamlMember.Getter = get_242_TreeViewNode_Depth;
                 xamlMember.SetIsReadOnly();
                 break;
             case "Microsoft.UI.Xaml.Controls.TreeViewNode.HasChildren":
                 userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Microsoft.UI.Xaml.Controls.TreeViewNode");
                 xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "HasChildren", "Boolean");
                 xamlMember.SetIsDependencyProperty();
-                xamlMember.Getter = get_205_TreeViewNode_HasChildren;
+                xamlMember.Getter = get_243_TreeViewNode_HasChildren;
                 xamlMember.SetIsReadOnly();
                 break;
             case "Microsoft.UI.Xaml.Controls.TreeViewNode.HasUnrealizedChildren":
                 userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Microsoft.UI.Xaml.Controls.TreeViewNode");
                 xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "HasUnrealizedChildren", "Boolean");
-                xamlMember.Getter = get_206_TreeViewNode_HasUnrealizedChildren;
-                xamlMember.Setter = set_206_TreeViewNode_HasUnrealizedChildren;
+                xamlMember.Getter = get_244_TreeViewNode_HasUnrealizedChildren;
+                xamlMember.Setter = set_244_TreeViewNode_HasUnrealizedChildren;
                 break;
             case "Microsoft.UI.Xaml.Controls.TreeViewNode.IsExpanded":
                 userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Microsoft.UI.Xaml.Controls.TreeViewNode");
                 xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "IsExpanded", "Boolean");
                 xamlMember.SetIsDependencyProperty();
-                xamlMember.Getter = get_207_TreeViewNode_IsExpanded;
-                xamlMember.Setter = set_207_TreeViewNode_IsExpanded;
+                xamlMember.Getter = get_245_TreeViewNode_IsExpanded;
+                xamlMember.Setter = set_245_TreeViewNode_IsExpanded;
                 break;
             case "Microsoft.UI.Xaml.Controls.TreeViewNode.Parent":
                 userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Microsoft.UI.Xaml.Controls.TreeViewNode");
                 xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "Parent", "Microsoft.UI.Xaml.Controls.TreeViewNode");
-                xamlMember.Getter = get_208_TreeViewNode_Parent;
+                xamlMember.Getter = get_246_TreeViewNode_Parent;
                 xamlMember.SetIsReadOnly();
                 break;
             case "Microsoft.UI.Xaml.Controls.TreeView.SelectedItem":
                 userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Microsoft.UI.Xaml.Controls.TreeView");
                 xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "SelectedItem", "Object");
                 xamlMember.SetIsDependencyProperty();
-                xamlMember.Getter = get_209_TreeView_SelectedItem;
-                xamlMember.Setter = set_209_TreeView_SelectedItem;
+                xamlMember.Getter = get_247_TreeView_SelectedItem;
+                xamlMember.Setter = set_247_TreeView_SelectedItem;
                 break;
             case "Microsoft.UI.Xaml.Controls.TreeView.SelectedItems":
                 userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Microsoft.UI.Xaml.Controls.TreeView");
                 xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "SelectedItems", "System.Collections.Generic.IList`1<Object>");
-                xamlMember.Getter = get_210_TreeView_SelectedItems;
+                xamlMember.Getter = get_248_TreeView_SelectedItems;
                 xamlMember.SetIsReadOnly();
                 break;
             case "Microsoft.UI.Xaml.Controls.TreeView.SelectedNode":
                 userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Microsoft.UI.Xaml.Controls.TreeView");
                 xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "SelectedNode", "Microsoft.UI.Xaml.Controls.TreeViewNode");
-                xamlMember.Getter = get_211_TreeView_SelectedNode;
-                xamlMember.Setter = set_211_TreeView_SelectedNode;
+                xamlMember.Getter = get_249_TreeView_SelectedNode;
+                xamlMember.Setter = set_249_TreeView_SelectedNode;
                 break;
             case "Microsoft.UI.Xaml.Controls.TreeView.SelectedNodes":
                 userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Microsoft.UI.Xaml.Controls.TreeView");
                 xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "SelectedNodes", "System.Collections.Generic.IList`1<Microsoft.UI.Xaml.Controls.TreeViewNode>");
-                xamlMember.Getter = get_212_TreeView_SelectedNodes;
+                xamlMember.Getter = get_250_TreeView_SelectedNodes;
                 xamlMember.SetIsReadOnly();
                 break;
             case "Microsoft.UI.Xaml.Controls.TreeView.SelectionMode":
                 userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Microsoft.UI.Xaml.Controls.TreeView");
                 xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "SelectionMode", "Microsoft.UI.Xaml.Controls.TreeViewSelectionMode");
                 xamlMember.SetIsDependencyProperty();
-                xamlMember.Getter = get_213_TreeView_SelectionMode;
-                xamlMember.Setter = set_213_TreeView_SelectionMode;
+                xamlMember.Getter = get_251_TreeView_SelectionMode;
+                xamlMember.Setter = set_251_TreeView_SelectionMode;
                 break;
             case "Microsoft.UI.Xaml.Controls.TreeViewItem.ItemsSource":
                 userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Microsoft.UI.Xaml.Controls.TreeViewItem");
                 xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "ItemsSource", "Object");
                 xamlMember.SetIsDependencyProperty();
-                xamlMember.Getter = get_214_TreeViewItem_ItemsSource;
-                xamlMember.Setter = set_214_TreeViewItem_ItemsSource;
+                xamlMember.Getter = get_252_TreeViewItem_ItemsSource;
+                xamlMember.Setter = set_252_TreeViewItem_ItemsSource;
                 break;
             case "Microsoft.UI.Xaml.Controls.TreeViewItem.IsExpanded":
                 userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Microsoft.UI.Xaml.Controls.TreeViewItem");
                 xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "IsExpanded", "Boolean");
                 xamlMember.SetIsDependencyProperty();
-                xamlMember.Getter = get_215_TreeViewItem_IsExpanded;
-                xamlMember.Setter = set_215_TreeViewItem_IsExpanded;
+                xamlMember.Getter = get_253_TreeViewItem_IsExpanded;
+                xamlMember.Setter = set_253_TreeViewItem_IsExpanded;
                 break;
             case "Microsoft.UI.Xaml.Controls.TreeViewItem.CollapsedGlyph":
                 userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Microsoft.UI.Xaml.Controls.TreeViewItem");
                 xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "CollapsedGlyph", "String");
                 xamlMember.SetIsDependencyProperty();
-                xamlMember.Getter = get_216_TreeViewItem_CollapsedGlyph;
-                xamlMember.Setter = set_216_TreeViewItem_CollapsedGlyph;
+                xamlMember.Getter = get_254_TreeViewItem_CollapsedGlyph;
+                xamlMember.Setter = set_254_TreeViewItem_CollapsedGlyph;
                 break;
             case "Microsoft.UI.Xaml.Controls.TreeViewItem.ExpandedGlyph":
                 userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Microsoft.UI.Xaml.Controls.TreeViewItem");
                 xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "ExpandedGlyph", "String");
                 xamlMember.SetIsDependencyProperty();
-                xamlMember.Getter = get_217_TreeViewItem_ExpandedGlyph;
-                xamlMember.Setter = set_217_TreeViewItem_ExpandedGlyph;
+                xamlMember.Getter = get_255_TreeViewItem_ExpandedGlyph;
+                xamlMember.Setter = set_255_TreeViewItem_ExpandedGlyph;
                 break;
             case "Microsoft.UI.Xaml.Controls.TreeViewItem.GlyphBrush":
                 userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Microsoft.UI.Xaml.Controls.TreeViewItem");
                 xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "GlyphBrush", "Microsoft.UI.Xaml.Media.Brush");
                 xamlMember.SetIsDependencyProperty();
-                xamlMember.Getter = get_218_TreeViewItem_GlyphBrush;
-                xamlMember.Setter = set_218_TreeViewItem_GlyphBrush;
+                xamlMember.Getter = get_256_TreeViewItem_GlyphBrush;
+                xamlMember.Setter = set_256_TreeViewItem_GlyphBrush;
                 break;
             case "Microsoft.UI.Xaml.Controls.TreeViewItem.GlyphOpacity":
                 userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Microsoft.UI.Xaml.Controls.TreeViewItem");
                 xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "GlyphOpacity", "Double");
                 xamlMember.SetIsDependencyProperty();
-                xamlMember.Getter = get_219_TreeViewItem_GlyphOpacity;
-                xamlMember.Setter = set_219_TreeViewItem_GlyphOpacity;
+                xamlMember.Getter = get_257_TreeViewItem_GlyphOpacity;
+                xamlMember.Setter = set_257_TreeViewItem_GlyphOpacity;
                 break;
             case "Microsoft.UI.Xaml.Controls.TreeViewItem.GlyphSize":
                 userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Microsoft.UI.Xaml.Controls.TreeViewItem");
                 xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "GlyphSize", "Double");
                 xamlMember.SetIsDependencyProperty();
-                xamlMember.Getter = get_220_TreeViewItem_GlyphSize;
-                xamlMember.Setter = set_220_TreeViewItem_GlyphSize;
+                xamlMember.Getter = get_258_TreeViewItem_GlyphSize;
+                xamlMember.Setter = set_258_TreeViewItem_GlyphSize;
                 break;
             case "Microsoft.UI.Xaml.Controls.TreeViewItem.HasUnrealizedChildren":
                 userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Microsoft.UI.Xaml.Controls.TreeViewItem");
                 xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "HasUnrealizedChildren", "Boolean");
                 xamlMember.SetIsDependencyProperty();
-                xamlMember.Getter = get_221_TreeViewItem_HasUnrealizedChildren;
-                xamlMember.Setter = set_221_TreeViewItem_HasUnrealizedChildren;
+                xamlMember.Getter = get_259_TreeViewItem_HasUnrealizedChildren;
+                xamlMember.Setter = set_259_TreeViewItem_HasUnrealizedChildren;
                 break;
             case "Microsoft.UI.Xaml.Controls.TreeViewItem.TreeViewItemTemplateSettings":
                 userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Microsoft.UI.Xaml.Controls.TreeViewItem");
                 xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "TreeViewItemTemplateSettings", "Microsoft.UI.Xaml.Controls.TreeViewItemTemplateSettings");
                 xamlMember.SetIsDependencyProperty();
-                xamlMember.Getter = get_222_TreeViewItem_TreeViewItemTemplateSettings;
+                xamlMember.Getter = get_260_TreeViewItem_TreeViewItemTemplateSettings;
                 xamlMember.SetIsReadOnly();
                 break;
             case "AIM.Views.InventoryViewerPage.ViewModel":
                 userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("AIM.Views.InventoryViewerPage");
                 xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "ViewModel", "AIM.ViewModels.InventoryViewerViewModel");
-                xamlMember.Getter = get_223_InventoryViewerPage_ViewModel;
+                xamlMember.Getter = get_261_InventoryViewerPage_ViewModel;
                 xamlMember.SetIsReadOnly();
                 break;
             case "AIM.Views.PreviewPage.ViewModel":
                 userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("AIM.Views.PreviewPage");
                 xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "ViewModel", "AIM.ViewModels.PreviewViewModel");
-                xamlMember.Getter = get_224_PreviewPage_ViewModel;
+                xamlMember.Getter = get_262_PreviewPage_ViewModel;
                 xamlMember.SetIsReadOnly();
                 break;
             case "AIM.Converters.FormRowTemplateSelector.Level2HeaderTemplate":
                 userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("AIM.Converters.FormRowTemplateSelector");
                 xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "Level2HeaderTemplate", "Microsoft.UI.Xaml.DataTemplate");
-                xamlMember.Getter = get_225_FormRowTemplateSelector_Level2HeaderTemplate;
-                xamlMember.Setter = set_225_FormRowTemplateSelector_Level2HeaderTemplate;
+                xamlMember.Getter = get_263_FormRowTemplateSelector_Level2HeaderTemplate;
+                xamlMember.Setter = set_263_FormRowTemplateSelector_Level2HeaderTemplate;
                 break;
             case "AIM.Converters.FormRowTemplateSelector.Level3Header_A_Template":
                 userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("AIM.Converters.FormRowTemplateSelector");
                 xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "Level3Header_A_Template", "Microsoft.UI.Xaml.DataTemplate");
-                xamlMember.Getter = get_226_FormRowTemplateSelector_Level3Header_A_Template;
-                xamlMember.Setter = set_226_FormRowTemplateSelector_Level3Header_A_Template;
+                xamlMember.Getter = get_264_FormRowTemplateSelector_Level3Header_A_Template;
+                xamlMember.Setter = set_264_FormRowTemplateSelector_Level3Header_A_Template;
                 break;
             case "AIM.Converters.FormRowTemplateSelector.Level3Header_B_Template":
                 userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("AIM.Converters.FormRowTemplateSelector");
                 xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "Level3Header_B_Template", "Microsoft.UI.Xaml.DataTemplate");
-                xamlMember.Getter = get_227_FormRowTemplateSelector_Level3Header_B_Template;
-                xamlMember.Setter = set_227_FormRowTemplateSelector_Level3Header_B_Template;
+                xamlMember.Getter = get_265_FormRowTemplateSelector_Level3Header_B_Template;
+                xamlMember.Setter = set_265_FormRowTemplateSelector_Level3Header_B_Template;
                 break;
             case "AIM.Converters.FormRowTemplateSelector.Level3Header_C_Template":
                 userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("AIM.Converters.FormRowTemplateSelector");
                 xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "Level3Header_C_Template", "Microsoft.UI.Xaml.DataTemplate");
-                xamlMember.Getter = get_228_FormRowTemplateSelector_Level3Header_C_Template;
-                xamlMember.Setter = set_228_FormRowTemplateSelector_Level3Header_C_Template;
+                xamlMember.Getter = get_266_FormRowTemplateSelector_Level3Header_C_Template;
+                xamlMember.Setter = set_266_FormRowTemplateSelector_Level3Header_C_Template;
                 break;
             case "AIM.Converters.FormRowTemplateSelector.FileTemplate":
                 userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("AIM.Converters.FormRowTemplateSelector");
                 xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "FileTemplate", "Microsoft.UI.Xaml.DataTemplate");
-                xamlMember.Getter = get_229_FormRowTemplateSelector_FileTemplate;
-                xamlMember.Setter = set_229_FormRowTemplateSelector_FileTemplate;
+                xamlMember.Getter = get_267_FormRowTemplateSelector_FileTemplate;
+                xamlMember.Setter = set_267_FormRowTemplateSelector_FileTemplate;
                 break;
             case "AIM.Converters.FormRowTemplateSelector.BlankTemplate":
                 userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("AIM.Converters.FormRowTemplateSelector");
                 xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "BlankTemplate", "Microsoft.UI.Xaml.DataTemplate");
-                xamlMember.Getter = get_230_FormRowTemplateSelector_BlankTemplate;
-                xamlMember.Setter = set_230_FormRowTemplateSelector_BlankTemplate;
+                xamlMember.Getter = get_268_FormRowTemplateSelector_BlankTemplate;
+                xamlMember.Setter = set_268_FormRowTemplateSelector_BlankTemplate;
                 break;
             case "AIM.Views.PrintableFormPage.ViewModel":
                 userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("AIM.Views.PrintableFormPage");
                 xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "ViewModel", "AIM.ViewModels.PrintableFormViewModel");
-                xamlMember.Getter = get_231_PrintableFormPage_ViewModel;
+                xamlMember.Getter = get_269_PrintableFormPage_ViewModel;
                 xamlMember.SetIsReadOnly();
                 break;
             case "Microsoft.Xaml.Interactivity.Interaction.Behaviors":
@@ -6621,352 +6879,94 @@ namespace AIM.AIM_XamlTypeInfo
                 xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "Behaviors", "Microsoft.Xaml.Interactivity.BehaviorCollection");
                 xamlMember.SetTargetTypeName("Microsoft.UI.Xaml.DependencyObject");
                 xamlMember.SetIsAttachable();
-                xamlMember.Getter = get_232_Interaction_Behaviors;
-                xamlMember.Setter = set_232_Interaction_Behaviors;
+                xamlMember.Getter = get_270_Interaction_Behaviors;
+                xamlMember.Setter = set_270_Interaction_Behaviors;
                 break;
             case "Microsoft.Xaml.Interactivity.Trigger.Actions":
                 userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Microsoft.Xaml.Interactivity.Trigger");
                 xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "Actions", "Microsoft.Xaml.Interactivity.ActionCollection");
                 xamlMember.SetIsDependencyProperty();
-                xamlMember.Getter = get_233_Trigger_Actions;
+                xamlMember.Getter = get_271_Trigger_Actions;
                 xamlMember.SetIsReadOnly();
                 break;
             case "Microsoft.Xaml.Interactions.Core.EventTriggerBehavior.EventName":
                 userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Microsoft.Xaml.Interactions.Core.EventTriggerBehavior");
                 xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "EventName", "String");
                 xamlMember.SetIsDependencyProperty();
-                xamlMember.Getter = get_234_EventTriggerBehavior_EventName;
-                xamlMember.Setter = set_234_EventTriggerBehavior_EventName;
+                xamlMember.Getter = get_272_EventTriggerBehavior_EventName;
+                xamlMember.Setter = set_272_EventTriggerBehavior_EventName;
                 break;
             case "Microsoft.Xaml.Interactions.Core.EventTriggerBehavior.SourceObject":
                 userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Microsoft.Xaml.Interactions.Core.EventTriggerBehavior");
                 xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "SourceObject", "Object");
                 xamlMember.SetIsDependencyProperty();
-                xamlMember.Getter = get_235_EventTriggerBehavior_SourceObject;
-                xamlMember.Setter = set_235_EventTriggerBehavior_SourceObject;
+                xamlMember.Getter = get_273_EventTriggerBehavior_SourceObject;
+                xamlMember.Setter = set_273_EventTriggerBehavior_SourceObject;
                 break;
             case "Microsoft.Xaml.Interactivity.Behavior.AssociatedObject":
                 userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Microsoft.Xaml.Interactivity.Behavior");
                 xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "AssociatedObject", "Microsoft.UI.Xaml.DependencyObject");
-                xamlMember.Getter = get_236_Behavior_AssociatedObject;
+                xamlMember.Getter = get_274_Behavior_AssociatedObject;
                 xamlMember.SetIsReadOnly();
                 break;
             case "Microsoft.Xaml.Interactions.Core.InvokeCommandAction.Command":
                 userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Microsoft.Xaml.Interactions.Core.InvokeCommandAction");
                 xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "Command", "System.Windows.Input.ICommand");
                 xamlMember.SetIsDependencyProperty();
-                xamlMember.Getter = get_237_InvokeCommandAction_Command;
-                xamlMember.Setter = set_237_InvokeCommandAction_Command;
+                xamlMember.Getter = get_275_InvokeCommandAction_Command;
+                xamlMember.Setter = set_275_InvokeCommandAction_Command;
                 break;
             case "Microsoft.Xaml.Interactions.Core.InvokeCommandAction.CommandParameter":
                 userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Microsoft.Xaml.Interactions.Core.InvokeCommandAction");
                 xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "CommandParameter", "Object");
                 xamlMember.SetIsDependencyProperty();
-                xamlMember.Getter = get_238_InvokeCommandAction_CommandParameter;
-                xamlMember.Setter = set_238_InvokeCommandAction_CommandParameter;
+                xamlMember.Getter = get_276_InvokeCommandAction_CommandParameter;
+                xamlMember.Setter = set_276_InvokeCommandAction_CommandParameter;
                 break;
             case "Microsoft.Xaml.Interactions.Core.InvokeCommandAction.InputConverter":
                 userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Microsoft.Xaml.Interactions.Core.InvokeCommandAction");
                 xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "InputConverter", "Microsoft.UI.Xaml.Data.IValueConverter");
                 xamlMember.SetIsDependencyProperty();
-                xamlMember.Getter = get_239_InvokeCommandAction_InputConverter;
-                xamlMember.Setter = set_239_InvokeCommandAction_InputConverter;
+                xamlMember.Getter = get_277_InvokeCommandAction_InputConverter;
+                xamlMember.Setter = set_277_InvokeCommandAction_InputConverter;
                 break;
             case "Microsoft.Xaml.Interactions.Core.InvokeCommandAction.InputConverterParameter":
                 userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Microsoft.Xaml.Interactions.Core.InvokeCommandAction");
                 xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "InputConverterParameter", "Object");
                 xamlMember.SetIsDependencyProperty();
-                xamlMember.Getter = get_240_InvokeCommandAction_InputConverterParameter;
-                xamlMember.Setter = set_240_InvokeCommandAction_InputConverterParameter;
+                xamlMember.Getter = get_278_InvokeCommandAction_InputConverterParameter;
+                xamlMember.Setter = set_278_InvokeCommandAction_InputConverterParameter;
                 break;
             case "Microsoft.Xaml.Interactions.Core.InvokeCommandAction.InputConverterLanguage":
                 userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Microsoft.Xaml.Interactions.Core.InvokeCommandAction");
                 xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "InputConverterLanguage", "String");
                 xamlMember.SetIsDependencyProperty();
-                xamlMember.Getter = get_241_InvokeCommandAction_InputConverterLanguage;
-                xamlMember.Setter = set_241_InvokeCommandAction_InputConverterLanguage;
+                xamlMember.Getter = get_279_InvokeCommandAction_InputConverterLanguage;
+                xamlMember.Setter = set_279_InvokeCommandAction_InputConverterLanguage;
                 break;
             case "AIM.Views.ScansPage.ViewModel":
                 userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("AIM.Views.ScansPage");
                 xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "ViewModel", "AIM.ViewModels.ScansViewModel");
-                xamlMember.Getter = get_242_ScansPage_ViewModel;
+                xamlMember.Getter = get_280_ScansPage_ViewModel;
                 xamlMember.SetIsReadOnly();
                 break;
             case "AIM.Views.SearchPage.ViewModel":
                 userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("AIM.Views.SearchPage");
                 xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "ViewModel", "AIM.ViewModels.SearchViewModel");
-                xamlMember.Getter = get_243_SearchPage_ViewModel;
+                xamlMember.Getter = get_281_SearchPage_ViewModel;
                 xamlMember.SetIsReadOnly();
                 break;
             case "AIM.Views.SettingsPage.ViewModel":
                 userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("AIM.Views.SettingsPage");
                 xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "ViewModel", "AIM.ViewModels.SettingsViewModel");
-                xamlMember.Getter = get_244_SettingsPage_ViewModel;
+                xamlMember.Getter = get_282_SettingsPage_ViewModel;
                 xamlMember.SetIsReadOnly();
                 break;
             case "AIM.Views.SettingsPage.IsLocked":
                 userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("AIM.Views.SettingsPage");
                 xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "IsLocked", "Boolean");
-                xamlMember.Getter = get_245_SettingsPage_IsLocked;
-                xamlMember.Setter = set_245_SettingsPage_IsLocked;
-                break;
-            case "LiveChartsGeneratedCode.SourceGenChart.Series":
-                userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("LiveChartsGeneratedCode.SourceGenChart");
-                xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "Series", "System.Collections.Generic.IEnumerable`1<LiveChartsCore.ISeries>");
-                xamlMember.SetIsDependencyProperty();
-                xamlMember.Getter = get_246_SourceGenChart_Series;
-                xamlMember.Setter = set_246_SourceGenChart_Series;
-                break;
-            case "LiveChartsGeneratedCode.SourceGenChart.LegendPosition":
-                userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("LiveChartsGeneratedCode.SourceGenChart");
-                xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "LegendPosition", "LiveChartsCore.Measure.LegendPosition");
-                xamlMember.SetIsDependencyProperty();
-                xamlMember.Getter = get_247_SourceGenChart_LegendPosition;
-                xamlMember.Setter = set_247_SourceGenChart_LegendPosition;
-                break;
-            case "LiveChartsGeneratedCode.SourceGenChart.LegendTextSize":
-                userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("LiveChartsGeneratedCode.SourceGenChart");
-                xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "LegendTextSize", "Double");
-                xamlMember.SetIsDependencyProperty();
-                xamlMember.Getter = get_248_SourceGenChart_LegendTextSize;
-                xamlMember.Setter = set_248_SourceGenChart_LegendTextSize;
-                break;
-            case "LiveChartsGeneratedCode.SourceGenPieChart.IsClockwise":
-                userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("LiveChartsGeneratedCode.SourceGenPieChart");
-                xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "IsClockwise", "Boolean");
-                xamlMember.SetIsDependencyProperty();
-                xamlMember.Getter = get_249_SourceGenPieChart_IsClockwise;
-                xamlMember.Setter = set_249_SourceGenPieChart_IsClockwise;
-                break;
-            case "LiveChartsGeneratedCode.SourceGenPieChart.InitialRotation":
-                userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("LiveChartsGeneratedCode.SourceGenPieChart");
-                xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "InitialRotation", "Double");
-                xamlMember.SetIsDependencyProperty();
-                xamlMember.Getter = get_250_SourceGenPieChart_InitialRotation;
-                xamlMember.Setter = set_250_SourceGenPieChart_InitialRotation;
-                break;
-            case "LiveChartsGeneratedCode.SourceGenPieChart.MaxAngle":
-                userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("LiveChartsGeneratedCode.SourceGenPieChart");
-                xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "MaxAngle", "Double");
-                xamlMember.SetIsDependencyProperty();
-                xamlMember.Getter = get_251_SourceGenPieChart_MaxAngle;
-                xamlMember.Setter = set_251_SourceGenPieChart_MaxAngle;
-                break;
-            case "LiveChartsGeneratedCode.SourceGenPieChart.MaxValue":
-                userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("LiveChartsGeneratedCode.SourceGenPieChart");
-                xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "MaxValue", "Double");
-                xamlMember.SetIsDependencyProperty();
-                xamlMember.Getter = get_252_SourceGenPieChart_MaxValue;
-                xamlMember.Setter = set_252_SourceGenPieChart_MaxValue;
-                break;
-            case "LiveChartsGeneratedCode.SourceGenPieChart.MinValue":
-                userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("LiveChartsGeneratedCode.SourceGenPieChart");
-                xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "MinValue", "Double");
-                xamlMember.SetIsDependencyProperty();
-                xamlMember.Getter = get_253_SourceGenPieChart_MinValue;
-                xamlMember.Setter = set_253_SourceGenPieChart_MinValue;
-                break;
-            case "LiveChartsGeneratedCode.SourceGenChart.CoreChart":
-                userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("LiveChartsGeneratedCode.SourceGenChart");
-                xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "CoreChart", "LiveChartsCore.Chart");
-                xamlMember.Getter = get_254_SourceGenChart_CoreChart;
-                xamlMember.SetIsReadOnly();
-                break;
-            case "LiveChartsGeneratedCode.SourceGenChart.ForceGPU":
-                userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("LiveChartsGeneratedCode.SourceGenChart");
-                xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "ForceGPU", "Boolean");
-                xamlMember.Getter = get_255_SourceGenChart_ForceGPU;
-                xamlMember.Setter = set_255_SourceGenChart_ForceGPU;
-                break;
-            case "LiveChartsGeneratedCode.SourceGenChart.Tooltip":
-                userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("LiveChartsGeneratedCode.SourceGenChart");
-                xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "Tooltip", "LiveChartsCore.Kernel.Sketches.IChartTooltip");
-                xamlMember.Getter = get_256_SourceGenChart_Tooltip;
-                xamlMember.Setter = set_256_SourceGenChart_Tooltip;
-                break;
-            case "LiveChartsGeneratedCode.SourceGenChart.Legend":
-                userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("LiveChartsGeneratedCode.SourceGenChart");
-                xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "Legend", "LiveChartsCore.Kernel.Sketches.IChartLegend");
-                xamlMember.Getter = get_257_SourceGenChart_Legend;
-                xamlMember.Setter = set_257_SourceGenChart_Legend;
-                break;
-            case "LiveChartsGeneratedCode.SourceGenChart.ChartTheme":
-                userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("LiveChartsGeneratedCode.SourceGenChart");
-                xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "ChartTheme", "LiveChartsCore.Themes.Theme");
-                xamlMember.Getter = get_258_SourceGenChart_ChartTheme;
-                xamlMember.Setter = set_258_SourceGenChart_ChartTheme;
-                break;
-            case "LiveChartsGeneratedCode.SourceGenChart.UpdaterThrottler":
-                userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("LiveChartsGeneratedCode.SourceGenChart");
-                xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "UpdaterThrottler", "TimeSpan");
-                xamlMember.Getter = get_259_SourceGenChart_UpdaterThrottler;
-                xamlMember.Setter = set_259_SourceGenChart_UpdaterThrottler;
-                break;
-            case "LiveChartsGeneratedCode.SourceGenChart.AutoUpdateEnabled":
-                userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("LiveChartsGeneratedCode.SourceGenChart");
-                xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "AutoUpdateEnabled", "Boolean");
-                xamlMember.Getter = get_260_SourceGenChart_AutoUpdateEnabled;
-                xamlMember.Setter = set_260_SourceGenChart_AutoUpdateEnabled;
-                break;
-            case "LiveChartsGeneratedCode.SourceGenChart.CoreCanvas":
-                userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("LiveChartsGeneratedCode.SourceGenChart");
-                xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "CoreCanvas", "LiveChartsCore.Motion.CoreMotionCanvas");
-                xamlMember.Getter = get_261_SourceGenChart_CoreCanvas;
-                xamlMember.SetIsReadOnly();
-                break;
-            case "LiveChartsGeneratedCode.SourceGenChart.UpdateStartedCommand":
-                userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("LiveChartsGeneratedCode.SourceGenChart");
-                xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "UpdateStartedCommand", "System.Windows.Input.ICommand");
-                xamlMember.SetIsDependencyProperty();
-                xamlMember.Getter = get_262_SourceGenChart_UpdateStartedCommand;
-                xamlMember.Setter = set_262_SourceGenChart_UpdateStartedCommand;
-                break;
-            case "LiveChartsGeneratedCode.SourceGenChart.DataPointerDownCommand":
-                userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("LiveChartsGeneratedCode.SourceGenChart");
-                xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "DataPointerDownCommand", "System.Windows.Input.ICommand");
-                xamlMember.SetIsDependencyProperty();
-                xamlMember.Getter = get_263_SourceGenChart_DataPointerDownCommand;
-                xamlMember.Setter = set_263_SourceGenChart_DataPointerDownCommand;
-                break;
-            case "LiveChartsGeneratedCode.SourceGenChart.HoveredPointsChangedCommand":
-                userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("LiveChartsGeneratedCode.SourceGenChart");
-                xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "HoveredPointsChangedCommand", "System.Windows.Input.ICommand");
-                xamlMember.SetIsDependencyProperty();
-                xamlMember.Getter = get_264_SourceGenChart_HoveredPointsChangedCommand;
-                xamlMember.Setter = set_264_SourceGenChart_HoveredPointsChangedCommand;
-                break;
-            case "LiveChartsGeneratedCode.SourceGenChart.ChartPointPointerDownCommand":
-                userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("LiveChartsGeneratedCode.SourceGenChart");
-                xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "ChartPointPointerDownCommand", "System.Windows.Input.ICommand");
-                xamlMember.SetIsDependencyProperty();
-                xamlMember.Getter = get_265_SourceGenChart_ChartPointPointerDownCommand;
-                xamlMember.Setter = set_265_SourceGenChart_ChartPointPointerDownCommand;
-                break;
-            case "LiveChartsGeneratedCode.SourceGenChart.VisualElementsPointerDownCommand":
-                userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("LiveChartsGeneratedCode.SourceGenChart");
-                xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "VisualElementsPointerDownCommand", "System.Windows.Input.ICommand");
-                xamlMember.SetIsDependencyProperty();
-                xamlMember.Getter = get_266_SourceGenChart_VisualElementsPointerDownCommand;
-                xamlMember.Setter = set_266_SourceGenChart_VisualElementsPointerDownCommand;
-                break;
-            case "LiveChartsGeneratedCode.SourceGenChart.PointerPressedCommand":
-                userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("LiveChartsGeneratedCode.SourceGenChart");
-                xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "PointerPressedCommand", "System.Windows.Input.ICommand");
-                xamlMember.SetIsDependencyProperty();
-                xamlMember.Getter = get_267_SourceGenChart_PointerPressedCommand;
-                xamlMember.Setter = set_267_SourceGenChart_PointerPressedCommand;
-                break;
-            case "LiveChartsGeneratedCode.SourceGenChart.PointerMoveCommand":
-                userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("LiveChartsGeneratedCode.SourceGenChart");
-                xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "PointerMoveCommand", "System.Windows.Input.ICommand");
-                xamlMember.SetIsDependencyProperty();
-                xamlMember.Getter = get_268_SourceGenChart_PointerMoveCommand;
-                xamlMember.Setter = set_268_SourceGenChart_PointerMoveCommand;
-                break;
-            case "LiveChartsGeneratedCode.SourceGenChart.PointerReleasedCommand":
-                userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("LiveChartsGeneratedCode.SourceGenChart");
-                xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "PointerReleasedCommand", "System.Windows.Input.ICommand");
-                xamlMember.SetIsDependencyProperty();
-                xamlMember.Getter = get_269_SourceGenChart_PointerReleasedCommand;
-                xamlMember.Setter = set_269_SourceGenChart_PointerReleasedCommand;
-                break;
-            case "LiveChartsGeneratedCode.SourceGenChart.AnimationsSpeed":
-                userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("LiveChartsGeneratedCode.SourceGenChart");
-                xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "AnimationsSpeed", "TimeSpan");
-                xamlMember.SetIsDependencyProperty();
-                xamlMember.Getter = get_270_SourceGenChart_AnimationsSpeed;
-                xamlMember.Setter = set_270_SourceGenChart_AnimationsSpeed;
-                break;
-            case "LiveChartsGeneratedCode.SourceGenChart.EasingFunction":
-                userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("LiveChartsGeneratedCode.SourceGenChart");
-                xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "EasingFunction", "System.Func`2<Single, Single>");
-                xamlMember.SetIsDependencyProperty();
-                xamlMember.Getter = get_271_SourceGenChart_EasingFunction;
-                xamlMember.Setter = set_271_SourceGenChart_EasingFunction;
-                break;
-            case "LiveChartsGeneratedCode.SourceGenChart.DrawMargin":
-                userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("LiveChartsGeneratedCode.SourceGenChart");
-                xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "DrawMargin", "LiveChartsCore.Measure.Margin");
-                xamlMember.SetIsDependencyProperty();
-                xamlMember.Getter = get_272_SourceGenChart_DrawMargin;
-                xamlMember.Setter = set_272_SourceGenChart_DrawMargin;
-                break;
-            case "LiveChartsGeneratedCode.SourceGenChart.TooltipPosition":
-                userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("LiveChartsGeneratedCode.SourceGenChart");
-                xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "TooltipPosition", "LiveChartsCore.Measure.TooltipPosition");
-                xamlMember.SetIsDependencyProperty();
-                xamlMember.Getter = get_273_SourceGenChart_TooltipPosition;
-                xamlMember.Setter = set_273_SourceGenChart_TooltipPosition;
-                break;
-            case "LiveChartsGeneratedCode.SourceGenChart.LegendTextPaint":
-                userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("LiveChartsGeneratedCode.SourceGenChart");
-                xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "LegendTextPaint", "LiveChartsCore.Painting.Paint");
-                xamlMember.SetIsDependencyProperty();
-                xamlMember.Getter = get_274_SourceGenChart_LegendTextPaint;
-                xamlMember.Setter = set_274_SourceGenChart_LegendTextPaint;
-                break;
-            case "LiveChartsGeneratedCode.SourceGenChart.LegendBackgroundPaint":
-                userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("LiveChartsGeneratedCode.SourceGenChart");
-                xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "LegendBackgroundPaint", "LiveChartsCore.Painting.Paint");
-                xamlMember.SetIsDependencyProperty();
-                xamlMember.Getter = get_275_SourceGenChart_LegendBackgroundPaint;
-                xamlMember.Setter = set_275_SourceGenChart_LegendBackgroundPaint;
-                break;
-            case "LiveChartsGeneratedCode.SourceGenChart.TooltipTextPaint":
-                userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("LiveChartsGeneratedCode.SourceGenChart");
-                xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "TooltipTextPaint", "LiveChartsCore.Painting.Paint");
-                xamlMember.SetIsDependencyProperty();
-                xamlMember.Getter = get_276_SourceGenChart_TooltipTextPaint;
-                xamlMember.Setter = set_276_SourceGenChart_TooltipTextPaint;
-                break;
-            case "LiveChartsGeneratedCode.SourceGenChart.TooltipBackgroundPaint":
-                userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("LiveChartsGeneratedCode.SourceGenChart");
-                xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "TooltipBackgroundPaint", "LiveChartsCore.Painting.Paint");
-                xamlMember.SetIsDependencyProperty();
-                xamlMember.Getter = get_277_SourceGenChart_TooltipBackgroundPaint;
-                xamlMember.Setter = set_277_SourceGenChart_TooltipBackgroundPaint;
-                break;
-            case "LiveChartsGeneratedCode.SourceGenChart.TooltipTextSize":
-                userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("LiveChartsGeneratedCode.SourceGenChart");
-                xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "TooltipTextSize", "Double");
-                xamlMember.SetIsDependencyProperty();
-                xamlMember.Getter = get_278_SourceGenChart_TooltipTextSize;
-                xamlMember.Setter = set_278_SourceGenChart_TooltipTextSize;
-                break;
-            case "LiveChartsGeneratedCode.SourceGenChart.SyncContext":
-                userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("LiveChartsGeneratedCode.SourceGenChart");
-                xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "SyncContext", "Object");
-                xamlMember.SetIsDependencyProperty();
-                xamlMember.Getter = get_279_SourceGenChart_SyncContext;
-                xamlMember.Setter = set_279_SourceGenChart_SyncContext;
-                break;
-            case "LiveChartsGeneratedCode.SourceGenChart.Title":
-                userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("LiveChartsGeneratedCode.SourceGenChart");
-                xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "Title", "LiveChartsCore.Kernel.IChartElement");
-                xamlMember.SetIsDependencyProperty();
-                xamlMember.Getter = get_280_SourceGenChart_Title;
-                xamlMember.Setter = set_280_SourceGenChart_Title;
-                break;
-            case "LiveChartsGeneratedCode.SourceGenChart.VisualElements":
-                userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("LiveChartsGeneratedCode.SourceGenChart");
-                xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "VisualElements", "System.Collections.Generic.IEnumerable`1<LiveChartsCore.Kernel.IChartElement>");
-                xamlMember.SetIsDependencyProperty();
-                xamlMember.Getter = get_281_SourceGenChart_VisualElements;
-                xamlMember.Setter = set_281_SourceGenChart_VisualElements;
-                break;
-            case "LiveChartsGeneratedCode.SourceGenChart.SeriesSource":
-                userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("LiveChartsGeneratedCode.SourceGenChart");
-                xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "SeriesSource", "System.Collections.Generic.IEnumerable`1<Object>");
-                xamlMember.SetIsDependencyProperty();
-                xamlMember.Getter = get_282_SourceGenChart_SeriesSource;
-                xamlMember.Setter = set_282_SourceGenChart_SeriesSource;
-                break;
-            case "LiveChartsGeneratedCode.SourceGenChart.SeriesTemplate":
-                userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("LiveChartsGeneratedCode.SourceGenChart");
-                xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "SeriesTemplate", "Microsoft.UI.Xaml.DataTemplate");
-                xamlMember.SetIsDependencyProperty();
-                xamlMember.Getter = get_283_SourceGenChart_SeriesTemplate;
-                xamlMember.Setter = set_283_SourceGenChart_SeriesTemplate;
+                xamlMember.Getter = get_283_SettingsPage_IsLocked;
+                xamlMember.Setter = set_283_SettingsPage_IsLocked;
                 break;
             case "AIM.Views.StatsPage.ViewModel":
                 userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("AIM.Views.StatsPage");

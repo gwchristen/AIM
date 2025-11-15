@@ -6,75 +6,166 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:converters="using:AIM.Converters"
     xmlns:models="using:AIM.Models"
-    xmlns:sys="using:System" 
+    xmlns:lvc="using:LiveChartsCore.SkiaSharpView.WinUI"
     mc:Ignorable="d"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
-
-    <!-- The <Page.DataContext> block has been REMOVED. It is set in the .xaml.cs file. -->
 
     <Page.Resources>
         <converters:CollectionToVisibilityConverter x:Key="CollectionToVisibilityConverter"/>
     </Page.Resources>
 
     <Grid Margin="24">
-        <StackPanel Spacing="12">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <StackPanel Grid.Row="0" Spacing="12">
             <TextBlock Text="Directory Analysis" Style="{StaticResource TitleTextBlockStyle}"/>
             <TextBlock Text="Select a directory to view file count/size statistics and scan for file anomalies." TextWrapping="Wrap"/>
 
             <StackPanel Orientation="Horizontal" Spacing="8">
-                <TextBox Text="{Binding AnalysisDirectory, Mode=OneWay}" IsReadOnly="True" PlaceholderText="Select a directory to analyze..." MinWidth="300"/>
-                <Button Content="Browse..." Command="{Binding SelectAnalysisDirectoryCommand}"/>
+                <TextBox Text="{x:Bind ViewModel.AnalysisDirectory, Mode=OneWay}" IsReadOnly="True" PlaceholderText="Select a directory to analyze..." MinWidth="300"/>
+                <Button Content="Browse..." Command="{x:Bind ViewModel.SelectAnalysisDirectoryCommand}"/>
             </StackPanel>
 
-            <Grid Margin="0,20,0,0" ColumnSpacing="24">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="*"/>
-                </Grid.ColumnDefinitions>
-
-                <!-- Left Column: Stats -->
-                <StackPanel Grid.Column="0" Spacing="10" Visibility="{Binding OpCoStats, Converter={StaticResource CollectionToVisibilityConverter}}">
-                    <TextBlock Text="Directory Stats" Style="{StaticResource SubtitleTextBlockStyle}"/>
-                    <ListView ItemsSource="{Binding OpCoStats}">
-                        <ListView.ItemTemplate>
-                            <DataTemplate x:DataType="models:OpCoStatItem">
-                                <Grid ColumnSpacing="16">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="Auto"/>
-                                        <ColumnDefinition Width="Auto"/>
-                                    </Grid.ColumnDefinitions>
-                                    <TextBlock Grid.Column="0" Text="{x:Bind OpCoName}" FontWeight="SemiBold"/>
-                                    <!-- CORRECTED x:Bind syntax -->
-                                    <TextBlock Grid.Column="1" Text="{x:Bind sys:String.Format('{0} files', FileCount)}" HorizontalAlignment="Right"/>
-                                    <TextBlock Grid.Column="2" Text="{x:Bind sys:String.Format('{0:N0} devices', DeviceCount)}" HorizontalAlignment="Right"/>
-                                </Grid>
-                            </DataTemplate>
-                        </ListView.ItemTemplate>
-                    </ListView>
+            <StackPanel Orientation="Horizontal" Spacing="20" Margin="0,10,0,0">
+                <StackPanel Orientation="Horizontal" Spacing="10">
+                    <TextBlock Text="Target # of Devices (Ohio):" VerticalAlignment="Center"/>
+                    <TextBox Text="{x:Bind ViewModel.TargetDevicesOhio, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="100"/>
                 </StackPanel>
-
-                <!-- Right Column: Anomalies -->
-                <StackPanel Grid.Column="1" Spacing="10">
-                    <!-- This visibility needs to be set up differently to work for multiple collections -->
-                    <StackPanel.Visibility>
-                        <Binding Path="MisplacedOhFiles.Count" Converter="{StaticResource CollectionToVisibilityConverter}">
-                            <Binding.FallbackValue>Collapsed</Binding.FallbackValue>
-                        </Binding>
-                    </StackPanel.Visibility>
-
-                    <TextBlock Text="File Anomalies" Style="{StaticResource SubtitleTextBlockStyle}"/>
-
-                    <TextBlock Text="Misplaced 'OH' Files" Style="{StaticResource CaptionTextBlockStyle}" Visibility="{Binding MisplacedOhFiles, Converter={StaticResource CollectionToVisibilityConverter}}"/>
-                    <ListView ItemsSource="{Binding MisplacedOhFiles}" MaxHeight="150"/>
-
-                    <TextBlock Text="Misplaced 'IM' Files" Style="{StaticResource CaptionTextBlockStyle}" Margin="0,10,0,0" Visibility="{Binding MisplacedImFiles, Converter={StaticResource CollectionToVisibilityConverter}}"/>
-                    <ListView ItemsSource="{Binding MisplacedImFiles}" MaxHeight="150"/>
-
-                    <TextBlock Text="Unidentified Files" Style="{StaticResource CaptionTextBlockStyle}" Margin="0,10,0,0" Visibility="{Binding UnidentifiedFiles, Converter={StaticResource CollectionToVisibilityConverter}}"/>
-                    <ListView ItemsSource="{Binding UnidentifiedFiles}" MaxHeight="150"/>
+                <StackPanel Orientation="Horizontal" Spacing="10">
+                    <TextBlock Text="Target # of Devices (I&amp;M):" VerticalAlignment="Center"/>
+                    <TextBox Text="{x:Bind ViewModel.TargetDevicesIm, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="100"/>
                 </StackPanel>
-            </Grid>
+            </StackPanel>
         </StackPanel>
+
+        <ScrollViewer Grid.Row="1" Margin="0,20,0,0">
+            <StackPanel>
+                <Grid Margin="0,0,0,20">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <StackPanel Grid.Column="0" Spacing="10" Margin="0,0,12,0">
+                        <TextBlock Text="Ohio" Style="{ThemeResource SubtitleTextBlockStyle}"/>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+
+                            <TextBlock Grid.Row="0" Grid.Column="0" Text="File Count:" Margin="0,0,10,0"/>
+                            <TextBlock Grid.Row="0" Grid.Column="1" Text="{x:Bind ViewModel.OhioFileCount, Mode=OneWay}"/>
+
+                            <TextBlock Grid.Row="1" Grid.Column="0" Text="Devices (Lines):" Margin="0,0,10,0"/>
+                            <TextBlock Grid.Row="1" Grid.Column="1" Text="{x:Bind ViewModel.OhioDeviceCount, Mode=OneWay}"/>
+
+                            <TextBlock Grid.Row="2" Grid.Column="0" Text="Difference:" Margin="0,0,10,0"/>
+                            <TextBlock Grid.Row="2" Grid.Column="1" Text="{x:Bind ViewModel.OhioDifference, Mode=OneWay}"/>
+
+                            <TextBlock Grid.Row="3" Grid.Column="0" Text="Percentage:" Margin="0,0,10,0"/>
+                            <StackPanel Grid.Row="3" Grid.Column="1" Orientation="Horizontal">
+                                <TextBlock>
+                                    <Run Text="{x:Bind ViewModel.OhioPercentage, Mode=OneWay, Converter={StaticResource PercentageConverter}}"/>
+                                </TextBlock>
+                                <TextBlock Text="%"/>
+                            </StackPanel>
+                        </Grid>
+
+                        <lvc:PieChart
+                            Series="{x:Bind ViewModel.OhioGaugeSeries, Mode=OneWay}"
+                            Width="200" 
+                            Height="200"
+                            LegendPosition="Hidden"/>
+                    </StackPanel>
+
+                    <StackPanel Grid.Column="1" Spacing="10" Margin="12,0,0,0">
+                        <TextBlock Text="I&amp;M" Style="{ThemeResource SubtitleTextBlockStyle}"/>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+
+                            <TextBlock Grid.Row="0" Grid.Column="0" Text="File Count:" Margin="0,0,10,0"/>
+                            <TextBlock Grid.Row="0" Grid.Column="1" Text="{x:Bind ViewModel.ImFileCount, Mode=OneWay}"/>
+
+                            <TextBlock Grid.Row="1" Grid.Column="0" Text="Devices (Lines):" Margin="0,0,10,0"/>
+                            <TextBlock Grid.Row="1" Grid.Column="1" Text="{x:Bind ViewModel.ImDeviceCount, Mode=OneWay}"/>
+
+                            <TextBlock Grid.Row="2" Grid.Column="0" Text="Difference:" Margin="0,0,10,0"/>
+                            <TextBlock Grid.Row="2" Grid.Column="1" Text="{x:Bind ViewModel.IMDifference, Mode=OneWay}"/>
+
+                            <TextBlock Grid.Row="3" Grid.Column="0" Text="Percentage:" Margin="0,0,10,0"/>
+                            <StackPanel Grid.Row="3" Grid.Column="1" Orientation="Horizontal">
+                                <TextBlock>
+                                    <Run Text="{x:Bind ViewModel.IMPercentage, Mode=OneWay, Converter={StaticResource PercentageConverter}}"/>
+                                </TextBlock>
+                                <TextBlock Text="%"/>
+                            </StackPanel>
+                        </Grid>
+
+                        <lvc:PieChart
+                            Series="{x:Bind ViewModel.ImGaugeSeries, Mode=OneWay}"
+                            Width="200" 
+                            Height="200"
+                            LegendPosition="Hidden"/>
+                    </StackPanel>
+                </Grid>
+
+                <Grid Margin="0,20,0,0" ColumnSpacing="24">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <StackPanel Grid.Column="0" Spacing="10" Visibility="{x:Bind ViewModel.OpCoStats, Converter={StaticResource CollectionToVisibilityConverter}, Mode=OneWay}">
+                        <TextBlock Text="Directory Stats" Style="{StaticResource SubtitleTextBlockStyle}"/>
+                        <ListView ItemsSource="{x:Bind ViewModel.OpCoStats, Mode=OneWay}">
+                            <ListView.ItemTemplate>
+                                <DataTemplate x:DataType="models:OpCoStatItem">
+                                    <Grid ColumnSpacing="16">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Grid.Column="0" Text="{x:Bind OpCoName}" FontWeight="SemiBold"/>
+                                        <TextBlock Grid.Column="1" HorizontalAlignment="Right"><Run Text="{x:Bind FileCount, Mode=OneWay}"/> files</TextBlock>
+                                        <TextBlock Grid.Column="2" HorizontalAlignment="Right"><Run Text="{x:Bind DeviceCount, Mode=OneWay}"/> devices</TextBlock>
+                                    </Grid>
+                                </DataTemplate>
+                            </ListView.ItemTemplate>
+                        </ListView>
+                    </StackPanel>
+
+                    <StackPanel Grid.Column="1" Spacing="10">
+                        <TextBlock Text="File Anomalies" Style="{StaticResource SubtitleTextBlockStyle}" Visibility="{x:Bind ViewModel.MisplacedOhFiles.Count, Converter={StaticResource CollectionToVisibilityConverter}, Mode=OneWay}"/>
+                        <ListView ItemsSource="{x:Bind ViewModel.MisplacedOhFiles, Mode=OneWay}" MaxHeight="150" Visibility="{x:Bind ViewModel.MisplacedOhFiles, Converter={StaticResource CollectionToVisibilityConverter}, Mode=OneWay}"/>
+
+                        <TextBlock Text="Misplaced 'IM' Files" Style="{StaticResource CaptionTextBlockStyle}" Margin="0,10,0,0" Visibility="{x:Bind ViewModel.MisplacedImFiles, Converter={StaticResource CollectionToVisibilityConverter}, Mode=OneWay}"/>
+                        <ListView ItemsSource="{x:Bind ViewModel.MisplacedImFiles, Mode=OneWay}" MaxHeight="150" Visibility="{x:Bind ViewModel.MisplacedImFiles, Converter={StaticResource CollectionToVisibilityConverter}, Mode=OneWay}"/>
+
+                        <TextBlock Text="Unidentified Files" Style="{StaticResource CaptionTextBlockStyle}" Margin="0,10,0,0" Visibility="{x:Bind ViewModel.UnidentifiedFiles, Converter={StaticResource CollectionToVisibilityConverter}, Mode=OneWay}"/>
+                        <ListView ItemsSource="{x:Bind ViewModel.UnidentifiedFiles, Mode=OneWay}" MaxHeight="150" Visibility="{x:Bind ViewModel.UnidentifiedFiles, Converter={StaticResource CollectionToVisibilityConverter}, Mode=OneWay}"/>
+                    </StackPanel>
+                </Grid>
+            </StackPanel>
+        </ScrollViewer>
     </Grid>
 </Page>
