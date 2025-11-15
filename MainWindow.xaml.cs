@@ -17,7 +17,6 @@ public sealed partial class MainWindow : Window
     {
         this.InitializeComponent();
         _navigationService = Ioc.Default.GetRequiredService<INavigationService>();
-
         _navigationService.Initialize(ContentFrame);
     }
 
@@ -33,7 +32,6 @@ public sealed partial class MainWindow : Window
 
     private void NavView_ItemInvoked(NavigationView sender, NavigationViewItemInvokedEventArgs args)
     {
-        // THE FIX: Add navigation logic for the settings page.
         if (args.IsSettingsInvoked)
         {
             _navigationService.NavigateTo(typeof(SettingsPage));
@@ -53,10 +51,11 @@ public sealed partial class MainWindow : Window
             "Preview" => typeof(PreviewPage),
             "Search" => typeof(SearchPage),
             "Scans" => typeof(ScansPage),
-            "Stats" => typeof(StatsPage),
-            "InventoryArchive" => typeof(InventoryArchivePage),
+            "InventoryAdminTools" => typeof(InventoryAdminToolsPage),
             "InventoryViewer" => typeof(InventoryViewerPage),
-            "InventoryAdmin" => typeof(InventoryAdminPage),
+            "DirAnalysis" => typeof(DirAnalysisPage),
+            "PaperworkForms" => typeof(FormGeneratorPage),
+            "Stats" => typeof(StatsPage),
             _ => null
         };
 

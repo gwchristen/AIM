@@ -1,8 +1,6 @@
 using AIM.Models;
-using AIM.Services;
 using AIM.ViewModels;
 using CommunityToolkit.Mvvm.DependencyInjection;
-using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Navigation;
 
@@ -14,24 +12,17 @@ public sealed partial class PrintableFormPage : Page
 
     public PrintableFormPage()
     {
-        // THE FIX: Use Ioc.Default to get the ViewModel, matching the app's architecture.
-        ViewModel = Ioc.Default.GetRequiredService<PrintableFormViewModel>();
         this.InitializeComponent();
+        // Get the ViewModel from the DI container and set it as the DataContext
+        ViewModel = Ioc.Default.GetRequiredService<PrintableFormViewModel>();
+        this.DataContext = ViewModel;
     }
 
+    // This method is called by the NavigationService when the page is navigated to.
     protected override void OnNavigatedTo(NavigationEventArgs e)
     {
         base.OnNavigatedTo(e);
-        if (e.Parameter is PrintableForm formData)
-        {
-            ViewModel.FormData = formData;
-        }
-    }
-
-    private async void PrintButton_Click(object sender, RoutedEventArgs e)
-    {
-        // THE FIX: Use Ioc.Default to get the PrintService.
-        var printService = Ioc.Default.GetRequiredService<IPrintService>();
-        await printService.PrintAsync(PrintableContent, "AIM Inventory Form");
+        // Pass the navigation parameter (the form data) to the ViewModel.
+        ViewModel.OnNavigatedTo(e.Parameter);
     }
 }

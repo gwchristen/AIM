@@ -39,12 +39,9 @@ public partial class App : Application
         services.AddSingleton<IDialogService, DialogService>();
         services.AddSingleton<IInfoBarService, InfoBarService>();
         services.AddSingleton<ISearchService, SearchService>();
-        // THE FIX: Register the new DirectoryOperationService
         services.AddSingleton<DirectoryOperationService>();
-        services.AddSingleton<IMessenger>(WeakReferenceMessenger.Default); // Add Messenger
-        services.AddSingleton<IPrintService, PrintService>(); // Register PrintService
-
-
+        services.AddSingleton<IMessenger>(WeakReferenceMessenger.Default);
+        services.AddSingleton<IPrintService, PrintService>();
 
         // ViewModels
         services.AddTransient<MainViewModel>();
@@ -53,11 +50,16 @@ public partial class App : Application
         services.AddTransient<SearchViewModel>();
         services.AddTransient<ScansViewModel>();
         services.AddTransient<StatsViewModel>();
-        services.AddTransient<InventoryArchiveViewModel>();
+        services.AddTransient<InventoryArchiveViewModel>(); // Reused for Dir Archiver
         services.AddTransient<InventoryViewerViewModel>();
         services.AddTransient<InventoryAdminViewModel>();
         services.AddTransient<SettingsViewModel>();
         services.AddTransient<PrintableFormViewModel>();
+        // NEW ViewModels
+        services.AddTransient<DirClonerViewModel>();
+        services.AddTransient<BatchRenamerViewModel>();
+        services.AddTransient<DirAnalysisViewModel>();
+        services.AddTransient<FormGeneratorViewModel>(); // ADD THIS
 
 
         // Pages
@@ -66,11 +68,15 @@ public partial class App : Application
         services.AddTransient<SearchPage>();
         services.AddTransient<ScansPage>();
         services.AddTransient<StatsPage>();
-        services.AddTransient<InventoryArchivePage>();
+        services.AddTransient<InventoryArchivePage>(); // This will become a UserControl view
         services.AddTransient<InventoryViewerPage>();
-        services.AddTransient<InventoryAdminPage>();
+        // REMOVED: services.AddTransient<InventoryAdminPage>();
         services.AddTransient<SettingsPage>();
         services.AddTransient<PrintableFormPage>();
+        // NEW Pages
+        services.AddTransient<InventoryAdminToolsPage>();
+        services.AddTransient<DirAnalysisPage>();
+        services.AddTransient<FormGeneratorPage>(); // ADD THIS
 
 
         return services.BuildServiceProvider();

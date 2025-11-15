@@ -1,0 +1,102 @@
+﻿<Window
+    x:Class="AIM.MainWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    Title="AIM">
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <InfoBar x:ConnectionId='2'
+            x:Name="AppInfoBar"
+            Grid.Row="0"
+            IsOpen="False"
+            HorizontalAlignment="Stretch"
+            Margin="4,4,4,0"/>
+
+        <NavigationView x:ConnectionId='3' 
+            x:Name="NavView"
+            Grid.Row="1"
+                                   
+                                             
+            IsBackButtonVisible="Collapsed"
+            OpenPaneLength="200">
+
+            <NavigationView.MenuItems>
+                <NavigationViewItem Content="Refresh Tree" Tag="RefreshTree">
+                    <NavigationViewItem.Icon>
+                        <FontIcon Glyph="&#xE72C;"/>
+                    </NavigationViewItem.Icon>
+                </NavigationViewItem>
+
+                <NavigationViewItemSeparator/>
+
+                <NavigationViewItem Content="Browse" Tag="Browse" IsSelected="True">
+                    <NavigationViewItem.Icon>
+                        <FontIcon Glyph="&#xE8F1;"/>
+                    </NavigationViewItem.Icon>
+                </NavigationViewItem>
+                <NavigationViewItem Content="Preview" Tag="Preview">
+                    <NavigationViewItem.Icon>
+                        <FontIcon Glyph="&#xE8FF;"/>
+                    </NavigationViewItem.Icon>
+                </NavigationViewItem>
+                <NavigationViewItem Content="Search" Tag="Search">
+                    <NavigationViewItem.Icon>
+                        <FontIcon Glyph="&#xE721;"/>
+                    </NavigationViewItem.Icon>
+                </NavigationViewItem>
+                <NavigationViewItem Content="Scans" Tag="Scans">
+                    <NavigationViewItem.Icon>
+                        <FontIcon Glyph="&#xE7C1;"/>
+                    </NavigationViewItem.Icon>
+                </NavigationViewItem>
+
+                <NavigationViewItem Content="Inventory">
+                    <NavigationViewItem.Icon>
+                        <FontIcon Glyph="&#xE8B7;"/>
+                    </NavigationViewItem.Icon>
+                    <NavigationViewItem.MenuItems>
+                        <NavigationViewItem Content="Admin Tools" Tag="InventoryAdminTools">
+                            <NavigationViewItem.Icon>
+                                <FontIcon Glyph="&#xE90F;"/>
+                            </NavigationViewItem.Icon>
+                        </NavigationViewItem>
+                        <NavigationViewItem Content="Arch Viewer" Tag="InventoryViewer">
+                            <NavigationViewItem.Icon>
+                                <FontIcon Glyph="&#xE773;"/>
+                            </NavigationViewItem.Icon>
+                        </NavigationViewItem>
+                        <NavigationViewItem Content="Dir Analysis" Tag="DirAnalysis">
+                            <NavigationViewItem.Icon>
+                                <FontIcon Glyph="&#xEBE8;"/>
+                            </NavigationViewItem.Icon>
+                        </NavigationViewItem>
+                    </NavigationViewItem.MenuItems>
+                </NavigationViewItem>
+
+                <NavigationViewItem Content="Paperwork Forms" Tag="PaperworkForms">
+                    <NavigationViewItem.Icon>
+                        <FontIcon Glyph="&#xE737;"/>
+                    </NavigationViewItem.Icon>
+                </NavigationViewItem>
+
+                <NavigationViewItem Content="Stats" Tag="Stats">
+                    <NavigationViewItem.Icon>
+                        <FontIcon Glyph="&#xE9D9;"/>
+                    </NavigationViewItem.Icon>
+                </NavigationViewItem>
+            </NavigationView.MenuItems>
+
+            <Frame x:ConnectionId='4' x:Name="ContentFrame"/>
+
+        </NavigationView>
+    </Grid>
+</Window>
+

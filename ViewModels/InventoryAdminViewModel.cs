@@ -3,6 +3,7 @@ using AIM.Services;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
@@ -17,39 +18,28 @@ public partial class InventoryAdminViewModel : ObservableObject
     private readonly DirectoryOperationService _directoryOperationService;
     private readonly INavigationService _navigationService;
 
-    // --- Properties for Copy Structure (CORRECTED) ---
     [ObservableProperty]
-    [NotifyCanExecuteChangedFor(nameof(CreateStructureCommand))] // THE FIX
+    [NotifyCanExecuteChangedFor(nameof(CreateStructureCommand))]
     private string? _sourceDirectory;
 
     [ObservableProperty]
-    [NotifyCanExecuteChangedFor(nameof(CreateStructureCommand))] // THE FIX
+    [NotifyCanExecuteChangedFor(nameof(CreateStructureCommand))]
     private string? _destinationDirectory;
 
-    private bool CanCreateStructure() => !string.IsNullOrEmpty(SourceDirectory) && !string.IsNullOrEmpty(DestinationDirectory);
-
-    // --- Properties for Form Generation ---
     [ObservableProperty]
-    [NotifyCanExecuteChangedFor(nameof(GenerateFormCommand))] // Proactive fix for the next button
+    [NotifyCanExecuteChangedFor(nameof(GenerateFormCommand))]
     private string? _formDirectory;
 
-    private bool CanGenerateForm() => !string.IsNullOrEmpty(FormDirectory);
-
-    // --- Properties for Renaming ---
     [ObservableProperty]
     [NotifyCanExecuteChangedFor(nameof(RenameFilesCommand))]
     private string? _renameDirectory;
 
-    private bool CanRenameFiles() => !string.IsNullOrEmpty(RenameDirectory);
-
-    // --- Properties for Stats ---
     [ObservableProperty]
     private string? _statsDirectory;
 
     [ObservableProperty]
     private ObservableCollection<OpCoStatItem> _opCoStats;
 
-    // --- Properties for Anomaly Detection ---
     [ObservableProperty]
     private string? _anomalyDirectory;
 
@@ -62,7 +52,10 @@ public partial class InventoryAdminViewModel : ObservableObject
     [ObservableProperty]
     private ObservableCollection<string> _unidentifiedFiles;
 
-    // --- Constructor ---
+    private bool CanCreateStructure() => !string.IsNullOrEmpty(SourceDirectory) && !string.IsNullOrEmpty(DestinationDirectory);
+    private bool CanGenerateForm() => !string.IsNullOrEmpty(FormDirectory);
+    private bool CanRenameFiles() => !string.IsNullOrEmpty(RenameDirectory);
+
     public InventoryAdminViewModel(IDialogService dialogService, DirectoryOperationService directoryOperationService, INavigationService navigationService)
     {
         _dialogService = dialogService;
@@ -75,37 +68,15 @@ public partial class InventoryAdminViewModel : ObservableObject
         _unidentifiedFiles = new ObservableCollection<string>();
     }
 
-    // --- Change Handlers ---
-    partial void OnStatsDirectoryChanged(string? value)
-    {
-        if (!string.IsNullOrEmpty(value))
-        {
-            CalculateStatsCommand.Execute(null);
-        }
-        else
-        {
-            OpCoStats.Clear();
-        }
-    }
+    partial void OnStatsDirectoryChanged(string? value) { if (!string.IsNullOrEmpty(value)) CalculateStatsCommand.Execute(null); else OpCoStats.Clear(); }
+    partial void OnAnomalyDirectoryChanged(string? value) { if (!string.IsNullOrEmpty(value)) ScanForAnomaliesCommand.Execute(null); else ClearAnomalyResults(); }
 
-    partial void OnAnomalyDirectoryChanged(string? value)
-    {
-        if (!string.IsNullOrEmpty(value))
-        {
-            ScanForAnomaliesCommand.Execute(null);
-        }
-        else
-        {
-            ClearAnomalyResults();
-        }
-    }
-
-    // --- Commands ---
-    [RelayCommand]
-    private async Task SelectSourceAsync() => SourceDirectory = await PickFolderAsync();
-
-    [RelayCommand]
-    private async Task SelectDestinationAsync() => DestinationDirectory = await PickFolderAsync();
+    [RelayCommand] private async Task SelectSourceAsync() => SourceDirectory = await PickFolderAsync();
+    [RelayCommand] private async Task SelectDestinationAsync() => DestinationDirectory = await PickFolderAsync();
+    [RelayCommand] private async Task SelectFormDirectoryAsync() => FormDirectory = await PickFolderAsync();
+    [RelayCommand] private async Task SelectRenameDirectoryAsync() => RenameDirectory = await PickFolderAsync();
+    [RelayCommand] private async Task SelectStatsDirectoryAsync() => StatsDirectory = await PickFolderAsync();
+    [RelayCommand] private async Task SelectAnomalyDirectoryAsync() => AnomalyDirectory = await PickFolderAsync();
 
     [RelayCommand(CanExecute = nameof(CanCreateStructure))]
     private async Task CreateStructureAsync()
@@ -124,25 +95,38 @@ public partial class InventoryAdminViewModel : ObservableObject
         }
     }
 
-    [RelayCommand]
-    private async Task SelectFormDirectoryAsync() => FormDirectory = await PickFolderAsync();
-
     [RelayCommand(CanExecute = nameof(CanGenerateForm))]
     private async Task GenerateFormAsync()
     {
+        PrintableForm? formData = null;
         try
         {
-            var formData = await _directoryOperationService.GenerateFormDataAsync(FormDirectory!);
+            Task<PrintableForm> generationTask = _directoryOperationService.GenerateFormDataAsync(FormDirectory!);
+            await generationTask;
+
+            if (generationTask.IsCompletedSuccessfully)
+            {
+                formData = generationTask.Result;
+            }
+            else
+            {
+                var ex = generationTask.Exception ?? new Exception("The generation task failed without an exception.");
+                formData = new PrintableForm { Header = "Task Failed", Items = new List<PrintableFormItem> { new PrintableFormItem { Content = ex.ToString(), Type = RowType.Level3Header_C } } };
+            }
+
+            if (formData == null)
+            {
+                formData = new PrintableForm { Header = "Catastrophic Failure", Items = new List<PrintableFormItem> { new PrintableFormItem { Content = "The resulting form data was null even after the task completed.", Type = RowType.Level3Header_C } } };
+            }
+
             _navigationService.NavigateTo(typeof(Views.PrintableFormPage), formData);
         }
         catch (Exception ex)
         {
-            await _dialogService.ShowErrorDialogAsync("Form Generation Failed", $"Could not generate the form data.\nError: {ex.Message}");
+            var errorForm = new PrintableForm { Header = "Outer Catch Failure", Items = new List<PrintableFormItem> { new PrintableFormItem { Content = ex.ToString(), Type = RowType.Level3Header_C } } };
+            _navigationService.NavigateTo(typeof(Views.PrintableFormPage), errorForm);
         }
     }
-
-    [RelayCommand]
-    private async Task SelectRenameDirectoryAsync() => RenameDirectory = await PickFolderAsync();
 
     [RelayCommand(CanExecute = nameof(CanRenameFiles))]
     private async Task RenameFilesAsync()
@@ -171,9 +155,6 @@ public partial class InventoryAdminViewModel : ObservableObject
     }
 
     [RelayCommand]
-    private async Task SelectStatsDirectoryAsync() => StatsDirectory = await PickFolderAsync();
-
-    [RelayCommand]
     private async Task CalculateStatsAsync()
     {
         if (string.IsNullOrEmpty(StatsDirectory)) return;
@@ -188,9 +169,6 @@ public partial class InventoryAdminViewModel : ObservableObject
             await _dialogService.ShowErrorDialogAsync("Stats Calculation Failed", $"An error occurred.\nError: {ex.Message}");
         }
     }
-
-    [RelayCommand]
-    private async Task SelectAnomalyDirectoryAsync() => AnomalyDirectory = await PickFolderAsync();
 
     [RelayCommand]
     private async Task ScanForAnomaliesAsync()
@@ -210,7 +188,6 @@ public partial class InventoryAdminViewModel : ObservableObject
         }
     }
 
-    // --- Helper Methods ---
     private void ClearAnomalyResults()
     {
         MisplacedOhFiles.Clear();

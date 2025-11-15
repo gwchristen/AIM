@@ -1,0 +1,30 @@
+<Page
+    x:Class="AIM.Views.FormGeneratorPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+
+    <Grid Margin="24">
+        <StackPanel Spacing="12" MaxWidth="500">
+            <TextBlock Text="Paperwork Form Generator" Style="{StaticResource TitleTextBlockStyle}"/>
+            <TextBlock Text="Select a directory containing the inventory data to generate a printable summary form." TextWrapping="Wrap"/>
+
+            <TextBlock Text="Select Inventory Directory" Style="{StaticResource SubtitleTextBlockStyle}" Margin="0,20,0,0"/>
+            <StackPanel Orientation="Horizontal" Spacing="8">
+                <!-- The bindings here are to the FormGeneratorViewModel -->
+                <TextBox Text="{Binding FormDirectory, Mode=OneWay}" IsReadOnly="True" PlaceholderText="Select the inventory folder..." MinWidth="300"/>
+                <Button Content="Browse..." Command="{Binding SelectFormDirectoryCommand}"/>
+            </StackPanel>
+
+            <Button 
+                Content="Generate Printable Form" 
+                Command="{Binding GenerateFormCommand}" 
+                HorizontalAlignment="Left" 
+                Style="{StaticResource AccentButtonStyle}" 
+                Margin="0,20,0,0"/>
+        </StackPanel>
+    </Grid>
+</Page>

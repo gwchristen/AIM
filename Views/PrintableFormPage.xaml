@@ -5,96 +5,129 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:models="using:AIM.Models"
-    xmlns:viewmodels="using:AIM.ViewModels"
     xmlns:converters="using:AIM.Converters"
     mc:Ignorable="d"
-    d:DataContext="{d:DesignInstance Type=viewmodels:PrintableFormViewModel}"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
     <Page.Resources>
-        <!-- Your DataTemplates and TemplateSelector are required -->
-        <DataTemplate x:Key="Level3HeaderTemplate" x:DataType="models:FormRow">
-            <Grid BorderBrush="Black" BorderThickness="1,0,1,1" Background="#E2F0D9" MinHeight="35">
+        <converters:NullToVisibilityConverter x:Key="NullToVisibilityConverter"/>
+
+        <!-- The DataTemplate definitions are correct. -->
+        <DataTemplate x:Key="Level2HeaderTemplate" x:DataType="models:PrintableFormItem">
+            <Grid Background="#FFF3CD" BorderBrush="Black" BorderThickness="1,1,1,0">
+                <TextBlock Text="{x:Bind Content}" FontWeight="Bold" Margin="4" VerticalAlignment="Center" Foreground="Black"/>
+            </Grid>
+        </DataTemplate>
+
+        <DataTemplate x:Key="Level3aTemplate" x:DataType="models:PrintableFormItem">
+            <Grid BorderBrush="Black" BorderThickness="1,1,1,0">
                 <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Border Grid.Column="0" BorderBrush="Black" BorderThickness="0,0,1,0" Width="50"/>
+                <Grid Grid.Column="1" Background="#D4EDDA">
+                    <TextBlock Text="{x:Bind Content}" FontWeight="SemiBold" Margin="4" VerticalAlignment="Center" Foreground="Black"/>
+                </Grid>
+            </Grid>
+        </DataTemplate>
+
+        <DataTemplate x:Key="Level3bTemplate" x:DataType="models:PrintableFormItem">
+            <Grid BorderBrush="Black" BorderThickness="1,1,1,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Border Grid.Column="0" BorderBrush="Black" BorderThickness="0,0,1,0" Width="50"/>
+                <Grid Grid.Column="1" Background="#CCE5FF">
+                    <TextBlock Text="{x:Bind Content}" FontWeight="SemiBold" Margin="4" VerticalAlignment="Center" Foreground="Black"/>
+                </Grid>
+            </Grid>
+        </DataTemplate>
+
+        <DataTemplate x:Key="Level3cTemplate" x:DataType="models:PrintableFormItem">
+            <Grid BorderBrush="Black" BorderThickness="1,1,1,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Border Grid.Column="0" BorderBrush="Black" BorderThickness="0,0,1,0" Width="50"/>
+                <Grid Grid.Column="1" Background="#F8D7DA">
+                    <TextBlock Text="{x:Bind Content}" FontWeight="SemiBold" Margin="4" VerticalAlignment="Center" Foreground="Black"/>
+                </Grid>
+            </Grid>
+        </DataTemplate>
+
+        <DataTemplate x:Key="FileTemplate" x:DataType="models:PrintableFormItem">
+            <Grid BorderBrush="Black" BorderThickness="1,0,1,0" MinHeight="28">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="50"/>
                     <ColumnDefinition Width="150"/>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="100"/>
-                    <ColumnDefinition Width="100"/>
                 </Grid.ColumnDefinitions>
+                <TextBlock Grid.Column="2" Text="{x:Bind Content}" Margin="4" VerticalAlignment="Center" Foreground="Black"/>
                 <Border Grid.Column="0" BorderBrush="Black" BorderThickness="0,0,1,0"/>
-                <TextBlock Grid.Column="1" Text="{Binding Content}" FontWeight="SemiBold" Foreground="Black" Margin="8,4,8,4" VerticalAlignment="Center"/>
-                <Border Grid.Column="2" BorderBrush="Black" BorderThickness="1,0,1,0"/>
+                <Border Grid.Column="1" BorderBrush="Black" BorderThickness="0,0,1,0"/>
+                <Border Grid.Column="2" BorderBrush="Black" BorderThickness="0,0,1,0"/>
             </Grid>
         </DataTemplate>
-        <DataTemplate x:Key="FileTemplate" x:DataType="models:FormRow">
-            <Grid BorderBrush="Black" BorderThickness="1,0,1,1" MinHeight="35">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="150"/>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="100"/>
-                    <ColumnDefinition Width="100"/>
-                </Grid.ColumnDefinitions>
-                <Border Grid.Column="0" BorderBrush="Black" BorderThickness="0,0,1,0"/>
-                <TextBlock Grid.Column="1" Text="{Binding Content}" Foreground="Black" Margin="24,4,8,4" VerticalAlignment="Center" IsTextSelectionEnabled="True"/>
-                <Border Grid.Column="2" BorderBrush="Black" BorderThickness="1,0,1,0"/>
-            </Grid>
+
+        <DataTemplate x:Key="BlankTemplate">
+            <Grid MinHeight="28" BorderBrush="Black" BorderThickness="1,0,1,1"/>
         </DataTemplate>
-        <DataTemplate x:Key="BlankTemplate" x:DataType="models:FormRow">
-            <Grid BorderBrush="Black" BorderThickness="1,0,1,1" MinHeight="35">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="150"/>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="100"/>
-                    <ColumnDefinition Width="100"/>
-                </Grid.ColumnDefinitions>
-                <Border Grid.Column="0" BorderBrush="Black" BorderThickness="0,0,1,0"/>
-                <Border Grid.Column="2" BorderBrush="Black" BorderThickness="1,0,1,0"/>
-            </Grid>
-        </DataTemplate>
-        <converters:FormRowTemplateSelector x:Key="FormRowTemplateSelector"
-            Level3HeaderTemplate="{StaticResource Level3HeaderTemplate}"
+
+        <!-- THE FIX: The property names here MUST exactly match the C# properties. -->
+        <converters:FormRowTemplateSelector x:Key="RowTemplateSelector"
+            Level2HeaderTemplate="{StaticResource Level2HeaderTemplate}"
+            Level3Header_A_Template="{StaticResource Level3aTemplate}"
+            Level3Header_B_Template="{StaticResource Level3bTemplate}"
+            Level3Header_C_Template="{StaticResource Level3cTemplate}"
             FileTemplate="{StaticResource FileTemplate}"
             BlankTemplate="{StaticResource BlankTemplate}"/>
     </Page.Resources>
 
-    <Grid Margin="24">
+    <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <!-- This section contains the flawed button styles we are reverting to -->
-        <StackPanel Grid.Row="0" Orientation="Horizontal" Spacing="12" Margin="0,0,0,12">
-            <!-- This button was not visible in the broken state, so we use a simple command -->
-            <Button Command="{Binding GoBackCommand}" Content="Back"/>
-            <Button x:Name="PrintButton" Click="PrintButton_Click" Style="{ThemeResource AccentButtonStyle}" Content="Print"/>
-        </StackPanel>
+        <CommandBar Grid.Row="0" DefaultLabelPosition="Right">
+            <AppBarButton Icon="Back" Label="Back" Command="{Binding ViewModel.GoBackCommand}"/>
+            <AppBarSeparator/>
+            <AppBarButton Icon="Print" Label="Print" Command="{Binding ViewModel.PrintCommand}" CommandParameter="{Binding ElementName=PrintableArea}"/>
+        </CommandBar>
 
-        <ListView x:Name="PrintableContent" Grid.Row="1" ItemsSource="{Binding FormData.Pages}" Background="Transparent"
-                  SelectionMode="None" IsItemClickEnabled="False">
-            <ListView.ItemContainerStyle>
-                <Style TargetType="ListViewItem">
-                    <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
-                    <Setter Property="Padding" Value="0,0,0,24"/>
-                </Style>
-            </ListView.ItemContainerStyle>
-            <ListView.ItemTemplate>
-                <DataTemplate x:DataType="models:FormPage">
-                    <StackPanel Background="White" Padding="24" BorderBrush="Gray" BorderThickness="1">
-                        <!-- This Grid for the header is stable and correct -->
-                        <Grid Margin="0,0,0,12">
-                            <TextBlock Text="{Binding DataContext.FormData.OpCoHeader, ElementName=PrintableContent}" HorizontalAlignment="Center" Style="{ThemeResource HeaderTextBlockStyle}" Foreground="Black"/>
-                            <TextBlock Text="Initials: _______" HorizontalAlignment="Right" VerticalAlignment="Center" Style="{ThemeResource BodyTextBlockStyle}" Foreground="Black"/>
-                        </Grid>
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
+            <Grid x:Name="PrintableArea" Margin="24" Background="White" Visibility="{x:Bind ViewModel.FormData, Converter={StaticResource NullToVisibilityConverter}, Mode=OneWay}">
+                <StackPanel>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Text="{x:Bind ViewModel.FormData.Header, Mode=OneWay}" Style="{ThemeResource HeaderTextBlockStyle}" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="Black"/>
+                        <TextBlock Grid.Column="1" Text="Initials: ________" Style="{ThemeResource BodyTextBlockStyle}" VerticalAlignment="Center" Foreground="Black"/>
+                    </Grid>
 
-                        <Grid Background="#FFF3CF" BorderBrush="Black" BorderThickness="1,1,1,1" MinHeight="35">
-                            <TextBlock Text="{Binding PageHeader}" FontWeight="Bold" Foreground="Black" Margin="8,4,8,4" VerticalAlignment="Center"/>
-                        </Grid>
-
-                        <ItemsControl ItemsSource="{Binding Rows}" ItemTemplateSelector="{StaticResource FormRowTemplateSelector}"/>
-                    </StackPanel>
-                </DataTemplate>
-            </ListView.ItemTemplate>
-        </ListView>
+                    <ListView ItemsSource="{x:Bind ViewModel.FormData.Items, Mode=OneWay}"
+                              ItemTemplateSelector="{StaticResource RowTemplateSelector}"
+                              SelectionMode="None"
+                              BorderBrush="Black"
+                              BorderThickness="1"
+                              Margin="0,20,0,0">
+                        <ListView.ItemContainerStyle>
+                            <Style TargetType="ListViewItem">
+                                <Setter Property="Padding" Value="0"/>
+                                <Setter Property="Margin" Value="0"/>
+                                <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                                <Setter Property="VerticalContentAlignment" Value="Stretch"/>
+                            </Style>
+                        </ListView.ItemContainerStyle>
+                    </ListView>
+                </StackPanel>
+            </Grid>
+        </ScrollViewer>
     </Grid>
 </Page>

@@ -14,7 +14,14 @@
 	<WindowsAppSDKSelfContained>true</WindowsAppSDKSelfContained>
   </PropertyGroup>
   <ItemGroup>
+    <None Remove="MainWindow.xaml" />
+    <None Remove="Views\AdminTools\BatchRenamerView.xaml" />
+    <None Remove="Views\AdminTools\DirAnalysisPage.xaml" />
+    <None Remove="Views\AdminTools\DirArchiverView.xaml" />
+    <None Remove="Views\AdminTools\DirClonerView.xaml" />
+    <None Remove="Views\AdminTools\InventoryAdminToolsPage.xaml" />
     <None Remove="Views\BrowsePage.xaml" />
+    <None Remove="Views\FormGeneratorPage.xaml" />
     <None Remove="Views\InventoryAdminPage.xaml" />
     <None Remove="Views\InventoryArchivePage.xaml" />
     <None Remove="Views\InventoryViewerPage.xaml" />
@@ -67,6 +74,36 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Helpers\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Page Update="Views\FormGeneratorPage.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <Page Update="Views\AdminTools\DirAnalysisPage.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <Page Update="Views\AdminTools\BatchRenamerView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <Page Update="Views\AdminTools\DirClonerView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <Page Update="Views\AdminTools\DirArchiverView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <Page Update="Views\AdminTools\InventoryAdminToolsPage.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
   <ItemGroup>
     <Page Update="Views\PrintableFormPage.xaml">

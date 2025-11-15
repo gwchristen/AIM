@@ -1,0 +1,28 @@
+<UserControl
+    x:Class="AIM.Views.AdminTools.DirClonerView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d">
+    <!-- The DataContext is now set in the code-behind -->
+
+    <StackPanel Spacing="12">
+        <TextBlock Text="Directory Cloner" Style="{StaticResource TitleTextBlockStyle}"/>
+        <TextBlock Text="Copies the folder structure from a source directory to a new folder in the destination, without copying any files." TextWrapping="Wrap"/>
+
+        <TextBlock Text="1. Select Source Directory" Style="{StaticResource SubtitleTextBlockStyle}" Margin="0,10,0,0"/>
+        <StackPanel Orientation="Horizontal" Spacing="8">
+            <TextBox Text="{Binding SourceDirectory, Mode=OneWay}" IsReadOnly="True" PlaceholderText="Select the source folder..." MinWidth="300"/>
+            <Button Content="Browse..." Command="{Binding SelectSourceCommand}"/>
+        </StackPanel>
+
+        <TextBlock Text="2. Select Destination" Style="{StaticResource SubtitleTextBlockStyle}" Margin="0,10,0,0"/>
+        <StackPanel Orientation="Horizontal" Spacing="8">
+            <TextBox Text="{Binding DestinationDirectory, Mode=OneWay}" IsReadOnly="True" PlaceholderText="Select the destination folder..." MinWidth="300"/>
+            <Button Content="Browse..." Command="{Binding SelectDestinationCommand}"/>
+        </StackPanel>
+
+        <Button Content="Clone Directory Structure" Command="{Binding CreateStructureCommand}" HorizontalAlignment="Left" Style="{StaticResource AccentButtonStyle}" Margin="0,20,0,0"/>
+    </StackPanel>
+</UserControl>

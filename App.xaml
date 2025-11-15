@@ -21,6 +21,8 @@
             <converters:BoolToTextWrappingConverter x:Key="BoolToTextWrappingConverter" />
             <converters:BoolToSymbolConverter x:Key="BoolToSymbolConverter" />
             <converters:BoolNegationConverter x:Key="BoolNegationConverter" />
+            <converters:CollectionToVisibilityConverter x:Key="CollectionToVisibilityConverter" />
+            <converters:NullToVisibilityConverter x:Key="NullToVisibilityConverter" />
 
             <Style TargetType="RadioButton" x:Key="TileRadioButton">
                 <Setter Property="Background" Value="Transparent"/>
