@@ -3,12 +3,20 @@
   "WorkspaceRootPath": "C:\\Users\\Pirate\\source\\repos\\AIM\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{4D4877E1-9EE6-48A1-9CC8-DDBB06D18AA5}|AIM.csproj|c:\\users\\pirate\\source\\repos\\aim\\viewmodels\\diranalysisviewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{4D4877E1-9EE6-48A1-9CC8-DDBB06D18AA5}|AIM.csproj|solutionrelative:viewmodels\\diranalysisviewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{4D4877E1-9EE6-48A1-9CC8-DDBB06D18AA5}|AIM.csproj|c:\\users\\pirate\\source\\repos\\aim\\converters\\progresscolorconverter.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{4D4877E1-9EE6-48A1-9CC8-DDBB06D18AA5}|AIM.csproj|solutionrelative:converters\\progresscolorconverter.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{4D4877E1-9EE6-48A1-9CC8-DDBB06D18AA5}|AIM.csproj|c:\\users\\pirate\\source\\repos\\aim\\views\\diranalysispage.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}",
       "RelativeMoniker": "D:0:0:{4D4877E1-9EE6-48A1-9CC8-DDBB06D18AA5}|AIM.csproj|solutionrelative:views\\diranalysispage.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{4D4877E1-9EE6-48A1-9CC8-DDBB06D18AA5}|AIM.csproj|c:\\users\\pirate\\source\\repos\\aim\\viewmodels\\diranalysisviewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{4D4877E1-9EE6-48A1-9CC8-DDBB06D18AA5}|AIM.csproj|solutionrelative:viewmodels\\diranalysisviewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{4D4877E1-9EE6-48A1-9CC8-DDBB06D18AA5}|AIM.csproj|c:\\users\\pirate\\source\\repos\\aim\\models\\fileanomalyitem.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{4D4877E1-9EE6-48A1-9CC8-DDBB06D18AA5}|AIM.csproj|solutionrelative:models\\fileanomalyitem.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
   "DocumentGroupContainers": [
@@ -35,15 +43,39 @@
             {
               "$type": "Document",
               "DocumentIndex": 0,
+              "Title": "ProgressColorConverter.cs",
+              "DocumentMoniker": "C:\\Users\\Pirate\\source\\repos\\AIM\\Converters\\ProgressColorConverter.cs",
+              "RelativeDocumentMoniker": "Converters\\ProgressColorConverter.cs",
+              "ToolTip": "C:\\Users\\Pirate\\source\\repos\\AIM\\Converters\\ProgressColorConverter.cs",
+              "RelativeToolTip": "Converters\\ProgressColorConverter.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABwAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-11-15T22:52:37.266Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "FileAnomalyItem.cs",
+              "DocumentMoniker": "C:\\Users\\Pirate\\source\\repos\\AIM\\Models\\FileAnomalyItem.cs",
+              "RelativeDocumentMoniker": "Models\\FileAnomalyItem.cs",
+              "ToolTip": "C:\\Users\\Pirate\\source\\repos\\AIM\\Models\\FileAnomalyItem.cs",
+              "RelativeToolTip": "Models\\FileAnomalyItem.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAcAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-11-15T22:06:18.037Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
               "Title": "DirAnalysisViewModel.cs",
               "DocumentMoniker": "C:\\Users\\Pirate\\source\\repos\\AIM\\ViewModels\\DirAnalysisViewModel.cs",
               "RelativeDocumentMoniker": "ViewModels\\DirAnalysisViewModel.cs",
               "ToolTip": "C:\\Users\\Pirate\\source\\repos\\AIM\\ViewModels\\DirAnalysisViewModel.cs",
               "RelativeToolTip": "ViewModels\\DirAnalysisViewModel.cs",
-              "ViewState": "AgIAANMAAAAAAAAAAAAowOwAAABCAAAAAAAAAA==",
+              "ViewState": "AgIAAJoBAAAAAAAAAAAuwLQBAAApAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-11-15T21:28:38.115Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-11-15T21:28:38.115Z"
             },
             {
               "$type": "Document",
@@ -53,7 +85,7 @@
               "RelativeDocumentMoniker": "Views\\DirAnalysisPage.xaml",
               "ToolTip": "C:\\Users\\Pirate\\source\\repos\\AIM\\Views\\DirAnalysisPage.xaml",
               "RelativeToolTip": "Views\\DirAnalysisPage.xaml",
-              "ViewState": "AgIAAIMAAAAAAAAAAAAowKoAAAAHAAAAAAAAAA==",
+              "ViewState": "AgIAAM0AAAAAAAAAAAAowPQAAAAHAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003549|",
               "WhenOpened": "2025-11-15T21:25:27.226Z",
               "EditorCaption": ""

@@ -23,6 +23,7 @@
             <converters:BoolNegationConverter x:Key="BoolNegationConverter" />
             <converters:CollectionToVisibilityConverter x:Key="CollectionToVisibilityConverter" />
             <converters:NullToVisibilityConverter x:Key="NullToVisibilityConverter" />
+            <converters:ProgressColorConverter x:Key="ProgressColorConverter"/>
 
             <Style TargetType="RadioButton" x:Key="TileRadioButton">
                 <Setter Property="Background" Value="Transparent"/>

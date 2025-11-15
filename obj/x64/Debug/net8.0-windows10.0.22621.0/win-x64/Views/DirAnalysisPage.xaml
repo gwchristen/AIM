@@ -1,4 +1,4 @@
-﻿<Page x:ConnectionId='1'
+﻿<Page
     x:Class="AIM.Views.DirAnalysisPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -12,6 +12,7 @@
 
     <Page.Resources>
         <converters:CollectionToVisibilityConverter x:Key="CollectionToVisibilityConverter"/>
+        <converters:ProgressColorConverter x:Key="ProgressColorConverter"/>
     </Page.Resources>
 
     <Grid Margin="24">
@@ -20,151 +21,224 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <StackPanel Grid.Row="0" Spacing="12">
+        <!-- Header Section -->
+        <StackPanel Grid.Row="0" Spacing="12" Margin="0,0,0,20">
             <TextBlock Text="Directory Analysis" Style="{StaticResource TitleTextBlockStyle}"/>
             <TextBlock Text="Select a directory to view file count/size statistics and scan for file anomalies." TextWrapping="Wrap"/>
 
             <StackPanel Orientation="Horizontal" Spacing="8">
-                <TextBox x:ConnectionId='27'                                                          IsReadOnly="True" PlaceholderText="Select a directory to analyze..." MinWidth="300"/>
-                <Button x:ConnectionId='28' Content="Browse..."                                                            />
-            </StackPanel>
-
-            <StackPanel Orientation="Horizontal" Spacing="20" Margin="0,10,0,0">
-                <StackPanel Orientation="Horizontal" Spacing="10">
-                    <TextBlock Text="Target # of Devices (Ohio):" VerticalAlignment="Center"/>
-                    <TextBox x:ConnectionId='26'                                                                                               Width="100"/>
-                </StackPanel>
-                <StackPanel Orientation="Horizontal" Spacing="10">
-                    <TextBlock Text="Target # of Devices (I&amp;M):" VerticalAlignment="Center"/>
-                    <TextBox x:ConnectionId='25'                                                                                             Width="100"/>
-                </StackPanel>
+                <TextBox Text="{Binding AnalysisDirectory, Mode=OneWay}" IsReadOnly="True" PlaceholderText="Select a directory to analyze..." MinWidth="400"/>
+                <Button Content="Browse..." Command="{Binding SelectAnalysisDirectoryCommand}"/>
             </StackPanel>
         </StackPanel>
 
-        <ScrollViewer Grid.Row="1" Margin="0,20,0,0">
-            <StackPanel>
-                <Grid Margin="0,0,0,20">
+        <ScrollViewer Grid.Row="1" VerticalScrollMode="Auto">
+            <StackPanel Spacing="20">
+
+                <!-- Statistics Cards - More Compact -->
+                <Grid ColumnSpacing="16">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
 
-                    <StackPanel Grid.Column="0" Spacing="10" Margin="0,0,12,0">
-                        <TextBlock Text="Ohio" Style="{ThemeResource SubtitleTextBlockStyle}"/>
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="Auto"/>
-                                <ColumnDefinition Width="*"/>
-                            </Grid.ColumnDefinitions>
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="Auto"/>
-                            </Grid.RowDefinitions>
+                    <!-- Ohio Card -->
+                    <Border Grid.Column="0" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="8" Padding="12">
+                        <StackPanel Spacing="8">
+                            <TextBlock Text="Ohio" Style="{StaticResource BodyStrongTextBlockStyle}"/>
 
-                            <TextBlock Grid.Row="0" Grid.Column="0" Text="File Count:" Margin="0,0,10,0"/>
-                            <TextBlock x:ConnectionId='21' Grid.Row="0" Grid.Column="1"                                                     />
+                            <Grid RowSpacing="6">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
 
-                            <TextBlock Grid.Row="1" Grid.Column="0" Text="Devices (Lines):" Margin="0,0,10,0"/>
-                            <TextBlock x:ConnectionId='22' Grid.Row="1" Grid.Column="1"                                                       />
+                                <TextBlock Grid.Row="0" Grid.Column="0" Text="Target:" FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                                <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding TargetDevicesOhio, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Height="32" Margin="0,0,0,4"/>
 
-                            <TextBlock Grid.Row="2" Grid.Column="0" Text="Difference:" Margin="0,0,10,0"/>
-                            <TextBlock x:ConnectionId='23' Grid.Row="2" Grid.Column="1"                                                      />
+                                <TextBlock Grid.Row="1" Grid.Column="0" Text="Files:" FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                                <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding OhioFileCount, Mode=OneWay}" FontSize="12"/>
 
-                            <TextBlock Grid.Row="3" Grid.Column="0" Text="Percentage:" Margin="0,0,10,0"/>
-                            <StackPanel Grid.Row="3" Grid.Column="1" Orientation="Horizontal">
-                                <TextBlock>
-                                    <Run x:ConnectionId='24'                                                                                                      />
-                                </TextBlock>
-                                <TextBlock Text="%"/>
-                            </StackPanel>
-                        </Grid>
+                                <TextBlock Grid.Row="2" Grid.Column="0" Text="Devices:" FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                                <StackPanel Grid.Row="2" Grid.Column="1" Orientation="Horizontal" Spacing="4">
+                                    <TextBlock Text="{Binding OhioDeviceCount, Mode=OneWay}" FontSize="12" FontWeight="SemiBold"/>
+                                    <TextBlock Text="/" FontSize="12" Foreground="{ThemeResource TextFillColorTertiaryBrush}"/>
+                                    <TextBlock Text="{Binding TargetDevicesOhio, Mode=OneWay}" FontSize="12" Foreground="{ThemeResource TextFillColorTertiaryBrush}"/>
+                                </StackPanel>
 
-                        <lvc:PieChart x:ConnectionId='20'
-                                                                                    
-                            Width="200" 
-                            Height="200"
-                            LegendPosition="Hidden"/>
-                    </StackPanel>
+                                <TextBlock Grid.Row="3" Grid.Column="0" Text="Gap:" FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                                <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding OhioDifference, Mode=OneWay}" FontSize="12" Foreground="OrangeRed" FontWeight="SemiBold"/>
 
-                    <StackPanel Grid.Column="1" Spacing="10" Margin="12,0,0,0">
-                        <TextBlock Text="I&amp;M" Style="{ThemeResource SubtitleTextBlockStyle}"/>
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="Auto"/>
-                                <ColumnDefinition Width="*"/>
-                            </Grid.ColumnDefinitions>
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="Auto"/>
-                            </Grid.RowDefinitions>
+                                <TextBlock Grid.Row="4" Grid.Column="0" Text="Progress:" FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                                <StackPanel Grid.Row="4" Grid.Column="1" Orientation="Vertical" Spacing="2">
+                                    <ProgressBar Value="{Binding OhioPercentage, Mode=OneWay}" Maximum="100" Height="10" CornerRadius="3" Foreground="{Binding OhioPercentage, Mode=OneWay, Converter={StaticResource ProgressColorConverter}}"/>
+                                    <TextBlock Text="{Binding OhioPercentage, Mode=OneWay}" FontSize="10" Foreground="{ThemeResource TextFillColorTertiaryBrush}"/>
+                                </StackPanel>
 
-                            <TextBlock Grid.Row="0" Grid.Column="0" Text="File Count:" Margin="0,0,10,0"/>
-                            <TextBlock x:ConnectionId='16' Grid.Row="0" Grid.Column="1"                                                   />
+                                <TextBlock Grid.Row="5" Grid.Column="0" Text="% Diff:" FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                                <StackPanel Grid.Row="5" Grid.Column="1" Orientation="Horizontal" Spacing="4">
+                                    <TextBlock Text="{Binding OhioPercentage, Mode=OneWay}" FontSize="12" FontWeight="SemiBold"/>
+                                    <TextBlock Text="%" FontSize="12" FontWeight="SemiBold"/>
+                                </StackPanel>
+                            </Grid>
+                        </StackPanel>
+                    </Border>
 
-                            <TextBlock Grid.Row="1" Grid.Column="0" Text="Devices (Lines):" Margin="0,0,10,0"/>
-                            <TextBlock x:ConnectionId='17' Grid.Row="1" Grid.Column="1"                                                     />
+                    <!-- I&M Card -->
+                    <Border Grid.Column="1" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="8" Padding="12">
+                        <StackPanel Spacing="8">
+                            <TextBlock Text="I&amp;M" Style="{StaticResource BodyStrongTextBlockStyle}"/>
 
-                            <TextBlock Grid.Row="2" Grid.Column="0" Text="Difference:" Margin="0,0,10,0"/>
-                            <TextBlock x:ConnectionId='18' Grid.Row="2" Grid.Column="1"                                                    />
+                            <Grid RowSpacing="6">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
 
-                            <TextBlock Grid.Row="3" Grid.Column="0" Text="Percentage:" Margin="0,0,10,0"/>
-                            <StackPanel Grid.Row="3" Grid.Column="1" Orientation="Horizontal">
-                                <TextBlock>
-                                    <Run x:ConnectionId='19'                                                                                                    />
-                                </TextBlock>
-                                <TextBlock Text="%"/>
-                            </StackPanel>
-                        </Grid>
+                                <TextBlock Grid.Row="0" Grid.Column="0" Text="Target:" FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                                <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding TargetDevicesIm, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Height="32" Margin="0,0,0,4"/>
 
-                        <lvc:PieChart x:ConnectionId='15'
-                                                                                  
-                            Width="200" 
-                            Height="200"
-                            LegendPosition="Hidden"/>
-                    </StackPanel>
+                                <TextBlock Grid.Row="1" Grid.Column="0" Text="Files:" FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                                <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding ImFileCount, Mode=OneWay}" FontSize="12"/>
+
+                                <TextBlock Grid.Row="2" Grid.Column="0" Text="Devices:" FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                                <StackPanel Grid.Row="2" Grid.Column="1" Orientation="Horizontal" Spacing="4">
+                                    <TextBlock Text="{Binding ImDeviceCount, Mode=OneWay}" FontSize="12" FontWeight="SemiBold"/>
+                                    <TextBlock Text="/" FontSize="12" Foreground="{ThemeResource TextFillColorTertiaryBrush}"/>
+                                    <TextBlock Text="{Binding TargetDevicesIm, Mode=OneWay}" FontSize="12" Foreground="{ThemeResource TextFillColorTertiaryBrush}"/>
+                                </StackPanel>
+
+                                <TextBlock Grid.Row="3" Grid.Column="0" Text="Gap:" FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                                <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding IMDifference, Mode=OneWay}" FontSize="12" Foreground="OrangeRed" FontWeight="SemiBold"/>
+
+                                <TextBlock Grid.Row="4" Grid.Column="0" Text="Progress:" FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                                <StackPanel Grid.Row="4" Grid.Column="1" Orientation="Vertical" Spacing="2">
+                                    <ProgressBar Value="{Binding IMPercentage, Mode=OneWay}" Maximum="100" Height="10" CornerRadius="3" Foreground="{Binding IMPercentage, Mode=OneWay, Converter={StaticResource ProgressColorConverter}}"/>
+                                    <TextBlock Text="{Binding IMPercentage, Mode=OneWay}" FontSize="10" Foreground="{ThemeResource TextFillColorTertiaryBrush}"/>
+                                </StackPanel>
+
+                                <TextBlock Grid.Row="5" Grid.Column="0" Text="% Diff:" FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                                <StackPanel Grid.Row="5" Grid.Column="1" Orientation="Horizontal" Spacing="4">
+                                    <TextBlock Text="{Binding IMPercentage, Mode=OneWay}" FontSize="12" FontWeight="SemiBold"/>
+                                    <TextBlock Text="%" FontSize="12" FontWeight="SemiBold"/>
+                                </StackPanel>
+                            </Grid>
+                        </StackPanel>
+                    </Border>
                 </Grid>
 
-                <Grid Margin="0,20,0,0" ColumnSpacing="24">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="*"/>
-                    </Grid.ColumnDefinitions>
+                <!-- Directory Statistics -->
+                <StackPanel Spacing="8" Visibility="{Binding OpCoStats, Converter={StaticResource CollectionToVisibilityConverter}, Mode=OneWay}">
+                    <TextBlock Text="Directory Statistics by OpCo" Style="{StaticResource SubtitleTextBlockStyle}"/>
+                    <ListView ItemsSource="{Binding OpCoStats, Mode=OneWay}" MaxHeight="150">
+                        <ListView.ItemTemplate>
+                            <DataTemplate                                 >
+                                <Grid x:ConnectionId='15' ColumnSpacing="12" Padding="6">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="120"/>
+                                        <ColumnDefinition Width="Auto" MinWidth="80"/>
+                                        <ColumnDefinition Width="Auto" MinWidth="80"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock x:ConnectionId='16' Grid.Column="0"                          FontSize="12" FontWeight="SemiBold"/>
+                                    <TextBlock Grid.Column="1" HorizontalAlignment="Right" FontSize="12">
+                                        <Run x:ConnectionId='18'                                       />
+                                        <Run Text="files" Foreground="{ThemeResource TextFillColorTertiaryBrush}"/>
+                                    </TextBlock>
+                                    <TextBlock Grid.Column="2" HorizontalAlignment="Right" FontSize="12">
+                                        <Run x:ConnectionId='17'                                         />
+                                        <Run Text="devices" Foreground="{ThemeResource TextFillColorTertiaryBrush}"/>
+                                    </TextBlock>
+                                </Grid>
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+                    </ListView>
+                </StackPanel>
 
-                    <StackPanel x:ConnectionId='2' Grid.Column="0" Spacing="10"                                                                                                                   >
-                        <TextBlock Text="Directory Stats" Style="{StaticResource SubtitleTextBlockStyle}"/>
-                        <ListView x:ConnectionId='9'                                                        >
-                            <ListView.ItemTemplate>
-                                <DataTemplate                                 >
-                                    <Grid x:ConnectionId='11' ColumnSpacing="16">
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="*"/>
-                                            <ColumnDefinition Width="Auto"/>
-                                            <ColumnDefinition Width="Auto"/>
-                                        </Grid.ColumnDefinitions>
-                                        <TextBlock x:ConnectionId='12' Grid.Column="0"                          FontWeight="SemiBold"/>
-                                        <TextBlock Grid.Column="1" HorizontalAlignment="Right"><Run x:ConnectionId='14'                                       /> files</TextBlock>
-                                        <TextBlock Grid.Column="2" HorizontalAlignment="Right"><Run x:ConnectionId='13'                                         /> devices</TextBlock>
-                                    </Grid>
-                                </DataTemplate>
-                            </ListView.ItemTemplate>
-                        </ListView>
-                    </StackPanel>
+                <!-- File Anomalies Section - 3 Columns -->
+                <StackPanel Spacing="8">
+                    <TextBlock Text="File Anomalies" Style="{StaticResource SubtitleTextBlockStyle}"/>
 
-                    <StackPanel Grid.Column="1" Spacing="10">
-                        <TextBlock x:ConnectionId='3' Text="File Anomalies" Style="{StaticResource SubtitleTextBlockStyle}"                                                                                                                                />
-                        <ListView x:ConnectionId='4'                                                                MaxHeight="150"                                                                                                                          />
+                    <Grid ColumnSpacing="12">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
 
-                        <TextBlock x:ConnectionId='5' Text="Misplaced 'IM' Files" Style="{StaticResource CaptionTextBlockStyle}" Margin="0,10,0,0"                                                                                                                          />
-                        <ListView x:ConnectionId='6'                                                                MaxHeight="150"                                                                                                                          />
+                        <!-- I&M in Ohio Anomalies -->
+                        <StackPanel Grid.Column="0" Spacing="6">
+                            <StackPanel Orientation="Horizontal" Spacing="6">
+                                <FontIcon Glyph="&#xE74C;" Foreground="OrangeRed" FontSize="14" VerticalAlignment="Center"/>
+                                <TextBlock Text="I&amp;M in Ohio" FontSize="12" FontWeight="SemiBold"/>
+                            </StackPanel>
+                            <TextBlock Text="{Binding ImInOhioAnomalies.Count, Mode=OneWay}" FontSize="11" Foreground="OrangeRed" FontWeight="SemiBold"/>
+                            <ListView ItemsSource="{Binding ImInOhioAnomalies, Mode=OneWay}" MinHeight="150" MaxHeight="300">
+                                <ListView.ItemTemplate>
+                                    <DataTemplate                                    >
+                                        <StackPanel x:ConnectionId='11' Spacing="1" Padding="4">
+                                            <TextBlock x:ConnectionId='12'                          FontSize="11" FontWeight="SemiBold" TextWrapping="Wrap"/>
+                                            <TextBlock x:ConnectionId='13'                          FontSize="9" Foreground="Gray" TextTrimming="CharacterEllipsis"                                           />
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </ListView.ItemTemplate>
+                            </ListView>
+                        </StackPanel>
 
-                        <TextBlock x:ConnectionId='7' Text="Unidentified Files" Style="{StaticResource CaptionTextBlockStyle}" Margin="0,10,0,0"                                                                                                                           />
-                        <ListView x:ConnectionId='8'                                                                 MaxHeight="150"                                                                                                                           />
-                    </StackPanel>
-                </Grid>
+                        <!-- OH/OP in I&M Anomalies -->
+                        <StackPanel Grid.Column="1" Spacing="6">
+                            <StackPanel Orientation="Horizontal" Spacing="6">
+                                <FontIcon Glyph="&#xE74C;" Foreground="OrangeRed" FontSize="14" VerticalAlignment="Center"/>
+                                <TextBlock Text="OH/OP in I&amp;M" FontSize="12" FontWeight="SemiBold"/>
+                            </StackPanel>
+                            <TextBlock Text="{Binding OhInImAnomalies.Count, Mode=OneWay}" FontSize="11" Foreground="OrangeRed" FontWeight="SemiBold"/>
+                            <ListView ItemsSource="{Binding OhInImAnomalies, Mode=OneWay}" MinHeight="150" MaxHeight="300">
+                                <ListView.ItemTemplate>
+                                    <DataTemplate                                    >
+                                        <StackPanel x:ConnectionId='7' Spacing="1" Padding="4">
+                                            <TextBlock x:ConnectionId='8'                          FontSize="11" FontWeight="SemiBold" TextWrapping="Wrap"/>
+                                            <TextBlock x:ConnectionId='9'                          FontSize="9" Foreground="Gray" TextTrimming="CharacterEllipsis"                                           />
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </ListView.ItemTemplate>
+                            </ListView>
+                        </StackPanel>
+
+                        <!-- Unidentified Files -->
+                        <StackPanel Grid.Column="2" Spacing="6">
+                            <StackPanel Orientation="Horizontal" Spacing="6">
+                                <FontIcon Glyph="&#xE7BA;" Foreground="Gold" FontSize="14" VerticalAlignment="Center"/>
+                                <TextBlock Text="Unidentified" FontSize="12" FontWeight="SemiBold"/>
+                            </StackPanel>
+                            <TextBlock Text="{Binding UnidentifiedAnomalies.Count, Mode=OneWay}" FontSize="11" Foreground="Gold" FontWeight="SemiBold"/>
+                            <ListView ItemsSource="{Binding UnidentifiedAnomalies, Mode=OneWay}" MinHeight="150" MaxHeight="300">
+                                <ListView.ItemTemplate>
+                                    <DataTemplate                                    >
+                                        <StackPanel x:ConnectionId='3' Spacing="1" Padding="4">
+                                            <TextBlock x:ConnectionId='4'                          FontSize="11" FontWeight="SemiBold" TextWrapping="Wrap"/>
+                                            <TextBlock x:ConnectionId='5'                          FontSize="9" Foreground="Gray" TextTrimming="CharacterEllipsis"                                           />
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </ListView.ItemTemplate>
+                            </ListView>
+                        </StackPanel>
+                    </Grid>
+                </StackPanel>
             </StackPanel>
         </ScrollViewer>
     </Grid>

@@ -11,8 +11,10 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using Windows.Storage.Pickers;
+using Microsoft.UI.Xaml;
 
 namespace AIM.ViewModels;
 
@@ -27,14 +29,15 @@ public partial class DirAnalysisViewModel : ObservableObject
     [ObservableProperty]
     private ObservableCollection<OpCoStatItem> _opCoStats;
 
+    // File Anomaly Collections
     [ObservableProperty]
-    private ObservableCollection<string> _misplacedOhFiles;
+    private ObservableCollection<FileAnomalyItem> _imInOhioAnomalies;
 
     [ObservableProperty]
-    private ObservableCollection<string> _misplacedImFiles;
+    private ObservableCollection<FileAnomalyItem> _ohInImAnomalies;
 
     [ObservableProperty]
-    private ObservableCollection<string> _unidentifiedFiles;
+    private ObservableCollection<FileAnomalyItem> _unidentifiedAnomalies;
 
     // Separate target device properties for Ohio and I&M
     [ObservableProperty]
@@ -82,9 +85,9 @@ public partial class DirAnalysisViewModel : ObservableObject
         _directoryOperationService = directoryOperationService;
 
         _opCoStats = new ObservableCollection<OpCoStatItem>();
-        _misplacedOhFiles = new ObservableCollection<string>();
-        _misplacedImFiles = new ObservableCollection<string>();
-        _unidentifiedFiles = new ObservableCollection<string>();
+        _imInOhioAnomalies = new ObservableCollection<FileAnomalyItem>();
+        _ohInImAnomalies = new ObservableCollection<FileAnomalyItem>();
+        _unidentifiedAnomalies = new ObservableCollection<FileAnomalyItem>();
         _ohioGaugeSeries = CreateGaugeSeries(0, 0);
         _imGaugeSeries = CreateGaugeSeries(0, 0);
     }
@@ -155,15 +158,12 @@ public partial class DirAnalysisViewModel : ObservableObject
         {
             Debug.WriteLine($"[DirAnalysis] Starting analysis of: {AnalysisDirectory}");
 
-            // Run all analysis tasks
             var statsTask = _directoryOperationService.GetDirectoryStatsAsync(AnalysisDirectory);
-            var anomalyTask = _directoryOperationService.FindFileAnomaliesAsync(AnalysisDirectory);
             var newStatsTask = AnalyzeNewStatisticsAsync(AnalysisDirectory);
+            var anomalyTask = CheckFileAnomaliesAsync(AnalysisDirectory);
 
-            // Wait for all tasks to complete
-            await Task.WhenAll(statsTask, anomalyTask, newStatsTask);
+            await Task.WhenAll(statsTask, newStatsTask, anomalyTask);
 
-            // Now retrieve the results
             var stats = await statsTask;
             Debug.WriteLine($"[DirAnalysis] Retrieved {stats.Count} stat items");
             foreach (var stat in stats)
@@ -172,16 +172,9 @@ public partial class DirAnalysisViewModel : ObservableObject
                 OpCoStats.Add(stat);
             }
 
-            var report = await anomalyTask;
-            Debug.WriteLine($"[DirAnalysis] Retrieved anomaly report - OH: {report.MisplacedOhFiles.Count}, IM: {report.MisplacedImFiles.Count}, Unidentified: {report.UnidentifiedFiles.Count}");
-
-            report.MisplacedOhFiles.ForEach(MisplacedOhFiles.Add);
-            report.MisplacedImFiles.ForEach(MisplacedImFiles.Add);
-            report.UnidentifiedFiles.ForEach(UnidentifiedFiles.Add);
-
-            // Log the Ohio and I&M counts
             Debug.WriteLine($"[DirAnalysis] Ohio - Files: {OhioFileCount}, Devices: {OhioDeviceCount}");
             Debug.WriteLine($"[DirAnalysis] I&M - Files: {ImFileCount}, Devices: {ImDeviceCount}");
+            Debug.WriteLine($"[DirAnalysis] I&M in Ohio: {ImInOhioAnomalies.Count}, OH in I&M: {OhInImAnomalies.Count}, Unidentified: {UnidentifiedAnomalies.Count}");
         }
         catch (Exception ex)
         {
@@ -194,9 +187,9 @@ public partial class DirAnalysisViewModel : ObservableObject
     private void ClearResults()
     {
         OpCoStats.Clear();
-        MisplacedOhFiles.Clear();
-        MisplacedImFiles.Clear();
-        UnidentifiedFiles.Clear();
+        ImInOhioAnomalies.Clear();
+        OhInImAnomalies.Clear();
+        UnidentifiedAnomalies.Clear();
 
         OhioFileCount = 0;
         OhioDeviceCount = 0;
@@ -214,13 +207,9 @@ public partial class DirAnalysisViewModel : ObservableObject
         var ohioPath = Path.Combine(path, "Ohio");
         var imPath = Path.Combine(path, "I&M");
 
-        Debug.WriteLine($"[DirAnalysis] Looking for Ohio path: {ohioPath}");
-        Debug.WriteLine($"[DirAnalysis] Looking for I&M path: {imPath}");
-
         if (Directory.Exists(ohioPath))
         {
             Debug.WriteLine($"[DirAnalysis] Ohio directory found");
-            // Use SearchOption.AllDirectories to search recursively
             var ohioFiles = Directory.GetFiles(ohioPath, "*.*", System.IO.SearchOption.AllDirectories);
             OhioFileCount = ohioFiles.Length;
             Debug.WriteLine($"[DirAnalysis] Ohio files found: {OhioFileCount}");
@@ -229,13 +218,12 @@ public partial class DirAnalysisViewModel : ObservableObject
         }
         else
         {
-            Debug.WriteLine($"[DirAnalysis] Ohio directory NOT found at {ohioPath}");
+            Debug.WriteLine($"[DirAnalysis] Ohio directory NOT found");
         }
 
         if (Directory.Exists(imPath))
         {
             Debug.WriteLine($"[DirAnalysis] I&M directory found");
-            // Use SearchOption.AllDirectories to search recursively
             var imFiles = Directory.GetFiles(imPath, "*.*", System.IO.SearchOption.AllDirectories);
             ImFileCount = imFiles.Length;
             Debug.WriteLine($"[DirAnalysis] I&M files found: {ImFileCount}");
@@ -244,10 +232,169 @@ public partial class DirAnalysisViewModel : ObservableObject
         }
         else
         {
-            Debug.WriteLine($"[DirAnalysis] I&M directory NOT found at {imPath}");
+            Debug.WriteLine($"[DirAnalysis] I&M directory NOT found");
         }
 
         Debug.WriteLine($"[DirAnalysis] AnalyzeNewStatisticsAsync completed");
+    }
+
+    private async Task CheckFileAnomaliesAsync(string path)
+    {
+        // Collect results on background thread
+        var imInOhioResults = new List<FileAnomalyItem>();
+        var ohInImResults = new List<FileAnomalyItem>();
+        var unidentifiedResults = new List<FileAnomalyItem>();
+
+        await Task.Run(() =>
+        {
+            Debug.WriteLine($"[DirAnalysis] CheckFileAnomaliesAsync called");
+
+            var ohioPath = Path.Combine(path, "Ohio");
+            var imPath = Path.Combine(path, "I&M");
+
+            // These terms must be exact (whole word or clear boundary)
+            var imTerms = new[] { "I&M", "I+M", "IM" };
+            var ohTerms = new[] { "OH", "OP" };
+
+            // Check Ohio directory for I&M/I+M/IM files (these shouldn't be here)
+            if (Directory.Exists(ohioPath))
+            {
+                Debug.WriteLine($"[DirAnalysis] Checking Ohio directory for misplaced I&M files");
+                var ohioFiles = Directory.GetFiles(ohioPath, "*.*", System.IO.SearchOption.AllDirectories);
+
+                foreach (var file in ohioFiles)
+                {
+                    var fileName = Path.GetFileName(file);
+                    // Check for exact term match (case insensitive)
+                    bool hasImTerm = imTerms.Any(term =>
+                    {
+                        var index = fileName.IndexOf(term, StringComparison.OrdinalIgnoreCase);
+                        if (index < 0) return false;
+
+                        // For exact match, check word boundaries
+                        bool startOk = (index == 0 || !char.IsLetterOrDigit(fileName[index - 1]));
+                        bool endOk = (index + term.Length >= fileName.Length || !char.IsLetterOrDigit(fileName[index + term.Length]));
+
+                        return startOk && endOk;
+                    });
+
+                    if (hasImTerm)
+                    {
+                        imInOhioResults.Add(new FileAnomalyItem
+                        {
+                            FileName = fileName,
+                            FilePath = file,
+                            AnomalyType = "I&M file in Ohio"
+                        });
+                        Debug.WriteLine($"[DirAnalysis] Found I&M in Ohio: {fileName}");
+                    }
+                }
+            }
+
+            // Check I&M directory for OH/OP files (these shouldn't be here)
+            if (Directory.Exists(imPath))
+            {
+                Debug.WriteLine($"[DirAnalysis] Checking I&M directory for misplaced OH/OP files");
+                var imFiles = Directory.GetFiles(imPath, "*.*", System.IO.SearchOption.AllDirectories);
+
+                foreach (var file in imFiles)
+                {
+                    var fileName = Path.GetFileName(file);
+                    // Check for exact term match (case insensitive)
+                    bool hasOhTerm = ohTerms.Any(term =>
+                    {
+                        var index = fileName.IndexOf(term, StringComparison.OrdinalIgnoreCase);
+                        if (index < 0) return false;
+
+                        // For exact match, check word boundaries
+                        bool startOk = (index == 0 || !char.IsLetterOrDigit(fileName[index - 1]));
+                        bool endOk = (index + term.Length >= fileName.Length || !char.IsLetterOrDigit(fileName[index + term.Length]));
+
+                        return startOk && endOk;
+                    });
+
+                    if (hasOhTerm)
+                    {
+                        ohInImResults.Add(new FileAnomalyItem
+                        {
+                            FileName = fileName,
+                            FilePath = file,
+                            AnomalyType = "OH/OP file in I&M"
+                        });
+                        Debug.WriteLine($"[DirAnalysis] Found OH/OP in I&M: {fileName}");
+                    }
+                }
+            }
+
+            // Check for unidentified files (files with NO identifiers at all)
+            if (Directory.Exists(ohioPath) && Directory.Exists(imPath))
+            {
+                Debug.WriteLine($"[DirAnalysis] Checking for unidentified files");
+                var allOhioFiles = Directory.GetFiles(ohioPath, "*.*", System.IO.SearchOption.AllDirectories);
+                var allImFiles = Directory.GetFiles(imPath, "*.*", System.IO.SearchOption.AllDirectories);
+                var allFiles = allOhioFiles.Concat(allImFiles).ToList();
+
+                foreach (var file in allFiles)
+                {
+                    var fileName = Path.GetFileName(file);
+
+                    // Check if file has ANY identifying term (exact match)
+                    bool hasImTerm = imTerms.Any(term =>
+                    {
+                        var index = fileName.IndexOf(term, StringComparison.OrdinalIgnoreCase);
+                        if (index < 0) return false;
+
+                        bool startOk = (index == 0 || !char.IsLetterOrDigit(fileName[index - 1]));
+                        bool endOk = (index + term.Length >= fileName.Length || !char.IsLetterOrDigit(fileName[index + term.Length]));
+
+                        return startOk && endOk;
+                    });
+
+                    bool hasOhTerm = ohTerms.Any(term =>
+                    {
+                        var index = fileName.IndexOf(term, StringComparison.OrdinalIgnoreCase);
+                        if (index < 0) return false;
+
+                        bool startOk = (index == 0 || !char.IsLetterOrDigit(fileName[index - 1]));
+                        bool endOk = (index + term.Length >= fileName.Length || !char.IsLetterOrDigit(fileName[index + term.Length]));
+
+                        return startOk && endOk;
+                    });
+
+                    // Only flag as unidentified if it has NEITHER term
+                    if (!hasImTerm && !hasOhTerm)
+                    {
+                        unidentifiedResults.Add(new FileAnomalyItem
+                        {
+                            FileName = fileName,
+                            FilePath = file,
+                            AnomalyType = "Unidentified"
+                        });
+                        Debug.WriteLine($"[DirAnalysis] Found unidentified file: {fileName}");
+                    }
+                }
+            }
+
+            Debug.WriteLine($"[DirAnalysis] File anomaly check completed - I&M in Ohio: {imInOhioResults.Count}, OH/OP in I&M: {ohInImResults.Count}, Unidentified: {unidentifiedResults.Count}");
+        });
+
+        // Update collections on UI thread
+        foreach (var item in imInOhioResults)
+        {
+            ImInOhioAnomalies.Add(item);
+        }
+
+        foreach (var item in ohInImResults)
+        {
+            OhInImAnomalies.Add(item);
+        }
+
+        foreach (var item in unidentifiedResults)
+        {
+            UnidentifiedAnomalies.Add(item);
+        }
+
+        Debug.WriteLine($"[DirAnalysis] Collections updated - I&M in Ohio: {ImInOhioAnomalies.Count}, OH/OP in I&M: {OhInImAnomalies.Count}, Unidentified: {UnidentifiedAnomalies.Count}");
     }
 
     private async Task<int> CountLinesInFilesAsync(string[] files)
@@ -259,14 +406,12 @@ public partial class DirAnalysisViewModel : ObservableObject
             {
                 var lines = await File.ReadAllLinesAsync(file);
                 totalLines += lines.Length;
-                Debug.WriteLine($"[DirAnalysis] File {Path.GetFileName(file)}: {lines.Length} lines");
             }
             catch (Exception ex)
             {
                 Debug.WriteLine($"[DirAnalysis] Error reading file {file}: {ex.Message}");
             }
         }
-        Debug.WriteLine($"[DirAnalysis] Total lines in batch: {totalLines}");
         return totalLines;
     }
 
@@ -283,5 +428,13 @@ public partial class DirAnalysisViewModel : ObservableObject
 
         var folder = await folderPicker.PickSingleFolderAsync();
         return folder?.Path;
+    }
+
+    public string GetProgressBarColor(double percentage)
+    {
+        if (percentage <= 0) return "Red";
+        if (percentage < 50) return "Orange"; // Red to Yellow
+        if (percentage < 100) return "Yellow";
+        return "Green"; // 100% or more
     }
 }
