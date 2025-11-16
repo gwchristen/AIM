@@ -24,6 +24,7 @@
             <converters:CollectionToVisibilityConverter x:Key="CollectionToVisibilityConverter" />
             <converters:NullToVisibilityConverter x:Key="NullToVisibilityConverter" />
             <converters:ProgressColorConverter x:Key="ProgressColorConverter"/>
+            <local:DateTimeConverter x:Key="DateTimeConverter"/>
 
             <Style TargetType="RadioButton" x:Key="TileRadioButton">
                 <Setter Property="Background" Value="Transparent"/>

@@ -26,8 +26,12 @@ public partial class App : Application
         Ioc.Default.ConfigureServices(Services);
 
         MainWindow = new MainWindow();
+
+        var themeService = Ioc.Default.GetRequiredService<ThemeService>();
+        themeService.InitializeTheme();
+
         MainWindow.Activate();
-        
+
     }
 
 
@@ -46,6 +50,12 @@ public partial class App : Application
         services.AddSingleton<IMessenger>(WeakReferenceMessenger.Default);
         services.AddSingleton<IPrintService, PrintService>();
         services.AddSingleton<FormTemplateFactory>();
+        services.AddSingleton<SecurityService>();
+        services.AddSingleton<EncryptionService>();
+        services.AddSingleton<AuditLoggingService>();
+        services.AddSingleton<EncryptedSettingsService>();
+        services.AddSingleton<ThemeService>();
+
 
         // ViewModels
         services.AddTransient<MainViewModel>();
@@ -59,11 +69,11 @@ public partial class App : Application
         services.AddTransient<InventoryAdminViewModel>();
         services.AddTransient<SettingsViewModel>();
         services.AddTransient<PrintableFormViewModel>();
-        // NEW ViewModels
         services.AddTransient<DirClonerViewModel>();
         services.AddTransient<BatchRenamerViewModel>();
         services.AddTransient<DirAnalysisViewModel>();
-        services.AddTransient<FormGeneratorViewModel>(); // ADD THIS
+        services.AddTransient<FormGeneratorViewModel>();
+        services.AddTransient<LogViewerViewModel>();
 
 
         // Pages
@@ -77,10 +87,10 @@ public partial class App : Application
         // REMOVED: services.AddTransient<InventoryAdminPage>();
         services.AddTransient<SettingsPage>();
         services.AddTransient<PrintableFormPage>();
-        // NEW Pages
         services.AddTransient<InventoryAdminToolsPage>();
         services.AddTransient<DirAnalysisPage>();
-        services.AddTransient<FormGeneratorPage>(); // ADD THIS
+        services.AddTransient<FormGeneratorPage>(); 
+        services.AddTransient<LogViewerPage>();
 
 
         return services.BuildServiceProvider();

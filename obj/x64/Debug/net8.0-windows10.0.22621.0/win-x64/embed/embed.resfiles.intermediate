@@ -11,6 +11,8 @@ Views\InventoryAdminToolsPage.xbf
 Views\InventoryArchivePage.xbf
 Views\InventoryPage.xbf
 Views\InventoryViewerPage.xbf
+Views\LogViewerPage.xbf
+Views\PasswordInputControl.xbf
 Views\PreviewPage.xbf
 Views\PrintableFormPage.xbf
 Views\ScansPage.xbf

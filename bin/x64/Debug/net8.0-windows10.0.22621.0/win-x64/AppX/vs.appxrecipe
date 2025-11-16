@@ -30,17 +30,17 @@
     <AppXManifest Include="C:\Users\Pirate\source\repos\AIM\bin\x64\Debug\net8.0-windows10.0.22621.0\win-x64\AppxManifest.xml">
       <PackagePath>AppxManifest.xml</PackagePath>
       <ReRegisterAppIfChanged>true</ReRegisterAppIfChanged>
-      <Modified>2025-11-16T06:50:36.550</Modified>
+      <Modified>2025-11-16T22:03:50.935</Modified>
     </AppXManifest>
   </ItemGroup>
   <ItemGroup>
     <AppxPackagedFile Include="C:\Users\Pirate\source\repos\AIM\bin\x64\Debug\net8.0-windows10.0.22621.0\win-x64\AIM.runtimeconfig.json">
       <PackagePath>AIM.runtimeconfig.json</PackagePath>
-      <Modified>2025-11-16T06:27:03.680</Modified>
+      <Modified>2025-11-16T21:59:05.490</Modified>
     </AppxPackagedFile>
     <AppxPackagedFile Include="C:\Users\Pirate\source\repos\AIM\obj\x64\Debug\net8.0-windows10.0.22621.0\win-x64\apphost.exe">
       <PackagePath>AIM.exe</PackagePath>
-      <Modified>2025-11-16T06:50:36.007</Modified>
+      <Modified>2025-11-16T22:03:50.417</Modified>
     </AppxPackagedFile>
     <AppxPackagedFile Include="C:\Users\Pirate\source\repos\AIM\obj\x64\Debug\net8.0-windows10.0.22621.0\win-x64\MsixContent\CoreMessagingXP.dll">
       <PackagePath>CoreMessagingXP.dll</PackagePath>
@@ -1136,7 +1136,7 @@
     </AppxPackagedFile>
     <AppxPackagedFile Include="C:\Users\Pirate\source\repos\AIM\obj\x64\Debug\net8.0-windows10.0.22621.0\win-x64\AIM.dll">
       <PackagePath>AIM.dll</PackagePath>
-      <Modified>2025-11-16T06:50:36.001</Modified>
+      <Modified>2025-11-16T22:03:50.413</Modified>
     </AppxPackagedFile>
     <AppxPackagedFile Include="C:\Users\Pirate\.nuget\packages\microsoft.netcore.app.runtime.win-x64\8.0.22\runtimes\win-x64\lib\net8.0\Microsoft.CSharp.dll">
       <PackagePath>Microsoft.CSharp.dll</PackagePath>
@@ -2208,7 +2208,7 @@
     </AppxPackagedFile>
     <AppxPackagedFile Include="C:\Users\Pirate\source\repos\AIM\bin\x64\Debug\net8.0-windows10.0.22621.0\win-x64\AIM.deps.json">
       <PackagePath>AIM.deps.json</PackagePath>
-      <Modified>2025-11-16T06:27:03.679</Modified>
+      <Modified>2025-11-16T21:59:05.477</Modified>
     </AppxPackagedFile>
     <AppxPackagedFile Include="C:\Users\Pirate\.nuget\packages\winui3xamlpreview\0.8.2\runtimes\win-x64\native\WinUI3XamlPreview\Assets\LockScreenLogo.scale-200.png">
       <PackagePath>WinUI3XamlPreview\Assets\LockScreenLogo.scale-200.png</PackagePath>
@@ -2296,7 +2296,7 @@
     </AppxPackagedFile>
     <AppxPackagedFile Include="C:\Users\Pirate\source\repos\AIM\bin\x64\Debug\net8.0-windows10.0.22621.0\win-x64\resources.pri">
       <PackagePath>resources.pri</PackagePath>
-      <Modified>2025-11-16T06:47:51.886</Modified>
+      <Modified>2025-11-16T21:59:05.829</Modified>
     </AppxPackagedFile>
   </ItemGroup>
   <ItemGroup>

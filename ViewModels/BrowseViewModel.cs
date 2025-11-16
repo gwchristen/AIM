@@ -16,6 +16,7 @@ namespace AIM.ViewModels;
 public record FileOp(string FromPath, string ToPath);
 public record UndoAction(string Type, List<FileOp> Ops);
 
+
 public partial class BrowseViewModel : ObservableObject
 {
     #region Services and Private Fields
@@ -23,6 +24,7 @@ public partial class BrowseViewModel : ObservableObject
     private readonly IDialogService _dialogService;
     private readonly INavigationService _navigationService;
     private readonly AppSettings _appSettings;
+    private readonly AuditLoggingService _auditLoggingService;
     private Stack<UndoAction> _undoStack = new();
     private string _rootPath = string.Empty;
     private string _currentSortColumn = "Name";
@@ -44,11 +46,12 @@ public partial class BrowseViewModel : ObservableObject
     [ObservableProperty] private string _rootName = string.Empty;
     #endregion
 
-    public BrowseViewModel(MainViewModel mainViewModel, IFileService fileService, ISettingsService settingsService, IDialogService dialogService, INavigationService navigationService)
+    public BrowseViewModel(MainViewModel mainViewModel, IFileService fileService, ISettingsService settingsService, IDialogService dialogService, INavigationService navigationService, AuditLoggingService auditLoggingService)
     {
         _mainViewModel = mainViewModel;
         _dialogService = dialogService;
         _navigationService = navigationService;
+        _auditLoggingService = auditLoggingService;
         _appSettings = settingsService.LoadSettings();
         _mainViewModel.LeftTree.CollectionChanged += (s, e) => InitializePaths();
         _mainViewModel.SelectedScanFiles.CollectionChanged += (s, e) => CopyFromScansCommand.NotifyCanExecuteChanged();
@@ -58,7 +61,18 @@ public partial class BrowseViewModel : ObservableObject
 
     #region Property Changed Handlers
     partial void OnSelectedRightDirectoryChanged(DirectoryItem value) { MoveFileCommand.NotifyCanExecuteChanged(); CopyFromScansCommand.NotifyCanExecuteChanged(); }
-    partial void OnSelectedLeftDirectoryChanged(DirectoryItem value) { UpdateLeftBreadcrumbs(value?.FullPath); UpdateAndSortLeftFilteredContents(); }
+    partial void OnSelectedLeftDirectoryChanged(DirectoryItem value)
+    {
+        // Log directory access
+        _auditLoggingService.LogDirectoryOperation(
+            AuditActionTypes.DIR_ACCESS,
+            value?.FullPath,
+            $"Browsed to directory: {value?.Name}"
+        );
+
+        UpdateLeftBreadcrumbs(value?.FullPath);
+        UpdateAndSortLeftFilteredContents();
+    }
     partial void OnSelectedRightContentChanged(ContentItem value)
     {
         if (value?.IsFolder == true)
@@ -199,11 +213,31 @@ public partial class BrowseViewModel : ObservableObject
         try
         {
             File.Move(oldPath, newPath);
+
+            // Log rename operation with detailed info
+            _auditLoggingService.LogRenameOperation(oldPath, fileToRename.Name, newName);
+
             _undoStack.Push(new UndoAction("Rename", new List<FileOp> { new(newPath, oldPath) }));
             UndoCommand.NotifyCanExecuteChanged();
             UpdateAndSortLeftFilteredContents();
         }
-        catch (Exception ex) { await _dialogService.ShowErrorDialogAsync("Rename Failed", ex.Message); }
+        catch (Exception ex)
+        {
+            await _dialogService.ShowErrorDialogAsync("Rename Failed", ex.Message);
+
+            // Log failed rename
+            _auditLoggingService.LogFileOperation(
+                "FILE_RENAME_FAILED",
+                oldPath,
+                $"Failed to rename '{fileToRename.Name}' to '{newName}': {ex.Message}",
+                new Dictionary<string, string>
+                {
+                    { "oldName", fileToRename.Name },
+                    { "newName", newName },
+                    { "error", ex.Message }
+                }
+            );
+        }
     }
 
     [RelayCommand(CanExecute = nameof(CanPerformMultiFileAction))]
@@ -218,8 +252,31 @@ public partial class BrowseViewModel : ObservableObject
         foreach (var file in filesToMove)
         {
             var destPath = Path.Combine(archivePath, file.Name);
-            try { File.Move(file.FullPath, destPath); ops.Add(new FileOp(destPath, file.FullPath)); }
-            catch (Exception ex) { await _dialogService.ShowErrorDialogAsync("Archive Failed", $"Could not archive '{file.Name}': {ex.Message}"); }
+            try
+            {
+                File.Move(file.FullPath, destPath);
+
+                // Log archive operation with detailed info
+                _auditLoggingService.LogMoveOperation(file.FullPath, destPath, file.Name);
+
+                ops.Add(new FileOp(destPath, file.FullPath));
+            }
+            catch (Exception ex)
+            {
+                await _dialogService.ShowErrorDialogAsync("Archive Failed", $"Could not archive '{file.Name}': {ex.Message}");
+
+                // Log failed archive
+                _auditLoggingService.LogFileOperation(
+                    "FILE_ARCHIVE_FAILED",
+                    file.FullPath,
+                    $"Failed to archive '{file.Name}': {ex.Message}",
+                    new Dictionary<string, string>
+                    {
+                        { "destination", destPath },
+                        { "error", ex.Message }
+                    }
+                );
+            }
         }
         if (ops.Any()) { _undoStack.Push(new UndoAction("Archive", ops)); UndoCommand.NotifyCanExecuteChanged(); UpdateAndSortLeftFilteredContents(); }
     }
@@ -236,8 +293,31 @@ public partial class BrowseViewModel : ObservableObject
         foreach (var file in filesToMove)
         {
             var destPath = Path.Combine(shippedPath, file.Name);
-            try { File.Move(file.FullPath, destPath); ops.Add(new FileOp(destPath, file.FullPath)); }
-            catch (Exception ex) { await _dialogService.ShowErrorDialogAsync("Ship Failed", $"Could not ship '{file.Name}': {ex.Message}"); }
+            try
+            {
+                File.Move(file.FullPath, destPath);
+
+                // Log ship operation with detailed info
+                _auditLoggingService.LogMoveOperation(file.FullPath, destPath, file.Name);
+
+                ops.Add(new FileOp(destPath, file.FullPath));
+            }
+            catch (Exception ex)
+            {
+                await _dialogService.ShowErrorDialogAsync("Ship Failed", $"Could not ship '{file.Name}': {ex.Message}");
+
+                // Log failed ship
+                _auditLoggingService.LogFileOperation(
+                    "FILE_SHIP_FAILED",
+                    file.FullPath,
+                    $"Failed to ship '{file.Name}': {ex.Message}",
+                    new Dictionary<string, string>
+                    {
+                        { "destination", destPath },
+                        { "error", ex.Message }
+                    }
+                );
+            }
         }
         if (ops.Any()) { _undoStack.Push(new UndoAction("Ship", ops)); UndoCommand.NotifyCanExecuteChanged(); UpdateAndSortLeftFilteredContents(); }
     }
@@ -250,8 +330,31 @@ public partial class BrowseViewModel : ObservableObject
         foreach (var file in filesToMove)
         {
             var destPath = Path.Combine(SelectedRightDirectory.FullPath, file.Name);
-            try { File.Move(file.FullPath, destPath); ops.Add(new FileOp(destPath, file.FullPath)); }
-            catch (Exception ex) { await _dialogService.ShowErrorDialogAsync("Move Failed", $"Could not move '{file.Name}': {ex.Message}"); }
+            try
+            {
+                File.Move(file.FullPath, destPath);
+
+                // Log move operation with detailed info
+                _auditLoggingService.LogMoveOperation(file.FullPath, destPath, file.Name);
+
+                ops.Add(new FileOp(destPath, file.FullPath));
+            }
+            catch (Exception ex)
+            {
+                await _dialogService.ShowErrorDialogAsync("Move Failed", $"Could not move '{file.Name}': {ex.Message}");
+
+                // Log failed move
+                _auditLoggingService.LogFileOperation(
+                    "FILE_MOVE_FAILED",
+                    file.FullPath,
+                    $"Failed to move '{file.Name}': {ex.Message}",
+                    new Dictionary<string, string>
+                    {
+                        { "destination", destPath },
+                        { "error", ex.Message }
+                    }
+                );
+            }
         }
         if (ops.Any()) { _undoStack.Push(new UndoAction("Move", ops)); UndoCommand.NotifyCanExecuteChanged(); UpdateAndSortLeftFilteredContents(); UpdateRightFilteredContents(); }
     }
@@ -261,8 +364,30 @@ public partial class BrowseViewModel : ObservableObject
     {
         foreach (var file in _mainViewModel.SelectedScanFiles)
         {
-            try { File.Copy(file.FullPath, Path.Combine(SelectedRightDirectory.FullPath, file.Name), true); }
-            catch (Exception ex) { await _dialogService.ShowErrorDialogAsync("Copy Failed", $"Could not copy '{file.Name}'.\nError: {ex.Message}"); }
+            try
+            {
+                var destPath = Path.Combine(SelectedRightDirectory.FullPath, file.Name);
+                File.Copy(file.FullPath, destPath, true);
+
+                // Log copy operation with detailed info
+                _auditLoggingService.LogCopyOperation(file.FullPath, destPath, file.Name);
+            }
+            catch (Exception ex)
+            {
+                await _dialogService.ShowErrorDialogAsync("Copy Failed", $"Could not copy '{file.Name}'.\nError: {ex.Message}");
+
+                // Log failed copy
+                _auditLoggingService.LogFileOperation(
+                    "FILE_COPY_FAILED",
+                    file.FullPath,
+                    $"Failed to copy '{file.Name}' from Scans: {ex.Message}",
+                    new Dictionary<string, string>
+                    {
+                        { "destination", Path.Combine(SelectedRightDirectory.FullPath, file.Name) },
+                        { "error", ex.Message }
+                    }
+                );
+            }
         }
         UpdateRightFilteredContents();
     }
@@ -274,8 +399,36 @@ public partial class BrowseViewModel : ObservableObject
         UndoCommand.NotifyCanExecuteChanged();
         foreach (var op in lastAction.Ops)
         {
-            try { File.Move(op.FromPath, op.ToPath); }
-            catch (Exception ex) { await _dialogService.ShowErrorDialogAsync("Undo Failed", $"Could not move '{Path.GetFileName(op.ToPath)}' back."); }
+            try
+            {
+                File.Move(op.FromPath, op.ToPath);
+
+                // Log undo operation
+                _auditLoggingService.LogAction(new AuditLogEntry
+                {
+                    ActionType = "ACTION_UNDONE",
+                    Description = $"Undid {lastAction.Type} operation",
+                    TargetPath = op.FromPath,
+                    UserId = Environment.UserName,
+                    Details = $"Moved from {op.FromPath} back to {op.ToPath}"
+                });
+            }
+            catch (Exception ex)
+            {
+                await _dialogService.ShowErrorDialogAsync("Undo Failed", $"Could not move '{Path.GetFileName(op.ToPath)}' back.");
+
+                // Log failed undo
+                _auditLoggingService.LogFileOperation(
+                    "UNDO_FAILED",
+                    op.FromPath,
+                    $"Failed to undo {lastAction.Type} operation: {ex.Message}",
+                    new Dictionary<string, string>
+                    {
+                        { "originalPath", op.ToPath },
+                        { "error", ex.Message }
+                    }
+                );
+            }
         }
         UpdateAndSortLeftFilteredContents();
         UpdateRightFilteredContents();
@@ -286,6 +439,10 @@ public partial class BrowseViewModel : ObservableObject
     {
         var fileToPreview = SelectedLeftItems.Cast<ContentItem>().First();
         var fileItem = new FileItem { Name = fileToPreview.Name, FullPath = fileToPreview.FullPath, Type = GetFileType(fileToPreview.FullPath) };
+
+        // Log preview navigation
+        _auditLoggingService.LogPreviewOperation(fileToPreview.FullPath, fileToPreview.Name);
+
         _navigationService.NavigateTo(typeof(PreviewPage), fileItem);
     }
 
@@ -305,7 +462,6 @@ public partial class BrowseViewModel : ObservableObject
         }
     }
 
-    // THE FIX: This command now explicitly runs file I/O on a background thread.
     [RelayCommand]
     private async Task MoveFiles(Tuple<IEnumerable<string>, string> dropData)
     {
@@ -314,7 +470,6 @@ public partial class BrowseViewModel : ObservableObject
         var sourceFilePaths = dropData.Item1;
         var destinationFolderPath = dropData.Item2;
 
-        // This will hold the results of the background operation
         List<FileOp> completedOps = null;
 
         await Task.Run(async () =>
@@ -326,20 +481,31 @@ public partial class BrowseViewModel : ObservableObject
                 var destPath = Path.Combine(destinationFolderPath, fileName);
                 try
                 {
-                    File.Move(sourcePath, destPath, true); // Overwrite if exists
-                    ops.Add(new FileOp(destPath, sourcePath)); // For Undo
+                    File.Move(sourcePath, destPath, true);
+
+                    // Log drag-drop move operation
+                    _auditLoggingService.LogMoveOperation(sourcePath, destPath, fileName);
+
+                    ops.Add(new FileOp(destPath, sourcePath));
                 }
                 catch (Exception ex)
                 {
-                    // Can't show a dialog from a background thread directly,
-                    // but the failure means the operation won't be added to 'ops'.
-                    // Logging would be appropriate here.
+                    // Log failed drag-drop move
+                    _auditLoggingService.LogFileOperation(
+                        "FILE_MOVE_FAILED",
+                        sourcePath,
+                        $"Failed to move '{fileName}' via drag-drop: {ex.Message}",
+                        new Dictionary<string, string>
+                        {
+                            { "destination", destPath },
+                            { "error", ex.Message }
+                        }
+                    );
                 }
             }
             completedOps = ops;
         });
 
-        // This part runs back on the UI thread after the await completes.
         if (completedOps != null && completedOps.Any())
         {
             _undoStack.Push(new UndoAction("Move", completedOps));

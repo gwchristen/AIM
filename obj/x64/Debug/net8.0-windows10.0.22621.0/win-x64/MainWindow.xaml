@@ -58,6 +58,7 @@
                     </NavigationViewItem.Icon>
                 </NavigationViewItem>
 
+                <!-- INVENTORY ITEM - Visibility handled in code-behind -->
                 <NavigationViewItem Content="Inventory">
                     <NavigationViewItem.Icon>
                         <FontIcon Glyph="&#xE8B7;"/>
@@ -92,6 +93,7 @@
                         <FontIcon Glyph="&#xE9D9;"/>
                     </NavigationViewItem.Icon>
                 </NavigationViewItem>
+
             </NavigationView.MenuItems>
 
             <Frame x:ConnectionId='4' x:Name="ContentFrame"/>

@@ -7,12 +7,12 @@ using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Windows.Storage.Pickers;
+using WinRT.Interop;
 
 namespace AIM.Views;
 
 public sealed partial class SettingsPage : Page, INotifyPropertyChanged
 {
-    // Correctly uses SettingsViewModel now
     public SettingsViewModel ViewModel { get; }
 
     private bool _isLocked = true;
@@ -40,11 +40,11 @@ public sealed partial class SettingsPage : Page, INotifyPropertyChanged
     public SettingsPage()
     {
         InitializeComponent();
-        // Request the correct ViewModel from the DI container
         ViewModel = Ioc.Default.GetRequiredService<SettingsViewModel>();
         DataContext = ViewModel;
     }
 
+    // Directory Browse Handlers
     private async void BrowseRootDirectory_Click(object sender, RoutedEventArgs e)
     {
         await BrowseFolderAsync(path => ViewModel.DefaultRootDirectory = path);
@@ -70,17 +70,29 @@ public sealed partial class SettingsPage : Page, INotifyPropertyChanged
         await BrowseFolderAsync(path => ViewModel.InventoryArchiveDirectory = path);
     }
 
+    private async void BrowseSecurityConfigPath_Click(object sender, RoutedEventArgs e)
+    {
+        await BrowseFolderAsync(path => ViewModel.SecurityConfigPath = path);
+    }
+
+    // Generic Folder Browser
     private async Task BrowseFolderAsync(Action<string> setPath)
     {
         var folderPicker = new FolderPicker();
         folderPicker.SuggestedStartLocation = PickerLocationId.Desktop;
-        var hwnd = WinRT.Interop.WindowNative.GetWindowHandle(App.MainWindow);
-        WinRT.Interop.InitializeWithWindow.Initialize(folderPicker, hwnd);
+        var hwnd = WindowNative.GetWindowHandle(App.MainWindow);
+        InitializeWithWindow.Initialize(folderPicker, hwnd);
         var folder = await folderPicker.PickSingleFolderAsync();
         if (folder != null)
         {
             setPath(folder.Path);
         }
+    }
+
+    // Button Click Handlers
+    private void SaveButton_Click(object sender, RoutedEventArgs e)
+    {
+        ViewModel.SaveSettingsCommand.Execute(null);
     }
 
     private void LockButton_Click(object sender, RoutedEventArgs e)
@@ -107,7 +119,6 @@ public sealed partial class SettingsPage : Page, INotifyPropertyChanged
             if (result == ContentDialogResult.Primary)
             {
                 var password = ((PasswordBox)dialog.Content).Password;
-                // Now checks the password on the correct ViewModel
                 if (password == ViewModel.Password)
                 {
                     IsLocked = false;
@@ -116,9 +127,12 @@ public sealed partial class SettingsPage : Page, INotifyPropertyChanged
         }
     }
 
-    private void SaveButton_Click(object sender, RoutedEventArgs e)
+    //Theme Selection Changed Handler
+    private void ThemeComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
-        // Executes the SaveSettingsCommand on the SettingsViewModel
-        ViewModel.SaveSettingsCommand.Execute(null);
+        if (e.AddedItems.Count > 0 && e.AddedItems[0] is string selectedTheme)
+        {
+            ViewModel.ChangeThemeCommand.Execute(selectedTheme);
+        }
     }
 }

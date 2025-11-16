@@ -1,82 +1,629 @@
-﻿<Page x:ConnectionId='1'
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Page x:ConnectionId='1'
     x:Class="AIM.Views.SettingsPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="using:AIM"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    mc:Ignorable="d">
+    mc:Ignorable="d"
+    x:Name="SettingsPageRoot">
 
-    <ScrollViewer>
-        <StackPanel Margin="24" Spacing="16">
-            <TextBlock Text="Settings" Style="{ThemeResource TitleTextBlockStyle}"/>
-            
-            <StackPanel Spacing="8">
-                <TextBlock Text="Security" Style="{ThemeResource SubtitleTextBlockStyle}"/>
-                <StackPanel Orientation="Horizontal" Spacing="10">
-                    <TextBox x:ConnectionId='12' Header="Password"                                                 Width="200"/>
-                    <Button x:ConnectionId='13' Content="Lock"                          VerticalAlignment="Bottom"/>
-                    <Button x:ConnectionId='14' Content="Unlock"                            VerticalAlignment="Bottom"/>
-                    <Button x:ConnectionId='15'                          Style="{ThemeResource AccentButtonStyle}" VerticalAlignment="Bottom">
-                        <StackPanel Orientation="Horizontal" Spacing="8">
-                            <FontIcon Glyph="&#xE74E;" FontSize="16"/>
-                            <TextBlock Text="Save"/>
+	<Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+		<Grid.RowDefinitions>
+			<RowDefinition Height="Auto"/>
+			<RowDefinition Height="*"/>
+		</Grid.RowDefinitions>
+
+		<!-- Page Title -->
+		<StackPanel Grid.Row="0" Margin="24,24,24,0" Spacing="8">
+			<TextBlock Text="⚙️ Settings" Style="{ThemeResource TitleTextBlockStyle}"/>
+			<TextBlock Text="{Binding CurrentUserId}" FontSize="12" Foreground="#666666"/>
+		</StackPanel>
+
+		<!-- TabView for Settings Sections -->
+		<TabView Grid.Row="1" Margin="0,16,0,0">
+
+			<!-- TAB 1: SECURITY SETTINGS -->
+			<TabViewItem Header="🔐 Security">
+				<TabViewItem.IconSource>
+					<SymbolIconSource Symbol="Setting"/>
+				</TabViewItem.IconSource>
+				<ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+					<StackPanel Margin="24,16,24,24" Spacing="16">
+
+						<!-- Master Password Management Section -->
+						<Expander Header="🔑 Change Master Password" IsExpanded="False" Padding="12">
+							<StackPanel Spacing="12">
+								<TextBlock Text="Update your master password" FontSize="12" Foreground="#666666"/>
+
+								<Button
+                                    Content="🔑 Change Master Password"
+                                    Command="{Binding ChangeMasterPasswordCommand}"
+                                    Style="{ThemeResource AccentButtonStyle}"/>
+
+								<InfoBar
+                                    IsOpen="True"
+                                    Severity="Informational"
+                                    Title="💡 Note"
+                                    Message="You must have master override enabled or be an authorized user to change the master password."
+                                    IsClosable="True"/>
+							</StackPanel>
+						</Expander>
+
+						<!-- Master Password Override Security Section -->
+						<Expander Header="🔓 Master Password Override" IsExpanded="True" Padding="12">
+							<StackPanel Spacing="12">
+								<TextBlock Text="Emergency Access Control" FontSize="14" FontWeight="Bold"/>
+
+								<StackPanel Spacing="8">
+									<TextBlock Text="Current User:" FontSize="12" FontWeight="SemiBold"/>
+									<TextBlock Text="{Binding CurrentUserId}" FontSize="12" Foreground="#666666"/>
+
+									<StackPanel Orientation="Horizontal" Spacing="8">
+										<Button
+                                            Content="🔓 Unlock with Master Password"
+                                            Command="{Binding UnlockWithMasterPasswordCommand}"
+                                            IsEnabled="{Binding IsMasterPasswordOverrideActive, Converter={StaticResource BoolNegationConverter}}"
+                                            Style="{ThemeResource AccentButtonStyle}"/>
+
+										<Button
+                                            Content="🔒 Deactivate Override"
+                                            Command="{Binding DeactivateMasterPasswordOverrideCommand}"
+                                            IsEnabled="{Binding IsMasterPasswordOverrideActive}"
+                                            Background="Orange"/>
+									</StackPanel>
+
+									<InfoBar
+                                        IsOpen="{Binding IsMasterPasswordOverrideActive}"
+                                        Severity="Warning"
+                                        Title="⚠️ Master Password Override Active"
+                                        Message="All features are currently unlocked. Click 'Deactivate Override' to return to normal security mode."
+                                        IsClosable="False"/>
+								</StackPanel>
+							</StackPanel>
+						</Expander>
+
+						<!-- Authorized Users Management Section -->
+						<Expander
+                            Visibility="{Binding IsDirectoriesUnlocked, Converter={StaticResource BoolToVisibilityConverter}}"
+                            Header="👥 Authorized Users"
+                            Padding="12"
+                            IsExpanded="True">
+							<StackPanel Spacing="12">
+								<TextBlock Text="Manage users with full app access:" FontSize="12"/>
+
+								<TextBlock
+                                    Text="{Binding AuthorizedUsersList.Count}"
+                                    FontSize="11"
+                                    Foreground="#666666"/>
+
+								<!-- Authorized Users List -->
+								<ListView x:ConnectionId='12'
+                                    ItemsSource="{Binding AuthorizedUsersList}"
+                                    Height="150"
+                                    Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                                    BorderThickness="1"
+                                    x:Name="AuthorizedUsersListView">
+									<ListView.ItemTemplate>
+										<DataTemplate                      >
+											<Grid Padding="8" ColumnSpacing="8">
+												<Grid.ColumnDefinitions>
+													<ColumnDefinition Width="*"/>
+													<ColumnDefinition Width="Auto"/>
+												</Grid.ColumnDefinitions>
+												<TextBlock
+                                                    Text="{Binding}"
+                                                    VerticalAlignment="Center"
+                                                    Grid.Column="0"/>
+												<Button
+                                                    Content="Remove"
+                                                    Grid.Column="1"
+                                                    Command="{Binding DataContext.RemoveAuthorizedUserCommand, ElementName=SettingsPageRoot}"
+                                                    CommandParameter="{Binding}"
+                                                    FontSize="12"/>
+											</Grid>
+										</DataTemplate>
+									</ListView.ItemTemplate>
+									<ListView.ItemContainerStyle>
+										<Style TargetType="ListViewItem">
+											<Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+										</Style>
+									</ListView.ItemContainerStyle>
+								</ListView>
+
+								<!-- Add New User -->
+								<TextBlock Text="Add New Authorized User:" FontSize="12" FontWeight="SemiBold"/>
+								<Grid ColumnSpacing="8">
+									<Grid.ColumnDefinitions>
+										<ColumnDefinition Width="*"/>
+										<ColumnDefinition Width="Auto"/>
+									</Grid.ColumnDefinitions>
+									<TextBox x:ConnectionId='13'
+                                        x:Name="NewUserIdTextBox"
+                                        PlaceholderText="Enter user ID (e.g., DOMAIN\username or just username)"
+                                        Grid.Column="0"
+                                        Height="40"/>
+									<Button
+                                        Content="Add User"
+                                        Grid.Column="1"
+                                        Command="{Binding AddAuthorizedUserCommand}"
+                                        CommandParameter="{Binding Text, ElementName=NewUserIdTextBox}"
+                                        Height="40"/>
+								</Grid>
+
+								<InfoBar
+                                    IsOpen="True"
+                                    Severity="Informational"
+                                    Title="💡 Tip"
+                                    Message="Users added here will have full access to the app. Check your Windows user ID above to add authorized users."
+                                    IsClosable="True"/>
+							</StackPanel>
+						</Expander>
+					</StackPanel>
+				</ScrollViewer>
+			</TabViewItem>
+
+            <!-- TAB 2: DIRECTORY SETTINGS -->
+            <TabViewItem Header="📁 Directories">
+                <TabViewItem.IconSource>
+                    <SymbolIconSource Symbol="Folder"/>
+                </TabViewItem.IconSource>
+                <Grid>
+                    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                        <StackPanel Margin="24,16,24,24" Spacing="16">
+                            <TextBlock Text="Configure application directories" FontSize="14" FontWeight="SemiBold"/>
+
+                            <!-- Root Directory -->
+                            <StackPanel Spacing="8">
+                                <TextBlock Text="Root Directory" FontSize="12" FontWeight="SemiBold"/>
+                                <StackPanel Orientation="Horizontal" Spacing="8">
+                                    <TextBox 
+                                            Text="{Binding DefaultRootDirectory, Mode=TwoWay}" 
+                                            Width="400" 
+                                            IsEnabled="{Binding IsDirectoriesUnlocked}"
+                                            PlaceholderText="Select root directory"/>
+                                    <Button x:ConnectionId='11' 
+                                                                              
+                                            IsEnabled="{Binding IsDirectoriesUnlocked}"
+                                            VerticalAlignment="Bottom">
+                                        <StackPanel Orientation="Horizontal" Spacing="8">
+                                            <FontIcon Glyph="&#xE8DA;" FontSize="16"/>
+                                            <TextBlock Text="Browse"/>
+                                        </StackPanel>
+                                    </Button>
+                                </StackPanel>
+                            </StackPanel>
+
+                            <!-- Archive Path -->
+                            <StackPanel Spacing="8">
+                                <TextBlock Text="Archive Path" FontSize="12" FontWeight="SemiBold"/>
+                                <StackPanel Orientation="Horizontal" Spacing="8">
+                                    <TextBox 
+                                            Text="{Binding ArchivePath, Mode=TwoWay}" 
+                                            Width="400" 
+                                            IsEnabled="{Binding IsDirectoriesUnlocked}"
+                                            PlaceholderText="Select archive path"/>
+                                    <Button x:ConnectionId='10' 
+                                                                            
+                                            IsEnabled="{Binding IsDirectoriesUnlocked}"
+                                            VerticalAlignment="Bottom">
+                                        <StackPanel Orientation="Horizontal" Spacing="8">
+                                            <FontIcon Glyph="&#xE8DA;" FontSize="16"/>
+                                            <TextBlock Text="Browse"/>
+                                        </StackPanel>
+                                    </Button>
+                                </StackPanel>
+                            </StackPanel>
+
+                            <!-- Shipped Directory -->
+                            <StackPanel Spacing="8">
+                                <TextBlock Text="Shipped Directory" FontSize="12" FontWeight="SemiBold"/>
+                                <StackPanel Orientation="Horizontal" Spacing="8">
+                                    <TextBox 
+                                            Text="{Binding ShippedDirectory, Mode=TwoWay}" 
+                                            Width="400" 
+                                            IsEnabled="{Binding IsDirectoriesUnlocked}"
+                                            PlaceholderText="Select shipped directory"/>
+                                    <Button x:ConnectionId='9' 
+                                                                                 
+                                            IsEnabled="{Binding IsDirectoriesUnlocked}"
+                                            VerticalAlignment="Bottom">
+                                        <StackPanel Orientation="Horizontal" Spacing="8">
+                                            <FontIcon Glyph="&#xE8DA;" FontSize="16"/>
+                                            <TextBlock Text="Browse"/>
+                                        </StackPanel>
+                                    </Button>
+                                </StackPanel>
+                            </StackPanel>
+
+                            <!-- File Scans Directory -->
+                            <StackPanel Spacing="8">
+                                <TextBlock Text="File Scans Directory" FontSize="12" FontWeight="SemiBold"/>
+                                <StackPanel Orientation="Horizontal" Spacing="8">
+                                    <TextBox 
+                                            Text="{Binding FileScansDirectory, Mode=TwoWay}" 
+                                            Width="400" 
+                                            IsEnabled="{Binding IsDirectoriesUnlocked}"
+                                            PlaceholderText="Select file scans directory"/>
+                                    <Button x:ConnectionId='8' 
+                                                                                   
+                                            IsEnabled="{Binding IsDirectoriesUnlocked}"
+                                            VerticalAlignment="Bottom">
+                                        <StackPanel Orientation="Horizontal" Spacing="8">
+                                            <FontIcon Glyph="&#xE8DA;" FontSize="16"/>
+                                            <TextBlock Text="Browse"/>
+                                        </StackPanel>
+                                    </Button>
+                                </StackPanel>
+                            </StackPanel>
+
+                            <!-- Inventory Archive Directory -->
+                            <StackPanel Spacing="8">
+                                <TextBlock Text="Inventory Archive Directory" FontSize="12" FontWeight="SemiBold"/>
+                                <StackPanel Orientation="Horizontal" Spacing="8">
+                                    <TextBox 
+                                            Text="{Binding InventoryArchiveDirectory, Mode=TwoWay}" 
+                                            Width="400" 
+                                            IsEnabled="{Binding IsDirectoriesUnlocked}"
+                                            PlaceholderText="Select inventory archive directory"/>
+                                    <Button x:ConnectionId='7' 
+                                                                                          
+                                            IsEnabled="{Binding IsDirectoriesUnlocked}"
+                                            VerticalAlignment="Bottom">
+                                        <StackPanel Orientation="Horizontal" Spacing="8">
+                                            <FontIcon Glyph="&#xE8DA;" FontSize="16"/>
+                                            <TextBlock Text="Browse"/>
+                                        </StackPanel>
+                                    </Button>
+                                </StackPanel>
+                            </StackPanel>
+
+                            <!-- Security Configuration Path -->
+                            <StackPanel Spacing="8">
+                                <TextBlock Text="Security Config Storage Path" FontSize="12" FontWeight="SemiBold"/>
+                                <TextBlock Text="Location for encrypted master password and authorized users list" FontSize="11" Foreground="#666666"/>
+                                <StackPanel Orientation="Horizontal" Spacing="8">
+                                    <TextBox 
+                                            Text="{Binding SecurityConfigPath, Mode=TwoWay}" 
+                                            Width="400" 
+                                            IsEnabled="{Binding IsDirectoriesUnlocked}"
+                                            PlaceholderText="Select security config storage path (leave blank for local AppData)"/>
+                                    <Button x:ConnectionId='6' 
+                                                                                   
+                                            IsEnabled="{Binding IsDirectoriesUnlocked}"
+                                            VerticalAlignment="Bottom">
+                                        <StackPanel Orientation="Horizontal" Spacing="8">
+                                            <FontIcon Glyph="&#xE8DA;" FontSize="16"/>
+                                            <TextBlock Text="Browse"/>
+                                        </StackPanel>
+                                    </Button>
+                                </StackPanel>
+                                <InfoBar 
+                                        IsOpen="True"
+                                        Severity="Warning"
+                                        Title="💡 Shared Drive Tip"
+                                        Message="Point this to a shared network drive (e.g., \\server\shared\AIM) to sync security settings across multiple computers. Leave blank to use local AppData."
+                                        IsClosable="True"/>
+                            </StackPanel>
+
+                            <!-- Save Button -->
+                            <Button x:ConnectionId='5' 
+                                                             
+                                    Style="{ThemeResource AccentButtonStyle}"
+                                    IsEnabled="{Binding IsDirectoriesUnlocked}"
+                                    Width="200">
+                                <StackPanel Orientation="Horizontal" Spacing="8">
+                                    <FontIcon Glyph="&#xE74E;" FontSize="16"/>
+                                    <TextBlock Text="Save Settings"/>
+                                </StackPanel>
+                            </Button>
+
+                            <InfoBar 
+                                    IsOpen="True"
+                                    Severity="Warning"
+                                    Title="🔒 Directory settings are locked"
+                                    Message="You must be authorized or have master override enabled to modify directories."
+                                    IsClosable="True"
+                                    Visibility="{Binding IsDirectoriesUnlocked, Converter={StaticResource BoolNegationConverter}}"/>
                         </StackPanel>
-                    </Button>
-                </StackPanel>
-            </StackPanel>
-            
-            <StackPanel Spacing="12">
-                <TextBlock Text="Directories" Style="{ThemeResource SubtitleTextBlockStyle}"/>
-                <StackPanel Spacing="8">
-                    <StackPanel Orientation="Horizontal" Spacing="8">
-                        <TextBox x:ConnectionId='10' Header="Root Directory"                                                             Width="400"                                                                                             />
-                        <Button x:ConnectionId='11'                                   VerticalAlignment="Bottom">
-                            <StackPanel Orientation="Horizontal" Spacing="8">
-                                <FontIcon Glyph="&#xE8DA;" FontSize="16"/>
-                                <TextBlock Text="Browse"/>
+                    </ScrollViewer>
+                </Grid>
+            </TabViewItem>
+
+            <!-- TAB 3: AUDIT LOGS -->
+			<TabViewItem Header="📋 Audit Logs">
+				<TabViewItem.IconSource>
+					<SymbolIconSource Symbol="Document"/>
+				</TabViewItem.IconSource>
+				<ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+					<StackPanel Margin="24,16,24,24" Spacing="16">
+						<TextBlock Text="📋 Audit Log Viewer" Style="{ThemeResource SubtitleTextBlockStyle}"/>
+
+						<!-- Stats -->
+						<InfoBar
+                            IsOpen="True"
+                            Severity="Informational"
+                            Title="Log Statistics"
+                            Message="{Binding LogStatsMessage}"
+                            IsClosable="False"/>
+
+						<!-- Filters -->
+						<Expander Header="🔍 Filters" IsExpanded="True" Padding="12">
+							<StackPanel Spacing="12">
+								<!-- Text Search -->
+								<StackPanel Spacing="4">
+									<TextBlock Text="Search:" FontWeight="SemiBold" FontSize="12"/>
+									<TextBox
+                                        PlaceholderText="Search by description, path, or details..."
+                                        Text="{Binding FilterText, Mode=TwoWay}"
+                                        Width="400"/>
+								</StackPanel>
+
+								<!-- Filters Grid -->
+								<Grid ColumnSpacing="16">
+									<Grid.ColumnDefinitions>
+										<ColumnDefinition Width="Auto"/>
+										<ColumnDefinition Width="Auto"/>
+									</Grid.ColumnDefinitions>
+
+									<!-- Action Type Filter -->
+									<StackPanel Spacing="4" Grid.Column="0">
+										<TextBlock Text="Action Type:" FontWeight="SemiBold" FontSize="12"/>
+										<ComboBox
+                                            ItemsSource="{Binding AvailableActionTypes}"
+                                            SelectedItem="{Binding SelectedActionTypeFilter, Mode=TwoWay}"
+                                            Width="200"/>
+									</StackPanel>
+
+									<!-- User Filter -->
+									<StackPanel Spacing="4" Grid.Column="1">
+										<TextBlock Text="User:" FontWeight="SemiBold" FontSize="12"/>
+										<ComboBox
+                                            ItemsSource="{Binding AvailableUsers}"
+                                            SelectedItem="{Binding SelectedUserFilter, Mode=TwoWay}"
+                                            Width="200"/>
+									</StackPanel>
+								</Grid>
+
+								<!-- Action Buttons -->
+								<StackPanel Orientation="Horizontal" Spacing="8">
+									<Button
+                                        Content="🔄 Refresh"
+                                        Command="{Binding LoadLogsCommand}"/>
+									<Button
+                                        Content="💾 Export"
+                                        Command="{Binding ExportLogsCommand}"/>
+									<Button
+                                        Content="🗑️ Clear All Logs"
+                                        Command="{Binding ClearAllLogsCommand}"
+                                        IsEnabled="{Binding IsUserAuthorized}"
+                                        Background="Red"
+                                        Foreground="White"/>
+								</StackPanel>
+
+								<!-- Security Notice -->
+								<InfoBar
+                                    IsOpen="True"
+                                    Severity="Warning"
+                                    Title="🔐 Audit Logs are Protected"
+                                    Message="Only authorized users can clear audit logs. All log clearing attempts are recorded."
+                                    IsClosable="True"/>
+							</StackPanel>
+						</Expander>
+
+						<!-- Logs List -->
+						<StackPanel Spacing="8">
+							<TextBlock Text="Logs" FontWeight="SemiBold" FontSize="14"/>
+
+							<ListView
+                                ItemsSource="{Binding FilteredLogs}"
+                                BorderThickness="1"
+                                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                                Height="500">
+
+								<ListView.ItemTemplate>
+									<DataTemplate>
+										<Grid Padding="12" ColumnSpacing="12" BorderBrush="#EEEEEE" BorderThickness="0,0,0,1">
+											<Grid.ColumnDefinitions>
+												<ColumnDefinition Width="180"/>
+												<ColumnDefinition Width="120"/>
+												<ColumnDefinition Width="150"/>
+												<ColumnDefinition Width="*"/>
+											</Grid.ColumnDefinitions>
+
+											<!-- Timestamp -->
+											<StackPanel Grid.Column="0" Spacing="2">
+												<TextBlock Text="Timestamp" FontSize="10" Foreground="#999999"/>
+												<TextBlock Text="{Binding Timestamp, Converter={StaticResource DateTimeConverter}}" FontSize="12" TextWrapping="Wrap"/>
+											</StackPanel>
+
+											<!-- User -->
+											<StackPanel Grid.Column="1" Spacing="2">
+												<TextBlock Text="User" FontSize="10" Foreground="#999999"/>
+												<TextBlock Text="{Binding UserId}" FontSize="12" TextWrapping="Wrap"/>
+											</StackPanel>
+
+											<!-- Action Type -->
+											<StackPanel Grid.Column="2" Spacing="2">
+												<TextBlock Text="Action" FontSize="10" Foreground="#999999"/>
+												<TextBlock Text="{Binding ActionType}" FontSize="12" TextWrapping="Wrap"/>
+											</StackPanel>
+
+											<!-- Description & Details -->
+											<StackPanel Grid.Column="3" Spacing="4">
+												<TextBlock Text="{Binding Description}" FontSize="12" FontWeight="SemiBold" TextWrapping="Wrap"/>
+												<StackPanel Spacing="2" Opacity="0.8">
+													<TextBlock Text="{Binding TargetPath}" FontSize="11" Foreground="#666666" TextWrapping="Wrap"/>
+													<TextBlock Text="{Binding Details}" FontSize="10" Foreground="#999999" TextWrapping="Wrap" FontFamily="Courier New"/>
+												</StackPanel>
+											</StackPanel>
+										</Grid>
+									</DataTemplate>
+								</ListView.ItemTemplate>
+
+								<ListView.ItemContainerStyle>
+									<Style TargetType="ListViewItem">
+										<Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+										<Setter Property="Padding" Value="0"/>
+									</Style>
+								</ListView.ItemContainerStyle>
+							</ListView>
+						</StackPanel>
+
+						<!-- Security Configuration Path -->
+						<StackPanel Spacing="8">
+							<TextBlock Text="Security Config Storage Path" FontSize="12" FontWeight="SemiBold"/>
+							<TextBlock Text="Location for encrypted master password and authorized users list" FontSize="11" Foreground="#666666"/>
+							<StackPanel Orientation="Horizontal" Spacing="8">
+								<TextBox
+                                    Text="{Binding SecurityConfigPath, Mode=TwoWay}"
+                                    Width="400"
+                                    IsEnabled="{Binding IsDirectoriesUnlocked}"
+                                    PlaceholderText="Select security config storage path (leave blank for local AppData)"/>
+								<Button x:ConnectionId='3'
+                                                                          
+                                    IsEnabled="{Binding IsDirectoriesUnlocked}"
+                                    VerticalAlignment="Bottom">
+									<StackPanel Orientation="Horizontal" Spacing="8">
+										<FontIcon Glyph="&#xE8DA;" FontSize="16"/>
+										<TextBlock Text="Browse"/>
+									</StackPanel>
+								</Button>
+							</StackPanel>
+							<InfoBar
+                                IsOpen="True"
+                                Severity="Warning"
+                                Title="💡 Shared Drive Tip"
+                                Message="Point this to a shared network drive (e.g., \\server\shared\AIM) to sync security settings across multiple computers. Leave blank to use local AppData."
+                                IsClosable="True"/>
+						</StackPanel>						
+					</StackPanel>
+				</ScrollViewer>
+			</TabViewItem>
+
+            <!-- TAB 4: THEME SETTINGS -->
+            <TabViewItem Header="🎨 Theme">
+                <TabViewItem.IconSource>
+                    <SymbolIconSource Symbol="Favorite"/>
+                </TabViewItem.IconSource>
+                <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                    <StackPanel Margin="24,16,24,24" Spacing="16">
+                        <TextBlock Text="Customize Application Appearance" FontSize="14" FontWeight="SemiBold"/>
+
+                        <!-- Theme Selection -->
+                        <Expander Header="🎭 Application Theme" IsExpanded="True" Padding="12">
+                            <StackPanel Spacing="12">
+                                <TextBlock Text="Choose how the app should look" FontSize="12" Foreground="#666666"/>
+
+                                <ComboBox x:ConnectionId='2'
+                                        x:Name="ThemeComboBox"
+                                        ItemsSource="{Binding AvailableThemes}"
+                                        SelectedItem="{Binding SelectedThemeName, Mode=OneWay}"
+                                                                                         
+                                        Width="300"
+                                        PlaceholderText="Select theme"/>
+
+                                <StackPanel Spacing="8">
+                                    <TextBlock Text="Theme Options:" FontSize="11" FontWeight="SemiBold" Foreground="#666666"/>
+                                    <StackPanel Spacing="4" Margin="0,0,0,8">
+                                        <TextBlock Text="• Follow Windows Theme - Automatically matches your Windows theme setting" FontSize="11"/>
+                                        <TextBlock Text="• Light - Bright, clean interface" FontSize="11"/>
+                                        <TextBlock Text="• Dark - Easy on the eyes in low light" FontSize="11"/>
+                                        <TextBlock Text="• High Contrast - Enhanced visibility for accessibility" FontSize="11"/>
+                                    </StackPanel>
+                                </StackPanel>
+
+                                <InfoBar 
+                                        IsOpen="True"
+                                        Severity="Informational"
+                                        Title="💡 Note"
+                                        Message="The app will apply your theme preference immediately. Changes are saved automatically."
+                                        IsClosable="True"/>
                             </StackPanel>
-                        </Button>
-                    </StackPanel>
-                    <StackPanel Orientation="Horizontal" Spacing="8">
-                        <TextBox x:ConnectionId='8' Header="Archive Path"                                                    Width="400"                                                                                             />
-                        <Button x:ConnectionId='9'                                 VerticalAlignment="Bottom">
-                            <StackPanel Orientation="Horizontal" Spacing="8">
-                                <FontIcon Glyph="&#xE8DA;" FontSize="16"/>
-                                <TextBlock Text="Browse"/>
+                        </Expander>
+
+                        <!-- Accent Color -->
+                        <Expander Header="🎨 Windows Accent Color" IsExpanded="True" Padding="12">
+                            <StackPanel Spacing="12">
+                                <TextBlock Text="Current Windows accent color" FontSize="12" Foreground="#666666"/>
+
+                                <Grid ColumnSpacing="12">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <!-- Color Preview -->
+                                    <StackPanel Grid.Column="0" Spacing="8">
+                                        <TextBlock Text="Preview:" FontSize="11" FontWeight="SemiBold"/>
+                                        <Border 
+                                                Width="100" 
+                                                Height="100" 
+                                                CornerRadius="8"
+                                                BorderBrush="{ThemeResource SystemAccentColor}"
+                                                BorderThickness="2">
+                                            <Border.Background>
+                                                <SolidColorBrush Color="{ThemeResource SystemAccentColor}"/>
+                                            </Border.Background>
+                                        </Border>
+                                    </StackPanel>
+
+                                    <!-- Color Details -->
+                                    <StackPanel Grid.Column="1" Spacing="8">
+                                        <TextBlock Text="Hex Code:" FontSize="11" FontWeight="SemiBold"/>
+                                        <TextBlock Text="{Binding AccentColorHex}" FontSize="12" FontFamily="Courier New"/>
+                                        <Button 
+                                                Content="🔄 Refresh from Windows" 
+                                                Command="{Binding RefreshAccentColorCommand}"
+                                                Margin="0,8,0,0"/>
+                                    </StackPanel>
+                                </Grid>
+
+                                <InfoBar 
+                                        IsOpen="True"
+                                        Severity="Informational"
+                                        Title="💡 Synced with Windows"
+                                        Message="The app uses your Windows accent color for highlights and buttons. Change your Windows Settings > Personalization > Colors to customize the accent color."
+                                        IsClosable="True"/>
                             </StackPanel>
-                        </Button>
-                    </StackPanel>
-                    <StackPanel Orientation="Horizontal" Spacing="8">
-                        <TextBox x:ConnectionId='6' Header="Shipped Directory"                                                         Width="400"                                                                                             />
-                        <Button x:ConnectionId='7'                                      VerticalAlignment="Bottom">
-                            <StackPanel Orientation="Horizontal" Spacing="8">
-                                <FontIcon Glyph="&#xE8DA;" FontSize="16"/>
-                                <TextBlock Text="Browse"/>
+                        </Expander>
+
+                        <!-- Accessibility -->
+                        <Expander Header="♿ Accessibility" IsExpanded="True" Padding="12">
+                            <StackPanel Spacing="12">
+                                <TextBlock Text="Accessibility Information" FontSize="12" Foreground="#666666"/>
+
+                                <StackPanel Spacing="8">
+                                    <Grid ColumnSpacing="12">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+
+                                        <TextBlock Text="High Contrast Mode:" Grid.Column="0" FontWeight="SemiBold"/>
+                                        <TextBlock 
+                                                Text="{Binding IsHighContrast}" 
+                                                Grid.Column="1"
+                                                Foreground="{ThemeResource SystemAccentColor}"/>
+                                    </Grid>
+                                </StackPanel>
+
+                                <InfoBar 
+                                        IsOpen="{Binding IsHighContrast}"
+                                        Severity="Informational"
+                                        Title="✓ High Contrast Enabled"
+                                        Message="You have Windows High Contrast mode enabled. The app will use enhanced visibility colors."
+                                        IsClosable="True"/>
+
+                                <TextBlock Text="This app is designed to be accessible. If you experience any accessibility issues, please report them." FontSize="11" TextWrapping="Wrap" Foreground="#666666"/>
                             </StackPanel>
-                        </Button>
+                        </Expander>
                     </StackPanel>
-                    <StackPanel Orientation="Horizontal" Spacing="8">
-                        <TextBox x:ConnectionId='4' Header="File Scans Directory"                                                           Width="400"/>
-                        <Button x:ConnectionId='5'                                        VerticalAlignment="Bottom">
-                            <StackPanel Orientation="Horizontal" Spacing="8">
-                                <FontIcon Glyph="&#xE8DA;" FontSize="16"/>
-                                <TextBlock Text="Browse"/>
-                            </StackPanel>
-                        </Button>
-                    </StackPanel>
-                    <StackPanel Orientation="Horizontal" Spacing="8">
-                        <TextBox x:ConnectionId='2' Header="Inventory Archive Directory"                                                                  Width="400"                                                                                             />
-                        <Button x:ConnectionId='3'                                               VerticalAlignment="Bottom">
-                            <StackPanel Orientation="Horizontal" Spacing="8">
-                                <FontIcon Glyph="&#xE8DA;" FontSize="16"/>
-                                <TextBlock Text="Browse"/>
-                            </StackPanel>
-                        </Button>
-                    </StackPanel>
-                </StackPanel>
-            </StackPanel>
-        </StackPanel>
-    </ScrollViewer>
+                </ScrollViewer>
+            </TabViewItem>
+        </TabView>
+	</Grid>
 </Page>
 
