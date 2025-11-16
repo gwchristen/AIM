@@ -361,9 +361,9 @@ namespace AIM.AIM_XamlTypeInfo
             _typeNameTable[131] = "AIM.ViewModels.InventoryViewerViewModel";
             _typeNameTable[132] = "AIM.Views.PreviewPage";
             _typeNameTable[133] = "AIM.ViewModels.PreviewViewModel";
-            _typeNameTable[134] = "AIM.Converters.FormRowTemplateSelector";
-            _typeNameTable[135] = "AIM.Views.PrintableFormPage";
-            _typeNameTable[136] = "AIM.ViewModels.PrintableFormViewModel";
+            _typeNameTable[134] = "AIM.Converters.HeaderColorConverter";
+            _typeNameTable[135] = "AIM.Converters.FormRowTemplateSelector";
+            _typeNameTable[136] = "AIM.Views.PrintableFormPage";
             _typeNameTable[137] = "Microsoft.Xaml.Interactivity.Interaction";
             _typeNameTable[138] = "Microsoft.Xaml.Interactivity.BehaviorCollection";
             _typeNameTable[139] = "Microsoft.UI.Xaml.DependencyObjectCollection";
@@ -539,9 +539,9 @@ namespace AIM.AIM_XamlTypeInfo
             _typeTable[131] = typeof(global::AIM.ViewModels.InventoryViewerViewModel);
             _typeTable[132] = typeof(global::AIM.Views.PreviewPage);
             _typeTable[133] = typeof(global::AIM.ViewModels.PreviewViewModel);
-            _typeTable[134] = typeof(global::AIM.Converters.FormRowTemplateSelector);
-            _typeTable[135] = typeof(global::AIM.Views.PrintableFormPage);
-            _typeTable[136] = typeof(global::AIM.ViewModels.PrintableFormViewModel);
+            _typeTable[134] = typeof(global::AIM.Converters.HeaderColorConverter);
+            _typeTable[135] = typeof(global::AIM.Converters.FormRowTemplateSelector);
+            _typeTable[136] = typeof(global::AIM.Views.PrintableFormPage);
             _typeTable[137] = typeof(global::Microsoft.Xaml.Interactivity.Interaction);
             _typeTable[138] = typeof(global::Microsoft.Xaml.Interactivity.BehaviorCollection);
             _typeTable[139] = typeof(global::Microsoft.UI.Xaml.DependencyObjectCollection);
@@ -670,8 +670,9 @@ namespace AIM.AIM_XamlTypeInfo
         private object Activate_129_TreeViewItemTemplateSettings() { return new global::Microsoft.UI.Xaml.Controls.TreeViewItemTemplateSettings(); }
         private object Activate_130_InventoryViewerPage() { return new global::AIM.Views.InventoryViewerPage(); }
         private object Activate_132_PreviewPage() { return new global::AIM.Views.PreviewPage(); }
-        private object Activate_134_FormRowTemplateSelector() { return new global::AIM.Converters.FormRowTemplateSelector(); }
-        private object Activate_135_PrintableFormPage() { return new global::AIM.Views.PrintableFormPage(); }
+        private object Activate_134_HeaderColorConverter() { return new global::AIM.Converters.HeaderColorConverter(); }
+        private object Activate_135_FormRowTemplateSelector() { return new global::AIM.Converters.FormRowTemplateSelector(); }
+        private object Activate_136_PrintableFormPage() { return new global::AIM.Views.PrintableFormPage(); }
         private object Activate_138_BehaviorCollection() { return new global::Microsoft.Xaml.Interactivity.BehaviorCollection(); }
         private object Activate_140_EventTriggerBehavior() { return new global::Microsoft.Xaml.Interactions.Core.EventTriggerBehavior(); }
         private object Activate_143_ActionCollection() { return new global::Microsoft.Xaml.Interactivity.ActionCollection(); }
@@ -786,9 +787,9 @@ namespace AIM.AIM_XamlTypeInfo
         private void StaticInitializer_131_InventoryViewerViewModel() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::AIM.ViewModels.InventoryViewerViewModel).TypeHandle);
         private void StaticInitializer_132_PreviewPage() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::AIM.Views.PreviewPage).TypeHandle);
         private void StaticInitializer_133_PreviewViewModel() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::AIM.ViewModels.PreviewViewModel).TypeHandle);
-        private void StaticInitializer_134_FormRowTemplateSelector() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::AIM.Converters.FormRowTemplateSelector).TypeHandle);
-        private void StaticInitializer_135_PrintableFormPage() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::AIM.Views.PrintableFormPage).TypeHandle);
-        private void StaticInitializer_136_PrintableFormViewModel() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::AIM.ViewModels.PrintableFormViewModel).TypeHandle);
+        private void StaticInitializer_134_HeaderColorConverter() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::AIM.Converters.HeaderColorConverter).TypeHandle);
+        private void StaticInitializer_135_FormRowTemplateSelector() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::AIM.Converters.FormRowTemplateSelector).TypeHandle);
+        private void StaticInitializer_136_PrintableFormPage() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::AIM.Views.PrintableFormPage).TypeHandle);
         private void StaticInitializer_137_Interaction() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::Microsoft.Xaml.Interactivity.Interaction).TypeHandle);
         private void StaticInitializer_138_BehaviorCollection() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::Microsoft.Xaml.Interactivity.BehaviorCollection).TypeHandle);
         private void StaticInitializer_140_EventTriggerBehavior() => global::System.Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor(typeof(global::Microsoft.Xaml.Interactions.Core.EventTriggerBehavior).TypeHandle);
@@ -2039,10 +2040,18 @@ namespace AIM.AIM_XamlTypeInfo
                 xamlType = userType;
                 break;
 
-            case 134:   //  AIM.Converters.FormRowTemplateSelector
+            case 134:   //  AIM.Converters.HeaderColorConverter
+                userType = new global::AIM.AIM_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("Object"));
+                userType.Activator = Activate_134_HeaderColorConverter;
+                userType.StaticInitializer = StaticInitializer_134_HeaderColorConverter;
+                userType.SetIsLocalType();
+                xamlType = userType;
+                break;
+
+            case 135:   //  AIM.Converters.FormRowTemplateSelector
                 userType = new global::AIM.AIM_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("Microsoft.UI.Xaml.Controls.DataTemplateSelector"));
-                userType.Activator = Activate_134_FormRowTemplateSelector;
-                userType.StaticInitializer = StaticInitializer_134_FormRowTemplateSelector;
+                userType.Activator = Activate_135_FormRowTemplateSelector;
+                userType.StaticInitializer = StaticInitializer_135_FormRowTemplateSelector;
                 userType.AddMemberName("Level2HeaderTemplate");
                 userType.AddMemberName("Level3Header_A_Template");
                 userType.AddMemberName("Level3Header_B_Template");
@@ -2053,19 +2062,10 @@ namespace AIM.AIM_XamlTypeInfo
                 xamlType = userType;
                 break;
 
-            case 135:   //  AIM.Views.PrintableFormPage
+            case 136:   //  AIM.Views.PrintableFormPage
                 userType = new global::AIM.AIM_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("Microsoft.UI.Xaml.Controls.Page"));
-                userType.Activator = Activate_135_PrintableFormPage;
-                userType.StaticInitializer = StaticInitializer_135_PrintableFormPage;
-                userType.AddMemberName("ViewModel");
-                userType.SetIsLocalType();
-                xamlType = userType;
-                break;
-
-            case 136:   //  AIM.ViewModels.PrintableFormViewModel
-                userType = new global::AIM.AIM_XamlTypeInfo.XamlUserType(this, typeName, type, GetXamlTypeByName("CommunityToolkit.Mvvm.ComponentModel.ObservableObject"));
-                userType.StaticInitializer = StaticInitializer_136_PrintableFormViewModel;
-                userType.SetIsReturnTypeStub();
+                userType.Activator = Activate_136_PrintableFormPage;
+                userType.StaticInitializer = StaticInitializer_136_PrintableFormPage;
                 userType.SetIsLocalType();
                 xamlType = userType;
                 break;
@@ -4621,505 +4621,500 @@ namespace AIM.AIM_XamlTypeInfo
             var that = (global::AIM.Converters.FormRowTemplateSelector)instance;
             that.BlankTemplate = (global::Microsoft.UI.Xaml.DataTemplate)Value;
         }
-        private object get_235_PrintableFormPage_ViewModel(object instance)
-        {
-            var that = (global::AIM.Views.PrintableFormPage)instance;
-            return that.ViewModel;
-        }
-        private object get_236_Interaction_Behaviors(object instance)
+        private object get_235_Interaction_Behaviors(object instance)
         {
             return global::Microsoft.Xaml.Interactivity.Interaction.GetBehaviors((global::Microsoft.UI.Xaml.DependencyObject)instance);
         }
-        private void set_236_Interaction_Behaviors(object instance, object Value)
+        private void set_235_Interaction_Behaviors(object instance, object Value)
         {
             global::Microsoft.Xaml.Interactivity.Interaction.SetBehaviors((global::Microsoft.UI.Xaml.DependencyObject)instance, (global::Microsoft.Xaml.Interactivity.BehaviorCollection)Value);
         }
-        private object get_237_Trigger_Actions(object instance)
+        private object get_236_Trigger_Actions(object instance)
         {
             var that = (global::Microsoft.Xaml.Interactivity.Trigger)instance;
             return that.Actions;
         }
-        private object get_238_EventTriggerBehavior_EventName(object instance)
+        private object get_237_EventTriggerBehavior_EventName(object instance)
         {
             var that = (global::Microsoft.Xaml.Interactions.Core.EventTriggerBehavior)instance;
             return that.EventName;
         }
-        private void set_238_EventTriggerBehavior_EventName(object instance, object Value)
+        private void set_237_EventTriggerBehavior_EventName(object instance, object Value)
         {
             var that = (global::Microsoft.Xaml.Interactions.Core.EventTriggerBehavior)instance;
             that.EventName = (global::System.String)Value;
         }
-        private object get_239_EventTriggerBehavior_SourceObject(object instance)
+        private object get_238_EventTriggerBehavior_SourceObject(object instance)
         {
             var that = (global::Microsoft.Xaml.Interactions.Core.EventTriggerBehavior)instance;
             return that.SourceObject;
         }
-        private void set_239_EventTriggerBehavior_SourceObject(object instance, object Value)
+        private void set_238_EventTriggerBehavior_SourceObject(object instance, object Value)
         {
             var that = (global::Microsoft.Xaml.Interactions.Core.EventTriggerBehavior)instance;
             that.SourceObject = (global::System.Object)Value;
         }
-        private object get_240_Behavior_AssociatedObject(object instance)
+        private object get_239_Behavior_AssociatedObject(object instance)
         {
             var that = (global::Microsoft.Xaml.Interactivity.Behavior)instance;
             return that.AssociatedObject;
         }
-        private object get_241_InvokeCommandAction_Command(object instance)
+        private object get_240_InvokeCommandAction_Command(object instance)
         {
             var that = (global::Microsoft.Xaml.Interactions.Core.InvokeCommandAction)instance;
             return that.Command;
         }
-        private void set_241_InvokeCommandAction_Command(object instance, object Value)
+        private void set_240_InvokeCommandAction_Command(object instance, object Value)
         {
             var that = (global::Microsoft.Xaml.Interactions.Core.InvokeCommandAction)instance;
             that.Command = (global::System.Windows.Input.ICommand)Value;
         }
-        private object get_242_InvokeCommandAction_CommandParameter(object instance)
+        private object get_241_InvokeCommandAction_CommandParameter(object instance)
         {
             var that = (global::Microsoft.Xaml.Interactions.Core.InvokeCommandAction)instance;
             return that.CommandParameter;
         }
-        private void set_242_InvokeCommandAction_CommandParameter(object instance, object Value)
+        private void set_241_InvokeCommandAction_CommandParameter(object instance, object Value)
         {
             var that = (global::Microsoft.Xaml.Interactions.Core.InvokeCommandAction)instance;
             that.CommandParameter = (global::System.Object)Value;
         }
-        private object get_243_InvokeCommandAction_InputConverter(object instance)
+        private object get_242_InvokeCommandAction_InputConverter(object instance)
         {
             var that = (global::Microsoft.Xaml.Interactions.Core.InvokeCommandAction)instance;
             return that.InputConverter;
         }
-        private void set_243_InvokeCommandAction_InputConverter(object instance, object Value)
+        private void set_242_InvokeCommandAction_InputConverter(object instance, object Value)
         {
             var that = (global::Microsoft.Xaml.Interactions.Core.InvokeCommandAction)instance;
             that.InputConverter = (global::Microsoft.UI.Xaml.Data.IValueConverter)Value;
         }
-        private object get_244_InvokeCommandAction_InputConverterParameter(object instance)
+        private object get_243_InvokeCommandAction_InputConverterParameter(object instance)
         {
             var that = (global::Microsoft.Xaml.Interactions.Core.InvokeCommandAction)instance;
             return that.InputConverterParameter;
         }
-        private void set_244_InvokeCommandAction_InputConverterParameter(object instance, object Value)
+        private void set_243_InvokeCommandAction_InputConverterParameter(object instance, object Value)
         {
             var that = (global::Microsoft.Xaml.Interactions.Core.InvokeCommandAction)instance;
             that.InputConverterParameter = (global::System.Object)Value;
         }
-        private object get_245_InvokeCommandAction_InputConverterLanguage(object instance)
+        private object get_244_InvokeCommandAction_InputConverterLanguage(object instance)
         {
             var that = (global::Microsoft.Xaml.Interactions.Core.InvokeCommandAction)instance;
             return that.InputConverterLanguage;
         }
-        private void set_245_InvokeCommandAction_InputConverterLanguage(object instance, object Value)
+        private void set_244_InvokeCommandAction_InputConverterLanguage(object instance, object Value)
         {
             var that = (global::Microsoft.Xaml.Interactions.Core.InvokeCommandAction)instance;
             that.InputConverterLanguage = (global::System.String)Value;
         }
-        private object get_246_ScansPage_ViewModel(object instance)
+        private object get_245_ScansPage_ViewModel(object instance)
         {
             var that = (global::AIM.Views.ScansPage)instance;
             return that.ViewModel;
         }
-        private object get_247_SearchPage_ViewModel(object instance)
+        private object get_246_SearchPage_ViewModel(object instance)
         {
             var that = (global::AIM.Views.SearchPage)instance;
             return that.ViewModel;
         }
-        private object get_248_SettingsPage_ViewModel(object instance)
+        private object get_247_SettingsPage_ViewModel(object instance)
         {
             var that = (global::AIM.Views.SettingsPage)instance;
             return that.ViewModel;
         }
-        private object get_249_SettingsPage_IsLocked(object instance)
+        private object get_248_SettingsPage_IsLocked(object instance)
         {
             var that = (global::AIM.Views.SettingsPage)instance;
             return that.IsLocked;
         }
-        private void set_249_SettingsPage_IsLocked(object instance, object Value)
+        private void set_248_SettingsPage_IsLocked(object instance, object Value)
         {
             var that = (global::AIM.Views.SettingsPage)instance;
             that.IsLocked = (global::System.Boolean)Value;
         }
-        private object get_250_SourceGenChart_Series(object instance)
+        private object get_249_SourceGenChart_Series(object instance)
         {
             var that = (global::LiveChartsGeneratedCode.SourceGenChart)instance;
             return that.Series;
         }
-        private void set_250_SourceGenChart_Series(object instance, object Value)
+        private void set_249_SourceGenChart_Series(object instance, object Value)
         {
             var that = (global::LiveChartsGeneratedCode.SourceGenChart)instance;
             that.Series = (global::System.Collections.Generic.IEnumerable<global::LiveChartsCore.ISeries>)Value;
         }
-        private object get_251_SourceGenChart_LegendPosition(object instance)
+        private object get_250_SourceGenChart_LegendPosition(object instance)
         {
             var that = (global::LiveChartsGeneratedCode.SourceGenChart)instance;
             return that.LegendPosition;
         }
-        private void set_251_SourceGenChart_LegendPosition(object instance, object Value)
+        private void set_250_SourceGenChart_LegendPosition(object instance, object Value)
         {
             var that = (global::LiveChartsGeneratedCode.SourceGenChart)instance;
             that.LegendPosition = (global::LiveChartsCore.Measure.LegendPosition)Value;
         }
-        private object get_252_SourceGenChart_LegendTextSize(object instance)
+        private object get_251_SourceGenChart_LegendTextSize(object instance)
         {
             var that = (global::LiveChartsGeneratedCode.SourceGenChart)instance;
             return that.LegendTextSize;
         }
-        private void set_252_SourceGenChart_LegendTextSize(object instance, object Value)
+        private void set_251_SourceGenChart_LegendTextSize(object instance, object Value)
         {
             var that = (global::LiveChartsGeneratedCode.SourceGenChart)instance;
             that.LegendTextSize = (global::System.Double)Value;
         }
-        private object get_253_SourceGenPieChart_IsClockwise(object instance)
+        private object get_252_SourceGenPieChart_IsClockwise(object instance)
         {
             var that = (global::LiveChartsGeneratedCode.SourceGenPieChart)instance;
             return that.IsClockwise;
         }
-        private void set_253_SourceGenPieChart_IsClockwise(object instance, object Value)
+        private void set_252_SourceGenPieChart_IsClockwise(object instance, object Value)
         {
             var that = (global::LiveChartsGeneratedCode.SourceGenPieChart)instance;
             that.IsClockwise = (global::System.Boolean)Value;
         }
-        private object get_254_SourceGenPieChart_InitialRotation(object instance)
+        private object get_253_SourceGenPieChart_InitialRotation(object instance)
         {
             var that = (global::LiveChartsGeneratedCode.SourceGenPieChart)instance;
             return that.InitialRotation;
         }
-        private void set_254_SourceGenPieChart_InitialRotation(object instance, object Value)
+        private void set_253_SourceGenPieChart_InitialRotation(object instance, object Value)
         {
             var that = (global::LiveChartsGeneratedCode.SourceGenPieChart)instance;
             that.InitialRotation = (global::System.Double)Value;
         }
-        private object get_255_SourceGenPieChart_MaxAngle(object instance)
+        private object get_254_SourceGenPieChart_MaxAngle(object instance)
         {
             var that = (global::LiveChartsGeneratedCode.SourceGenPieChart)instance;
             return that.MaxAngle;
         }
-        private void set_255_SourceGenPieChart_MaxAngle(object instance, object Value)
+        private void set_254_SourceGenPieChart_MaxAngle(object instance, object Value)
         {
             var that = (global::LiveChartsGeneratedCode.SourceGenPieChart)instance;
             that.MaxAngle = (global::System.Double)Value;
         }
-        private object get_256_SourceGenPieChart_MaxValue(object instance)
+        private object get_255_SourceGenPieChart_MaxValue(object instance)
         {
             var that = (global::LiveChartsGeneratedCode.SourceGenPieChart)instance;
             return that.MaxValue;
         }
-        private void set_256_SourceGenPieChart_MaxValue(object instance, object Value)
+        private void set_255_SourceGenPieChart_MaxValue(object instance, object Value)
         {
             var that = (global::LiveChartsGeneratedCode.SourceGenPieChart)instance;
             that.MaxValue = (global::System.Double)Value;
         }
-        private object get_257_SourceGenPieChart_MinValue(object instance)
+        private object get_256_SourceGenPieChart_MinValue(object instance)
         {
             var that = (global::LiveChartsGeneratedCode.SourceGenPieChart)instance;
             return that.MinValue;
         }
-        private void set_257_SourceGenPieChart_MinValue(object instance, object Value)
+        private void set_256_SourceGenPieChart_MinValue(object instance, object Value)
         {
             var that = (global::LiveChartsGeneratedCode.SourceGenPieChart)instance;
             that.MinValue = (global::System.Double)Value;
         }
-        private object get_258_SourceGenChart_CoreChart(object instance)
+        private object get_257_SourceGenChart_CoreChart(object instance)
         {
             var that = (global::LiveChartsGeneratedCode.SourceGenChart)instance;
             return that.CoreChart;
         }
-        private object get_259_SourceGenChart_ForceGPU(object instance)
+        private object get_258_SourceGenChart_ForceGPU(object instance)
         {
             var that = (global::LiveChartsGeneratedCode.SourceGenChart)instance;
             return that.ForceGPU;
         }
-        private void set_259_SourceGenChart_ForceGPU(object instance, object Value)
+        private void set_258_SourceGenChart_ForceGPU(object instance, object Value)
         {
             var that = (global::LiveChartsGeneratedCode.SourceGenChart)instance;
             that.ForceGPU = (global::System.Boolean)Value;
         }
-        private object get_260_SourceGenChart_Tooltip(object instance)
+        private object get_259_SourceGenChart_Tooltip(object instance)
         {
             var that = (global::LiveChartsGeneratedCode.SourceGenChart)instance;
             return that.Tooltip;
         }
-        private void set_260_SourceGenChart_Tooltip(object instance, object Value)
+        private void set_259_SourceGenChart_Tooltip(object instance, object Value)
         {
             var that = (global::LiveChartsGeneratedCode.SourceGenChart)instance;
             that.Tooltip = (global::LiveChartsCore.Kernel.Sketches.IChartTooltip)Value;
         }
-        private object get_261_SourceGenChart_Legend(object instance)
+        private object get_260_SourceGenChart_Legend(object instance)
         {
             var that = (global::LiveChartsGeneratedCode.SourceGenChart)instance;
             return that.Legend;
         }
-        private void set_261_SourceGenChart_Legend(object instance, object Value)
+        private void set_260_SourceGenChart_Legend(object instance, object Value)
         {
             var that = (global::LiveChartsGeneratedCode.SourceGenChart)instance;
             that.Legend = (global::LiveChartsCore.Kernel.Sketches.IChartLegend)Value;
         }
-        private object get_262_SourceGenChart_ChartTheme(object instance)
+        private object get_261_SourceGenChart_ChartTheme(object instance)
         {
             var that = (global::LiveChartsGeneratedCode.SourceGenChart)instance;
             return that.ChartTheme;
         }
-        private void set_262_SourceGenChart_ChartTheme(object instance, object Value)
+        private void set_261_SourceGenChart_ChartTheme(object instance, object Value)
         {
             var that = (global::LiveChartsGeneratedCode.SourceGenChart)instance;
             that.ChartTheme = (global::LiveChartsCore.Themes.Theme)Value;
         }
-        private object get_263_SourceGenChart_UpdaterThrottler(object instance)
+        private object get_262_SourceGenChart_UpdaterThrottler(object instance)
         {
             var that = (global::LiveChartsGeneratedCode.SourceGenChart)instance;
             return that.UpdaterThrottler;
         }
-        private void set_263_SourceGenChart_UpdaterThrottler(object instance, object Value)
+        private void set_262_SourceGenChart_UpdaterThrottler(object instance, object Value)
         {
             var that = (global::LiveChartsGeneratedCode.SourceGenChart)instance;
             that.UpdaterThrottler = (global::System.TimeSpan)Value;
         }
-        private object get_264_SourceGenChart_AutoUpdateEnabled(object instance)
+        private object get_263_SourceGenChart_AutoUpdateEnabled(object instance)
         {
             var that = (global::LiveChartsGeneratedCode.SourceGenChart)instance;
             return that.AutoUpdateEnabled;
         }
-        private void set_264_SourceGenChart_AutoUpdateEnabled(object instance, object Value)
+        private void set_263_SourceGenChart_AutoUpdateEnabled(object instance, object Value)
         {
             var that = (global::LiveChartsGeneratedCode.SourceGenChart)instance;
             that.AutoUpdateEnabled = (global::System.Boolean)Value;
         }
-        private object get_265_SourceGenChart_CoreCanvas(object instance)
+        private object get_264_SourceGenChart_CoreCanvas(object instance)
         {
             var that = (global::LiveChartsGeneratedCode.SourceGenChart)instance;
             return that.CoreCanvas;
         }
-        private object get_266_SourceGenChart_UpdateStartedCommand(object instance)
+        private object get_265_SourceGenChart_UpdateStartedCommand(object instance)
         {
             var that = (global::LiveChartsGeneratedCode.SourceGenChart)instance;
             return that.UpdateStartedCommand;
         }
-        private void set_266_SourceGenChart_UpdateStartedCommand(object instance, object Value)
+        private void set_265_SourceGenChart_UpdateStartedCommand(object instance, object Value)
         {
             var that = (global::LiveChartsGeneratedCode.SourceGenChart)instance;
             that.UpdateStartedCommand = (global::System.Windows.Input.ICommand)Value;
         }
-        private object get_267_SourceGenChart_DataPointerDownCommand(object instance)
+        private object get_266_SourceGenChart_DataPointerDownCommand(object instance)
         {
             var that = (global::LiveChartsGeneratedCode.SourceGenChart)instance;
             return that.DataPointerDownCommand;
         }
-        private void set_267_SourceGenChart_DataPointerDownCommand(object instance, object Value)
+        private void set_266_SourceGenChart_DataPointerDownCommand(object instance, object Value)
         {
             var that = (global::LiveChartsGeneratedCode.SourceGenChart)instance;
             that.DataPointerDownCommand = (global::System.Windows.Input.ICommand)Value;
         }
-        private object get_268_SourceGenChart_HoveredPointsChangedCommand(object instance)
+        private object get_267_SourceGenChart_HoveredPointsChangedCommand(object instance)
         {
             var that = (global::LiveChartsGeneratedCode.SourceGenChart)instance;
             return that.HoveredPointsChangedCommand;
         }
-        private void set_268_SourceGenChart_HoveredPointsChangedCommand(object instance, object Value)
+        private void set_267_SourceGenChart_HoveredPointsChangedCommand(object instance, object Value)
         {
             var that = (global::LiveChartsGeneratedCode.SourceGenChart)instance;
             that.HoveredPointsChangedCommand = (global::System.Windows.Input.ICommand)Value;
         }
-        private object get_269_SourceGenChart_ChartPointPointerDownCommand(object instance)
+        private object get_268_SourceGenChart_ChartPointPointerDownCommand(object instance)
         {
             var that = (global::LiveChartsGeneratedCode.SourceGenChart)instance;
             return that.ChartPointPointerDownCommand;
         }
-        private void set_269_SourceGenChart_ChartPointPointerDownCommand(object instance, object Value)
+        private void set_268_SourceGenChart_ChartPointPointerDownCommand(object instance, object Value)
         {
             var that = (global::LiveChartsGeneratedCode.SourceGenChart)instance;
             that.ChartPointPointerDownCommand = (global::System.Windows.Input.ICommand)Value;
         }
-        private object get_270_SourceGenChart_VisualElementsPointerDownCommand(object instance)
+        private object get_269_SourceGenChart_VisualElementsPointerDownCommand(object instance)
         {
             var that = (global::LiveChartsGeneratedCode.SourceGenChart)instance;
             return that.VisualElementsPointerDownCommand;
         }
-        private void set_270_SourceGenChart_VisualElementsPointerDownCommand(object instance, object Value)
+        private void set_269_SourceGenChart_VisualElementsPointerDownCommand(object instance, object Value)
         {
             var that = (global::LiveChartsGeneratedCode.SourceGenChart)instance;
             that.VisualElementsPointerDownCommand = (global::System.Windows.Input.ICommand)Value;
         }
-        private object get_271_SourceGenChart_PointerPressedCommand(object instance)
+        private object get_270_SourceGenChart_PointerPressedCommand(object instance)
         {
             var that = (global::LiveChartsGeneratedCode.SourceGenChart)instance;
             return that.PointerPressedCommand;
         }
-        private void set_271_SourceGenChart_PointerPressedCommand(object instance, object Value)
+        private void set_270_SourceGenChart_PointerPressedCommand(object instance, object Value)
         {
             var that = (global::LiveChartsGeneratedCode.SourceGenChart)instance;
             that.PointerPressedCommand = (global::System.Windows.Input.ICommand)Value;
         }
-        private object get_272_SourceGenChart_PointerMoveCommand(object instance)
+        private object get_271_SourceGenChart_PointerMoveCommand(object instance)
         {
             var that = (global::LiveChartsGeneratedCode.SourceGenChart)instance;
             return that.PointerMoveCommand;
         }
-        private void set_272_SourceGenChart_PointerMoveCommand(object instance, object Value)
+        private void set_271_SourceGenChart_PointerMoveCommand(object instance, object Value)
         {
             var that = (global::LiveChartsGeneratedCode.SourceGenChart)instance;
             that.PointerMoveCommand = (global::System.Windows.Input.ICommand)Value;
         }
-        private object get_273_SourceGenChart_PointerReleasedCommand(object instance)
+        private object get_272_SourceGenChart_PointerReleasedCommand(object instance)
         {
             var that = (global::LiveChartsGeneratedCode.SourceGenChart)instance;
             return that.PointerReleasedCommand;
         }
-        private void set_273_SourceGenChart_PointerReleasedCommand(object instance, object Value)
+        private void set_272_SourceGenChart_PointerReleasedCommand(object instance, object Value)
         {
             var that = (global::LiveChartsGeneratedCode.SourceGenChart)instance;
             that.PointerReleasedCommand = (global::System.Windows.Input.ICommand)Value;
         }
-        private object get_274_SourceGenChart_AnimationsSpeed(object instance)
+        private object get_273_SourceGenChart_AnimationsSpeed(object instance)
         {
             var that = (global::LiveChartsGeneratedCode.SourceGenChart)instance;
             return that.AnimationsSpeed;
         }
-        private void set_274_SourceGenChart_AnimationsSpeed(object instance, object Value)
+        private void set_273_SourceGenChart_AnimationsSpeed(object instance, object Value)
         {
             var that = (global::LiveChartsGeneratedCode.SourceGenChart)instance;
             that.AnimationsSpeed = (global::System.TimeSpan)Value;
         }
-        private object get_275_SourceGenChart_EasingFunction(object instance)
+        private object get_274_SourceGenChart_EasingFunction(object instance)
         {
             var that = (global::LiveChartsGeneratedCode.SourceGenChart)instance;
             return that.EasingFunction;
         }
-        private void set_275_SourceGenChart_EasingFunction(object instance, object Value)
+        private void set_274_SourceGenChart_EasingFunction(object instance, object Value)
         {
             var that = (global::LiveChartsGeneratedCode.SourceGenChart)instance;
             that.EasingFunction = (global::System.Func<global::System.Single, global::System.Single>)Value;
         }
-        private object get_276_SourceGenChart_DrawMargin(object instance)
+        private object get_275_SourceGenChart_DrawMargin(object instance)
         {
             var that = (global::LiveChartsGeneratedCode.SourceGenChart)instance;
             return that.DrawMargin;
         }
-        private void set_276_SourceGenChart_DrawMargin(object instance, object Value)
+        private void set_275_SourceGenChart_DrawMargin(object instance, object Value)
         {
             var that = (global::LiveChartsGeneratedCode.SourceGenChart)instance;
             that.DrawMargin = (global::LiveChartsCore.Measure.Margin)Value;
         }
-        private object get_277_SourceGenChart_TooltipPosition(object instance)
+        private object get_276_SourceGenChart_TooltipPosition(object instance)
         {
             var that = (global::LiveChartsGeneratedCode.SourceGenChart)instance;
             return that.TooltipPosition;
         }
-        private void set_277_SourceGenChart_TooltipPosition(object instance, object Value)
+        private void set_276_SourceGenChart_TooltipPosition(object instance, object Value)
         {
             var that = (global::LiveChartsGeneratedCode.SourceGenChart)instance;
             that.TooltipPosition = (global::LiveChartsCore.Measure.TooltipPosition)Value;
         }
-        private object get_278_SourceGenChart_LegendTextPaint(object instance)
+        private object get_277_SourceGenChart_LegendTextPaint(object instance)
         {
             var that = (global::LiveChartsGeneratedCode.SourceGenChart)instance;
             return that.LegendTextPaint;
         }
-        private void set_278_SourceGenChart_LegendTextPaint(object instance, object Value)
+        private void set_277_SourceGenChart_LegendTextPaint(object instance, object Value)
         {
             var that = (global::LiveChartsGeneratedCode.SourceGenChart)instance;
             that.LegendTextPaint = (global::LiveChartsCore.Painting.Paint)Value;
         }
-        private object get_279_SourceGenChart_LegendBackgroundPaint(object instance)
+        private object get_278_SourceGenChart_LegendBackgroundPaint(object instance)
         {
             var that = (global::LiveChartsGeneratedCode.SourceGenChart)instance;
             return that.LegendBackgroundPaint;
         }
-        private void set_279_SourceGenChart_LegendBackgroundPaint(object instance, object Value)
+        private void set_278_SourceGenChart_LegendBackgroundPaint(object instance, object Value)
         {
             var that = (global::LiveChartsGeneratedCode.SourceGenChart)instance;
             that.LegendBackgroundPaint = (global::LiveChartsCore.Painting.Paint)Value;
         }
-        private object get_280_SourceGenChart_TooltipTextPaint(object instance)
+        private object get_279_SourceGenChart_TooltipTextPaint(object instance)
         {
             var that = (global::LiveChartsGeneratedCode.SourceGenChart)instance;
             return that.TooltipTextPaint;
         }
-        private void set_280_SourceGenChart_TooltipTextPaint(object instance, object Value)
+        private void set_279_SourceGenChart_TooltipTextPaint(object instance, object Value)
         {
             var that = (global::LiveChartsGeneratedCode.SourceGenChart)instance;
             that.TooltipTextPaint = (global::LiveChartsCore.Painting.Paint)Value;
         }
-        private object get_281_SourceGenChart_TooltipBackgroundPaint(object instance)
+        private object get_280_SourceGenChart_TooltipBackgroundPaint(object instance)
         {
             var that = (global::LiveChartsGeneratedCode.SourceGenChart)instance;
             return that.TooltipBackgroundPaint;
         }
-        private void set_281_SourceGenChart_TooltipBackgroundPaint(object instance, object Value)
+        private void set_280_SourceGenChart_TooltipBackgroundPaint(object instance, object Value)
         {
             var that = (global::LiveChartsGeneratedCode.SourceGenChart)instance;
             that.TooltipBackgroundPaint = (global::LiveChartsCore.Painting.Paint)Value;
         }
-        private object get_282_SourceGenChart_TooltipTextSize(object instance)
+        private object get_281_SourceGenChart_TooltipTextSize(object instance)
         {
             var that = (global::LiveChartsGeneratedCode.SourceGenChart)instance;
             return that.TooltipTextSize;
         }
-        private void set_282_SourceGenChart_TooltipTextSize(object instance, object Value)
+        private void set_281_SourceGenChart_TooltipTextSize(object instance, object Value)
         {
             var that = (global::LiveChartsGeneratedCode.SourceGenChart)instance;
             that.TooltipTextSize = (global::System.Double)Value;
         }
-        private object get_283_SourceGenChart_SyncContext(object instance)
+        private object get_282_SourceGenChart_SyncContext(object instance)
         {
             var that = (global::LiveChartsGeneratedCode.SourceGenChart)instance;
             return that.SyncContext;
         }
-        private void set_283_SourceGenChart_SyncContext(object instance, object Value)
+        private void set_282_SourceGenChart_SyncContext(object instance, object Value)
         {
             var that = (global::LiveChartsGeneratedCode.SourceGenChart)instance;
             that.SyncContext = (global::System.Object)Value;
         }
-        private object get_284_SourceGenChart_Title(object instance)
+        private object get_283_SourceGenChart_Title(object instance)
         {
             var that = (global::LiveChartsGeneratedCode.SourceGenChart)instance;
             return that.Title;
         }
-        private void set_284_SourceGenChart_Title(object instance, object Value)
+        private void set_283_SourceGenChart_Title(object instance, object Value)
         {
             var that = (global::LiveChartsGeneratedCode.SourceGenChart)instance;
             that.Title = (global::LiveChartsCore.Kernel.IChartElement)Value;
         }
-        private object get_285_SourceGenChart_VisualElements(object instance)
+        private object get_284_SourceGenChart_VisualElements(object instance)
         {
             var that = (global::LiveChartsGeneratedCode.SourceGenChart)instance;
             return that.VisualElements;
         }
-        private void set_285_SourceGenChart_VisualElements(object instance, object Value)
+        private void set_284_SourceGenChart_VisualElements(object instance, object Value)
         {
             var that = (global::LiveChartsGeneratedCode.SourceGenChart)instance;
             that.VisualElements = (global::System.Collections.Generic.IEnumerable<global::LiveChartsCore.Kernel.IChartElement>)Value;
         }
-        private object get_286_SourceGenChart_SeriesSource(object instance)
+        private object get_285_SourceGenChart_SeriesSource(object instance)
         {
             var that = (global::LiveChartsGeneratedCode.SourceGenChart)instance;
             return that.SeriesSource;
         }
-        private void set_286_SourceGenChart_SeriesSource(object instance, object Value)
+        private void set_285_SourceGenChart_SeriesSource(object instance, object Value)
         {
             var that = (global::LiveChartsGeneratedCode.SourceGenChart)instance;
             that.SeriesSource = (global::System.Collections.Generic.IEnumerable<global::System.Object>)Value;
         }
-        private object get_287_SourceGenChart_SeriesTemplate(object instance)
+        private object get_286_SourceGenChart_SeriesTemplate(object instance)
         {
             var that = (global::LiveChartsGeneratedCode.SourceGenChart)instance;
             return that.SeriesTemplate;
         }
-        private void set_287_SourceGenChart_SeriesTemplate(object instance, object Value)
+        private void set_286_SourceGenChart_SeriesTemplate(object instance, object Value)
         {
             var that = (global::LiveChartsGeneratedCode.SourceGenChart)instance;
             that.SeriesTemplate = (global::Microsoft.UI.Xaml.DataTemplate)Value;
         }
-        private object get_288_StatsPage_ViewModel(object instance)
+        private object get_287_StatsPage_ViewModel(object instance)
         {
             var that = (global::AIM.Views.StatsPage)instance;
             return that.ViewModel;
         }
-        private object get_289_ScaleValue_DisplayName(object instance)
+        private object get_288_ScaleValue_DisplayName(object instance)
         {
             var that = (global::WinUI3XamlPreview.ScaleValue)instance;
             return that.DisplayName;
         }
-        private object get_290_ScaleValue_Scale(object instance)
+        private object get_289_ScaleValue_Scale(object instance)
         {
             var that = (global::WinUI3XamlPreview.ScaleValue)instance;
             return that.Scale;
@@ -6715,380 +6710,374 @@ namespace AIM.AIM_XamlTypeInfo
                 xamlMember.Getter = get_234_FormRowTemplateSelector_BlankTemplate;
                 xamlMember.Setter = set_234_FormRowTemplateSelector_BlankTemplate;
                 break;
-            case "AIM.Views.PrintableFormPage.ViewModel":
-                userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("AIM.Views.PrintableFormPage");
-                xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "ViewModel", "AIM.ViewModels.PrintableFormViewModel");
-                xamlMember.Getter = get_235_PrintableFormPage_ViewModel;
-                xamlMember.SetIsReadOnly();
-                break;
             case "Microsoft.Xaml.Interactivity.Interaction.Behaviors":
                 userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Microsoft.Xaml.Interactivity.Interaction");
                 xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "Behaviors", "Microsoft.Xaml.Interactivity.BehaviorCollection");
                 xamlMember.SetTargetTypeName("Microsoft.UI.Xaml.DependencyObject");
                 xamlMember.SetIsAttachable();
-                xamlMember.Getter = get_236_Interaction_Behaviors;
-                xamlMember.Setter = set_236_Interaction_Behaviors;
+                xamlMember.Getter = get_235_Interaction_Behaviors;
+                xamlMember.Setter = set_235_Interaction_Behaviors;
                 break;
             case "Microsoft.Xaml.Interactivity.Trigger.Actions":
                 userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Microsoft.Xaml.Interactivity.Trigger");
                 xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "Actions", "Microsoft.Xaml.Interactivity.ActionCollection");
                 xamlMember.SetIsDependencyProperty();
-                xamlMember.Getter = get_237_Trigger_Actions;
+                xamlMember.Getter = get_236_Trigger_Actions;
                 xamlMember.SetIsReadOnly();
                 break;
             case "Microsoft.Xaml.Interactions.Core.EventTriggerBehavior.EventName":
                 userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Microsoft.Xaml.Interactions.Core.EventTriggerBehavior");
                 xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "EventName", "String");
                 xamlMember.SetIsDependencyProperty();
-                xamlMember.Getter = get_238_EventTriggerBehavior_EventName;
-                xamlMember.Setter = set_238_EventTriggerBehavior_EventName;
+                xamlMember.Getter = get_237_EventTriggerBehavior_EventName;
+                xamlMember.Setter = set_237_EventTriggerBehavior_EventName;
                 break;
             case "Microsoft.Xaml.Interactions.Core.EventTriggerBehavior.SourceObject":
                 userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Microsoft.Xaml.Interactions.Core.EventTriggerBehavior");
                 xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "SourceObject", "Object");
                 xamlMember.SetIsDependencyProperty();
-                xamlMember.Getter = get_239_EventTriggerBehavior_SourceObject;
-                xamlMember.Setter = set_239_EventTriggerBehavior_SourceObject;
+                xamlMember.Getter = get_238_EventTriggerBehavior_SourceObject;
+                xamlMember.Setter = set_238_EventTriggerBehavior_SourceObject;
                 break;
             case "Microsoft.Xaml.Interactivity.Behavior.AssociatedObject":
                 userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Microsoft.Xaml.Interactivity.Behavior");
                 xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "AssociatedObject", "Microsoft.UI.Xaml.DependencyObject");
-                xamlMember.Getter = get_240_Behavior_AssociatedObject;
+                xamlMember.Getter = get_239_Behavior_AssociatedObject;
                 xamlMember.SetIsReadOnly();
                 break;
             case "Microsoft.Xaml.Interactions.Core.InvokeCommandAction.Command":
                 userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Microsoft.Xaml.Interactions.Core.InvokeCommandAction");
                 xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "Command", "System.Windows.Input.ICommand");
                 xamlMember.SetIsDependencyProperty();
-                xamlMember.Getter = get_241_InvokeCommandAction_Command;
-                xamlMember.Setter = set_241_InvokeCommandAction_Command;
+                xamlMember.Getter = get_240_InvokeCommandAction_Command;
+                xamlMember.Setter = set_240_InvokeCommandAction_Command;
                 break;
             case "Microsoft.Xaml.Interactions.Core.InvokeCommandAction.CommandParameter":
                 userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Microsoft.Xaml.Interactions.Core.InvokeCommandAction");
                 xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "CommandParameter", "Object");
                 xamlMember.SetIsDependencyProperty();
-                xamlMember.Getter = get_242_InvokeCommandAction_CommandParameter;
-                xamlMember.Setter = set_242_InvokeCommandAction_CommandParameter;
+                xamlMember.Getter = get_241_InvokeCommandAction_CommandParameter;
+                xamlMember.Setter = set_241_InvokeCommandAction_CommandParameter;
                 break;
             case "Microsoft.Xaml.Interactions.Core.InvokeCommandAction.InputConverter":
                 userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Microsoft.Xaml.Interactions.Core.InvokeCommandAction");
                 xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "InputConverter", "Microsoft.UI.Xaml.Data.IValueConverter");
                 xamlMember.SetIsDependencyProperty();
-                xamlMember.Getter = get_243_InvokeCommandAction_InputConverter;
-                xamlMember.Setter = set_243_InvokeCommandAction_InputConverter;
+                xamlMember.Getter = get_242_InvokeCommandAction_InputConverter;
+                xamlMember.Setter = set_242_InvokeCommandAction_InputConverter;
                 break;
             case "Microsoft.Xaml.Interactions.Core.InvokeCommandAction.InputConverterParameter":
                 userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Microsoft.Xaml.Interactions.Core.InvokeCommandAction");
                 xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "InputConverterParameter", "Object");
                 xamlMember.SetIsDependencyProperty();
-                xamlMember.Getter = get_244_InvokeCommandAction_InputConverterParameter;
-                xamlMember.Setter = set_244_InvokeCommandAction_InputConverterParameter;
+                xamlMember.Getter = get_243_InvokeCommandAction_InputConverterParameter;
+                xamlMember.Setter = set_243_InvokeCommandAction_InputConverterParameter;
                 break;
             case "Microsoft.Xaml.Interactions.Core.InvokeCommandAction.InputConverterLanguage":
                 userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("Microsoft.Xaml.Interactions.Core.InvokeCommandAction");
                 xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "InputConverterLanguage", "String");
                 xamlMember.SetIsDependencyProperty();
-                xamlMember.Getter = get_245_InvokeCommandAction_InputConverterLanguage;
-                xamlMember.Setter = set_245_InvokeCommandAction_InputConverterLanguage;
+                xamlMember.Getter = get_244_InvokeCommandAction_InputConverterLanguage;
+                xamlMember.Setter = set_244_InvokeCommandAction_InputConverterLanguage;
                 break;
             case "AIM.Views.ScansPage.ViewModel":
                 userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("AIM.Views.ScansPage");
                 xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "ViewModel", "AIM.ViewModels.ScansViewModel");
-                xamlMember.Getter = get_246_ScansPage_ViewModel;
+                xamlMember.Getter = get_245_ScansPage_ViewModel;
                 xamlMember.SetIsReadOnly();
                 break;
             case "AIM.Views.SearchPage.ViewModel":
                 userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("AIM.Views.SearchPage");
                 xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "ViewModel", "AIM.ViewModels.SearchViewModel");
-                xamlMember.Getter = get_247_SearchPage_ViewModel;
+                xamlMember.Getter = get_246_SearchPage_ViewModel;
                 xamlMember.SetIsReadOnly();
                 break;
             case "AIM.Views.SettingsPage.ViewModel":
                 userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("AIM.Views.SettingsPage");
                 xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "ViewModel", "AIM.ViewModels.SettingsViewModel");
-                xamlMember.Getter = get_248_SettingsPage_ViewModel;
+                xamlMember.Getter = get_247_SettingsPage_ViewModel;
                 xamlMember.SetIsReadOnly();
                 break;
             case "AIM.Views.SettingsPage.IsLocked":
                 userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("AIM.Views.SettingsPage");
                 xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "IsLocked", "Boolean");
-                xamlMember.Getter = get_249_SettingsPage_IsLocked;
-                xamlMember.Setter = set_249_SettingsPage_IsLocked;
+                xamlMember.Getter = get_248_SettingsPage_IsLocked;
+                xamlMember.Setter = set_248_SettingsPage_IsLocked;
                 break;
             case "LiveChartsGeneratedCode.SourceGenChart.Series":
                 userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("LiveChartsGeneratedCode.SourceGenChart");
                 xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "Series", "System.Collections.Generic.IEnumerable`1<LiveChartsCore.ISeries>");
                 xamlMember.SetIsDependencyProperty();
-                xamlMember.Getter = get_250_SourceGenChart_Series;
-                xamlMember.Setter = set_250_SourceGenChart_Series;
+                xamlMember.Getter = get_249_SourceGenChart_Series;
+                xamlMember.Setter = set_249_SourceGenChart_Series;
                 break;
             case "LiveChartsGeneratedCode.SourceGenChart.LegendPosition":
                 userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("LiveChartsGeneratedCode.SourceGenChart");
                 xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "LegendPosition", "LiveChartsCore.Measure.LegendPosition");
                 xamlMember.SetIsDependencyProperty();
-                xamlMember.Getter = get_251_SourceGenChart_LegendPosition;
-                xamlMember.Setter = set_251_SourceGenChart_LegendPosition;
+                xamlMember.Getter = get_250_SourceGenChart_LegendPosition;
+                xamlMember.Setter = set_250_SourceGenChart_LegendPosition;
                 break;
             case "LiveChartsGeneratedCode.SourceGenChart.LegendTextSize":
                 userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("LiveChartsGeneratedCode.SourceGenChart");
                 xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "LegendTextSize", "Double");
                 xamlMember.SetIsDependencyProperty();
-                xamlMember.Getter = get_252_SourceGenChart_LegendTextSize;
-                xamlMember.Setter = set_252_SourceGenChart_LegendTextSize;
+                xamlMember.Getter = get_251_SourceGenChart_LegendTextSize;
+                xamlMember.Setter = set_251_SourceGenChart_LegendTextSize;
                 break;
             case "LiveChartsGeneratedCode.SourceGenPieChart.IsClockwise":
                 userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("LiveChartsGeneratedCode.SourceGenPieChart");
                 xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "IsClockwise", "Boolean");
                 xamlMember.SetIsDependencyProperty();
-                xamlMember.Getter = get_253_SourceGenPieChart_IsClockwise;
-                xamlMember.Setter = set_253_SourceGenPieChart_IsClockwise;
+                xamlMember.Getter = get_252_SourceGenPieChart_IsClockwise;
+                xamlMember.Setter = set_252_SourceGenPieChart_IsClockwise;
                 break;
             case "LiveChartsGeneratedCode.SourceGenPieChart.InitialRotation":
                 userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("LiveChartsGeneratedCode.SourceGenPieChart");
                 xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "InitialRotation", "Double");
                 xamlMember.SetIsDependencyProperty();
-                xamlMember.Getter = get_254_SourceGenPieChart_InitialRotation;
-                xamlMember.Setter = set_254_SourceGenPieChart_InitialRotation;
+                xamlMember.Getter = get_253_SourceGenPieChart_InitialRotation;
+                xamlMember.Setter = set_253_SourceGenPieChart_InitialRotation;
                 break;
             case "LiveChartsGeneratedCode.SourceGenPieChart.MaxAngle":
                 userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("LiveChartsGeneratedCode.SourceGenPieChart");
                 xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "MaxAngle", "Double");
                 xamlMember.SetIsDependencyProperty();
-                xamlMember.Getter = get_255_SourceGenPieChart_MaxAngle;
-                xamlMember.Setter = set_255_SourceGenPieChart_MaxAngle;
+                xamlMember.Getter = get_254_SourceGenPieChart_MaxAngle;
+                xamlMember.Setter = set_254_SourceGenPieChart_MaxAngle;
                 break;
             case "LiveChartsGeneratedCode.SourceGenPieChart.MaxValue":
                 userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("LiveChartsGeneratedCode.SourceGenPieChart");
                 xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "MaxValue", "Double");
                 xamlMember.SetIsDependencyProperty();
-                xamlMember.Getter = get_256_SourceGenPieChart_MaxValue;
-                xamlMember.Setter = set_256_SourceGenPieChart_MaxValue;
+                xamlMember.Getter = get_255_SourceGenPieChart_MaxValue;
+                xamlMember.Setter = set_255_SourceGenPieChart_MaxValue;
                 break;
             case "LiveChartsGeneratedCode.SourceGenPieChart.MinValue":
                 userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("LiveChartsGeneratedCode.SourceGenPieChart");
                 xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "MinValue", "Double");
                 xamlMember.SetIsDependencyProperty();
-                xamlMember.Getter = get_257_SourceGenPieChart_MinValue;
-                xamlMember.Setter = set_257_SourceGenPieChart_MinValue;
+                xamlMember.Getter = get_256_SourceGenPieChart_MinValue;
+                xamlMember.Setter = set_256_SourceGenPieChart_MinValue;
                 break;
             case "LiveChartsGeneratedCode.SourceGenChart.CoreChart":
                 userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("LiveChartsGeneratedCode.SourceGenChart");
                 xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "CoreChart", "LiveChartsCore.Chart");
-                xamlMember.Getter = get_258_SourceGenChart_CoreChart;
+                xamlMember.Getter = get_257_SourceGenChart_CoreChart;
                 xamlMember.SetIsReadOnly();
                 break;
             case "LiveChartsGeneratedCode.SourceGenChart.ForceGPU":
                 userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("LiveChartsGeneratedCode.SourceGenChart");
                 xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "ForceGPU", "Boolean");
-                xamlMember.Getter = get_259_SourceGenChart_ForceGPU;
-                xamlMember.Setter = set_259_SourceGenChart_ForceGPU;
+                xamlMember.Getter = get_258_SourceGenChart_ForceGPU;
+                xamlMember.Setter = set_258_SourceGenChart_ForceGPU;
                 break;
             case "LiveChartsGeneratedCode.SourceGenChart.Tooltip":
                 userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("LiveChartsGeneratedCode.SourceGenChart");
                 xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "Tooltip", "LiveChartsCore.Kernel.Sketches.IChartTooltip");
-                xamlMember.Getter = get_260_SourceGenChart_Tooltip;
-                xamlMember.Setter = set_260_SourceGenChart_Tooltip;
+                xamlMember.Getter = get_259_SourceGenChart_Tooltip;
+                xamlMember.Setter = set_259_SourceGenChart_Tooltip;
                 break;
             case "LiveChartsGeneratedCode.SourceGenChart.Legend":
                 userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("LiveChartsGeneratedCode.SourceGenChart");
                 xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "Legend", "LiveChartsCore.Kernel.Sketches.IChartLegend");
-                xamlMember.Getter = get_261_SourceGenChart_Legend;
-                xamlMember.Setter = set_261_SourceGenChart_Legend;
+                xamlMember.Getter = get_260_SourceGenChart_Legend;
+                xamlMember.Setter = set_260_SourceGenChart_Legend;
                 break;
             case "LiveChartsGeneratedCode.SourceGenChart.ChartTheme":
                 userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("LiveChartsGeneratedCode.SourceGenChart");
                 xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "ChartTheme", "LiveChartsCore.Themes.Theme");
-                xamlMember.Getter = get_262_SourceGenChart_ChartTheme;
-                xamlMember.Setter = set_262_SourceGenChart_ChartTheme;
+                xamlMember.Getter = get_261_SourceGenChart_ChartTheme;
+                xamlMember.Setter = set_261_SourceGenChart_ChartTheme;
                 break;
             case "LiveChartsGeneratedCode.SourceGenChart.UpdaterThrottler":
                 userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("LiveChartsGeneratedCode.SourceGenChart");
                 xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "UpdaterThrottler", "TimeSpan");
-                xamlMember.Getter = get_263_SourceGenChart_UpdaterThrottler;
-                xamlMember.Setter = set_263_SourceGenChart_UpdaterThrottler;
+                xamlMember.Getter = get_262_SourceGenChart_UpdaterThrottler;
+                xamlMember.Setter = set_262_SourceGenChart_UpdaterThrottler;
                 break;
             case "LiveChartsGeneratedCode.SourceGenChart.AutoUpdateEnabled":
                 userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("LiveChartsGeneratedCode.SourceGenChart");
                 xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "AutoUpdateEnabled", "Boolean");
-                xamlMember.Getter = get_264_SourceGenChart_AutoUpdateEnabled;
-                xamlMember.Setter = set_264_SourceGenChart_AutoUpdateEnabled;
+                xamlMember.Getter = get_263_SourceGenChart_AutoUpdateEnabled;
+                xamlMember.Setter = set_263_SourceGenChart_AutoUpdateEnabled;
                 break;
             case "LiveChartsGeneratedCode.SourceGenChart.CoreCanvas":
                 userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("LiveChartsGeneratedCode.SourceGenChart");
                 xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "CoreCanvas", "LiveChartsCore.Motion.CoreMotionCanvas");
-                xamlMember.Getter = get_265_SourceGenChart_CoreCanvas;
+                xamlMember.Getter = get_264_SourceGenChart_CoreCanvas;
                 xamlMember.SetIsReadOnly();
                 break;
             case "LiveChartsGeneratedCode.SourceGenChart.UpdateStartedCommand":
                 userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("LiveChartsGeneratedCode.SourceGenChart");
                 xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "UpdateStartedCommand", "System.Windows.Input.ICommand");
                 xamlMember.SetIsDependencyProperty();
-                xamlMember.Getter = get_266_SourceGenChart_UpdateStartedCommand;
-                xamlMember.Setter = set_266_SourceGenChart_UpdateStartedCommand;
+                xamlMember.Getter = get_265_SourceGenChart_UpdateStartedCommand;
+                xamlMember.Setter = set_265_SourceGenChart_UpdateStartedCommand;
                 break;
             case "LiveChartsGeneratedCode.SourceGenChart.DataPointerDownCommand":
                 userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("LiveChartsGeneratedCode.SourceGenChart");
                 xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "DataPointerDownCommand", "System.Windows.Input.ICommand");
                 xamlMember.SetIsDependencyProperty();
-                xamlMember.Getter = get_267_SourceGenChart_DataPointerDownCommand;
-                xamlMember.Setter = set_267_SourceGenChart_DataPointerDownCommand;
+                xamlMember.Getter = get_266_SourceGenChart_DataPointerDownCommand;
+                xamlMember.Setter = set_266_SourceGenChart_DataPointerDownCommand;
                 break;
             case "LiveChartsGeneratedCode.SourceGenChart.HoveredPointsChangedCommand":
                 userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("LiveChartsGeneratedCode.SourceGenChart");
                 xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "HoveredPointsChangedCommand", "System.Windows.Input.ICommand");
                 xamlMember.SetIsDependencyProperty();
-                xamlMember.Getter = get_268_SourceGenChart_HoveredPointsChangedCommand;
-                xamlMember.Setter = set_268_SourceGenChart_HoveredPointsChangedCommand;
+                xamlMember.Getter = get_267_SourceGenChart_HoveredPointsChangedCommand;
+                xamlMember.Setter = set_267_SourceGenChart_HoveredPointsChangedCommand;
                 break;
             case "LiveChartsGeneratedCode.SourceGenChart.ChartPointPointerDownCommand":
                 userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("LiveChartsGeneratedCode.SourceGenChart");
                 xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "ChartPointPointerDownCommand", "System.Windows.Input.ICommand");
                 xamlMember.SetIsDependencyProperty();
-                xamlMember.Getter = get_269_SourceGenChart_ChartPointPointerDownCommand;
-                xamlMember.Setter = set_269_SourceGenChart_ChartPointPointerDownCommand;
+                xamlMember.Getter = get_268_SourceGenChart_ChartPointPointerDownCommand;
+                xamlMember.Setter = set_268_SourceGenChart_ChartPointPointerDownCommand;
                 break;
             case "LiveChartsGeneratedCode.SourceGenChart.VisualElementsPointerDownCommand":
                 userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("LiveChartsGeneratedCode.SourceGenChart");
                 xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "VisualElementsPointerDownCommand", "System.Windows.Input.ICommand");
                 xamlMember.SetIsDependencyProperty();
-                xamlMember.Getter = get_270_SourceGenChart_VisualElementsPointerDownCommand;
-                xamlMember.Setter = set_270_SourceGenChart_VisualElementsPointerDownCommand;
+                xamlMember.Getter = get_269_SourceGenChart_VisualElementsPointerDownCommand;
+                xamlMember.Setter = set_269_SourceGenChart_VisualElementsPointerDownCommand;
                 break;
             case "LiveChartsGeneratedCode.SourceGenChart.PointerPressedCommand":
                 userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("LiveChartsGeneratedCode.SourceGenChart");
                 xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "PointerPressedCommand", "System.Windows.Input.ICommand");
                 xamlMember.SetIsDependencyProperty();
-                xamlMember.Getter = get_271_SourceGenChart_PointerPressedCommand;
-                xamlMember.Setter = set_271_SourceGenChart_PointerPressedCommand;
+                xamlMember.Getter = get_270_SourceGenChart_PointerPressedCommand;
+                xamlMember.Setter = set_270_SourceGenChart_PointerPressedCommand;
                 break;
             case "LiveChartsGeneratedCode.SourceGenChart.PointerMoveCommand":
                 userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("LiveChartsGeneratedCode.SourceGenChart");
                 xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "PointerMoveCommand", "System.Windows.Input.ICommand");
                 xamlMember.SetIsDependencyProperty();
-                xamlMember.Getter = get_272_SourceGenChart_PointerMoveCommand;
-                xamlMember.Setter = set_272_SourceGenChart_PointerMoveCommand;
+                xamlMember.Getter = get_271_SourceGenChart_PointerMoveCommand;
+                xamlMember.Setter = set_271_SourceGenChart_PointerMoveCommand;
                 break;
             case "LiveChartsGeneratedCode.SourceGenChart.PointerReleasedCommand":
                 userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("LiveChartsGeneratedCode.SourceGenChart");
                 xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "PointerReleasedCommand", "System.Windows.Input.ICommand");
                 xamlMember.SetIsDependencyProperty();
-                xamlMember.Getter = get_273_SourceGenChart_PointerReleasedCommand;
-                xamlMember.Setter = set_273_SourceGenChart_PointerReleasedCommand;
+                xamlMember.Getter = get_272_SourceGenChart_PointerReleasedCommand;
+                xamlMember.Setter = set_272_SourceGenChart_PointerReleasedCommand;
                 break;
             case "LiveChartsGeneratedCode.SourceGenChart.AnimationsSpeed":
                 userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("LiveChartsGeneratedCode.SourceGenChart");
                 xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "AnimationsSpeed", "TimeSpan");
                 xamlMember.SetIsDependencyProperty();
-                xamlMember.Getter = get_274_SourceGenChart_AnimationsSpeed;
-                xamlMember.Setter = set_274_SourceGenChart_AnimationsSpeed;
+                xamlMember.Getter = get_273_SourceGenChart_AnimationsSpeed;
+                xamlMember.Setter = set_273_SourceGenChart_AnimationsSpeed;
                 break;
             case "LiveChartsGeneratedCode.SourceGenChart.EasingFunction":
                 userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("LiveChartsGeneratedCode.SourceGenChart");
                 xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "EasingFunction", "System.Func`2<Single, Single>");
                 xamlMember.SetIsDependencyProperty();
-                xamlMember.Getter = get_275_SourceGenChart_EasingFunction;
-                xamlMember.Setter = set_275_SourceGenChart_EasingFunction;
+                xamlMember.Getter = get_274_SourceGenChart_EasingFunction;
+                xamlMember.Setter = set_274_SourceGenChart_EasingFunction;
                 break;
             case "LiveChartsGeneratedCode.SourceGenChart.DrawMargin":
                 userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("LiveChartsGeneratedCode.SourceGenChart");
                 xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "DrawMargin", "LiveChartsCore.Measure.Margin");
                 xamlMember.SetIsDependencyProperty();
-                xamlMember.Getter = get_276_SourceGenChart_DrawMargin;
-                xamlMember.Setter = set_276_SourceGenChart_DrawMargin;
+                xamlMember.Getter = get_275_SourceGenChart_DrawMargin;
+                xamlMember.Setter = set_275_SourceGenChart_DrawMargin;
                 break;
             case "LiveChartsGeneratedCode.SourceGenChart.TooltipPosition":
                 userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("LiveChartsGeneratedCode.SourceGenChart");
                 xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "TooltipPosition", "LiveChartsCore.Measure.TooltipPosition");
                 xamlMember.SetIsDependencyProperty();
-                xamlMember.Getter = get_277_SourceGenChart_TooltipPosition;
-                xamlMember.Setter = set_277_SourceGenChart_TooltipPosition;
+                xamlMember.Getter = get_276_SourceGenChart_TooltipPosition;
+                xamlMember.Setter = set_276_SourceGenChart_TooltipPosition;
                 break;
             case "LiveChartsGeneratedCode.SourceGenChart.LegendTextPaint":
                 userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("LiveChartsGeneratedCode.SourceGenChart");
                 xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "LegendTextPaint", "LiveChartsCore.Painting.Paint");
                 xamlMember.SetIsDependencyProperty();
-                xamlMember.Getter = get_278_SourceGenChart_LegendTextPaint;
-                xamlMember.Setter = set_278_SourceGenChart_LegendTextPaint;
+                xamlMember.Getter = get_277_SourceGenChart_LegendTextPaint;
+                xamlMember.Setter = set_277_SourceGenChart_LegendTextPaint;
                 break;
             case "LiveChartsGeneratedCode.SourceGenChart.LegendBackgroundPaint":
                 userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("LiveChartsGeneratedCode.SourceGenChart");
                 xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "LegendBackgroundPaint", "LiveChartsCore.Painting.Paint");
                 xamlMember.SetIsDependencyProperty();
-                xamlMember.Getter = get_279_SourceGenChart_LegendBackgroundPaint;
-                xamlMember.Setter = set_279_SourceGenChart_LegendBackgroundPaint;
+                xamlMember.Getter = get_278_SourceGenChart_LegendBackgroundPaint;
+                xamlMember.Setter = set_278_SourceGenChart_LegendBackgroundPaint;
                 break;
             case "LiveChartsGeneratedCode.SourceGenChart.TooltipTextPaint":
                 userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("LiveChartsGeneratedCode.SourceGenChart");
                 xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "TooltipTextPaint", "LiveChartsCore.Painting.Paint");
                 xamlMember.SetIsDependencyProperty();
-                xamlMember.Getter = get_280_SourceGenChart_TooltipTextPaint;
-                xamlMember.Setter = set_280_SourceGenChart_TooltipTextPaint;
+                xamlMember.Getter = get_279_SourceGenChart_TooltipTextPaint;
+                xamlMember.Setter = set_279_SourceGenChart_TooltipTextPaint;
                 break;
             case "LiveChartsGeneratedCode.SourceGenChart.TooltipBackgroundPaint":
                 userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("LiveChartsGeneratedCode.SourceGenChart");
                 xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "TooltipBackgroundPaint", "LiveChartsCore.Painting.Paint");
                 xamlMember.SetIsDependencyProperty();
-                xamlMember.Getter = get_281_SourceGenChart_TooltipBackgroundPaint;
-                xamlMember.Setter = set_281_SourceGenChart_TooltipBackgroundPaint;
+                xamlMember.Getter = get_280_SourceGenChart_TooltipBackgroundPaint;
+                xamlMember.Setter = set_280_SourceGenChart_TooltipBackgroundPaint;
                 break;
             case "LiveChartsGeneratedCode.SourceGenChart.TooltipTextSize":
                 userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("LiveChartsGeneratedCode.SourceGenChart");
                 xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "TooltipTextSize", "Double");
                 xamlMember.SetIsDependencyProperty();
-                xamlMember.Getter = get_282_SourceGenChart_TooltipTextSize;
-                xamlMember.Setter = set_282_SourceGenChart_TooltipTextSize;
+                xamlMember.Getter = get_281_SourceGenChart_TooltipTextSize;
+                xamlMember.Setter = set_281_SourceGenChart_TooltipTextSize;
                 break;
             case "LiveChartsGeneratedCode.SourceGenChart.SyncContext":
                 userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("LiveChartsGeneratedCode.SourceGenChart");
                 xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "SyncContext", "Object");
                 xamlMember.SetIsDependencyProperty();
-                xamlMember.Getter = get_283_SourceGenChart_SyncContext;
-                xamlMember.Setter = set_283_SourceGenChart_SyncContext;
+                xamlMember.Getter = get_282_SourceGenChart_SyncContext;
+                xamlMember.Setter = set_282_SourceGenChart_SyncContext;
                 break;
             case "LiveChartsGeneratedCode.SourceGenChart.Title":
                 userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("LiveChartsGeneratedCode.SourceGenChart");
                 xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "Title", "LiveChartsCore.Kernel.IChartElement");
                 xamlMember.SetIsDependencyProperty();
-                xamlMember.Getter = get_284_SourceGenChart_Title;
-                xamlMember.Setter = set_284_SourceGenChart_Title;
+                xamlMember.Getter = get_283_SourceGenChart_Title;
+                xamlMember.Setter = set_283_SourceGenChart_Title;
                 break;
             case "LiveChartsGeneratedCode.SourceGenChart.VisualElements":
                 userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("LiveChartsGeneratedCode.SourceGenChart");
                 xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "VisualElements", "System.Collections.Generic.IEnumerable`1<LiveChartsCore.Kernel.IChartElement>");
                 xamlMember.SetIsDependencyProperty();
-                xamlMember.Getter = get_285_SourceGenChart_VisualElements;
-                xamlMember.Setter = set_285_SourceGenChart_VisualElements;
+                xamlMember.Getter = get_284_SourceGenChart_VisualElements;
+                xamlMember.Setter = set_284_SourceGenChart_VisualElements;
                 break;
             case "LiveChartsGeneratedCode.SourceGenChart.SeriesSource":
                 userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("LiveChartsGeneratedCode.SourceGenChart");
                 xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "SeriesSource", "System.Collections.Generic.IEnumerable`1<Object>");
                 xamlMember.SetIsDependencyProperty();
-                xamlMember.Getter = get_286_SourceGenChart_SeriesSource;
-                xamlMember.Setter = set_286_SourceGenChart_SeriesSource;
+                xamlMember.Getter = get_285_SourceGenChart_SeriesSource;
+                xamlMember.Setter = set_285_SourceGenChart_SeriesSource;
                 break;
             case "LiveChartsGeneratedCode.SourceGenChart.SeriesTemplate":
                 userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("LiveChartsGeneratedCode.SourceGenChart");
                 xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "SeriesTemplate", "Microsoft.UI.Xaml.DataTemplate");
                 xamlMember.SetIsDependencyProperty();
-                xamlMember.Getter = get_287_SourceGenChart_SeriesTemplate;
-                xamlMember.Setter = set_287_SourceGenChart_SeriesTemplate;
+                xamlMember.Getter = get_286_SourceGenChart_SeriesTemplate;
+                xamlMember.Setter = set_286_SourceGenChart_SeriesTemplate;
                 break;
             case "AIM.Views.StatsPage.ViewModel":
                 userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("AIM.Views.StatsPage");
                 xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "ViewModel", "AIM.ViewModels.StatsViewModel");
-                xamlMember.Getter = get_288_StatsPage_ViewModel;
+                xamlMember.Getter = get_287_StatsPage_ViewModel;
                 xamlMember.SetIsReadOnly();
                 break;
             case "WinUI3XamlPreview.ScaleValue.DisplayName":
                 userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("WinUI3XamlPreview.ScaleValue");
                 xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "DisplayName", "String");
-                xamlMember.Getter = get_289_ScaleValue_DisplayName;
+                xamlMember.Getter = get_288_ScaleValue_DisplayName;
                 xamlMember.SetIsReadOnly();
                 break;
             case "WinUI3XamlPreview.ScaleValue.Scale":
                 userType = (global::AIM.AIM_XamlTypeInfo.XamlUserType)GetXamlTypeByName("WinUI3XamlPreview.ScaleValue");
                 xamlMember = new global::AIM.AIM_XamlTypeInfo.XamlMember(this, "Scale", "Double");
-                xamlMember.Getter = get_290_ScaleValue_Scale;
+                xamlMember.Getter = get_289_ScaleValue_Scale;
                 xamlMember.SetIsReadOnly();
                 break;
             }

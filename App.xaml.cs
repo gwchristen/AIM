@@ -30,6 +30,7 @@ public partial class App : Application
         
     }
 
+
     private static IServiceProvider ConfigureServices()
     {
         var services = new ServiceCollection();
@@ -44,6 +45,7 @@ public partial class App : Application
         services.AddSingleton<DirectoryOperationService>();
         services.AddSingleton<IMessenger>(WeakReferenceMessenger.Default);
         services.AddSingleton<IPrintService, PrintService>();
+        services.AddSingleton<FormTemplateFactory>();
 
         // ViewModels
         services.AddTransient<MainViewModel>();
@@ -82,5 +84,16 @@ public partial class App : Application
 
 
         return services.BuildServiceProvider();
+
+    }
+
+    public static T GetService<T>() where T : class
+    {
+        if ((Current as App)?.Services.GetService(typeof(T)) is not T service)
+        {
+            throw new InvalidOperationException($"Cannot resolve service of type {typeof(T).Name}");
+        }
+
+        return service;
     }
 }

@@ -2,6 +2,7 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Windows.Storage.Pickers;
 
@@ -10,18 +11,27 @@ namespace AIM.ViewModels;
 public partial class FormGeneratorViewModel : ObservableObject
 {
     private readonly IDialogService _dialogService;
-    private readonly DirectoryOperationService _directoryOperationService;
+    private readonly FormTemplateFactory _templateFactory;
     private readonly INavigationService _navigationService;
 
     [ObservableProperty]
     [NotifyCanExecuteChangedFor(nameof(GenerateFormCommand))]
     private string? _formDirectory;
 
-    public FormGeneratorViewModel(IDialogService dialogService, DirectoryOperationService directoryOperationService, INavigationService navigationService)
+    [ObservableProperty]
+    private string _selectedTemplate = "Ohio";
+
+    [ObservableProperty]
+    private List<string> _availableTemplates;
+
+    public FormGeneratorViewModel(IDialogService dialogService, FormTemplateFactory templateFactory, INavigationService navigationService)
     {
         _dialogService = dialogService;
-        _directoryOperationService = directoryOperationService;
+        _templateFactory = templateFactory;
         _navigationService = navigationService;
+
+        // Load available templates
+        AvailableTemplates = new List<string>(_templateFactory.GetAvailableTemplates());
     }
 
     private bool CanGenerateForm() => !string.IsNullOrEmpty(FormDirectory);
@@ -34,8 +44,13 @@ public partial class FormGeneratorViewModel : ObservableObject
     {
         try
         {
-            var formData = await _directoryOperationService.GenerateFormDataAsync(FormDirectory!);
-            // Navigate to the printable page and pass the generated data
+            // Get the selected template
+            var template = _templateFactory.GetTemplate(SelectedTemplate);
+
+            // Generate form data using the template
+            var formData = await template.GenerateAsync(FormDirectory!);
+
+            // Navigate to the printable page
             _navigationService.NavigateTo(typeof(Views.PrintableFormPage), formData);
         }
         catch (Exception ex)
