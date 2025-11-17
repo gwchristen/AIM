@@ -10,7 +10,7 @@ namespace AIM.ViewModels;
 public partial class DirClonerViewModel : ObservableObject
 {
     private readonly IDialogService _dialogService;
-    private readonly DirectoryOperationService _directoryOperationService;
+    private readonly IDirectoryOperationService _directoryOperationService;
 
     [ObservableProperty]
     [NotifyCanExecuteChangedFor(nameof(CreateStructureCommand))]
@@ -20,7 +20,7 @@ public partial class DirClonerViewModel : ObservableObject
     [NotifyCanExecuteChangedFor(nameof(CreateStructureCommand))]
     private string? _destinationDirectory;
 
-    public DirClonerViewModel(IDialogService dialogService, DirectoryOperationService directoryOperationService)
+    public DirClonerViewModel(IDialogService dialogService, IDirectoryOperationService directoryOperationService)
     {
         _dialogService = dialogService;
         _directoryOperationService = directoryOperationService;

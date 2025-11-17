@@ -57,7 +57,7 @@ namespace AIM.Services;
 /// </summary>
 public class SecurityService
 {
-    private readonly EncryptedSettingsService _encryptedSettingsService;
+    private readonly IEncryptedSettingsService _encryptedSettingsService;
     private readonly ISettingsService _settingsService;
     private readonly AuditLoggingService _auditLoggingService;
     
@@ -145,7 +145,7 @@ public class SecurityService
     /// <param name="settingsService">Service for managing application settings.</param>
     /// <param name="auditLoggingService">Service for logging security events.</param>
     public SecurityService(
-        EncryptedSettingsService encryptedSettingsService, 
+        IEncryptedSettingsService encryptedSettingsService, 
         ISettingsService settingsService,
         AuditLoggingService auditLoggingService)
     {

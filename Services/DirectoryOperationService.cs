@@ -7,7 +7,12 @@ using System.Threading.Tasks;
 
 namespace AIM.Services;
 
-public class DirectoryOperationService
+/// <summary>
+/// Service for directory structure operations and form data generation.
+/// Provides methods for generating printable forms from directory structures,
+/// copying directory hierarchies, batch file renaming, directory statistics, and file anomaly detection.
+/// </summary>
+public class DirectoryOperationService : IDirectoryOperationService
 {
     public async Task<PrintableForm> GenerateFormDataAsync(string opCoDirectoryPath)
     {
