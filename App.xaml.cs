@@ -31,7 +31,7 @@ public partial class App : Application
 
         MainWindow = new MainWindow();
 
-        var themeService = Ioc.Default.GetRequiredService<ThemeService>();
+        var themeService = Ioc.Default.GetRequiredService<IThemeService>();
         themeService.InitializeTheme();
 
         MainWindow.Activate();
@@ -50,15 +50,15 @@ public partial class App : Application
         services.AddSingleton<IDialogService, DialogService>();
         services.AddSingleton<IInfoBarService, InfoBarService>();
         services.AddSingleton<ISearchService, SearchService>();
-        services.AddSingleton<DirectoryOperationService>();
+        services.AddSingleton<IDirectoryOperationService, DirectoryOperationService>();
         services.AddSingleton<IMessenger>(WeakReferenceMessenger.Default);
         services.AddSingleton<IPrintService, PrintService>();
         services.AddSingleton<FormTemplateFactory>();
         services.AddSingleton<SecurityService>();
         services.AddSingleton<EncryptionService>();
         services.AddSingleton<AuditLoggingService>();
-        services.AddSingleton<EncryptedSettingsService>();
-        services.AddSingleton<ThemeService>();
+        services.AddSingleton<IEncryptedSettingsService, EncryptedSettingsService>();
+        services.AddSingleton<IThemeService, ThemeService>();
 
 
         // ViewModels

@@ -21,7 +21,7 @@ namespace AIM.ViewModels;
 public partial class DirAnalysisViewModel : ObservableObject
 {
     private readonly IDialogService _dialogService;
-    private readonly DirectoryOperationService _directoryOperationService;
+    private readonly IDirectoryOperationService _directoryOperationService;
 
     [ObservableProperty]
     private string? _analysisDirectory;
@@ -79,7 +79,7 @@ public partial class DirAnalysisViewModel : ObservableObject
     [ObservableProperty]
     private IEnumerable<ISeries> _imGaugeSeries;
 
-    public DirAnalysisViewModel(IDialogService dialogService, DirectoryOperationService directoryOperationService)
+    public DirAnalysisViewModel(IDialogService dialogService, IDirectoryOperationService directoryOperationService)
     {
         _dialogService = dialogService;
         _directoryOperationService = directoryOperationService;

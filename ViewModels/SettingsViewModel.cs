@@ -28,7 +28,7 @@ public partial class SettingsViewModel : ObservableObject
     private readonly IDialogService _dialogService;
     private readonly INavigationService _navigationService;
     private readonly MainViewModel _mainViewModel;
-    private readonly ThemeService _themeService;
+    private readonly IThemeService _themeService;
     private AppSettings _appSettings;
 
     // Directory Settings Properties
@@ -225,7 +225,7 @@ public partial class SettingsViewModel : ObservableObject
         MainViewModel mainViewModel,
         IDialogService dialogService,
         INavigationService navigationService,
-        ThemeService themeService)
+        IThemeService themeService)
     {
         _settingsService = settingsService;
         _securityService = securityService;

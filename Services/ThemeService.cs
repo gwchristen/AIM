@@ -36,7 +36,7 @@ public enum AppTheme
 /// Service responsible for managing application theme and appearance settings.
 /// Handles theme changes, accent color detection, and high contrast mode support.
 /// </summary>
-public class ThemeService
+public class ThemeService : IThemeService
 {
     private readonly ISettingsService _settingsService;
     private AppTheme _currentTheme = AppTheme.FollowSystem;
