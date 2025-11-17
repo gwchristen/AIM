@@ -496,6 +496,18 @@ public class SecurityService
     }
 
     /// <summary>
+    /// Sets the complete authorized users list, replacing any existing users (synchronous version).
+    /// This method does NOT persist the list to storage. Use for loading from settings only.
+    /// For persistent changes, use <see cref="SetAuthorizedUsersAsync"/> instead.
+    /// </summary>
+    /// <param name="users">The new list of authorized users, or null to clear the list.</param>
+    public void SetAuthorizedUsers(List<string> users)
+    {
+        _authorizedUsers = users ?? new();
+        Debug.WriteLine($"[Security] Authorized users list set (not persisted) - Count: {_authorizedUsers.Count}");
+    }
+
+    /// <summary>
     /// Checks whether the current Windows user is in the authorized users list.
     /// </summary>
     /// <returns><c>true</c> if the current user is authorized; otherwise, <c>false</c>.</returns>
