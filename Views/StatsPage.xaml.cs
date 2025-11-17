@@ -4,13 +4,15 @@ using CommunityToolkit.Mvvm.DependencyInjection;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Navigation;
-// THE FIX: Add necessary using statements
 using LiveChartsCore.SkiaSharpView.Painting;
 using SkiaSharp;
 using Windows.UI;
 
 namespace AIM.Views;
 
+/// <summary>
+/// Page displaying statistical analysis of inventory files and OpCo data.
+/// </summary>
 public sealed partial class StatsPage : Page
 {
     public StatsViewModel ViewModel { get; }
@@ -21,7 +23,7 @@ public sealed partial class StatsPage : Page
         ViewModel = Ioc.Default.GetRequiredService<StatsViewModel>();
         this.DataContext = ViewModel;
 
-        // THE FIX: Set the legend text color programmatically after the page is initialized.
+        // Set the legend text color programmatically to ensure visibility in all themes
         var legendColor = (Color)App.Current.Resources["TextFillColorPrimary"];
         var skColor = new SKColor(legendColor.R, legendColor.G, legendColor.B, legendColor.A);
         var paint = new SolidColorPaint(skColor);

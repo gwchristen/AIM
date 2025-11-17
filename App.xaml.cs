@@ -88,7 +88,6 @@ public partial class App : Application
         services.AddTransient<StatsPage>();
         services.AddTransient<InventoryArchivePage>(); // This will become a UserControl view
         services.AddTransient<InventoryViewerPage>();
-        // REMOVED: services.AddTransient<InventoryAdminPage>();
         services.AddTransient<SettingsPage>();
         services.AddTransient<PrintableFormPage>();
         services.AddTransient<InventoryAdminToolsPage>();

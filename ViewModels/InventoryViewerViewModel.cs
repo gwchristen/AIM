@@ -130,7 +130,7 @@ public partial class InventoryViewerViewModel : ObservableObject
     private void GoBack()
     {
         SearchQuery = string.Empty;
-        // THE FIX: Navigate to the correct Admin Tools page
+        // Navigate to the Admin Tools page
         _navigationService.NavigateTo(typeof(InventoryAdminToolsPage));
     }
 }
