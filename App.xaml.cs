@@ -20,10 +20,14 @@ public partial class App : Application
     public static Window? MainWindow { get; private set; }
     public IServiceProvider Services { get; private set; }
 
-    protected override void OnLaunched(LaunchActivatedEventArgs args)
+    protected override async void OnLaunched(LaunchActivatedEventArgs args)
     {
         Services = ConfigureServices();
         Ioc.Default.ConfigureServices(Services);
+
+        // Initialize SecurityService before showing the main window
+        var securityService = Ioc.Default.GetRequiredService<SecurityService>();
+        await securityService.InitializeAsync();
 
         MainWindow = new MainWindow();
 

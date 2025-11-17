@@ -58,17 +58,14 @@ public partial class MainViewModel : ObservableObject
 
         Debug.WriteLine($"[MainViewModel] Constructor starting");
 
-        // IMPORTANT: Load authorized users from settings FIRST
+        // Load authorized users from settings (for backward compatibility)
         LoadAuthorizedUsersFromSettings();
-
-        // Set default master password
-        _securityService.SetMasterPassword("AIMAdmin123");
 
         // Load the selected root from settings
         var appSettings = _settingsService.LoadSettings();
         SelectedRoot = appSettings.DefaultRootDirectory;
 
-        // NOW check inventory visibility (after authorized users are loaded)
+        // Check inventory visibility based on current authorization
         UpdateInventoryTabVisibility();
 
         Debug.WriteLine($"[Main] MainViewModel initialized");
