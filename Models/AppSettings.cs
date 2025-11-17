@@ -58,4 +58,11 @@ public class AppSettings
     /// This property is deprecated; use SecurityConfigPath for encrypted user list storage instead.
     /// </summary>
     public List<string> AuthorizedUsers { get; set; } = new();
+
+    /// <summary>
+    /// Gets or sets whether the initial master password has been set.
+    /// When false, the application requires the user to set a master password on first launch.
+    /// This ensures no default or hardcoded passwords are used in production.
+    /// </summary>
+    public bool IsInitialPasswordSet { get; set; } = false;
 }

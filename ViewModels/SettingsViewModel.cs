@@ -387,6 +387,7 @@ public partial class SettingsViewModel : ObservableObject
     /// <summary>
     /// Command to change the master password after validating the current password.
     /// Prompts the user for current password, new password, and confirmation.
+    /// Enforces strong password requirements.
     /// </summary>
     /// <returns>A task representing the asynchronous operation.</returns>
     [RelayCommand(CanExecute = nameof(CanChangeMasterPassword))]
@@ -409,6 +410,14 @@ public partial class SettingsViewModel : ObservableObject
         };
 
         var stackPanel = new StackPanel { Spacing = 12 };
+
+        // Show password requirements
+        stackPanel.Children.Add(new TextBlock
+        {
+            Text = PasswordValidator.GetPasswordRequirementsMessage(),
+            TextWrapping = TextWrapping.Wrap,
+            Margin = new Microsoft.UI.Xaml.Thickness(0, 0, 0, 12)
+        });
 
         stackPanel.Children.Add(new TextBlock
         {
@@ -462,21 +471,30 @@ public partial class SettingsViewModel : ObservableObject
                 return;
             }
 
-            if (newPassword.Length < 6)
+            // Validate password strength
+            if (!PasswordValidator.ValidatePassword(newPassword, out string errorMessage))
             {
-                await ShowErrorDialogAsync("Validation Error", "New password must be at least 6 characters");
+                await ShowErrorDialogAsync("Password Requirements Not Met", errorMessage);
                 return;
             }
 
-            if (_securityService.ChangeMasterPassword(currentPassword, newPassword))
+            try
             {
-                await ShowSuccessDialogAsync("Success", "Master password changed successfully!");
-                LogAction("MASTER_PASSWORD_CHANGED", "User successfully changed the master password");
+                if (await _securityService.ChangeMasterPasswordAsync(currentPassword, newPassword))
+                {
+                    await ShowSuccessDialogAsync("Success", "Master password changed successfully!");
+                    LogAction("MASTER_PASSWORD_CHANGED", "User successfully changed the master password");
+                }
+                else
+                {
+                    await ShowErrorDialogAsync("Error", "Current password is incorrect");
+                    LogAction("MASTER_PASSWORD_CHANGE_FAILED", "Failed to change master password - incorrect old password");
+                }
             }
-            else
+            catch (ArgumentException ex)
             {
-                await ShowErrorDialogAsync("Error", "Current password is incorrect");
-                LogAction("MASTER_PASSWORD_CHANGE_FAILED", "Failed to change master password - incorrect old password");
+                await ShowErrorDialogAsync("Password Requirements Not Met", ex.Message);
+                LogAction("MASTER_PASSWORD_CHANGE_FAILED", $"Password change rejected - {ex.Message}");
             }
         }
     }
@@ -493,11 +511,23 @@ public partial class SettingsViewModel : ObservableObject
     /// <summary>
     /// Command to unlock features using the master password.
     /// Prompts the user for the master password and activates override if valid.
+    /// Implements rate limiting to prevent brute force attacks.
     /// </summary>
     /// <returns>A task representing the asynchronous operation.</returns>
     [RelayCommand]
     private async Task UnlockWithMasterPasswordAsync()
     {
+        // Check if locked out
+        if (_securityService.IsLockedOut)
+        {
+            var remainingTime = _securityService.RemainingLockoutTime;
+            await ShowErrorDialogAsync(
+                "Authentication Locked", 
+                $"Too many failed attempts. Please try again in {remainingTime?.TotalMinutes:F0} minutes."
+            );
+            return;
+        }
+
         var dialog = new ContentDialog
         {
             Title = "Master Password Override",
@@ -541,7 +571,18 @@ public partial class SettingsViewModel : ObservableObject
             }
             else
             {
-                await ShowErrorDialogAsync("Invalid Password", "The password you entered is incorrect.");
+                if (_securityService.IsLockedOut)
+                {
+                    var remainingTime = _securityService.RemainingLockoutTime;
+                    await ShowErrorDialogAsync(
+                        "Authentication Locked", 
+                        $"Too many failed attempts. Authentication is locked for {remainingTime?.TotalMinutes:F0} minutes."
+                    );
+                }
+                else
+                {
+                    await ShowErrorDialogAsync("Invalid Password", "The password you entered is incorrect.");
+                }
                 Debug.WriteLine($"[Settings] Master password override failed - incorrect password");
             }
         }
@@ -576,11 +617,11 @@ public partial class SettingsViewModel : ObservableObject
     /// </summary>
     /// <param name="userId">The user ID to add to the authorized list.</param>
     [RelayCommand]
-    private void AddAuthorizedUser(string userId)
+    private async Task AddAuthorizedUserAsync(string userId)
     {
         if (_securityService.IsFullyUnlocked && !string.IsNullOrWhiteSpace(userId))
         {
-            _securityService.AddAuthorizedUser(userId);
+            await _securityService.AddAuthorizedUserAsync(userId);
             AuthorizedUsersList.Add(userId);
             SaveSettings();
 
@@ -601,11 +642,11 @@ public partial class SettingsViewModel : ObservableObject
     /// </summary>
     /// <param name="userId">The user ID to remove from the authorized list.</param>
     [RelayCommand]
-    private void RemoveAuthorizedUser(string userId)
+    private async Task RemoveAuthorizedUserAsync(string userId)
     {
         if (_securityService.IsFullyUnlocked)
         {
-            _securityService.RemoveAuthorizedUser(userId);
+            await _securityService.RemoveAuthorizedUserAsync(userId);
             AuthorizedUsersList.Remove(userId);
             SaveSettings();
 
