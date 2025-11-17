@@ -15,29 +15,32 @@ public partial class InventoryArchiveViewModel : ObservableObject
 {
     private readonly IDialogService _dialogService;
     private readonly INavigationService _navigationService;
-    // THE FIX: Add a field for the settings service.
     private readonly ISettingsService _settingsService;
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(IsFolderSelected))]
     private string? _selectedFolderToArchive;
 
+    /// <summary>
+    /// Gets whether a folder has been selected for archiving.
+    /// </summary>
     public bool IsFolderSelected => !string.IsNullOrEmpty(SelectedFolderToArchive);
 
     [ObservableProperty]
     private ObservableCollection<string> _archivedDirectories;
 
-    // THE FIX: The hardcoded _archiveBasePath field is removed.
-
-    // THE FIX: The constructor now accepts ISettingsService. Your DI container will provide it automatically.
+    /// <summary>
+    /// Initializes a new instance of the InventoryArchiveViewModel.
+    /// </summary>
+    /// <param name="dialogService">Service for showing dialogs.</param>
+    /// <param name="navigationService">Service for page navigation.</param>
+    /// <param name="settingsService">Service for loading application settings.</param>
     public InventoryArchiveViewModel(IDialogService dialogService, INavigationService navigationService, ISettingsService settingsService)
     {
         _dialogService = dialogService;
         _navigationService = navigationService;
-        _settingsService = settingsService; // Store the injected service.
+        _settingsService = settingsService;
         _archivedDirectories = new ObservableCollection<string>();
-
-        // THE FIX: The hardcoded path initialization is removed from the constructor.
     }
 
     [RelayCommand]
@@ -63,7 +66,7 @@ public partial class InventoryArchiveViewModel : ObservableObject
     private void LoadArchivedDirectories()
     {
         ArchivedDirectories.Clear();
-        // THE FIX: Load settings to get the archive path instead of using the hardcoded field.
+        // Load settings to get the configured archive path
         AppSettings settings = _settingsService.LoadSettings();
         string archiveBasePath = settings.InventoryArchiveDirectory;
 
@@ -98,7 +101,7 @@ public partial class InventoryArchiveViewModel : ObservableObject
             return;
         }
 
-        // THE FIX: Load settings to get the configured archive path.
+        // Load settings to get the configured archive path
         AppSettings settings = _settingsService.LoadSettings();
         string archiveBasePath = settings.InventoryArchiveDirectory;
 
@@ -141,7 +144,7 @@ public partial class InventoryArchiveViewModel : ObservableObject
     {
         if (string.IsNullOrEmpty(folderName)) return;
 
-        // THE FIX: Load settings to ensure the correct path is used for navigation.
+        // Load settings to ensure the correct path is used for navigation
         AppSettings settings = _settingsService.LoadSettings();
         string archiveBasePath = settings.InventoryArchiveDirectory;
 
