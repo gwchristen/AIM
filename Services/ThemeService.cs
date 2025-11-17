@@ -6,14 +6,36 @@ using Windows.UI.ViewManagement;
 
 namespace AIM.Services;
 
+/// <summary>
+/// Defines the available application theme options.
+/// </summary>
 public enum AppTheme
 {
+    /// <summary>
+    /// Automatically follows the Windows system theme preference.
+    /// </summary>
     FollowSystem,
+    
+    /// <summary>
+    /// Forces the application to use the light theme.
+    /// </summary>
     Light,
+    
+    /// <summary>
+    /// Forces the application to use the dark theme.
+    /// </summary>
     Dark,
+    
+    /// <summary>
+    /// Forces the application to use the high contrast theme.
+    /// </summary>
     HighContrast
 }
 
+/// <summary>
+/// Service responsible for managing application theme and appearance settings.
+/// Handles theme changes, accent color detection, and high contrast mode support.
+/// </summary>
 public class ThemeService
 {
     private readonly ISettingsService _settingsService;
@@ -21,8 +43,15 @@ public class ThemeService
     private Color _accentColor;
     private bool _isHighContrast;
 
+    /// <summary>
+    /// Event raised when the application theme changes.
+    /// </summary>
     public event EventHandler<ThemeChangedEventArgs> ThemeChanged;
 
+    /// <summary>
+    /// Gets or sets the current application theme.
+    /// Setting this property applies the theme immediately and raises the ThemeChanged event.
+    /// </summary>
     public AppTheme CurrentTheme
     {
         get => _currentTheme;
@@ -37,18 +66,30 @@ public class ThemeService
         }
     }
 
+    /// <summary>
+    /// Gets the current Windows accent color.
+    /// This color is detected from the system settings.
+    /// </summary>
     public Color AccentColor
     {
         get => _accentColor;
         private set => _accentColor = value;
     }
 
+    /// <summary>
+    /// Gets whether high contrast mode is currently enabled.
+    /// High contrast is detected by analyzing the difference between foreground and background colors.
+    /// </summary>
     public bool IsHighContrast
     {
         get => _isHighContrast;
         private set => _isHighContrast = value;
     }
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="ThemeService"/> class.
+    /// </summary>
+    /// <param name="settingsService">The settings service used to load and save theme preferences.</param>
     public ThemeService(ISettingsService settingsService)
     {
         _settingsService = settingsService;
@@ -70,7 +111,8 @@ public class ThemeService
     }
 
     /// <summary>
-    /// Initialize theme on app startup
+    /// Initializes and applies the theme on application startup.
+    /// This method should be called once during application initialization to set the initial theme.
     /// </summary>
     public void InitializeTheme()
     {
@@ -79,7 +121,8 @@ public class ThemeService
     }
 
     /// <summary>
-    /// Apply the current theme to the app
+    /// Applies the current theme to the application window.
+    /// This method updates the visual appearance based on the CurrentTheme setting.
     /// </summary>
     private void ApplyTheme()
     {
@@ -137,8 +180,9 @@ public class ThemeService
     }
 
     /// <summary>
-    /// Detect the current system theme
+    /// Detects the current Windows system theme by analyzing the background color luminance.
     /// </summary>
+    /// <returns>The detected <see cref="ElementTheme"/> based on system settings.</returns>
     private ElementTheme DetectSystemTheme()
     {
         try
@@ -168,7 +212,8 @@ public class ThemeService
     }
 
     /// <summary>
-    /// Refresh Windows accent color
+    /// Refreshes the Windows accent color from system settings.
+    /// Call this method to update the AccentColor property with the current system accent color.
     /// </summary>
     public void RefreshAccentColor()
     {
@@ -186,7 +231,9 @@ public class ThemeService
     }
 
     /// <summary>
-    /// Detect if high contrast mode is enabled
+    /// Detects if Windows high contrast mode is currently enabled.
+    /// Detection is based on the color difference between foreground and background colors.
+    /// A difference greater than 450 indicates high contrast mode.
     /// </summary>
     private void DetectHighContrast()
     {
@@ -215,8 +262,10 @@ public class ThemeService
     }
 
     /// <summary>
-    /// Save theme preference
+    /// Saves the specified theme preference to application settings.
+    /// The saved preference will be loaded on next application startup.
     /// </summary>
+    /// <param name="theme">The theme to save as the user's preference.</param>
     public void SaveThemePreference(AppTheme theme)
     {
         try
@@ -233,16 +282,19 @@ public class ThemeService
     }
 
     /// <summary>
-    /// Get all available themes
+    /// Gets an array of all available theme options.
     /// </summary>
+    /// <returns>An array containing all <see cref="AppTheme"/> values.</returns>
     public AppTheme[] GetAvailableThemes()
     {
         return new[] { AppTheme.FollowSystem, AppTheme.Light, AppTheme.Dark, AppTheme.HighContrast };
     }
 
     /// <summary>
-    /// Get readable theme name
+    /// Gets a user-friendly display name for the specified theme.
     /// </summary>
+    /// <param name="theme">The theme to get the display name for.</param>
+    /// <returns>A localized, user-friendly name for the theme.</returns>
     public string GetThemeName(AppTheme theme)
     {
         return theme switch
@@ -256,7 +308,13 @@ public class ThemeService
     }
 }
 
+/// <summary>
+/// Event arguments for the ThemeChanged event.
+/// </summary>
 public class ThemeChangedEventArgs : EventArgs
 {
+    /// <summary>
+    /// Gets or sets the new theme that was applied.
+    /// </summary>
     public AppTheme Theme { get; set; }
 }

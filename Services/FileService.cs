@@ -8,6 +8,10 @@ using System.Threading.Tasks;
 
 namespace AIM.Services;
 
+/// <summary>
+/// Provides file and directory operations for the application.
+/// Implements <see cref="IFileService"/> with robust error handling for common file system exceptions.
+/// </summary>
 public class FileService : IFileService
 {
     /// <summary>
@@ -15,6 +19,8 @@ public class FileService : IFileService
     /// Errors may occur due to insufficient permissions or I/O issues.
     /// Returns an empty collection on error to allow the application to continue gracefully.
     /// </summary>
+    /// <param name="directoryPath">The path to the directory to search.</param>
+    /// <returns>A collection of <see cref="FileItem"/> objects representing files in the directory, or an empty collection if an error occurs.</returns>
     public IEnumerable<FileItem> GetFiles(string directoryPath)
     {
         if (string.IsNullOrEmpty(directoryPath) || !Directory.Exists(directoryPath))
@@ -46,6 +52,7 @@ public class FileService : IFileService
     /// Errors are logged but don't stop the entire tree population - this allows partial
     /// directory trees to be shown even when some subdirectories are inaccessible.
     /// </summary>
+    /// <param name="parent">The parent <see cref="DirectoryItem"/> to populate with subdirectories.</param>
     public void PopulateSubDirectories(DirectoryItem parent)
     {
         try
@@ -76,11 +83,28 @@ public class FileService : IFileService
         }
     }
 
+    /// <summary>
+    /// Asynchronously reads the entire contents of a text file.
+    /// </summary>
+    /// <param name="filePath">The full path to the file to read.</param>
+    /// <returns>A task that represents the asynchronous read operation. The task result contains the file contents as a string.</returns>
+    /// <exception cref="UnauthorizedAccessException">Thrown when the caller does not have permission to read the file.</exception>
+    /// <exception cref="FileNotFoundException">Thrown when the file does not exist.</exception>
+    /// <exception cref="IOException">Thrown when an I/O error occurs.</exception>
     public async Task<string> ReadFilePreviewAsync(string filePath)
     {
         return await File.ReadAllTextAsync(filePath);
     }
 
+    /// <summary>
+    /// Asynchronously writes text content to a file, creating it if it doesn't exist or overwriting it if it does.
+    /// </summary>
+    /// <param name="filePath">The full path to the file to write.</param>
+    /// <param name="content">The content to write to the file.</param>
+    /// <returns>A task that represents the asynchronous write operation.</returns>
+    /// <exception cref="UnauthorizedAccessException">Thrown when the caller does not have permission to write to the file.</exception>
+    /// <exception cref="DirectoryNotFoundException">Thrown when the directory does not exist.</exception>
+    /// <exception cref="IOException">Thrown when an I/O error occurs.</exception>
     public async Task WriteFileAsync(string filePath, string content)
     {
         await File.WriteAllTextAsync(filePath, content);
