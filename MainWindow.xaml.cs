@@ -2,12 +2,15 @@ using AIM.Services;
 using AIM.ViewModels;
 using AIM.Views;
 using CommunityToolkit.Mvvm.DependencyInjection;
+using Microsoft.UI.Text;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Navigation;
 using System;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace AIM;
 
@@ -54,6 +57,15 @@ public sealed partial class MainWindow : Window
         }
 
         UpdateInventoryItemVisibility();
+
+        // Force rebuild of the directory tree to ensure it's populated
+        if (!string.IsNullOrEmpty(_mainViewModel.SelectedRoot) && Directory.Exists(_mainViewModel.SelectedRoot))
+        {
+            Debug.WriteLine($"[MainWindow] Rebuilding tree for: {_mainViewModel.SelectedRoot}");
+            // Trigger a re-initialization by setting SelectedRoot to itself
+            var currentRoot = _mainViewModel.SelectedRoot;
+            _mainViewModel.SelectedRoot = currentRoot;
+        }
 
         var browseItem = NavView.MenuItems.OfType<NavigationViewItem>().FirstOrDefault(i => i.Tag?.ToString() == "Browse");
         if (browseItem != null)

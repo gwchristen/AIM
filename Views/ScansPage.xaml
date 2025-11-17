@@ -6,6 +6,7 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:models="using:AIM.Models"
     xmlns:interactivity="using:Microsoft.Xaml.Interactivity"
+    xmlns:controls="using:CommunityToolkit.WinUI.UI.Controls"
     xmlns:core="using:Microsoft.Xaml.Interactions.Core"
     xmlns:converters="using:AIM.Converters"
     mc:Ignorable="d">
@@ -99,96 +100,75 @@
             </Grid>
 
             <Grid Grid.Row="1" Grid.ColumnSpan="3">
-                <ListView
-                    x:Name="ItemsListView"
+                <controls:DataGrid
+                    x:Name="ScansDataGrid"
                     ItemsSource="{x:Bind ViewModel.CurrentItems}"
-                    SelectionMode="Multiple"
-                    HorizontalContentAlignment="Stretch"
-                    DoubleTapped="ItemsListView_DoubleTapped"
-                    IsItemClickEnabled="True"
-                    IsRightTapEnabled="True"  
-                    ItemClick="ItemsListView_ItemClick"
+                    SelectionMode="Extended"
+                    CanUserSortColumns="True"
+                    ColumnHeaderHeight="40"
+                    RowHeight="40"
+                    IsReadOnly="True"
+                    AutoGenerateColumns="False"
+                    Sorting="ScansDataGrid_Sorting"
+                    SelectionChanged="ScansDataGrid_SelectionChanged"
+                    DoubleTapped="ScansDataGrid_DoubleTapped"
+                    RightTapped="ScansDataGrid_RightTapped"
                     Visibility="{x:Bind ViewModel.IsListVisible, Mode=OneWay}">
 
-                    <ListView.ItemContainerStyle>
-                        <Style TargetType="ListViewItem">
-                            <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}"/>
-                            <Setter Property="Padding" Value="0"/>
-                            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
-                        </Style>
-                    </ListView.ItemContainerStyle>
+                    <FlyoutBase.AttachedFlyout>
+                        <MenuFlyout>
+                            <MenuFlyoutItem Text="Open" Click="MenuOpen_Click" Visibility="{x:Bind _contextMenuItem.IsFolder, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+                                <MenuFlyoutItem.Icon>
+                                    <FontIcon Glyph="&#xE8B7;"/>
+                                </MenuFlyoutItem.Icon>
+                            </MenuFlyoutItem>
+                            <MenuFlyoutItem Text="Preview" Click="MenuPreview_Click" Visibility="{x:Bind _contextMenuItem.IsFolder, Mode=OneWay, Converter={StaticResource InverseBoolToVisibilityConverter}}">
+                                <MenuFlyoutItem.Icon>
+                                    <FontIcon Glyph="&#xE71E;"/>
+                                </MenuFlyoutItem.Icon>
+                            </MenuFlyoutItem>
+                            <MenuFlyoutItem Text="Copy Path" Click="MenuCopyPath_Click">
+                                <MenuFlyoutItem.Icon>
+                                    <FontIcon Glyph="&#xE8C8;"/>
+                                </MenuFlyoutItem.Icon>
+                            </MenuFlyoutItem>
+                            <MenuFlyoutItem Text="Rename" Click="MenuRename_Click">
+                                <MenuFlyoutItem.Icon>
+                                    <FontIcon Glyph="&#xE8AC;"/>
+                                </MenuFlyoutItem.Icon>
+                            </MenuFlyoutItem>
+                            <MenuFlyoutSeparator/>
+                            <MenuFlyoutItem Text="Delete" Click="MenuDelete_Click" Style="{ThemeResource DangerMenuItemStyle}">
+                                <MenuFlyoutItem.Icon>
+                                    <FontIcon Glyph="&#xE74D;"/>
+                                </MenuFlyoutItem.Icon>
+                            </MenuFlyoutItem>
+                        </MenuFlyout>
+                    </FlyoutBase.AttachedFlyout>
 
-                    <interactivity:Interaction.Behaviors>
-                        <core:EventTriggerBehavior EventName="Loaded">
-                            <core:InvokeCommandAction Command="{x:Bind ViewModel.PageLoadedCommand}"/>
-                        </core:EventTriggerBehavior>
-                        <core:EventTriggerBehavior EventName="SelectionChanged">
-                            <core:InvokeCommandAction Command="{x:Bind ViewModel.SelectionChangedCommand}" CommandParameter="{x:Bind ItemsListView.SelectedItems, Mode=OneWay}"/>
-                        </core:EventTriggerBehavior>
-                    </interactivity:Interaction.Behaviors>
+                    <controls:DataGrid.Columns>
+                        <!-- Name Column -->
+                        <controls:DataGridTextColumn 
+                            Header="Name" 
+                            Binding="{Binding Name}" 
+                            Tag="Name"
+                            Width="*"/>
 
-                    <ListView.ItemTemplate>
-                        <DataTemplate x:DataType="models:ScanTreeItem">
-                            <Grid Padding="12,8" HorizontalAlignment="Stretch" RightTapped="ItemGrid_RightTapped">
-                                <FlyoutBase.AttachedFlyout>
-                                    <MenuFlyout>
-                                        <MenuFlyoutItem Text="Open" Click="MenuOpen_Click" Visibility="{Binding IsFolder, Converter={StaticResource BoolToVisibilityConverter}}">
-                                            <MenuFlyoutItem.Icon>
-                                                <FontIcon Glyph="&#xE8B7;"/>
-                                            </MenuFlyoutItem.Icon>
-                                        </MenuFlyoutItem>
-                                        <MenuFlyoutItem Text="Preview" Click="MenuPreview_Click" Visibility="{Binding IsFolder, Converter={StaticResource InverseBoolToVisibilityConverter}}">
-                                            <MenuFlyoutItem.Icon>
-                                                <FontIcon Glyph="&#xE71E;"/>
-                                            </MenuFlyoutItem.Icon>
-                                        </MenuFlyoutItem>
-                                        <MenuFlyoutItem Text="Copy Path" Click="MenuCopyPath_Click">
-                                            <MenuFlyoutItem.Icon>
-                                                <FontIcon Glyph="&#xE8C8;"/>
-                                            </MenuFlyoutItem.Icon>
-                                        </MenuFlyoutItem>
-                                        <MenuFlyoutItem Text="Rename" Click="MenuRename_Click">
-                                            <MenuFlyoutItem.Icon>
-                                                <FontIcon Glyph="&#xE8AC;"/>
-                                            </MenuFlyoutItem.Icon>
-                                        </MenuFlyoutItem>
-                                        <MenuFlyoutSeparator/>
-                                        <MenuFlyoutItem Text="Delete" Click="MenuDelete_Click" Style="{ThemeResource DangerMenuItemStyle}">
-                                            <MenuFlyoutItem.Icon>
-                                                <FontIcon Glyph="&#xE74D;"/>
-                                            </MenuFlyoutItem.Icon>
-                                        </MenuFlyoutItem>
-                                    </MenuFlyout>
-                                </FlyoutBase.AttachedFlyout>
+                        <!-- Modified Date Column -->
+                        <controls:DataGridTextColumn 
+                            Header="Date Modified" 
+                            Binding="{Binding ModifiedDateString}" 
+                            Tag="Date"
+                            Width="150"/>
 
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*" />
-                                    <ColumnDefinition Width="150" />
-                                    <ColumnDefinition Width="100" />
-                                </Grid.ColumnDefinitions>
-
-                                <Grid Grid.Column="0">
-                                    <!-- FIX: Replaced broken Opacity binding with a correct Visibility binding -->
-                                    <StackPanel Orientation="Horizontal" Spacing="4" Visibility="{x:Bind IsRenaming, Converter={StaticResource InverseBoolToVisibilityConverter}, Mode=OneWay}">
-                                        <FontIcon Glyph="{x:Bind IsFolder, Converter={StaticResource BoolToSymbolConverter}}" FontSize="16"/>
-                                        <TextBlock Text="{x:Bind Name}" ToolTipService.ToolTip="{x:Bind FullPath}" TextTrimming="CharacterEllipsis"/>
-                                    </StackPanel>
-                                    <TextBox
-                                        Text="{x:Bind Name, Mode=OneWay}"
-                                        Visibility="{x:Bind IsRenaming, Mode=OneWay}"
-                                        KeyDown="RenameTextBox_KeyDown"
-                                        LostFocus="RenameTextBox_LostFocus"
-                                        Loaded="RenameTextBox_Loaded"
-                                        Padding="2,0"
-                                        BorderThickness="1"/>
-                                </Grid>
-
-                                <TextBlock Grid.Column="1" Text="{x:Bind ModifiedDateString}"/>
-                                <TextBlock Grid.Column="2" Text="{x:Bind SizeString}" HorizontalAlignment="Right"/>
-                            </Grid>
-                        </DataTemplate>
-                    </ListView.ItemTemplate>
-                </ListView>
+                        <!-- Size Column -->
+                        <controls:DataGridTextColumn 
+                            Header="Size" 
+                            Binding="{Binding SizeString}" 
+                            Tag="Size"
+                            Width="100"/>
+                    </controls:DataGrid.Columns>
+                </controls:DataGrid>
 
                 <ProgressRing IsActive="{x:Bind ViewModel.IsLoading, Mode=OneWay}" HorizontalAlignment="Center" VerticalAlignment="Center" Width="60" Height="60"/>
                 <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Spacing="12" Visibility="{x:Bind ViewModel.IsEmptyMessageVisible, Mode=OneWay}">

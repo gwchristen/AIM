@@ -1,11 +1,13 @@
 using AIM.Models;
 using AIM.ViewModels;
 using CommunityToolkit.Mvvm.DependencyInjection;
+using CommunityToolkit.WinUI.UI.Controls;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Controls.Primitives;
 using Microsoft.UI.Xaml.Input;
 using System; // Required for Tuple
+using System.Linq;
 
 namespace AIM.Views;
 
@@ -18,16 +20,55 @@ public sealed partial class ScansPage : Page
     {
         this.InitializeComponent();
         ViewModel = Ioc.Default.GetRequiredService<ScansViewModel>();
+        this.Loaded += (s, e) => ViewModel.PageLoadedCommand.Execute(null);
     }
 
-    private void ItemGrid_RightTapped(object sender, RightTappedRoutedEventArgs e)
+    private void ScansDataGrid_Sorting(object sender, DataGridColumnEventArgs e)
     {
-        if (sender is not FrameworkElement tappedGrid) return;
-        _contextMenuItem = tappedGrid.DataContext as ScanTreeItem;
-        if (_contextMenuItem == null) return;
+        if (e.Column.Tag is string sortColumn)
+        {
+            ViewModel.SortCommand.Execute(sortColumn);
+        }
+    }
 
-        var flyout = FlyoutBase.GetAttachedFlyout(tappedGrid);
-        flyout.ShowAt(tappedGrid, new FlyoutShowOptions { Position = e.GetPosition(tappedGrid) });
+    private void ScansDataGrid_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        if (sender is DataGrid dataGrid && dataGrid.SelectedItems != null)
+        {
+            // Convert DataGridSelectedItemsCollection to IList<object>
+            var selectedItems = dataGrid.SelectedItems.Cast<object>().ToList();
+            System.Diagnostics.Debug.WriteLine($"[ScansPage] SelectionChanged: {selectedItems.Count} items selected");
+            ViewModel.SelectionChangedCommand.Execute(selectedItems);
+        }
+    }
+
+    private void ScansDataGrid_DoubleTapped(object sender, DoubleTappedRoutedEventArgs e)
+    {
+        if ((e.OriginalSource as FrameworkElement)?.DataContext is ScanTreeItem item)
+        {
+            if (item.IsFolder)
+            {
+                ViewModel.NavigateToFolderCommand.Execute(item);
+            }
+            else
+            {
+                ViewModel.OpenFileCommand.Execute(item);
+            }
+        }
+    }
+
+    private void ScansDataGrid_RightTapped(object sender, RightTappedRoutedEventArgs e)
+    {
+        if ((e.OriginalSource as FrameworkElement)?.DataContext is ScanTreeItem item)
+        {
+            _contextMenuItem = item;
+            var dataGrid = sender as DataGrid;
+            var flyout = FlyoutBase.GetAttachedFlyout(dataGrid);
+            if (flyout != null)
+            {
+                flyout.ShowAt(dataGrid, new FlyoutShowOptions { Position = e.GetPosition(dataGrid) });
+            }
+        }
     }
 
     private void MenuOpen_Click(object sender, RoutedEventArgs e)
@@ -102,7 +143,9 @@ public sealed partial class ScansPage : Page
         }
     }
 
-    private void BreadcrumbButton_Click(object sender, RoutedEventArgs e) { if ((sender as FrameworkElement)?.DataContext is BreadcrumbItem b) ViewModel.NavigateBreadcrumbCommand.Execute(b); }
-    private void ItemsListView_ItemClick(object sender, ItemClickEventArgs e) { ViewModel.NavigateToFolderCommand.Execute(e.ClickedItem); }
-    private void ItemsListView_DoubleTapped(object sender, DoubleTappedRoutedEventArgs e) { if (ItemsListView.SelectedItem is ScanTreeItem i) ViewModel.OpenFileCommand.Execute(i); }
+    private void BreadcrumbButton_Click(object sender, RoutedEventArgs e)
+    {
+        if ((sender as FrameworkElement)?.DataContext is BreadcrumbItem b)
+            ViewModel.NavigateBreadcrumbCommand.Execute(b);
+    }
 }
