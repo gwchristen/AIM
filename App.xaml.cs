@@ -62,11 +62,11 @@ public partial class App : Application
 
 
         // ViewModels
-        services.AddTransient<MainViewModel>();
+        services.AddSingleton<MainViewModel>();
         services.AddTransient<BrowseViewModel>();
         services.AddTransient<PreviewViewModel>();
         services.AddTransient<SearchViewModel>();
-        services.AddTransient<ScansViewModel>();
+        services.AddSingleton<ScansViewModel>();
         services.AddTransient<StatsViewModel>();
         services.AddTransient<InventoryArchiveViewModel>(); // Reused for Dir Archiver
         services.AddTransient<InventoryViewerViewModel>();
@@ -109,4 +109,5 @@ public partial class App : Application
 
         return service;
     }
+
 }
