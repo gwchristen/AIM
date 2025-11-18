@@ -25,11 +25,11 @@ public partial class App : Application
         Services = ConfigureServices();
         Ioc.Default.ConfigureServices(Services);
 
+        MainWindow = new MainWindow();
+
         // Initialize SecurityService before showing the main window
         var securityService = Ioc.Default.GetRequiredService<SecurityService>();
         await securityService.InitializeAsync();
-
-        MainWindow = new MainWindow();
 
         var themeService = Ioc.Default.GetRequiredService<IThemeService>();
         themeService.InitializeTheme();
