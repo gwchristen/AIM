@@ -1,110 +1,110 @@
-System.InvalidOperationException
-  HResult=0x80073D54
-  Message=Operation is not valid due to the current state of the object.
-  Source=WinRT.Runtime
-  StackTrace:
-   at WinRT.ExceptionHelpers.<ThrowExceptionForHR>g__Throw|38_0(Int32 hr)
-   at WinRT.ExceptionHelpers.ThrowExceptionForHR(Int32 hr)
-   at ABI.Windows.Storage.IApplicationDataStaticsMethods.get_Current(IObjectReference _obj)
-   at Windows.Storage.ApplicationData.get_Current()
-   at AIM.Services.SettingsService..ctor() in C:\Users\s245451\source\repos\gwchristen\AIM\Services\SettingsService.cs:line 16
-   at System.RuntimeMethodHandle.InvokeMethod(Object target, Void** arguments, Signature sig, Boolean isConstructor)
-   at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
-   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteRuntimeResolver.VisitConstructor(ConstructorCallSite constructorCallSite, RuntimeResolverContext context)
-   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSiteMain(ServiceCallSite callSite, TArgument argument)
-   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteRuntimeResolver.VisitRootCache(ServiceCallSite callSite, RuntimeResolverContext context)
-   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSite(ServiceCallSite callSite, TArgument argument)
-   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteRuntimeResolver.VisitConstructor(ConstructorCallSite constructorCallSite, RuntimeResolverContext context)
-   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSiteMain(ServiceCallSite callSite, TArgument argument)
-   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteRuntimeResolver.VisitRootCache(ServiceCallSite callSite, RuntimeResolverContext context)
-   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSite(ServiceCallSite callSite, TArgument argument)
-   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteRuntimeResolver.Resolve(ServiceCallSite callSite, ServiceProviderEngineScope scope)
-   at Microsoft.Extensions.DependencyInjection.ServiceProvider.CreateServiceAccessor(ServiceIdentifier serviceIdentifier)
-   at System.Collections.Concurrent.ConcurrentDictionary`2.GetOrAdd(TKey key, Func`2 valueFactory)
-   at Microsoft.Extensions.DependencyInjection.ServiceProvider.GetService(ServiceIdentifier serviceIdentifier, ServiceProviderEngineScope serviceProviderEngineScope)
-   at Microsoft.Extensions.DependencyInjection.ServiceProvider.GetService(Type serviceType)
-   at CommunityToolkit.Mvvm.DependencyInjection.Ioc.GetRequiredService[T]()
-   at AIM.MainWindow..ctor() in C:\Users\s245451\source\repos\gwchristen\AIM\MainWindow.xaml.cs:line 37
-   at AIM.App.<OnLaunched>d__9.MoveNext() in C:\Users\s245451\source\repos\gwchristen\AIM\App.xaml.cs:line 28
-
-
-using AIM.Models;
-using System;
-using System.IO;
-using System.Text.Json;
-using Windows.Storage;
-
-namespace AIM.Services;
-
-public class SettingsService : ISettingsService
+/// <summary>
+/// Asynchronously initializes the security service by loading the encrypted security configuration.
+/// Checks for shared network config first, then user-specific config, to allow centralized management.
+/// </summary>
+public async Task InitializeAsync()
 {
-    private string _settingsPath;
-    private bool _initialized = false;
-
-    /// <summary>
-    /// Lazy initialization of settings path.
-    /// This avoids accessing ApplicationData.Current too early in the app lifecycle.
-    /// </summary>
-    private void EnsureInitialized()
+    try
     {
-        if (_initialized) return;
+        var appSettings = _settingsService.LoadSettings();
+        var configPath = _encryptedSettingsService.GetSecurityConfigPath(appSettings.SecurityConfigPath);
 
-        try
+        // First, try to load from shared network location
+        string sharedNetworkPath = @"\\oh1cam01\cmll Internal\Lab Stock\Lab Stock\AIM_Security\security.config";
+        
+        Debug.WriteLine($"[Security] Checking for shared network config at: {sharedNetworkPath}");
+        
+        var securityData = null as EncryptedSettingsService.SecurityData;
+        bool loadedFromSharedConfig = false;
+        
+        // Try shared network config first
+        if (File.Exists(sharedNetworkPath))
         {
-            var appDataFolder = ApplicationData.Current.LocalFolder.Path;
-            _settingsPath = Path.Combine(appDataFolder, "settings.json");
-            _initialized = true;
-        }
-        catch
-        {
-            // Fallback to user's local app data if ApplicationData.Current fails
-            var localAppData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
-            _settingsPath = Path.Combine(localAppData, "AIM", "settings.json");
-            
-            // Ensure directory exists
-            var settingsDir = Path.GetDirectoryName(_settingsPath);
-            if (!Directory.Exists(settingsDir))
+            try
             {
-                Directory.CreateDirectory(settingsDir);
+                Debug.WriteLine($"[Security] Found shared network security config, attempting to load...");
+                securityData = await _encryptedSettingsService.LoadSecurityConfigAsync(sharedNetworkPath);
+                
+                if (securityData != null)
+                {
+                    Debug.WriteLine($"[Security] Successfully loaded security config from shared network");
+                    loadedFromSharedConfig = true;
+                    
+                    // Also cache it locally for offline access
+                    try
+                    {
+                        await _encryptedSettingsService.SaveSecurityConfigAsync(configPath, securityData.MasterPassword, securityData.AuthorizedUsers);
+                        Debug.WriteLine($"[Security] Cached shared config locally at: {configPath}");
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.WriteLine($"[Security] Warning: Could not cache shared config locally: {ex.Message}");
+                        // This is not fatal - we can still use the loaded config
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"[Security] Failed to load from shared network: {ex.Message}");
+                Debug.WriteLine($"[Security] Falling back to local cached config...");
+                // Fall through to user-specific config
+            }
+        }
+        else
+        {
+            Debug.WriteLine($"[Security] Shared network config not accessible at: {sharedNetworkPath}");
+        }
+
+        // Fall back to local user-specific config if shared didn't work
+        if (securityData == null)
+        {
+            Debug.WriteLine($"[Security] Attempting to load local config from: {configPath}");
+            securityData = await _encryptedSettingsService.LoadSecurityConfigAsync(configPath);
+        }
+
+        if (securityData != null && appSettings.IsInitialPasswordSet)
+        {
+            // Configuration exists and initial password was set
+            _masterPassword = securityData.MasterPassword;
+            _authorizedUsers = securityData.AuthorizedUsers ?? new();
+            IsFirstTimeSetup = false;
+
+            string configSource = loadedFromSharedConfig ? "shared network" : "local";
+            Debug.WriteLine($"[Security] Loaded {_authorizedUsers.Count} authorized users from {configSource} encrypted config");
+            LogSecurityEvent("SECURITY_INITIALIZED", $"Security service initialized with {_authorizedUsers.Count} authorized users from {configSource}");
+        }
+        else
+        {
+            // First time setup - no default password found anywhere
+            Debug.WriteLine("[Security] First-time setup detected - no configuration found");
+            IsFirstTimeSetup = true;
+            _masterPassword = null;
+            _authorizedUsers = new();
+            
+            // Ensure the flag is saved
+            if (!appSettings.IsInitialPasswordSet)
+            {
+                appSettings.IsInitialPasswordSet = false;
+                _settingsService.SaveSettings(appSettings);
             }
             
-            _initialized = true;
+            LogSecurityEvent("SECURITY_FIRST_TIME_SETUP", "Application requires initial master password setup");
         }
     }
-
-    public AppSettings LoadSettings()
+    catch (Exception ex)
     {
-        try
-        {
-            EnsureInitialized();
-
-            if (File.Exists(_settingsPath))
-            {
-                var json = File.ReadAllText(_settingsPath);
-                return JsonSerializer.Deserialize<AppSettings>(json) ?? new AppSettings();
-            }
-        }
-        catch (Exception ex)
-        {
-            System.Diagnostics.Debug.WriteLine($"[SettingsService] Error loading settings: {ex.Message}");
-            // If deserialization fails, return default settings
-        }
-
-        return new AppSettings();
-    }
-
-    public void SaveSettings(AppSettings settings)
-    {
-        try
-        {
-            EnsureInitialized();
-
-            var json = JsonSerializer.Serialize(settings, new JsonSerializerOptions { WriteIndented = true });
-            File.WriteAllText(_settingsPath, json);
-        }
-        catch (Exception ex)
-        {
-            System.Diagnostics.Debug.WriteLine($"[SettingsService] Error saving settings: {ex.Message}");
-        }
+        Debug.WriteLine($"[Security] ERROR initializing security: {ex.Message}");
+        LogSecurityEvent("SECURITY_INIT_ERROR", $"Failed to initialize security: {ex.Message}");
+        
+        // On error, assume first-time setup to be safe
+        IsFirstTimeSetup = true;
+        _masterPassword = null;
+        _authorizedUsers = new();
+        throw;
     }
 }
+
+\\oh1cam01\cmll Internal\Lab Stock\Lab Stock\AIM_Security\security.config
+
+
+
