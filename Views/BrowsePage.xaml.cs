@@ -25,6 +25,14 @@ public sealed partial class BrowsePage : Page
         this.DataContext = ViewModel;
     }
 
+    protected override void OnNavigatedFrom(NavigationEventArgs e)
+    {
+        base.OnNavigatedFrom(e);
+        // Save state when navigating away from Browse tab
+        ViewModel.SaveCurrentBrowseState();
+        System.Diagnostics.Debug.WriteLine("[BrowsePage] Navigated away - state saved");
+    }
+
     private void LeftBreadcrumbButton_Click(object sender, RoutedEventArgs e) { if ((sender as FrameworkElement)?.DataContext is BreadcrumbItem b) ViewModel.NavigateLeftBreadcrumbCommand.Execute(b); }
     private void RightBreadcrumbButton_Click(object sender, RoutedEventArgs e) { if ((sender as FrameworkElement)?.DataContext is BreadcrumbItem b) ViewModel.NavigateRightBreadcrumbCommand.Execute(b); }
 
@@ -104,49 +112,34 @@ public sealed partial class BrowsePage : Page
 
     private async void RightListView_Drop(object sender, DragEventArgs e)
     {
-        string destinationFolderPath = null;
+        if (e.DataView.Contains(StandardDataFormats.Text))
+        {
+            var text = await e.DataView.GetTextAsync();
+            var filePaths = text.Split('|');
 
-        // Case 1: We dropped on a specific folder item (check if target is a folder)
-        if ((e.OriginalSource as FrameworkElement)?.DataContext is ContentItem targetFolder && targetFolder.IsFolder)
-        {
-            destinationFolderPath = targetFolder.FullPath;
-        }
-        // Case 2: We dropped on the ListView's empty area. Use the currently selected directory.
-        else if (ViewModel.SelectedRightDirectory != null)
-        {
-            destinationFolderPath = ViewModel.SelectedRightDirectory.FullPath;
-        }
+            string destinationPath = null;
 
-        // If we have a valid destination, proceed with the move.
-        if (destinationFolderPath != null && e.DataView.Contains(StandardDataFormats.Text))
-        {
-            var deferral = e.GetDeferral();
-            try
+            if ((e.OriginalSource as FrameworkElement)?.DataContext is ContentItem targetItem && targetItem.IsFolder)
             {
-                var pathsString = await e.DataView.GetTextAsync();
-                var sourceFilePaths = pathsString.Split('|');
-                var dropData = new Tuple<IEnumerable<string>, string>(sourceFilePaths, destinationFolderPath);
-                await ViewModel.MoveFilesCommand.ExecuteAsync(dropData);
+                destinationPath = targetItem.FullPath;
             }
-            finally
+            else if (ViewModel.SelectedRightDirectory != null)
             {
-                deferral.Complete();
+                destinationPath = ViewModel.SelectedRightDirectory.FullPath;
+            }
+
+            if (destinationPath != null)
+            {
+                ViewModel.MoveFilesCommand.Execute(new Tuple<IEnumerable<string>, string>(filePaths, destinationPath));
             }
         }
     }
 
-    protected override void OnNavigatedTo(NavigationEventArgs e)
+    private void RightListView_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
-        base.OnNavigatedTo(e);
-
-        // If a directory path was passed as a parameter, navigate to it in the left panel
-        if (e.Parameter is string directoryPath && !string.IsNullOrEmpty(directoryPath))
+        if ((sender as ListView)?.SelectedItem is ContentItem item && item.IsFolder)
         {
-            ViewModel.SelectedLeftDirectory = new DirectoryItem
-            {
-                FullPath = directoryPath,
-                Name = Path.GetFileName(directoryPath)
-            };
+            ViewModel.SelectedRightDirectory = new DirectoryItem { FullPath = item.FullPath, Name = item.Name };
         }
     }
 }

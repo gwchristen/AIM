@@ -25,6 +25,7 @@ public partial class BrowseViewModel : ObservableObject
     private readonly INavigationService _navigationService;
     private readonly AppSettings _appSettings;
     private readonly AuditLoggingService _auditLoggingService;
+    private readonly IBrowseStateService _browseStateService;
     private Stack<UndoAction> _undoStack = new();
     private string _rootPath = string.Empty;
     private string _currentSortColumn = "Name";
@@ -46,30 +47,44 @@ public partial class BrowseViewModel : ObservableObject
     [ObservableProperty] private string _rootName = string.Empty;
     #endregion
 
-    public BrowseViewModel(MainViewModel mainViewModel, IFileService fileService, ISettingsService settingsService, IDialogService dialogService, INavigationService navigationService, AuditLoggingService auditLoggingService)
+    public BrowseViewModel(MainViewModel mainViewModel, IFileService fileService, ISettingsService settingsService, IDialogService dialogService, INavigationService navigationService, AuditLoggingService auditLoggingService, IBrowseStateService browseStateService)
     {
         _mainViewModel = mainViewModel;
         _dialogService = dialogService;
         _navigationService = navigationService;
         _auditLoggingService = auditLoggingService;
         _appSettings = settingsService.LoadSettings();
+        _browseStateService = browseStateService;
+
         _mainViewModel.LeftTree.CollectionChanged += (s, e) => InitializePaths();
         _mainViewModel.SelectedScanFiles.CollectionChanged += (s, e) => CopyFromScansCommand.NotifyCanExecuteChanged();
         SelectedLeftItems.CollectionChanged += (s, e) => UpdateButtonStates();
+
         InitializePaths();
+        System.Diagnostics.Debug.WriteLine("[BrowseViewModel] Constructor complete, browse state will load in InitializePaths");
     }
 
     #region Property Changed Handlers
-    partial void OnSelectedRightDirectoryChanged(DirectoryItem value) { MoveFileCommand.NotifyCanExecuteChanged(); CopyFromScansCommand.NotifyCanExecuteChanged(); }
+    partial void OnSelectedRightDirectoryChanged(DirectoryItem value)
+    {
+        if (value != null)
+        {
+            SelectedRightDirectory = value;
+            UpdateRightFilteredContents();
+        }
+        SaveCurrentBrowseState();
+
+        MoveFileCommand.NotifyCanExecuteChanged();
+        CopyFromScansCommand.NotifyCanExecuteChanged();
+    }
+
     partial void OnSelectedLeftDirectoryChanged(DirectoryItem value)
     {
         if (value != null)
         {
             SelectedLeftDirectory = value;
-            // This will trigger the directory to load in the left side of Browse
         }
 
-        // Log directory access
         _auditLoggingService.LogDirectoryOperation(
             AuditActionTypes.DIR_ACCESS,
             value?.FullPath,
@@ -78,7 +93,9 @@ public partial class BrowseViewModel : ObservableObject
 
         UpdateLeftBreadcrumbs(value?.FullPath);
         UpdateAndSortLeftFilteredContents();
+        SaveCurrentBrowseState();
     }
+
     partial void OnSelectedRightContentChanged(ContentItem value)
     {
         if (value?.IsFolder == true)
@@ -99,9 +116,14 @@ public partial class BrowseViewModel : ObservableObject
         SelectedLeftDirectory = root;
         SelectedRightDirectory = root;
         UpdateRightFilteredContents();
+
+        // Load saved browse state AFTER root is initialized
+        LoadPreviousBrowseState();
     }
+
     private void UpdateLeftBreadcrumbs(string currentPath) => UpdateBreadcrumbs(currentPath, LeftBreadcrumbs, GoUpLeftCommand, RootName, _rootPath);
     private void UpdateRightBreadcrumbs(string currentPath) => UpdateBreadcrumbs(currentPath, RightBreadcrumbs, GoUpRightCommand, RootName, _rootPath);
+
     private void UpdateBreadcrumbs(string currentPath, ObservableCollection<BreadcrumbItem> breadcrumbs, IRelayCommand goUpCommand, string rootName, string rootPath)
     {
         breadcrumbs.Clear();
@@ -117,6 +139,7 @@ public partial class BrowseViewModel : ObservableObject
         foreach (var segment in pathSegments) breadcrumbs.Add(segment);
         goUpCommand.NotifyCanExecuteChanged();
     }
+
     private bool DoesContainRelevantFiles(string path)
     {
         try
@@ -127,7 +150,9 @@ public partial class BrowseViewModel : ObservableObject
         }
         catch { return false; }
     }
+
     private FileType GetFileType(string path) => Path.GetExtension(path).ToLowerInvariant() switch { ".txt" => FileType.Text, ".csv" => FileType.Csv, _ => FileType.Other };
+
     private void UpdateAndSortLeftFilteredContents()
     {
         var dir = SelectedLeftDirectory;
@@ -148,6 +173,7 @@ public partial class BrowseViewModel : ObservableObject
         LeftFilteredContents.Clear();
         foreach (var item in sortedItems) LeftFilteredContents.Add(item);
     }
+
     private void UpdateRightFilteredContents()
     {
         RightFilteredContents.Clear();
@@ -161,6 +187,69 @@ public partial class BrowseViewModel : ObservableObject
         }
         catch (Exception) { /* Handle errors */ }
     }
+
+    /// <summary>
+    /// Load previously saved browse state if available
+    /// </summary>
+    private void LoadPreviousBrowseState()
+    {
+        var savedState = _browseStateService.LoadBrowseState();
+        if (savedState != null)
+        {
+            System.Diagnostics.Debug.WriteLine($"[BrowseViewModel] Attempting to load previous browse state");
+
+            // Check if saved left directory exists and is under the root
+            if (!string.IsNullOrEmpty(savedState.LeftDirectory)
+                && Directory.Exists(savedState.LeftDirectory)
+                && savedState.LeftDirectory.StartsWith(_rootPath, StringComparison.OrdinalIgnoreCase))
+            {
+                SelectedLeftDirectory = new DirectoryItem
+                {
+                    Name = Path.GetFileName(savedState.LeftDirectory),
+                    FullPath = savedState.LeftDirectory
+                };
+                System.Diagnostics.Debug.WriteLine($"[BrowseViewModel] ✓ Restored left directory: {savedState.LeftDirectory}");
+            }
+            else
+            {
+                System.Diagnostics.Debug.WriteLine($"[BrowseViewModel] ✗ Left directory not found or invalid: {savedState.LeftDirectory}");
+            }
+
+            // Check if saved right directory exists and is under the root
+            if (!string.IsNullOrEmpty(savedState.RightDirectory)
+                && Directory.Exists(savedState.RightDirectory)
+                && savedState.RightDirectory.StartsWith(_rootPath, StringComparison.OrdinalIgnoreCase))
+            {
+                SelectedRightDirectory = new DirectoryItem
+                {
+                    Name = Path.GetFileName(savedState.RightDirectory),
+                    FullPath = savedState.RightDirectory
+                };
+                UpdateRightFilteredContents();
+                System.Diagnostics.Debug.WriteLine($"[BrowseViewModel] ✓ Restored right directory: {savedState.RightDirectory}");
+            }
+            else
+            {
+                System.Diagnostics.Debug.WriteLine($"[BrowseViewModel] ✗ Right directory not found or invalid: {savedState.RightDirectory}");
+            }
+        }
+        else
+        {
+            System.Diagnostics.Debug.WriteLine($"[BrowseViewModel] No saved browse state found");
+        }
+    }
+
+    /// <summary>
+    /// Save current browse state to persistent storage (PUBLIC for explicit calls)
+    /// </summary>
+    public void SaveCurrentBrowseState()
+    {
+        var leftDir = SelectedLeftDirectory?.FullPath ?? string.Empty;
+        var rightDir = SelectedRightDirectory?.FullPath ?? string.Empty;
+        _browseStateService.SaveBrowseState(leftDir, rightDir);
+        System.Diagnostics.Debug.WriteLine($"[BrowseViewModel] Browse state saved - Left: {leftDir}, Right: {rightDir}");
+    }
+
     #endregion
 
     #region CanExecute Predicates & Commands
@@ -194,7 +283,11 @@ public partial class BrowseViewModel : ObservableObject
     private void GoUpLeft()
     {
         var parent = LeftBreadcrumbs.ElementAtOrDefault(LeftBreadcrumbs.Count - 2);
-        if (parent != null) SelectedLeftDirectory = new DirectoryItem { FullPath = parent.FullPath, Name = parent.Name };
+        if (parent != null)
+        {
+            SelectedLeftDirectory = new DirectoryItem { FullPath = parent.FullPath, Name = parent.Name };
+            SaveCurrentBrowseState();
+        }
     }
 
     [RelayCommand(CanExecute = nameof(CanGoUpRight))]
@@ -205,6 +298,7 @@ public partial class BrowseViewModel : ObservableObject
         {
             SelectedRightDirectory = new DirectoryItem { FullPath = parent.FullPath, Name = parent.Name };
             UpdateRightFilteredContents();
+            SaveCurrentBrowseState();
         }
     }
 
@@ -455,7 +549,11 @@ public partial class BrowseViewModel : ObservableObject
     [RelayCommand]
     private void NavigateLeftBreadcrumb(BreadcrumbItem item)
     {
-        if (item != null) SelectedLeftDirectory = new DirectoryItem { FullPath = item.FullPath, Name = item.Name };
+        if (item != null)
+        {
+            SelectedLeftDirectory = new DirectoryItem { FullPath = item.FullPath, Name = item.Name };
+            SaveCurrentBrowseState();
+        }
     }
 
     [RelayCommand]
@@ -465,6 +563,7 @@ public partial class BrowseViewModel : ObservableObject
         {
             SelectedRightDirectory = new DirectoryItem { FullPath = item.FullPath, Name = item.Name };
             UpdateRightFilteredContents();
+            SaveCurrentBrowseState();
         }
     }
 

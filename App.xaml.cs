@@ -60,11 +60,12 @@ public partial class App : Application
         services.AddSingleton<IEncryptedSettingsService, EncryptedSettingsService>();
         services.AddSingleton<IThemeService, ThemeService>();
         services.AddSingleton<ISearchStateService, SearchStateService>();
+        services.AddSingleton<IBrowseStateService, BrowseStateService>();
 
 
         // ViewModels
         services.AddSingleton<MainViewModel>();
-        services.AddTransient<BrowseViewModel>();
+        services.AddSingleton<BrowseViewModel>();
         services.AddTransient<PreviewViewModel>();
         services.AddTransient<SearchViewModel>();
         services.AddSingleton<ScansViewModel>();

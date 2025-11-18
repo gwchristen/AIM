@@ -31,14 +31,15 @@
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
 
-            <!-- Left Label -->
-            <TextBlock 
-                Grid.Row="0"
-                Text="Source Directory" 
-                FontSize="18"
-                FontWeight="SemiBold"
-                HorizontalTextAlignment="Center"
-                Margin="0,0,0,8"/>
+            <!-- Left Label with Icon -->
+            <StackPanel Grid.Row="0" Orientation="Horizontal" Spacing="8" Margin="0,0,0,8" HorizontalAlignment="Center">
+                <FontIcon Glyph="&#xE8F1;" FontSize="24" Foreground="#FF6B6B"/>
+                <TextBlock 
+                    Text="Source Directory" 
+                    FontSize="18"
+                    FontWeight="SemiBold"
+                    VerticalAlignment="Center"/>
+            </StackPanel>
 
             <Grid Grid.Row="1" Margin="0,0,0,8">
                 <Grid.ColumnDefinitions>
@@ -53,9 +54,9 @@
                         <DataTemplate x:DataType="models:BreadcrumbItem">
                             <StackPanel Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
                                 <Button DataContext="{x:Bind}" Click="LeftBreadcrumbButton_Click" Style="{ThemeResource TextBlockButtonStyle}" Visibility="{x:Bind (x:Boolean)IsLast, Converter={StaticResource InverseBoolToVisibilityConverter}, Mode=OneWay}">
-                                    <TextBlock Text="{x:Bind Name}" FontWeight="SemiBold"/>
+                                    <TextBlock Text="{x:Bind Name}" FontWeight="SemiBold" Foreground="#4ECDC4"/>
                                 </Button>
-                                <TextBlock Text="{x:Bind Name}" FontWeight="SemiBold" Visibility="{x:Bind IsLast, Mode=OneWay}" VerticalAlignment="Center" Padding="8,4"/>
+                                <TextBlock Text="{x:Bind Name}" FontWeight="SemiBold" Visibility="{x:Bind IsLast, Mode=OneWay}" VerticalAlignment="Center" Padding="8,4" Foreground="#999999"/>
                                 <TextBlock Text="/" VerticalAlignment="Center" FontWeight="SemiBold" Visibility="{x:Bind (x:Boolean)IsLast, Converter={StaticResource InverseBoolToVisibilityConverter}, Mode=OneWay}"/>
                             </StackPanel>
                         </DataTemplate>
@@ -63,7 +64,7 @@
                 </ItemsRepeater>
                 <Button Grid.Column="1" Command="{Binding GoUpLeftCommand}" HorizontalAlignment="Right">
                     <StackPanel Orientation="Horizontal" Spacing="8">
-                        <FontIcon Glyph="&#xE74A;" FontSize="16"/>
+                        <FontIcon Glyph="&#xE74A;" FontSize="16" Foreground="#6C63FF"/>
                         <TextBlock Text="Up"/>
                     </StackPanel>
                 </Button>
@@ -82,67 +83,70 @@
                 PointerPressed="LeftDataGrid_PointerPressed"
                 CanDrag="True"
                 DragStarting="LeftDataGrid_DragStarting"
-                BorderBrush="Gray"
-                BorderThickness="1"
+                BorderBrush="#E0E0E0"
+                BorderThickness="2"
                 IsReadOnly="True">
 
                 <controls:DataGrid.Columns>
-                    <!-- THE FIX: Replaced SortMemberPath with Tag -->
-                    <controls:DataGridTemplateColumn Header="Name" Tag="Name" Width="*">
+                    <controls:DataGridTemplateColumn Header="📁 Name" Tag="Name" Width="*">
                         <controls:DataGridTemplateColumn.CellTemplate>
                             <DataTemplate x:DataType="models:ContentItem">
                                 <StackPanel Orientation="Horizontal" Spacing="8" Padding="4,0,0,0">
-                                    <SymbolIcon Symbol="{Binding SymbolIcon}"/>
+                                    <SymbolIcon Symbol="{Binding SymbolIcon}" Foreground="#FF6B6B"/>
                                     <TextBlock Text="{Binding Name}" VerticalAlignment="Center"/>
                                 </StackPanel>
                             </DataTemplate>
                         </controls:DataGridTemplateColumn.CellTemplate>
                     </controls:DataGridTemplateColumn>
-                    <!-- THE FIX: Replaced SortMemberPath with Tag -->
-                    <controls:DataGridTextColumn Header="Date Modified" Binding="{Binding ModifiedDateString}" Tag="Date" Width="120"/>
-                    <!-- THE FIX: Replaced SortMemberPath with Tag -->
-                    <controls:DataGridTextColumn Header="Size" Binding="{Binding SizeString}" Tag="Size" Width="100"/>
+                    <controls:DataGridTextColumn Header="📅 Date Modified" Binding="{Binding ModifiedDateString}" Tag="Date" Width="120"/>
+                    <controls:DataGridTextColumn Header="💾 Size" Binding="{Binding SizeString}" Tag="Size" Width="100"/>
                 </controls:DataGrid.Columns>
             </controls:DataGrid>
         </Grid>
 
-        <!-- Middle Column -->
-        <StackPanel Grid.Column="1" Orientation="Vertical" VerticalAlignment="Center" Spacing="8" Margin="16">
-            <Button Command="{Binding RenameFileCommand}" MinWidth="120">
-                <StackPanel Orientation="Horizontal" Spacing="8">
-                    <FontIcon Glyph="&#xE8AC;"/>
-                    <TextBlock Text="Rename"/>
+        <!-- Middle Column - Action Buttons -->
+        <StackPanel Grid.Column="1" Orientation="Vertical" VerticalAlignment="Center" Spacing="12" Margin="16">
+            <Button Command="{Binding RenameFileCommand}" MinWidth="140" ToolTipService.ToolTip="Rename selected file">
+                <StackPanel Orientation="Horizontal" Spacing="10">
+                    <FontIcon Glyph="&#xE8AC;" FontSize="18" Foreground="#FFD93D"/>
+                    <TextBlock Text="✏️ Rename" FontWeight="SemiBold"/>
                 </StackPanel>
             </Button>
-            <Button Command="{Binding ArchiveFileCommand}" MinWidth="120">
-                <StackPanel Orientation="Horizontal" Spacing="8">
-                    <FontIcon Glyph="&#xE7B8;"/>
-                    <TextBlock Text="Archive"/>
+
+            <Button Command="{Binding ArchiveFileCommand}" MinWidth="140" ToolTipService.ToolTip="Archive selected file">
+                <StackPanel Orientation="Horizontal" Spacing="10">
+                    <FontIcon Glyph="&#xE7B8;" FontSize="18" Foreground="#FF6B6B"/>
+                    <TextBlock Text="📦 Archive" FontWeight="SemiBold"/>
                 </StackPanel>
             </Button>
-            <Button Command="{Binding ShipFileCommand}" MinWidth="120">
-                <StackPanel Orientation="Horizontal" Spacing="8">
-                    <FontIcon Glyph="&#xE8E1;"/>
-                    <TextBlock Text="Shipped"/>
+
+            <Button Command="{Binding ShipFileCommand}" MinWidth="140" ToolTipService.ToolTip="Mark as shipped">
+                <StackPanel Orientation="Horizontal" Spacing="10">
+                    <FontIcon Glyph="&#xE8E1;" FontSize="18" Foreground="#4ECDC4"/>
+                    <TextBlock Text="🚚 Shipped" FontWeight="SemiBold"/>
                 </StackPanel>
             </Button>
-            <Button Command="{Binding MoveFileCommand}" MinWidth="120">
-                <StackPanel Orientation="Horizontal" Spacing="8">
-                    <FontIcon Glyph="&#xE8DE;"/>
-                    <TextBlock Text="Move →"/>
+
+            <Button Command="{Binding MoveFileCommand}" MinWidth="140" ToolTipService.ToolTip="Move to destination">
+                <StackPanel Orientation="Horizontal" Spacing="10">
+                    <FontIcon Glyph="&#xE8DE;" FontSize="18" Foreground="#95E1D3"/>
+                    <TextBlock Text="➡️ Move →" FontWeight="SemiBold"/>
                 </StackPanel>
             </Button>
-            <Button Command="{Binding UndoCommand}" MinWidth="120">
-                <StackPanel Orientation="Horizontal" Spacing="8">
-                    <FontIcon Glyph="&#xE7A7;"/>
-                    <TextBlock Text="Undo"/>
+
+            <Button Command="{Binding UndoCommand}" MinWidth="140" ToolTipService.ToolTip="Undo last action">
+                <StackPanel Orientation="Horizontal" Spacing="10">
+                    <FontIcon Glyph="&#xE7A7;" FontSize="18" Foreground="#AA96DA"/>
+                    <TextBlock Text="↶ Undo" FontWeight="SemiBold"/>
                 </StackPanel>
             </Button>
+
             <Rectangle Height="24"/>
-            <Button Command="{Binding CopyFromScansCommand}" Style="{ThemeResource AccentButtonStyle}" MinWidth="120">
-                <StackPanel Orientation="Horizontal" Spacing="8">
-                    <FontIcon Glyph="&#xE8C8;"/>
-                    <TextBlock Text="Copy from Scans"/>
+
+            <Button Command="{Binding CopyFromScansCommand}" Style="{ThemeResource AccentButtonStyle}" MinWidth="140" ToolTipService.ToolTip="Copy files from scans">
+                <StackPanel Orientation="Horizontal" Spacing="10">
+                    <FontIcon Glyph="&#xE8C8;" FontSize="18" Foreground="White"/>
+                    <TextBlock Text="📋 Copy from Scans" FontWeight="SemiBold"/>
                 </StackPanel>
             </Button>
         </StackPanel>
@@ -155,14 +159,15 @@
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
 
-            <!-- Right Label -->
-            <TextBlock 
-                Grid.Row="0"
-                Text="Destination Directory" 
-                FontSize="18" 
-                FontWeight="SemiBold"
-                HorizontalTextAlignment="Center"
-                Margin="0,0,0,8"/>
+            <!-- Right Label with Icon -->
+            <StackPanel Grid.Row="0" Orientation="Horizontal" Spacing="8" Margin="0,0,0,8" HorizontalAlignment="Center">
+                <FontIcon Glyph="&#xE8F1;" FontSize="24" Foreground="#4ECDC4"/>
+                <TextBlock 
+                    Text="Destination Directory" 
+                    FontSize="18" 
+                    FontWeight="SemiBold"
+                    VerticalAlignment="Center"/>
+            </StackPanel>
 
             <Grid Grid.Row="1" Margin="0,0,0,8">
                 <Grid.ColumnDefinitions>
@@ -177,9 +182,9 @@
                         <DataTemplate x:DataType="models:BreadcrumbItem">
                             <StackPanel Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
                                 <Button DataContext="{x:Bind}" Click="RightBreadcrumbButton_Click" Style="{ThemeResource TextBlockButtonStyle}" Visibility="{x:Bind (x:Boolean)IsLast, Converter={StaticResource InverseBoolToVisibilityConverter}, Mode=OneWay}">
-                                    <TextBlock Text="{x:Bind Name}" FontWeight="SemiBold"/>
+                                    <TextBlock Text="{x:Bind Name}" FontWeight="SemiBold" Foreground="#95E1D3"/>
                                 </Button>
-                                <TextBlock Text="{x:Bind Name}" FontWeight="SemiBold" Visibility="{x:Bind IsLast, Mode=OneWay}" VerticalAlignment="Center" Padding="8,4"/>
+                                <TextBlock Text="{x:Bind Name}" FontWeight="SemiBold" Visibility="{x:Bind IsLast, Mode=OneWay}" VerticalAlignment="Center" Padding="8,4" Foreground="#999999"/>
                                 <TextBlock Text="/" VerticalAlignment="Center" FontWeight="SemiBold" Visibility="{x:Bind (x:Boolean)IsLast, Converter={StaticResource InverseBoolToVisibilityConverter}, Mode=OneWay}"/>
                             </StackPanel>
                         </DataTemplate>
@@ -187,17 +192,18 @@
                 </ItemsRepeater>
                 <Button Grid.Column="1" Command="{Binding GoUpRightCommand}" HorizontalAlignment="Right">
                     <StackPanel Orientation="Horizontal" Spacing="8">
-                        <FontIcon Glyph="&#xE74A;" FontSize="16"/>
+                        <FontIcon Glyph="&#xE74A;" FontSize="16" Foreground="#6C63FF"/>
                         <TextBlock Text="Up"/>
                     </StackPanel>
                 </Button>
             </Grid>
-            <ListView Grid.Row="2" ItemsSource="{Binding RightFilteredContents}" SelectedItem="{Binding SelectedRightContent, Mode=TwoWay}" BorderBrush="Gray" BorderThickness="1" AllowDrop="True" DragOver="RightListView_DragOver" Drop="RightListView_Drop">
+
+            <ListView Grid.Row="2" ItemsSource="{Binding RightFilteredContents}" SelectedItem="{Binding SelectedRightContent, Mode=TwoWay}" BorderBrush="#E0E0E0" BorderThickness="2" AllowDrop="True" DragOver="RightListView_DragOver" Drop="RightListView_Drop">
                 <ListView.ItemTemplate>
                     <DataTemplate x:DataType="models:ContentItem">
-                        <StackPanel Orientation="Horizontal" Spacing="8">
-                            <SymbolIcon Symbol="{Binding SymbolIcon}"/>
-                            <TextBlock Text="{Binding Name}" />
+                        <StackPanel Orientation="Horizontal" Spacing="8" Padding="8,4">
+                            <SymbolIcon Symbol="{Binding SymbolIcon}" Foreground="#4ECDC4"/>
+                            <TextBlock Text="{Binding Name}" VerticalAlignment="Center"/>
                         </StackPanel>
                     </DataTemplate>
                 </ListView.ItemTemplate>

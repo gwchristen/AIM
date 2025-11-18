@@ -29,68 +29,71 @@
             OpenPaneLength="200">
 
             <NavigationView.MenuItems>
-                <NavigationViewItem Content="Refresh Tree" Tag="RefreshTree">
+                <NavigationViewItem Content="🔄 Refresh Tree" Tag="RefreshTree">
                     <NavigationViewItem.Icon>
-                        <FontIcon Glyph="&#xE72C;"/>
+                        <FontIcon Glyph="&#xE72C;" Foreground="#6C63FF"/>
                     </NavigationViewItem.Icon>
                 </NavigationViewItem>
 
                 <NavigationViewItemSeparator/>
 
-                <NavigationViewItem Content="Browse" Tag="Browse" IsSelected="True">
+                <NavigationViewItem Content="📁 Browse" Tag="Browse" IsSelected="True">
                     <NavigationViewItem.Icon>
-                        <FontIcon Glyph="&#xE8F1;"/>
+                        <FontIcon Glyph="&#xE8F1;" Foreground="#FF6B6B"/>
                     </NavigationViewItem.Icon>
                 </NavigationViewItem>
-                <NavigationViewItem Content="Preview" Tag="Preview">
+
+                <NavigationViewItem Content="👁️ Preview" Tag="Preview">
                     <NavigationViewItem.Icon>
-                        <FontIcon Glyph="&#xE8FF;"/>
+                        <FontIcon Glyph="&#xE8FF;" Foreground="#4ECDC4"/>
                     </NavigationViewItem.Icon>
                 </NavigationViewItem>
-                <NavigationViewItem Content="Search" Tag="Search">
+
+                <NavigationViewItem Content="🔍 Search" Tag="Search">
                     <NavigationViewItem.Icon>
-                        <FontIcon Glyph="&#xE721;"/>
+                        <FontIcon Glyph="&#xE721;" Foreground="#FFD93D"/>
                     </NavigationViewItem.Icon>
                 </NavigationViewItem>
-                <NavigationViewItem Content="Scans" Tag="Scans">
+
+                <NavigationViewItem Content="📋 Scans" Tag="Scans">
                     <NavigationViewItem.Icon>
-                        <FontIcon Glyph="&#xE7C1;"/>
+                        <FontIcon Glyph="&#xE7C1;" Foreground="#95E1D3"/>
                     </NavigationViewItem.Icon>
                 </NavigationViewItem>
 
                 <!-- INVENTORY ITEM - Visibility handled in code-behind -->
-                <NavigationViewItem Content="Inventory">
+                <NavigationViewItem Content="📦 Inventory">
                     <NavigationViewItem.Icon>
-                        <FontIcon Glyph="&#xE8B7;"/>
+                        <FontIcon Glyph="&#xE8B7;" Foreground="#F38181"/>
                     </NavigationViewItem.Icon>
                     <NavigationViewItem.MenuItems>
-                        <NavigationViewItem Content="Admin Tools" Tag="InventoryAdminTools">
+                        <NavigationViewItem Content="⚙️ Admin Tools" Tag="InventoryAdminTools">
                             <NavigationViewItem.Icon>
-                                <FontIcon Glyph="&#xE90F;"/>
+                                <FontIcon Glyph="&#xE90F;" Foreground="#AA96DA"/>
                             </NavigationViewItem.Icon>
                         </NavigationViewItem>
-                        <NavigationViewItem Content="Arch Viewer" Tag="InventoryViewer">
+                        <NavigationViewItem Content="📂 Arch Viewer" Tag="InventoryViewer">
                             <NavigationViewItem.Icon>
-                                <FontIcon Glyph="&#xE773;"/>
+                                <FontIcon Glyph="&#xE773;" Foreground="#FCBAD3"/>
                             </NavigationViewItem.Icon>
                         </NavigationViewItem>
-                        <NavigationViewItem Content="Dir Analysis" Tag="DirAnalysis">
+                        <NavigationViewItem Content="📊 Dir Analysis" Tag="DirAnalysis">
                             <NavigationViewItem.Icon>
-                                <FontIcon Glyph="&#xEBE8;"/>
+                                <FontIcon Glyph="&#xEBE8;" Foreground="#A8D8EA"/>
                             </NavigationViewItem.Icon>
                         </NavigationViewItem>
                     </NavigationViewItem.MenuItems>
                 </NavigationViewItem>
 
-                <NavigationViewItem Content="Paperwork Forms" Tag="PaperworkForms">
+                <NavigationViewItem Content="📝 Paperwork Forms" Tag="PaperworkForms">
                     <NavigationViewItem.Icon>
-                        <FontIcon Glyph="&#xE737;"/>
+                        <FontIcon Glyph="&#xE737;" Foreground="#AA96DA"/>
                     </NavigationViewItem.Icon>
                 </NavigationViewItem>
 
-                <NavigationViewItem Content="Stats" Tag="Stats">
+                <NavigationViewItem Content="📈 Stats" Tag="Stats">
                     <NavigationViewItem.Icon>
-                        <FontIcon Glyph="&#xE9D9;"/>
+                        <FontIcon Glyph="&#xE9D9;" Foreground="#FFD93D"/>
                     </NavigationViewItem.Icon>
                 </NavigationViewItem>
 
