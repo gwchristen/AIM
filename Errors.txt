@@ -1,0 +1,110 @@
+/// <summary>
+/// Asynchronously initializes the security service by loading the encrypted security configuration.
+/// Checks for shared network config first, then user-specific config, to allow centralized management.
+/// </summary>
+public async Task InitializeAsync()
+{
+    try
+    {
+        var appSettings = _settingsService.LoadSettings();
+        var configPath = _encryptedSettingsService.GetSecurityConfigPath(appSettings.SecurityConfigPath);
+
+        // First, try to load from shared network location
+        string sharedNetworkPath = @"\\oh1cam01\cmll Internal\Lab Stock\Lab Stock\AIM_Security\security.config";
+        
+        Debug.WriteLine($"[Security] Checking for shared network config at: {sharedNetworkPath}");
+        
+        var securityData = null as EncryptedSettingsService.SecurityData;
+        bool loadedFromSharedConfig = false;
+        
+        // Try shared network config first
+        if (File.Exists(sharedNetworkPath))
+        {
+            try
+            {
+                Debug.WriteLine($"[Security] Found shared network security config, attempting to load...");
+                securityData = await _encryptedSettingsService.LoadSecurityConfigAsync(sharedNetworkPath);
+                
+                if (securityData != null)
+                {
+                    Debug.WriteLine($"[Security] Successfully loaded security config from shared network");
+                    loadedFromSharedConfig = true;
+                    
+                    // Also cache it locally for offline access
+                    try
+                    {
+                        await _encryptedSettingsService.SaveSecurityConfigAsync(configPath, securityData.MasterPassword, securityData.AuthorizedUsers);
+                        Debug.WriteLine($"[Security] Cached shared config locally at: {configPath}");
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.WriteLine($"[Security] Warning: Could not cache shared config locally: {ex.Message}");
+                        // This is not fatal - we can still use the loaded config
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"[Security] Failed to load from shared network: {ex.Message}");
+                Debug.WriteLine($"[Security] Falling back to local cached config...");
+                // Fall through to user-specific config
+            }
+        }
+        else
+        {
+            Debug.WriteLine($"[Security] Shared network config not accessible at: {sharedNetworkPath}");
+        }
+
+        // Fall back to local user-specific config if shared didn't work
+        if (securityData == null)
+        {
+            Debug.WriteLine($"[Security] Attempting to load local config from: {configPath}");
+            securityData = await _encryptedSettingsService.LoadSecurityConfigAsync(configPath);
+        }
+
+        if (securityData != null && appSettings.IsInitialPasswordSet)
+        {
+            // Configuration exists and initial password was set
+            _masterPassword = securityData.MasterPassword;
+            _authorizedUsers = securityData.AuthorizedUsers ?? new();
+            IsFirstTimeSetup = false;
+
+            string configSource = loadedFromSharedConfig ? "shared network" : "local";
+            Debug.WriteLine($"[Security] Loaded {_authorizedUsers.Count} authorized users from {configSource} encrypted config");
+            LogSecurityEvent("SECURITY_INITIALIZED", $"Security service initialized with {_authorizedUsers.Count} authorized users from {configSource}");
+        }
+        else
+        {
+            // First time setup - no default password found anywhere
+            Debug.WriteLine("[Security] First-time setup detected - no configuration found");
+            IsFirstTimeSetup = true;
+            _masterPassword = null;
+            _authorizedUsers = new();
+            
+            // Ensure the flag is saved
+            if (!appSettings.IsInitialPasswordSet)
+            {
+                appSettings.IsInitialPasswordSet = false;
+                _settingsService.SaveSettings(appSettings);
+            }
+            
+            LogSecurityEvent("SECURITY_FIRST_TIME_SETUP", "Application requires initial master password setup");
+        }
+    }
+    catch (Exception ex)
+    {
+        Debug.WriteLine($"[Security] ERROR initializing security: {ex.Message}");
+        LogSecurityEvent("SECURITY_INIT_ERROR", $"Failed to initialize security: {ex.Message}");
+        
+        // On error, assume first-time setup to be safe
+        IsFirstTimeSetup = true;
+        _masterPassword = null;
+        _authorizedUsers = new();
+        throw;
+    }
+}
+
+\\oh1cam01\cmll Internal\Lab Stock\Lab Stock\AIM_Security\security.config
+
+
+
