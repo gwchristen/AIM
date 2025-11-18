@@ -24,4 +24,5 @@ System.InvalidOperationException
    at Microsoft.Extensions.DependencyInjection.ServiceProvider.GetService(ServiceIdentifier serviceIdentifier, ServiceProviderEngineScope serviceProviderEngineScope)
    at Microsoft.Extensions.DependencyInjection.ServiceProvider.GetService(Type serviceType)
    at CommunityToolkit.Mvvm.DependencyInjection.Ioc.GetRequiredService[T]()
-   at AIM.App.<OnLaunched>d__9.MoveNext() in C:\Users\s245451\source\repos\gwchristen\AIM\App.xaml.cs:line 29
+   at AIM.MainWindow..ctor() in C:\Users\s245451\source\repos\gwchristen\AIM\MainWindow.xaml.cs:line 37
+   at AIM.App.<OnLaunched>d__9.MoveNext() in C:\Users\s245451\source\repos\gwchristen\AIM\App.xaml.cs:line 28
