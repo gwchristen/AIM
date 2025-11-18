@@ -178,7 +178,7 @@ public partial class ScansViewModel : ObservableObject
     {
         if (selectedItem is not ScanTreeItem item || item.IsFolder) return;
         var fileItem = new FileItem { Name = item.Name, FullPath = item.FullPath };
-        _navigationService.NavigateTo(typeof(PreviewPage), fileItem);
+        _navigationService.NavigateTo(typeof(PreviewPage), fileItem, "Preview");
     }
 
     [RelayCommand]

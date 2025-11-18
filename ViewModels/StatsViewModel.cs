@@ -66,24 +66,25 @@ public partial class StatsViewModel : ObservableObject
                 {
                     var dirInfo = new DirectoryInfo(dirPath);
                     var files = dirInfo.GetFiles("*.*", SearchOption.AllDirectories);
-                    long totalSize = files.Sum(f => f.Length);
+
+                    // Count total lines across all files (actual device count)
+                    long totalDevices = 0;
+                    foreach (var file in files)
+                    {
+                        try
+                        {
+                            var lines = File.ReadAllLines(file.FullName);
+                            totalDevices += lines.Length;
+                        }
+                        catch { /* skip unreadable files */ }
+                    }
+
                     allStats.Add(new OpCoStatItem
                     {
                         OpCoName = dirInfo.Name,
                         FileCount = files.Length,
-                        DeviceCount = totalSize
+                        DeviceCount = totalDevices  // ✅ Now counts actual devices/lines
                     });
-
-                    foreach (var file in files)
-                    {
-                        if (file.Length != 17)
-                        {
-                            App.MainWindow.DispatcherQueue.TryEnqueue(() =>
-                            {
-                                ProblematicFiles.Add(new ProblematicFile { Path = file.FullName });
-                            });
-                        }
-                    }
                 }
 
                 App.MainWindow.DispatcherQueue.TryEnqueue(() =>
@@ -116,6 +117,6 @@ public partial class StatsViewModel : ObservableObject
     {
         if (file == null) return;
         var fileItem = new FileItem { Name = Path.GetFileName(file.Path), FullPath = file.Path };
-        _navigationService.NavigateTo(typeof(PreviewPage), fileItem);
+        _navigationService.NavigateTo(typeof(PreviewPage), fileItem, "Preview");
     }
 }

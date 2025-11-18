@@ -80,24 +80,6 @@
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
-            <Grid Grid.Row="0" Grid.ColumnSpan="3" Padding="12,8" Background="{ThemeResource LayerFillColorDefaultBrush}" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="0,1">
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="150" />
-                        <ColumnDefinition Width="100" />
-                    </Grid.ColumnDefinitions>
-                    <Button Grid.Column="0" Command="{x:Bind ViewModel.SortCommand}" CommandParameter="Name" Style="{ThemeResource TextBlockButtonStyle}" HorizontalAlignment="Left">
-                        <TextBlock Text="Name" FontWeight="SemiBold"/>
-                    </Button>
-                    <Button Grid.Column="1" Command="{x:Bind ViewModel.SortCommand}" CommandParameter="Date" Style="{ThemeResource TextBlockButtonStyle}" HorizontalAlignment="Left">
-                        <TextBlock Text="Date Modified" FontWeight="SemiBold"/>
-                    </Button>
-                    <Button Grid.Column="2" Command="{x:Bind ViewModel.SortCommand}" CommandParameter="Size" Style="{ThemeResource TextBlockButtonStyle}" HorizontalAlignment="Right">
-                        <TextBlock Text="Size" FontWeight="SemiBold"/>
-                    </Button>
-                </Grid>
-            </Grid>
 
             <Grid Grid.Row="1" Grid.ColumnSpan="3">
                 <controls:DataGrid

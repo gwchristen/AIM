@@ -59,6 +59,7 @@ public partial class App : Application
         services.AddSingleton<AuditLoggingService>();
         services.AddSingleton<IEncryptedSettingsService, EncryptedSettingsService>();
         services.AddSingleton<IThemeService, ThemeService>();
+        services.AddSingleton<ISearchStateService, SearchStateService>();
 
 
         // ViewModels

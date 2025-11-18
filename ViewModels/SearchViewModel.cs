@@ -5,9 +5,11 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using System;
 using System.Collections.ObjectModel;
+using System.IO;
 using System.Threading.Tasks;
+using Windows.ApplicationModel.DataTransfer;
 using Windows.Storage.Pickers;
-using Microsoft.UI.Xaml.Controls; // Required for InfoBarSeverity
+using Microsoft.UI.Xaml.Controls;
 
 namespace AIM.ViewModels;
 
@@ -16,7 +18,8 @@ public partial class SearchViewModel : ObservableObject
     private readonly ISearchService _searchService;
     private readonly INavigationService _navigationService;
     private readonly MainViewModel _mainViewModel;
-    private readonly IInfoBarService _infoBarService; // NEW: The info bar service
+    private readonly IInfoBarService _infoBarService;
+    private readonly ISearchStateService _searchStateService;  // NEW
 
     [ObservableProperty]
     private string searchDirectory = string.Empty;
@@ -27,21 +30,109 @@ public partial class SearchViewModel : ObservableObject
     [ObservableProperty]
     private bool isSearching = false;
 
-    // --- DELETED: The old StatusMessage and IsStatusMessageVisible properties are no longer needed. ---
-
     [ObservableProperty]
     private bool isContentSearch = true;
 
     public ObservableCollection<FileItem> SearchResults { get; } = new();
 
-    // UPDATED: The constructor now asks for IInfoBarService
-    public SearchViewModel(ISearchService searchService, INavigationService navigationService, MainViewModel mainViewModel, IInfoBarService infoBarService)
+    // UPDATED: Constructor now includes ISearchStateService
+    public SearchViewModel(ISearchService searchService, INavigationService navigationService, MainViewModel mainViewModel, IInfoBarService infoBarService, ISearchStateService searchStateService)
     {
         _searchService = searchService;
         _navigationService = navigationService;
         _mainViewModel = mainViewModel;
-        _infoBarService = infoBarService; // NEW: Store the service instance
+        _infoBarService = infoBarService;
+        _searchStateService = searchStateService;  // NEW
         SearchDirectory = _mainViewModel.SelectedRoot;
+
+        // NEW: Load saved search state when ViewModel is created
+        LoadPreviousSearchState();
+    }
+
+    // NEW: Load previous search state AND RESULTS
+    private void LoadPreviousSearchState()
+    {
+        var savedState = _searchStateService.LoadSearchState();
+        if (savedState != null)
+        {
+            SearchQuery = savedState.SearchQuery;
+            SearchDirectory = savedState.SearchDirectory;
+            IsContentSearch = savedState.IsContentSearch;
+
+            // NEW: Restore search results
+            SearchResults.Clear();
+            foreach (var result in savedState.SearchResults)
+            {
+                SearchResults.Add(result);
+            }
+
+            System.Diagnostics.Debug.WriteLine($"[SearchViewModel] Previous search state restored: {SearchQuery} ({SearchResults.Count} results)");
+        }
+    }
+
+    // UPDATED: Save search state with results
+    private void SaveCurrentSearchState()
+    {
+        _searchStateService.SaveSearchState(SearchQuery, SearchDirectory, IsContentSearch, SearchResults);
+    }
+
+    [RelayCommand]
+    public void Preview(FileItem? fileItem)
+    {
+        if (fileItem == null) return;
+        SaveCurrentSearchState();  // NEW: Save state before navigating
+        _navigationService.NavigateTo(typeof(PreviewPage), fileItem, "Preview");
+    }
+
+    [RelayCommand]
+    private void OpenInBrowse(FileItem fileItem)
+    {
+        if (fileItem == null) return;
+
+        try
+        {
+            var directoryPath = Path.GetDirectoryName(fileItem.FullPath);
+            if (string.IsNullOrEmpty(directoryPath) || !Directory.Exists(directoryPath))
+            {
+                _infoBarService.Show("Error", "Directory not found.", InfoBarSeverity.Error);
+                return;
+            }
+
+            SaveCurrentSearchState();  // NEW: Save state before navigating
+            _navigationService.NavigateTo(typeof(BrowsePage), directoryPath, "Browse");
+            _infoBarService.Show("Success", $"Opened in Browse: {directoryPath}", InfoBarSeverity.Success, 2000);
+        }
+        catch (Exception ex)
+        {
+            _infoBarService.Show("Error", $"Could not open in browse: {ex.Message}", InfoBarSeverity.Error);
+        }
+    }
+
+    [RelayCommand]
+    private void CopyFilePath(FileItem fileItem)
+    {
+        if (fileItem == null) return;
+
+        try
+        {
+            var directoryPath = Path.GetDirectoryName(fileItem.FullPath);
+
+            if (string.IsNullOrEmpty(directoryPath))
+            {
+                _infoBarService.Show("Error", "Could not determine directory path.", InfoBarSeverity.Error);
+                return;
+            }
+
+            var dataPackage = new DataPackage();
+            dataPackage.SetText(directoryPath);
+            Clipboard.SetContent(dataPackage);
+
+            _infoBarService.Show("Success", "Directory path copied to clipboard.", InfoBarSeverity.Success, 2000);
+        }
+        catch (Exception ex)
+        {
+            _infoBarService.Show("Error", $"Could not copy directory path: {ex.Message}", InfoBarSeverity.Error);
+        }
     }
 
     [RelayCommand]
@@ -49,7 +140,8 @@ public partial class SearchViewModel : ObservableObject
     {
         if (selectedItem is FileItem fileItem)
         {
-            _navigationService.NavigateTo(typeof(PreviewPage), fileItem);
+            SaveCurrentSearchState();  // NEW: Save state before navigating
+            _navigationService.NavigateTo(typeof(PreviewPage), fileItem, "Preview");
         }
     }
 
@@ -74,7 +166,6 @@ public partial class SearchViewModel : ObservableObject
 
         IsSearching = true;
         SearchResults.Clear();
-        // NEW: Show an informational message
         _infoBarService.Show("Searching...", $"Searching for '{SearchQuery}'.", InfoBarSeverity.Informational, 3000);
 
         try
@@ -86,7 +177,6 @@ public partial class SearchViewModel : ObservableObject
             }
             if (string.IsNullOrEmpty(rootPath))
             {
-                // NEW: Show a warning message that does not auto-hide
                 _infoBarService.Show("Warning", "No search directory selected. Please set the Root Directory in Settings.", InfoBarSeverity.Warning, 0);
                 return;
             }
@@ -100,17 +190,25 @@ public partial class SearchViewModel : ObservableObject
                 SearchResults.Add(item);
             }
 
-            // NEW: Show a success message
+            SaveCurrentSearchState();  // NEW: Save state with results
             _infoBarService.Show("Success", $"Search complete. Found {SearchResults.Count} files.", InfoBarSeverity.Success);
         }
         catch (Exception ex)
         {
-            // NEW: Show an error message that does not auto-hide
             _infoBarService.Show("Error", $"An error occurred during search: {ex.Message}", InfoBarSeverity.Error, 0);
         }
         finally
         {
             IsSearching = false;
         }
+    }
+
+    [RelayCommand]
+    private void Clear()
+    {
+        SearchQuery = string.Empty;
+        SearchResults.Clear();
+        _searchStateService.ClearSearchState();
+        _infoBarService.Show("Cleared", "Search terms and results have been cleared.", InfoBarSeverity.Success, 2000);
     }
 }

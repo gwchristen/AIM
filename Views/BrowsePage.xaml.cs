@@ -5,7 +5,9 @@ using CommunityToolkit.WinUI.UI.Controls;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Input;
+using Microsoft.UI.Xaml.Navigation;
 using System;
+using System.IO;
 using System.Collections.Generic;
 using System.Linq;
 using Windows.ApplicationModel.DataTransfer;
@@ -130,6 +132,21 @@ public sealed partial class BrowsePage : Page
             {
                 deferral.Complete();
             }
+        }
+    }
+
+    protected override void OnNavigatedTo(NavigationEventArgs e)
+    {
+        base.OnNavigatedTo(e);
+
+        // If a directory path was passed as a parameter, navigate to it in the left panel
+        if (e.Parameter is string directoryPath && !string.IsNullOrEmpty(directoryPath))
+        {
+            ViewModel.SelectedLeftDirectory = new DirectoryItem
+            {
+                FullPath = directoryPath,
+                Name = Path.GetFileName(directoryPath)
+            };
         }
     }
 }

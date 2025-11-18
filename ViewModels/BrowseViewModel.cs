@@ -63,6 +63,12 @@ public partial class BrowseViewModel : ObservableObject
     partial void OnSelectedRightDirectoryChanged(DirectoryItem value) { MoveFileCommand.NotifyCanExecuteChanged(); CopyFromScansCommand.NotifyCanExecuteChanged(); }
     partial void OnSelectedLeftDirectoryChanged(DirectoryItem value)
     {
+        if (value != null)
+        {
+            SelectedLeftDirectory = value;
+            // This will trigger the directory to load in the left side of Browse
+        }
+
         // Log directory access
         _auditLoggingService.LogDirectoryOperation(
             AuditActionTypes.DIR_ACCESS,
@@ -443,7 +449,7 @@ public partial class BrowseViewModel : ObservableObject
         // Log preview navigation
         _auditLoggingService.LogPreviewOperation(fileToPreview.FullPath, fileToPreview.Name);
 
-        _navigationService.NavigateTo(typeof(PreviewPage), fileItem);
+        _navigationService.NavigateTo(typeof(PreviewPage), fileItem, "Preview");
     }
 
     [RelayCommand]

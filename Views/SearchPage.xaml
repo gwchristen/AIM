@@ -33,11 +33,15 @@
                         <TextBlock Text="Search"/>
                     </StackPanel>
                 </Button>
+                <Button Command="{x:Bind ViewModel.ClearCommand}">
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <FontIcon Glyph="&#xE74D;" FontSize="16"/>
+                        <TextBlock Text="Clear"/>
+                    </StackPanel>
+                </Button>
             </StackPanel>
 
             <ToggleSwitch Header="Search in file contents" IsOn="{x:Bind ViewModel.IsContentSearch, Mode=TwoWay}"/>
-
-            <!-- THIS IS THE FIX: The old TextBlock for status messages has been completely removed. -->
 
         </StackPanel>
 
@@ -45,7 +49,9 @@
                   Margin="0,16,0,0"
                   x:Name="ResultsListView"
                   ItemsSource="{x:Bind ViewModel.SearchResults}"
-                  IsItemClickEnabled="True">
+                  IsItemClickEnabled="True"
+                  RightTapped="ResultsListView_RightTapped"
+                  SelectionChanged="ResultsListView_SelectionChanged">
 
             <interactivity:Interaction.Behaviors>
                 <core:EventTriggerBehavior EventName="DoubleTapped">
@@ -62,13 +68,48 @@
                             <ColumnDefinition Width="300"/>
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="100"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
-                        <TextBlock Grid.Column="0" Text="{x:Bind Name}" TextTrimming="CharacterEllipsis"/>
-                        <TextBlock Grid.Column="1" Text="{x:Bind FullPath}" TextTrimming="CharacterEllipsis" Margin="8,0"/>
-                        <TextBlock Grid.Column="2" Text="{x:Bind Type}"/>
+                        <TextBlock Grid.Column="0" Text="{x:Bind Name}" TextTrimming="CharacterEllipsis" VerticalAlignment="Center"/>
+                        <TextBlock Grid.Column="1" Text="{x:Bind FullPath}" TextTrimming="CharacterEllipsis" Margin="8,0" VerticalAlignment="Center"/>
+                        <TextBlock Grid.Column="2" Text="{x:Bind Type}" VerticalAlignment="Center"/>
+
+                        <!-- Action Buttons -->
+                        <Button Grid.Column="3" Click="PreviewButton_Click" DataContext="{x:Bind}" ToolTipService.ToolTip="Preview file">
+                            <FontIcon Glyph="&#xE71E;" FontSize="16"/>
+                        </Button>
+                        <Button Grid.Column="4" Click="OpenInBrowseButton_Click" DataContext="{x:Bind}" ToolTipService.ToolTip="Open in Browse">
+                            <FontIcon Glyph="&#xE8F1;" FontSize="16"/>
+                        </Button>
+                        <Button Grid.Column="5" Click="CopyPathButton_Click" DataContext="{x:Bind}" ToolTipService.ToolTip="Copy path">
+                            <FontIcon Glyph="&#xE8C8;" FontSize="16"/>
+                        </Button>
                     </Grid>
                 </DataTemplate>
             </ListView.ItemTemplate>
+
+            <!-- Context Menu Flyout -->
+            <FlyoutBase.AttachedFlyout>
+                <MenuFlyout>
+                    <MenuFlyoutItem Text="Preview" Click="MenuPreview_Click">
+                        <MenuFlyoutItem.Icon>
+                            <FontIcon Glyph="&#xE71E;"/>
+                        </MenuFlyoutItem.Icon>
+                    </MenuFlyoutItem>
+                    <MenuFlyoutItem Text="Open in Browse" Click="MenuOpenInBrowse_Click">
+                        <MenuFlyoutItem.Icon>
+                            <FontIcon Glyph="&#xE8F1;"/>
+                        </MenuFlyoutItem.Icon>
+                    </MenuFlyoutItem>
+                    <MenuFlyoutItem Text="Copy Path" Click="MenuCopyPath_Click">
+                        <MenuFlyoutItem.Icon>
+                            <FontIcon Glyph="&#xE8C8;"/>
+                        </MenuFlyoutItem.Icon>
+                    </MenuFlyoutItem>
+                </MenuFlyout>
+            </FlyoutBase.AttachedFlyout>
         </ListView>
     </Grid>
 </Page>
