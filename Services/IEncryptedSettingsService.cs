@@ -20,24 +20,28 @@ public interface IEncryptedSettingsService
 
     /// <summary>
     /// Saves encrypted security configuration to the specified path.
-    /// Uses Windows Data Protection API (DPAPI) to encrypt the data with LOCAL=user scope.
+    /// Uses Windows Data Protection API (DPAPI) to encrypt the data with LOCAL=user scope,
+    /// or passphrase-based AES-GCM encryption if a passphrase is provided.
     /// </summary>
     /// <param name="configPath">The file path where the encrypted configuration will be saved.</param>
     /// <param name="masterPassword">The master password to encrypt and store.</param>
     /// <param name="authorizedUsers">The list of authorized user IDs to store.</param>
+    /// <param name="passphrase">Optional passphrase for AES-GCM encryption. If null, uses DPAPI.</param>
     /// <returns>A task representing the asynchronous save operation.</returns>
     /// <exception cref="System.Exception">Thrown when the configuration cannot be saved or encrypted.</exception>
-    Task SaveSecurityConfigAsync(string configPath, string masterPassword, List<string> authorizedUsers);
+    Task SaveSecurityConfigAsync(string configPath, string masterPassword, List<string> authorizedUsers, string? passphrase = null);
 
     /// <summary>
     /// Loads and decrypts security configuration from the specified path.
-    /// Uses Windows Data Protection API (DPAPI) to decrypt the data.
+    /// Uses Windows Data Protection API (DPAPI) to decrypt the data,
+    /// or passphrase-based AES-GCM decryption if the config was encrypted with a passphrase.
     /// </summary>
     /// <param name="configPath">The file path to the encrypted security configuration.</param>
+    /// <param name="passphrase">Optional passphrase for AES-GCM decryption. Required if config was encrypted with passphrase.</param>
     /// <returns>A <see cref="EncryptedSettingsService.SecurityData"/> object containing the decrypted data,
     /// or null if the file doesn't exist or cannot be decrypted.</returns>
     /// <exception cref="System.Exception">Thrown when the configuration cannot be loaded or decrypted.</exception>
-    Task<EncryptedSettingsService.SecurityData> LoadSecurityConfigAsync(string configPath);
+    Task<EncryptedSettingsService.SecurityData> LoadSecurityConfigAsync(string configPath, string? passphrase = null);
 
     /// <summary>
     /// Verifies a password against a stored hash.
