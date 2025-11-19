@@ -9,3 +9,11 @@ Restore complete (0.5s)
     C:\Users\s245451\.nuget\packages\microsoft.windowsappsdk.winui\1.8.250906003\buildTransitive\Microsoft.UI.Xaml.Markup.Compiler.interop.targets(845,9): error MSB3073: The command ""C:\Users\s245451\.nuget\packages\microsoft.windowsappsdk.winui\1.8.250906003\buildTransitive\..\tools\net6.0\..\net472\XamlCompiler.exe" "obj\ARM64\Debug\net8.0-windows10.0.22621.0\win-arm64\\input.json" "obj\ARM64\Debug\net8.0-windows10.0.22621.0\win-arm64\\output.json"" exited with code 1.
 
 Build failed with 2 error(s) and 4 warning(s) in 11.1s
+
+
+Severity	Code	Description	Project	File	Line	Suppression State	Details
+Error (active)	CS0246	The type or namespace name 'AppSettings' could not be found (are you missing a using directive or an assembly reference?)	AIM	C:\Users\s245451\Documents\source\AIM\Services\SecurityService.cs	173		
+Error (active)	CS0103	The name 'Encoding' does not exist in the current context	AIM	C:\Users\s245451\Documents\source\AIM\Services\SecurityService.cs	272		
+Error (active)	CS1503	Argument 1: cannot convert from 'AIM.Models.AppSettings' to 'AppSettings'	AIM	C:\Users\s245451\Documents\source\AIM\Services\SecurityService.cs	309		
+
+
