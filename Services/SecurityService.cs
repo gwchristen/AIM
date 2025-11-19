@@ -317,13 +317,28 @@ public class SecurityService
             var securityData = null as EncryptedSettingsService.SecurityData;
             bool loadedFromSharedConfig = false;
 
+            // Deobfuscate passphrase if provided in settings
+            string? passphrase = null;
+            if (!string.IsNullOrEmpty(appSettings.Passphrase))
+            {
+                try
+                {
+                    passphrase = DeobfuscatePassphrase(appSettings.Passphrase);
+                    Debug.WriteLine("[Security] Deobfuscated passphrase from settings");
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"[Security] Warning: Could not deobfuscate passphrase: {ex.Message}");
+                }
+            }
+
             // Try shared network config first (if configured)
             if (!string.IsNullOrWhiteSpace(sharedNetworkPath) && File.Exists(sharedNetworkPath))
             {
                 try
                 {
                     Debug.WriteLine($"[Security] Found shared network security config, attempting to load...");
-                    securityData = await _encryptedSettingsService.LoadSecurityConfigAsync(sharedNetworkPath);
+                    securityData = await _encryptedSettingsService.LoadSecurityConfigAsync(sharedNetworkPath, passphrase);
 
                     if (securityData != null)
                     {
@@ -333,7 +348,7 @@ public class SecurityService
                         // Also cache it locally for offline access
                         try
                         {
-                            await _encryptedSettingsService.SaveSecurityConfigAsync(configPath, securityData.MasterPassword, securityData.AuthorizedUsers);
+                            await _encryptedSettingsService.SaveSecurityConfigAsync(configPath, securityData.MasterPassword, securityData.AuthorizedUsers, passphrase);
                             Debug.WriteLine($"[Security] Cached shared config locally at: {configPath}");
                         }
                         catch (Exception ex)
@@ -366,7 +381,7 @@ public class SecurityService
             if (securityData == null)
             {
                 Debug.WriteLine($"[Security] Attempting to load local config from: {configPath}");
-                securityData = await _encryptedSettingsService.LoadSecurityConfigAsync(configPath);
+                securityData = await _encryptedSettingsService.LoadSecurityConfigAsync(configPath, passphrase);
             }
 
             if (securityData != null && appSettings.IsInitialPasswordSet)
@@ -741,5 +756,26 @@ public class SecurityService
         {
             Debug.WriteLine($"[Security] ERROR logging security event: {ex.Message}");
         }
+    }
+
+    /// <summary>
+    /// Deobfuscates a passphrase that was obfuscated by the installer.
+    /// This uses simple XOR with a key and Base64 encoding - NOT cryptographic protection.
+    /// The obfuscation only prevents casual discovery of the passphrase in configuration files.
+    /// </summary>
+    /// <param name="obfuscated">The obfuscated passphrase string</param>
+    /// <returns>The deobfuscated passphrase</returns>
+    private string DeobfuscatePassphrase(string obfuscated)
+    {
+        // Simple XOR key - must match the one used in the installer
+        byte[] xorKey = new byte[] { 0xA5, 0x3C, 0x7E, 0x91, 0x42, 0xF8, 0x6D, 0x2B };
+        
+        byte[] data = Convert.FromBase64String(obfuscated);
+        for (int i = 0; i < data.Length; i++)
+        {
+            data[i] ^= xorKey[i % xorKey.Length];
+        }
+        
+        return Encoding.UTF8.GetString(data);
     }
 }

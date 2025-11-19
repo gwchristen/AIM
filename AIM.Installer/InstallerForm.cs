@@ -6,6 +6,7 @@ using System.IO;
 using System.IO.Compression;
 using System.Linq;
 using System.Reflection;
+using System.Text;
 using System.Windows.Forms;
 
 namespace AIM.Installer
@@ -15,6 +16,17 @@ namespace AIM.Installer
     /// </summary>
     public class InstallerForm : Form
     {
+        // SECURITY NOTE: This passphrase is obfuscated but NOT cryptographically protected.
+        // It can be extracted by examining the installer binary or memory.
+        // This obfuscation only prevents casual discovery.
+        // For production deployments, consider using Azure Key Vault, domain certificates,
+        // or other enterprise secret management solutions.
+        
+        // Obfuscated passphrase constant (XOR with key + Base64)
+        // Original passphrase should be set during build process
+        // Example: "MySecureP@ssphrase2024!" would be obfuscated
+        private const string ObfuscatedPassphrase = "z1Ij6bVbXOMgp/TJl+yqYqL14afBvC5TpcfU7K==";
+        
         // UI Controls
         private Panel topPanel;
         private Label titleLabel;
@@ -558,6 +570,17 @@ namespace AIM.Installer
                     LogMessage("Copying deployment script...");
                     CopyDeployScript();
 
+                    // Write installer settings to user's LocalAppData
+                    if (!string.IsNullOrWhiteSpace(sharedSecurityPath))
+                    {
+                        LogMessage("Writing installer settings...");
+                        WriteInstallerSettings();
+                        
+                        // Create security-config.ini
+                        LogMessage("Creating security config file...");
+                        CreateSecurityConfigIni();
+                    }
+
                     // Create shortcuts
                     if (desktopShortcutCheckBox.Checked)
                     {
@@ -574,10 +597,10 @@ namespace AIM.Installer
                         CreateShortcut(startMenuPath, "AIM");
                     }
 
-                    // Run Deploy-AIM.ps1 if shared security is configured
+                    // Run Deploy-AIM.ps1 if shared security is configured (optional/for completeness)
                     if (!string.IsNullOrWhiteSpace(sharedSecurityPath))
                     {
-                        LogMessage("Configuring shared security...");
+                        LogMessage("Configuring shared security (Deploy-AIM.ps1)...");
                         RunDeployScript();
                     }
 
@@ -712,19 +735,9 @@ namespace AIM.Installer
                     return;
                 }
 
-                // Get passphrase from user
-                string passphrase = string.Empty;
-                this.Invoke(new Action(() =>
-                {
-                    if (!PassphrasePrompt.ShowDialog(this, out passphrase))
-                    {
-                        LogMessage("Deployment configuration cancelled by user.");
-                        return;
-                    }
-                }));
-
-                if (string.IsNullOrWhiteSpace(passphrase))
-                    return;
+                // Use the embedded passphrase instead of prompting
+                string passphrase = DeobfuscatePassphrase(ObfuscatedPassphrase);
+                LogMessage("Using embedded passphrase for deployment script...");
 
                 // Build PowerShell arguments
                 var arguments = new List<string>
@@ -733,6 +746,7 @@ namespace AIM.Installer
                     "-File", $"\"{scriptPath}\"",
                     "-AIMInstallPath", $"\"{installPath}\"",
                     "-SharedSecurityPath", $"\"{sharedSecurityPath}\"",
+                    "-Passphrase", $"\"{passphrase}\"",
                     "-DefaultRootDirectory", $"\"{Path.Combine(installPath, "Data")}\"",
                     "-ArchivePath", $"\"{Path.Combine(installPath, "Archive")}\"",
                     "-ShippedDirectory", $"\"{Path.Combine(installPath, "Shipped")}\"",
@@ -812,6 +826,116 @@ namespace AIM.Installer
 
             logTextBox.AppendText($"[{DateTime.Now:HH:mm:ss}] {message}\r\n");
             logTextBox.ScrollToCaret();
+        }
+
+        /// <summary>
+        /// Obfuscates a passphrase using simple XOR with a key and Base64 encoding.
+        /// WARNING: This is obfuscation, NOT encryption. It only prevents casual discovery.
+        /// </summary>
+        /// <param name="passphrase">The passphrase to obfuscate</param>
+        /// <returns>The obfuscated passphrase as a Base64 string</returns>
+        private string ObfuscatePassphrase(string passphrase)
+        {
+            // Simple XOR key - must match the one used in SecurityService
+            byte[] xorKey = new byte[] { 0xA5, 0x3C, 0x7E, 0x91, 0x42, 0xF8, 0x6D, 0x2B };
+            
+            byte[] data = Encoding.UTF8.GetBytes(passphrase);
+            for (int i = 0; i < data.Length; i++)
+            {
+                data[i] ^= xorKey[i % xorKey.Length];
+            }
+            
+            return Convert.ToBase64String(data);
+        }
+
+        /// <summary>
+        /// Deobfuscates a passphrase that was obfuscated with ObfuscatePassphrase.
+        /// </summary>
+        /// <param name="obfuscated">The obfuscated passphrase string</param>
+        /// <returns>The original passphrase</returns>
+        private string DeobfuscatePassphrase(string obfuscated)
+        {
+            // Simple XOR key - must match the one used in SecurityService
+            byte[] xorKey = new byte[] { 0xA5, 0x3C, 0x7E, 0x91, 0x42, 0xF8, 0x6D, 0x2B };
+            
+            byte[] data = Convert.FromBase64String(obfuscated);
+            for (int i = 0; i < data.Length; i++)
+            {
+                data[i] ^= xorKey[i % xorKey.Length];
+            }
+            
+            return Encoding.UTF8.GetString(data);
+        }
+
+        /// <summary>
+        /// Writes the installer settings to the user's LocalAppData folder.
+        /// This includes the shared security path and obfuscated passphrase.
+        /// </summary>
+        private void WriteInstallerSettings()
+        {
+            try
+            {
+                var localAppData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+                var aimConfigDir = Path.Combine(localAppData, "AIM");
+                Directory.CreateDirectory(aimConfigDir);
+
+                var settingsPath = Path.Combine(aimConfigDir, "settings.json");
+                
+                // Create settings object
+                var settings = new Dictionary<string, object>
+                {
+                    { "UseSharedConfig", true },
+                    { "SharedSecurityConfigPath", sharedSecurityPath ?? "" }
+                };
+
+                // Add obfuscated passphrase if we have a shared security path
+                if (!string.IsNullOrWhiteSpace(sharedSecurityPath))
+                {
+                    string passphrase = DeobfuscatePassphrase(ObfuscatedPassphrase);
+                    string obfuscatedForSettings = ObfuscatePassphrase(passphrase);
+                    settings["Passphrase"] = obfuscatedForSettings;
+                    
+                    LogMessage("Writing passphrase to settings (obfuscated)...");
+                }
+
+                // Write settings as JSON
+                var json = System.Text.Json.JsonSerializer.Serialize(settings, new System.Text.Json.JsonSerializerOptions 
+                { 
+                    WriteIndented = true 
+                });
+                File.WriteAllText(settingsPath, json);
+                
+                LogMessage($"Settings written to: {settingsPath}");
+            }
+            catch (Exception ex)
+            {
+                LogMessage($"Warning: Could not write installer settings: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// Creates a security-config.ini file in the installation directory
+        /// pointing to the shared security path.
+        /// </summary>
+        private void CreateSecurityConfigIni()
+        {
+            if (string.IsNullOrWhiteSpace(sharedSecurityPath))
+                return;
+
+            try
+            {
+                var configIniPath = Path.Combine(installPath, "security-config.ini");
+                var content = $"# AIM Shared Security Configuration\r\n" +
+                             $"# This file points to the centralized security configuration\r\n" +
+                             $"SharedSecurityPath={sharedSecurityPath}\r\n";
+                
+                File.WriteAllText(configIniPath, content);
+                LogMessage($"Created security-config.ini at: {configIniPath}");
+            }
+            catch (Exception ex)
+            {
+                LogMessage($"Warning: Could not create security-config.ini: {ex.Message}");
+            }
         }
     }
 }
