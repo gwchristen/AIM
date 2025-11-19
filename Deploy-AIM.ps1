@@ -9,6 +9,10 @@
     The installation path for the AIM application.
 .PARAMETER SharedSecurityPath
     The path that contains shared security configurations.
+.PARAMETER Passphrase
+    Optional passphrase for encrypting shared security configuration.
+    If provided, creates a passphrase-encrypted config that can be shared across users.
+    If not provided, uses DPAPI encryption (user/machine specific).
 .PARAMETER DefaultRootDirectory
     The default root directory for AIM data.
 .PARAMETER ArchivePath
@@ -21,6 +25,8 @@
     The directory for archived inventory data.
 .EXAMPLE
     .\Deploy-AIM.ps1 -AIMInstallPath 'C:\AIM' -SharedSecurityPath 'C:\SharedSecurity' -DefaultRootDirectory 'C:\AIM\Data' -ArchivePath 'C:\AIM\Archive' -ShippedDirectory 'C:\AIM\Shipped' -FileScansDirectory 'C:\AIM\FileScans' -InventoryArchiveDirectory 'C:\AIM\InventoryArchive'
+.EXAMPLE
+    .\Deploy-AIM.ps1 -AIMInstallPath 'C:\AIM' -SharedSecurityPath '\\server\share\AIM_Security' -Passphrase 'MySecurePassphrase123!' -DefaultRootDirectory 'C:\AIM\Data' -ArchivePath 'C:\AIM\Archive' -ShippedDirectory 'C:\AIM\Shipped' -FileScansDirectory 'C:\AIM\FileScans' -InventoryArchiveDirectory 'C:\AIM\InventoryArchive'
 #>
 
 param (
@@ -29,6 +35,9 @@ param (
 
     [Parameter(Mandatory = $true)]
     [string]$SharedSecurityPath = "\\oh1cam01\cml\Internal\LAB STOCK\Important Inventory Related Documents\AIM\AIM_Security",
+
+    [Parameter(Mandatory = $false)]
+    [string]$Passphrase = "",
 
     [Parameter(Mandatory = $true)]
     [string]$DefaultRootDirectory = "\\oh1cam01\cml\Internal\LAB STOCK\LAB STOCK",
@@ -78,6 +87,11 @@ foreach ($dir in $directories) {
 Write-Host "Configuration Summary:" 
 Write-Host "AIM Install Path: $AIMInstallPath" 
 Write-Host "Shared Security Path: $SharedSecurityPath" 
+if ($Passphrase) {
+    Write-Host "Passphrase: ********** (provided - will use passphrase-based encryption)"
+} else {
+    Write-Host "Passphrase: (not provided - will use DPAPI encryption)"
+}
 Write-Host "Default Root Directory: $DefaultRootDirectory" 
 Write-Host "Archive Path: $ArchivePath" 
 Write-Host "Shipped Directory: $ShippedDirectory" 
