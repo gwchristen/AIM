@@ -25,7 +25,7 @@
 
 param (
     [Parameter(Mandatory = $true)]
-    [string]$AIMInstallPath,
+    [string]$AIMInstallPath = "C:\Program Files\AIM",
 
     [Parameter(Mandatory = $true)]
     [string]$SharedSecurityPath,
