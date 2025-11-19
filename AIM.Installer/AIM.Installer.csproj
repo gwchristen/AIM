@@ -1,0 +1,39 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <UseWindowsForms>true</UseWindowsForms>
+    <Nullable>enable</Nullable>
+    <ApplicationIcon>icon.ico</ApplicationIcon>
+    <AssemblyName>AIM-Installer</AssemblyName>
+    <RootNamespace>AIM.Installer</RootNamespace>
+    <Version>1.0.0</Version>
+    <Authors>AIM Development Team</Authors>
+    <Product>AIM Installer</Product>
+    <Description>Self-extracting installer for the AIM application</Description>
+    <Copyright>Copyright © 2025</Copyright>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)' == 'Release'">
+    <DebugType>none</DebugType>
+    <DebugSymbols>false</DebugSymbols>
+    <Optimize>true</Optimize>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Costura.Fody" Version="5.7.0">
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="Fody" Version="6.8.0">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Embedded resources will be added during build process -->
+    <EmbeddedResource Include="Resources\AIM-Published.zip" Condition="Exists('Resources\AIM-Published.zip')" />
+    <EmbeddedResource Include="Resources\Deploy-AIM.ps1" Condition="Exists('Resources\Deploy-AIM.ps1')" />
+  </ItemGroup>
+
+</Project>

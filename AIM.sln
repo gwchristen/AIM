@@ -4,6 +4,8 @@ VisualStudioVersion = 17.14.36518.9
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AIM", "AIM.csproj", "{4D4877E1-9EE6-48A1-9CC8-DDBB06D18AA5}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AIM.Installer", "AIM.Installer\AIM.Installer.csproj", "{8F5C2A9B-1234-4567-89AB-CDEF01234567}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|ARM64 = Debug|ARM64
@@ -32,6 +34,18 @@ Global
 		{4D4877E1-9EE6-48A1-9CC8-DDBB06D18AA5}.Release|x86.ActiveCfg = Release|x86
 		{4D4877E1-9EE6-48A1-9CC8-DDBB06D18AA5}.Release|x86.Build.0 = Release|x86
 		{4D4877E1-9EE6-48A1-9CC8-DDBB06D18AA5}.Release|x86.Deploy.0 = Release|x86
+		{8F5C2A9B-1234-4567-89AB-CDEF01234567}.Debug|ARM64.ActiveCfg = Debug|Any CPU
+		{8F5C2A9B-1234-4567-89AB-CDEF01234567}.Debug|ARM64.Build.0 = Debug|Any CPU
+		{8F5C2A9B-1234-4567-89AB-CDEF01234567}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{8F5C2A9B-1234-4567-89AB-CDEF01234567}.Debug|x64.Build.0 = Debug|Any CPU
+		{8F5C2A9B-1234-4567-89AB-CDEF01234567}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{8F5C2A9B-1234-4567-89AB-CDEF01234567}.Debug|x86.Build.0 = Debug|Any CPU
+		{8F5C2A9B-1234-4567-89AB-CDEF01234567}.Release|ARM64.ActiveCfg = Release|Any CPU
+		{8F5C2A9B-1234-4567-89AB-CDEF01234567}.Release|ARM64.Build.0 = Release|Any CPU
+		{8F5C2A9B-1234-4567-89AB-CDEF01234567}.Release|x64.ActiveCfg = Release|Any CPU
+		{8F5C2A9B-1234-4567-89AB-CDEF01234567}.Release|x64.Build.0 = Release|Any CPU
+		{8F5C2A9B-1234-4567-89AB-CDEF01234567}.Release|x86.ActiveCfg = Release|Any CPU
+		{8F5C2A9B-1234-4567-89AB-CDEF01234567}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

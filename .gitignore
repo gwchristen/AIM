@@ -381,3 +381,18 @@ coverage/
 ## Documentation build output
 _site/
 docs/_build/
+
+##
+## Installer-Specific
+##
+
+## Installer build artifacts
+AIM.Installer/Resources/
+AIM-Installer-*.exe
+
+## Published application archives
+*.zip
+
+## Installer temporary files
+AIM-Published/
+
