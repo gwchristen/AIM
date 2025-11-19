@@ -498,7 +498,7 @@ public sealed partial class PrintableFormPage : Page
 
         // Force layout
         pageGrid.Measure(new Windows.Foundation.Size(850, 1100)); // Standard letter size
-        pageGrid.Arrange(new Windows.Foundation.Rect(0, 0, 850, 1100));
+        pageGrid.Arrange(new Windows.Foundation.Rect(30, 30, 850, 1100));
 
         return pageGrid;
     }
@@ -582,6 +582,7 @@ public sealed partial class PrintableFormPage : Page
             Margin = new Thickness(4, 2, 4, 2),
             VerticalAlignment = VerticalAlignment.Center,
             Foreground = new Microsoft.UI.Xaml.Media.SolidColorBrush(Windows.UI.Color.FromArgb(255, 0, 0, 0)),
+            FontWeight = Microsoft.UI.Text.FontWeights.Bold  // Make text bolder for visibility
             TextWrapping = TextWrapping.Wrap
         };
 
