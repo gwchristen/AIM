@@ -4,7 +4,6 @@
     <TargetFramework>net8.0-windows</TargetFramework>
     <UseWindowsForms>true</UseWindowsForms>
     <Nullable>enable</Nullable>
-    <ApplicationIcon>icon.ico</ApplicationIcon>
     <AssemblyName>AIM-Installer</AssemblyName>
     <RootNamespace>AIM.Installer</RootNamespace>
     <Version>1.0.0</Version>
@@ -12,6 +11,11 @@
     <Product>AIM Installer</Product>
     <Description>Self-extracting installer for the AIM application</Description>
     <Copyright>Copyright © 2025</Copyright>
+	
+	<PublishSingleFile>true</PublishSingleFile>
+	<SelfContained>true</SelfContained>
+	<IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
+	<InclueAllContentForSelfExtract>true</InclueAllContentForSelfExtract>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)' == 'Release'">
