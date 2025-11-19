@@ -6,3 +6,220 @@ Error (active)	CS1503	Argument 1: cannot convert from 'AIM.Models.AppSettings' t
     C:\Users\s245451\.nuget\packages\microsoft.windowsappsdk.winui\1.8.250906003\buildTransitive\Microsoft.UI.Xaml.Markup.Compiler.interop.targets(845,9): error MSB3073: The command ""C:\Users\s245451\.nuget\packages\microsoft.windowsappsdk.winui\1.8.250906003\buildTransitive\..\tools\net6.0\..\net472\XamlCompiler.exe" "obj\ARM64\Debug\net8.0-windows10.0.22621.0\win-arm64\\input.json" "obj\ARM64\Debug\net8.0-windows10.0.22621.0\win-arm64\\output.json"" exited with code 1.
 
     C:\Users\s245451\Documents\source\AIM\AIM-Installer.cs(10,21): error CS0017: Program has more than one entry point defined. Compile with /main to specify the type that contains the entry point.
+
+
+
+<#
+.SYNOPSIS
+  Build script to create a portable AIM package with the self-extracting installer.
+
+.DESCRIPTION
+  This script:
+  1. Builds the main AIM WinUI application
+  2. Builds the AIM.Installer console app
+  3. Packages both together with provisioning scripts
+  4. Creates a portable zip distribution
+
+.EXAMPLE
+  .\build-portable-package.ps1 -Configuration Release -Platform x64
+#>
+
+param(
+    [ValidateSet('Debug', 'Release')][string]$Configuration = 'Release',
+    [ValidateSet('x64', 'x86', 'ARM64')][string]$Platform = 'x64',
+    [string]$OutputDir = ".\dist",
+    [switch]$SkipBuild
+)
+
+$ErrorActionPreference = 'Stop'
+$scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
+$solutionFile = Join-Path $scriptDir "AIM.sln"
+$appProjectFile = Join-Path $scriptDir "AIM\AIM.csproj"
+$installerProjectFile = Join-Path $scriptDir "AIM.Installer\AIM.Installer.csproj"
+
+Write-Host "========================================" -ForegroundColor Cyan
+Write-Host "  AIM Portable Package Builder" -ForegroundColor Cyan
+Write-Host "========================================" -ForegroundColor Cyan
+Write-Host ""
+Write-Host "Configuration: $Configuration" -ForegroundColor Green
+Write-Host "Platform:      $Platform" -ForegroundColor Green
+Write-Host "Output Dir:    $OutputDir" -ForegroundColor Green
+Write-Host ""
+
+# Verify project files exist
+if (-not (Test-Path $appProjectFile)) {
+    Write-Error "AIM.csproj not found at: $appProjectFile"
+    exit 1
+}
+
+if (-not (Test-Path $installerProjectFile)) {
+    Write-Error "AIM.Installer.csproj not found at: $installerProjectFile"
+    exit 1
+}
+
+# Create output directory
+if (-not (Test-Path $OutputDir)) {
+    New-Item -ItemType Directory -Path $OutputDir -Force | Out-Null
+}
+
+# Clean previous builds
+$buildDir = Join-Path $scriptDir "bin\$Platform\$Configuration"
+$appBuildDir = Join-Path $scriptDir "AIM\bin\$Platform\$Configuration"
+$installerBuildDir = Join-Path $scriptDir "AIM.Installer\bin\$Platform\$Configuration"
+
+if (-not $SkipBuild) {
+    Write-Host "Cleaning previous builds..." -ForegroundColor Yellow
+    if (Test-Path $buildDir) { Remove-Item $buildDir -Recurse -Force }
+    if (Test-Path $appBuildDir) { Remove-Item $appBuildDir -Recurse -Force }
+    if (Test-Path $installerBuildDir) { Remove-Item $installerBuildDir -Recurse -Force }
+}
+
+# Build AIM WinUI app
+Write-Host ""
+Write-Host "Building AIM WinUI application..." -ForegroundColor Yellow
+$appRid = switch ($Platform) {
+    'x64' { 'win-x64' }
+    'x86' { 'win-x86' }
+    'ARM64' { 'win-arm64' }
+}
+
+& dotnet build $appProjectFile `
+    --configuration $Configuration `
+    --no-incremental `
+    -p:Platform=$Platform `
+    -p:RuntimeIdentifier=$appRid
+
+if ($LASTEXITCODE -ne 0) {
+    Write-Error "Failed to build AIM app"
+    exit 1
+}
+Write-Host "✓ AIM app built successfully" -ForegroundColor Green
+
+# Build AIM.Installer console app
+Write-Host ""
+Write-Host "Building AIM.Installer console application..." -ForegroundColor Yellow
+& dotnet build $installerProjectFile `
+    --configuration $Configuration `
+    --no-incremental `
+    -p:Platform=$Platform
+
+if ($LASTEXITCODE -ne 0) {
+    Write-Error "Failed to build AIM.Installer"
+    exit 1
+}
+Write-Host "✓ AIM.Installer built successfully" -ForegroundColor Green
+
+# Locate built binaries
+$appExePath = Get-ChildItem -Path $appBuildDir -Filter "AIM.exe" -Recurse | Select-Object -First 1
+$installerExePath = Get-ChildItem -Path $installerBuildDir -Filter "AIM.Installer.exe" -Recurse | Select-Object -First 1
+
+if (-not $appExePath) {
+    Write-Error "Could not find built AIM.exe"
+    exit 1
+}
+
+if (-not $installerExePath) {
+    Write-Error "Could not find built AIM.Installer.exe"
+    exit 1
+}
+
+Write-Host "App binary:      $($appExePath.FullName)" -ForegroundColor Cyan
+Write-Host "Installer binary: $($installerExePath.FullName)" -ForegroundColor Cyan
+
+# Create portable package structure
+$packageDir = Join-Path $OutputDir "AIM-Portable-$Platform-$Configuration"
+if (Test-Path $packageDir) {
+    Remove-Item $packageDir -Recurse -Force
+}
+New-Item -ItemType Directory -Path $packageDir -Force | Out-Null
+New-Item -ItemType Directory -Path (Join-Path $packageDir "app") -Force | Out-Null
+New-Item -ItemType Directory -Path (Join-Path $packageDir "tools") -Force | Out-Null
+
+Write-Host ""
+Write-Host "Packaging binaries..." -ForegroundColor Yellow
+
+# Copy AIM app files (all dlls, exe, and support files)
+$appBinFolder = Split-Path -Parent $appExePath.FullName
+Copy-Item -Path (Join-Path $appBinFolder "*") -Destination (Join-Path $packageDir "app") -Recurse -Force
+
+# Copy installer exe
+Copy-Item -Path $installerExePath.FullName -Destination (Join-Path $packageDir "AIM-Installer.exe") -Force
+
+# Copy provisioning scripts to tools folder
+$toolsDir = Join-Path $packageDir "tools"
+
+# Create/copy import-security.ps1
+$importSecurityScript = @'
+<#
+.SYNOPSIS
+  Import shared security config and cache it locally for AIM.
+
+.DESCRIPTION
+  This script fetches the shared AES-GCM encrypted security.config from the UNC path,
+  decrypts it with the deployment passphrase, and stores a DPAPI-protected local copy.
+
+.EXAMPLE
+  .\import-security.ps1 -SharedPath "\\oh1cam01\cml\Internal\Lab Stock\Lab Stock\AIM_Security\security.bin" -AskPass
+#>
+
+param(
+    [Parameter(Mandatory=$true)][string]$SharedPath,
+    [Parameter(Mandatory=$false)][string]$LocalCache = "$env:LocalAppData\AIM\Security\security.config",
+    [switch]$AskPass,
+    [string]$HelperExe = ".\ImportSharedSecurity.exe"
+)
+
+if (-not (Test-Path $HelperExe)) {
+    Write-Error "Helper not found at $HelperExe. Ensure ImportSharedSecurity.exe is in the same directory."
+    exit 1
+}
+
+if (-not (Test-Path $SharedPath)) {
+    Write-Error "Shared config not found at: $SharedPath"
+    exit 1
+}
+
+if ($AskPass) {
+    $pass = Read-Host -AsSecureString "Enter deployment passphrase"
+    $bstr = [System.Runtime.InteropServices.Marshal]::SecureStringToBSTR($pass)
+    $plain = [System.Runtime.InteropServices.Marshal]::PtrToStringAuto($bstr)
+    [System.Runtime.InteropServices.Marshal]::ZeroFreeBSTR($bstr)
+} else {
+    Write-Error "You must provide passphrase with --AskPass or pass it via --pass parameter"
+    exit 1
+}
+
+Write-Host "Importing shared security config from: $SharedPath"
+Write-Host "Caching to: $LocalCache"
+
+& $HelperExe --import --in $SharedPath --out $LocalCache --pass $plain
+
+if ($LASTEXITCODE -ne 0) {
+    Write-Error "Import helper failed with exit code $LASTEXITCODE"
+    exit $LASTEXITCODE
+}
+
+Write-Host "✓ Import complete. Local cached config: $LocalCache" -ForegroundColor Green
+Write-Host ""
+Write-Host "You may now run the AIM application without being prompted to set a master password."
+'@
+
+$importSecurityScript | Set-Content -Path (Join-Path $toolsDir "import-security.ps1") -Encoding UTF8
+
+# Create README for provisioning
+$readmeProvisioning = @'
+# AIM Portable Package - First Run Setup
+
+## Prerequisites
+- Network access to: `\\oh1cam01\cml\Internal\Lab Stock\Lab Stock\AIM_Security\`
+- Windows PowerShell (included with Windows)
+- Deployment passphrase (provided by your administrator)
+
+## One-Time Provisioning (Required)
+
+Run the import script to cache the shared security configuration locally:
+
+### PowerShell (Recommended)
+```powershell
+cd .\tools
+.\import-security.ps1 -SharedPath "\\oh1cam01\cml\Internal\Lab Stock\Lab Stock\AIM_Security\security.bin" -AskPass
