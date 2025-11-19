@@ -2,17 +2,15 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>net5.0</TargetFramework>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <RootNamespace>AIM</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>
+    <!-- Exclude AIM.Installer directory from main project compilation -->
     <Compile Remove="AIM.Installer\**" />
     <EmbeddedResource Remove="AIM.Installer\**" />
     <None Remove="AIM.Installer\**" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Compile Include="Program.cs" />
   </ItemGroup>
 
 </Project>
