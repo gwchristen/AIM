@@ -1,3 +1,578 @@
+using System;
+using System.Diagnostics;
+using System.IO;
+using System.Threading.Tasks;
+using System.Windows.Forms;
 
+namespace AIM.Installer
+{
+    static class Program
+    {
+        [STAThread]
+        static void Main()
+        {
+            Application.EnableVisualStyles();
+            Application.SetCompatibleTextRenderingDefault(false);
+            Application.Run(new InstallerForm());
+        }
+    }
+
+    public partial class InstallerForm : Form
+    {
+        private string _extractPath;
+        private string _sharedConfigPath = @"\\oh1cam01\cml\Internal\Lab Stock\Lab Stock\AIM_Security\security.bin";
+        private bool _installationComplete = false;
+
+        public InstallerForm()
+        {
+            InitializeComponent();
+            this.Text = "AIM Installer";
+            this.StartPosition = FormStartPosition.CenterScreen;
+            this.Size = new System.Drawing.Size(600, 500);
+            this.MaximizeBox = false;
+            this.MinimizeBox = false;
+            this.FormBorderStyle = FormBorderStyle.FixedDialog;
+
+            SetupUI();
+        }
+
+        private void SetupUI()
+        {
+            // Panel for installation steps
+            var mainPanel = new TableLayoutPanel
+            {
+                Dock = DockStyle.Fill,
+                ColumnCount = 1,
+                RowCount = 5,
+                Padding = new Padding(20),
+                AutoSize = true
+            };
+
+            // Title
+            var titleLabel = new Label
+            {
+                Text = "AIM Installation Wizard",
+                Font = new System.Drawing.Font("Segoe UI", 18, System.Drawing.FontStyle.Bold),
+                Dock = DockStyle.Top,
+                Height = 50,
+                AutoSize = true
+            };
+            mainPanel.Controls.Add(titleLabel, 0, 0);
+
+            // Step indicator
+            var stepLabel = new Label
+            {
+                Text = "Step 1 of 3: Choose Installation Location",
+                Font = new System.Drawing.Font("Segoe UI", 11),
+                Dock = DockStyle.Top,
+                Height = 30,
+                AutoSize = true
+            };
+            mainPanel.Controls.Add(stepLabel, 0, 1);
+
+            // Installation path selection
+            var pathPanel = new Panel { Dock = DockStyle.Top, Height = 60, AutoSize = true };
+            var pathLabel = new Label
+            {
+                Text = "Install to:",
+                Location = new System.Drawing.Point(0, 5),
+                Size = new System.Drawing.Size(100, 20)
+            };
+            var pathTextBox = new TextBox
+            {
+                Text = GetDefaultInstallPath(),
+                Location = new System.Drawing.Point(100, 5),
+                Size = new System.Drawing.Size(350, 25),
+                ReadOnly = false
+            };
+            var browseButton = new Button
+            {
+                Text = "Browse...",
+                Location = new System.Drawing.Point(460, 5),
+                Size = new System.Drawing.Size(80, 25)
+            };
+            browseButton.Click += (s, e) => BrowseFolder(pathTextBox);
+            pathPanel.Controls.Add(pathLabel);
+            pathPanel.Controls.Add(pathTextBox);
+            pathPanel.Controls.Add(browseButton);
+            mainPanel.Controls.Add(pathPanel, 0, 2);
+
+            _extractPath = pathTextBox.Text;
+            pathTextBox.TextChanged += (s, e) => _extractPath = pathTextBox.Text;
+
+            // Shared config path (optional override)
+            var configPanel = new Panel { Dock = DockStyle.Top, Height = 60, AutoSize = true };
+            var configLabel = new Label
+            {
+                Text = "Security Config UNC:",
+                Location = new System.Drawing.Point(0, 5),
+                Size = new System.Drawing.Size(100, 20)
+            };
+            var configTextBox = new TextBox
+            {
+                Text = _sharedConfigPath,
+                Location = new System.Drawing.Point(100, 5),
+                Size = new System.Drawing.Size(430, 25),
+                ReadOnly = false
+            };
+            configPanel.Controls.Add(configLabel);
+            configPanel.Controls.Add(configTextBox);
+            mainPanel.Controls.Add(configPanel, 0, 3);
+
+            _sharedConfigPath = configTextBox.Text;
+            configTextBox.TextChanged += (s, e) => _sharedConfigPath = configTextBox.Text;
+
+            // Progress/Log area
+            var logTextBox = new TextBox
+            {
+                Multiline = true,
+                ReadOnly = true,
+                Dock = DockStyle.Fill,
+                ScrollBars = ScrollBars.Vertical,
+                Visible = false
+            };
+
+            // Buttons
+            var buttonPanel = new FlowLayoutPanel
+            {
+                Dock = DockStyle.Bottom,
+                Height = 50,
+                FlowDirection = FlowDirection.RightToLeft,
+                AutoSize = true
+            };
+
+            var installButton = new Button
+            {
+                Text = "Install",
+                Size = new System.Drawing.Size(100, 35),
+                DialogResult = DialogResult.OK
+            };
+
+            var cancelButton = new Button
+            {
+                Text = "Cancel",
+                Size = new System.Drawing.Size(100, 35),
+                DialogResult = DialogResult.Cancel
+            };
+
+            installButton.Click += async (s, e) => await InstallAsync(logTextBox, stepLabel, pathPanel, configPanel);
+            cancelButton.Click += (s, e) => { if (!_installationComplete) this.Close(); };
+
+            buttonPanel.Controls.Add(cancelButton);
+            buttonPanel.Controls.Add(installButton);
+
+            mainPanel.Controls.Add(logTextBox, 0, 4);
+            mainPanel.Controls.Add(buttonPanel, 0, 4);
+
+            this.Controls.Add(mainPanel);
+        }
+
+        private string GetDefaultInstallPath()
+        {
+            return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ProgramFiles), "AIM");
+        }
+
+        private void BrowseFolder(TextBox targetTextBox)
+        {
+            using (var dialog = new System.Windows.Forms.FolderBrowserDialog())
+            {
+                dialog.Description = "Select installation folder";
+                dialog.SelectedPath = targetTextBox.Text;
+                if (dialog.ShowDialog() == DialogResult.OK)
+                {
+                    targetTextBox.Text = dialog.SelectedPath;
+                }
+            }
+        }
+
+        private async Task InstallAsync(TextBox logTextBox, Label stepLabel, Panel pathPanel, Panel configPanel)
+        {
+            try
+            {
+                logTextBox.Visible = true;
+                pathPanel.Enabled = false;
+                configPanel.Enabled = false;
+
+                Log(logTextBox, "Starting AIM installation...");
+                Log(logTextBox, $"Installation path: {_extractPath}");
+                Log(logTextBox, "");
+
+                // Step 1: Extract portable app
+                Log(logTextBox, "Step 1/3: Extracting application files...");
+                await Task.Delay(100); // Let UI update
+                ExtractPortableApp();
+                Log(logTextBox, "✓ Application files extracted");
+                Log(logTextBox, "");
+
+                // Step 2: Import security config
+                Log(logTextBox, "Step 2/3: Setting up security configuration...");
+                await Task.Delay(100);
+                var passphraseForm = new PassphrasePrompt(_sharedConfigPath);
+                if (passphraseForm.ShowDialog() == DialogResult.OK)
+                {
+                    await ImportSecurityConfigAsync(logTextBox, passphraseForm.Passphrase);
+                    Log(logTextBox, "✓ Security configuration imported");
+                }
+                else
+                {
+                    Log(logTextBox, "⚠ Security configuration skipped (you can run import-security.ps1 later)");
+                }
+                Log(logTextBox, "");
+
+                // Step 3: Create shortcuts
+                Log(logTextBox, "Step 3/3: Creating shortcuts...");
+                await Task.Delay(100);
+                CreateShortcuts();
+                Log(logTextBox, "✓ Shortcuts created");
+                Log(logTextBox, "");
+
+                Log(logTextBox, "========================================");
+                Log(logTextBox, "Installation Complete!");
+                Log(logTextBox, "========================================");
+                Log(logTextBox, "");
+                Log(logTextBox, $"AIM has been installed to: {_extractPath}");
+                Log(logTextBox, "");
+                Log(logTextBox, "You can now launch AIM from:");
+                Log(logTextBox, "  • Start Menu → AIM");
+                Log(logTextBox, $"  • Or directly: {Path.Combine(_extractPath, "AIM.exe")}");
+
+                _installationComplete = true;
+
+                // Ask to launch app
+                var result = MessageBox.Show(
+                    "Installation complete. Would you like to launch AIM now?",
+                    "Installation Complete",
+                    MessageBoxButtons.YesNo,
+                    MessageBoxIcon.Information);
+
+                if (result == DialogResult.Yes)
+                {
+                    LaunchApp();
+                }
+
+                this.Close();
+            }
+            catch (Exception ex)
+            {
+                Log(logTextBox, "");
+                Log(logTextBox, $"ERROR: {ex.Message}");
+                Log(logTextBox, ex.StackTrace);
+                MessageBox.Show($"Installation failed: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void ExtractPortableApp()
+        {
+            // Get the embedded portable app (this would be bundled with the installer)
+            // For now, we assume the portable files are in a subdirectory or embedded resource
+            string sourceAppDir = Path.Combine(AppContext.BaseDirectory, "app");
+
+            if (!Directory.Exists(sourceAppDir))
+            {
+                throw new DirectoryNotFoundException($"Portable app files not found at: {sourceAppDir}");
+            }
+
+            // Create installation directory
+            if (!Directory.Exists(_extractPath))
+            {
+                Directory.CreateDirectory(_extractPath);
+            }
+
+            // Copy all files recursively
+            CopyDirectory(sourceAppDir, _extractPath, true);
+        }
+
+        private void CopyDirectory(string sourceDir, string destDir, bool copySubDirs)
+        {
+            var dir = new DirectoryInfo(sourceDir);
+            if (!dir.Exists)
+                throw new DirectoryNotFoundException($"Source directory does not exist or could not be found: {sourceDir}");
+
+            if (!Directory.Exists(destDir))
+                Directory.CreateDirectory(destDir);
+
+            FileInfo[] files = dir.GetFiles();
+            foreach (FileInfo file in files)
+            {
+                string tempPath = Path.Combine(destDir, file.Name);
+                file.CopyTo(tempPath, true);
+            }
+
+            if (copySubDirs)
+            {
+                DirectoryInfo[] dirs = dir.GetDirectories();
+                foreach (DirectoryInfo subdir in dirs)
+                {
+                    string tempPath = Path.Combine(destDir, subdir.Name);
+                    CopyDirectory(subdir.FullName, tempPath, copySubDirs);
+                }
+            }
+        }
+
+        private async Task ImportSecurityConfigAsync(TextBox logTextBox, string passphrase)
+        {
+            try
+            {
+                Log(logTextBox, "Connecting to shared config...");
+
+                if (!File.Exists(_sharedConfigPath))
+                {
+                    Log(logTextBox, "⚠ Shared config file not accessible. You can import it later using:");
+                    Log(logTextBox, $"  .\\tools\\import-security.ps1 -SharedPath \"{_sharedConfigPath}\" -AskPass");
+                    return;
+                }
+
+                // Call the ImportSharedSecurity helper (if available)
+                string helperPath = Path.Combine(_extractPath, "tools", "ImportSharedSecurity.exe");
+                string localConfigPath = Path.Combine(
+                    Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+                    "AIM", "Security", "security.config");
+
+                if (!File.Exists(helperPath))
+                {
+                    Log(logTextBox, "⚠ Security helper not found. Manual import required.");
+                    return;
+                }
+
+                Log(logTextBox, "Running security import helper...");
+
+                var process = new Process
+                {
+                    StartInfo = new ProcessStartInfo
+                    {
+                        FileName = helperPath,
+                        Arguments = $"--import --in \"{_sharedConfigPath}\" --out \"{localConfigPath}\" --pass \"{passphrase}\"",
+                        UseShellExecute = false,
+                        RedirectStandardOutput = true,
+                        RedirectStandardError = true,
+                        CreateNoWindow = true
+                    }
+                };
+
+                process.Start();
+                await process.WaitForExitAsync();
+
+                if (process.ExitCode != 0)
+                {
+                    string error = process.StandardError.ReadToEnd();
+                    throw new Exception($"Security import failed: {error}");
+                }
+
+                Log(logTextBox, "Security config imported successfully");
+            }
+            catch (Exception ex)
+            {
+                Log(logTextBox, $"⚠ Warning: Could not import security config: {ex.Message}");
+                Log(logTextBox, "  You can import it later by running: .\\tools\\import-security.ps1");
+            }
+        }
+
+        private void CreateShortcuts()
+        {
+            try
+            {
+                string aimExe = Path.Combine(_extractPath, "AIM.exe");
+                string startMenuFolder = Path.Combine(
+                    Environment.GetFolderPath(Environment.SpecialFolder.StartMenu),
+                    "Programs", "AIM");
+
+                // Create Start Menu folder
+                if (!Directory.Exists(startMenuFolder))
+                {
+                    Directory.CreateDirectory(startMenuFolder);
+                }
+
+                // Create shortcut using Windows Script Host
+                string lnkPath = Path.Combine(startMenuFolder, "AIM.lnk");
+                CreateWindowsShortcut(aimExe, lnkPath, "AIM - Asset Inventory Management");
+
+                // Create Desktop shortcut (optional)
+                string desktopFolder = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
+                string desktopLnk = Path.Combine(desktopFolder, "AIM.lnk");
+                CreateWindowsShortcut(aimExe, desktopLnk, "AIM - Asset Inventory Management");
+            }
+            catch (Exception ex)
+            {
+                // Non-fatal error
+                Debug.WriteLine($"Failed to create shortcuts: {ex.Message}");
+            }
+        }
+
+        private void CreateWindowsShortcut(string targetPath, string shortcutPath, string description)
+        {
+            dynamic shell = Activator.CreateInstance(Type.GetTypeFromProgID("WScript.Shell"));
+            dynamic shortcut = shell.CreateShortcut(shortcutPath);
+            shortcut.TargetPath = targetPath;
+            shortcut.WorkingDirectory = Path.GetDirectoryName(targetPath);
+            shortcut.Description = description;
+            shortcut.IconLocation = targetPath + ",0";
+            shortcut.Save();
+
+            System.Runtime.InteropServices.Marshal.FinalReleaseComObject(shortcut);
+            System.Runtime.InteropServices.Marshal.FinalReleaseComObject(shell);
+        }
+
+        private void LaunchApp()
+        {
+            try
+            {
+                string aimExe = Path.Combine(_extractPath, "AIM.exe");
+                if (File.Exists(aimExe))
+                {
+                    Process.Start(aimExe);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Could not launch AIM: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void Log(TextBox logTextBox, string message)
+        {
+            if (logTextBox.InvokeRequired)
+            {
+                logTextBox.Invoke(new Action(() => Log(logTextBox, message)));
+                return;
+            }
+
+            logTextBox.AppendText(message + Environment.NewLine);
+            logTextBox.ScrollToCaret();
+            Application.DoEvents();
+        }
+
+        private void InitializeComponent()
+        {
+            this.SuspendLayout();
+            this.ResumeLayout(false);
+        }
+    }
+
+    public partial class PassphrasePrompt : Form
+    {
+        public string Passphrase { get; private set; }
+        private PasswordBox _passwordBox;
+
+        public PassphrasePrompt(string sharedPath)
+        {
+            InitializeComponent();
+            SetupUI(sharedPath);
+        }
+
+        private void SetupUI(string sharedPath)
+        {
+            this.Text = "Security Configuration";
+            this.Size = new System.Drawing.Size(500, 300);
+            this.StartPosition = FormStartPosition.CenterParent;
+            this.MaximizeBox = false;
+            this.MinimizeBox = false;
+            this.FormBorderStyle = FormBorderStyle.FixedDialog;
+
+            var mainPanel = new TableLayoutPanel
+            {
+                Dock = DockStyle.Fill,
+                ColumnCount = 1,
+                RowCount = 5,
+                Padding = new Padding(20),
+                AutoSize = true
+            };
+
+            var titleLabel = new Label
+            {
+                Text = "Import Security Configuration",
+                Font = new System.Drawing.Font("Segoe UI", 14, System.Drawing.FontStyle.Bold),
+                AutoSize = true,
+                Dock = DockStyle.Top,
+                Height = 30
+            };
+            mainPanel.Controls.Add(titleLabel, 0, 0);
+
+            var infoLabel = new Label
+            {
+                Text = $"Importing from:\n{sharedPath}",
+                AutoSize = true,
+                Dock = DockStyle.Top,
+                Height = 50
+            };
+            mainPanel.Controls.Add(infoLabel, 0, 1);
+
+            var passLabel = new Label
+            {
+                Text = "Deployment Passphrase:",
+                AutoSize = true
+            };
+            mainPanel.Controls.Add(passLabel, 0, 2);
+
+            _passwordBox = new PasswordBox
+            {
+                Size = new System.Drawing.Size(400, 35)
+            };
+            mainPanel.Controls.Add(_passwordBox, 0, 3);
+
+            var buttonPanel = new FlowLayoutPanel
+            {
+                FlowDirection = FlowDirection.RightToLeft,
+                AutoSize = true,
+                Dock = DockStyle.Bottom,
+                Height = 50
+            };
+
+            var okButton = new Button
+            {
+                Text = "OK",
+                Size = new System.Drawing.Size(100, 35),
+                DialogResult = DialogResult.OK
+            };
+
+            var skipButton = new Button
+            {
+                Text = "Skip",
+                Size = new System.Drawing.Size(100, 35),
+                DialogResult = DialogResult.Cancel
+            };
+
+            okButton.Click += (s, e) => { Passphrase = _passwordBox.GetPassword(); };
+
+            buttonPanel.Controls.Add(skipButton);
+            buttonPanel.Controls.Add(okButton);
+
+            mainPanel.Controls.Add(buttonPanel, 0, 4);
+            this.Controls.Add(mainPanel);
+        }
+
+        private void InitializeComponent()
+        {
+            this.SuspendLayout();
+            this.ResumeLayout(false);
+        }
+    }
+
+    /// <summary>
+    /// Custom PasswordBox control (safe password input without exposing the value)
+    /// </summary>
+    public class PasswordBox : Control
+    {
+        private System.Windows.Forms.TextBox _textBox;
+
+        public PasswordBox()
+        {
+            _textBox = new System.Windows.Forms.TextBox
+            {
+                PasswordChar = '*',
+                Dock = DockStyle.Fill,
+                Multiline = false
+            };
+            this.Controls.Add(_textBox);
+        }
+
+        public string GetPassword() => _textBox.Text;
+
+        public override string Text
+        {
+            get => _textBox.Text;
+            set => _textBox.Text = value;
+        }
+    }
+}
 
 
