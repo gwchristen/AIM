@@ -582,7 +582,7 @@ public sealed partial class PrintableFormPage : Page
             Margin = new Thickness(4, 2, 4, 2),
             VerticalAlignment = VerticalAlignment.Center,
             Foreground = new Microsoft.UI.Xaml.Media.SolidColorBrush(Windows.UI.Color.FromArgb(255, 0, 0, 0)),
-            FontWeight = Microsoft.UI.Text.FontWeights.Bold  // Make text bolder for visibility
+            FontWeight = Microsoft.UI.Text.FontWeights.Bold,  // Make text bolder for visibility
             TextWrapping = TextWrapping.Wrap
         };
 
