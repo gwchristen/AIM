@@ -71,6 +71,10 @@ public class SecurityService
     private DateTime? _lockoutUntil;
     private const int MaxFailedAttempts = 5;
     private static readonly TimeSpan LockoutDuration = TimeSpan.FromMinutes(15);
+
+    // Masked constant - Base64-encoded UNC path for fallback
+    private const string MaskedSharedSecurityPath = "XFxvaDFjYW0wMVxjbWxcSW50ZXJuYWxcTEFCIFNUT0NLXEltcG9ydGFudCBJbnZlbnRvcnkgUmVsYXRlZCBEb2N1bWVudHNcQUlNXEFJTV9TZWN1cml0eVxzZWN1cml0eS5jb25maWc=";
+    private const string SecurityConfigFileName = "security-config.ini";
     
     /// <summary>
     /// Gets the current user ID based on the Windows account name.
@@ -159,6 +163,124 @@ public class SecurityService
     }
 
     /// <summary>
+    /// Gets the shared security configuration path using a priority chain:
+    /// 1. From security-config.ini file (highest priority - admin can update without recompiling)
+    /// 2. From masked constant (Base64-encoded fallback)
+    /// 3. From AppSettings.SharedSecurityConfigPath (lowest priority)
+    /// </summary>
+    /// <param name="appSettings">The application settings.</param>
+    /// <returns>The shared security path, or null if not configured or UseSharedConfig is false.</returns>
+    private string? GetSharedPath(AppSettings appSettings)
+    {
+        // Check if shared config is enabled
+        if (!appSettings.UseSharedConfig)
+        {
+            Debug.WriteLine("[Security] Shared config is disabled in AppSettings");
+            return null;
+        }
+
+        // Priority 1: Try to load from security-config.ini file
+        var configFilePath = GetSharedPathFromConfigFile();
+        if (!string.IsNullOrWhiteSpace(configFilePath))
+        {
+            Debug.WriteLine($"[Security] Using shared path from config file: {configFilePath}");
+            return configFilePath;
+        }
+
+        // Priority 2: Try masked constant
+        var maskedPath = GetSharedPathFromMaskedConstant();
+        if (!string.IsNullOrWhiteSpace(maskedPath))
+        {
+            Debug.WriteLine($"[Security] Using shared path from masked constant");
+            return maskedPath;
+        }
+
+        // Priority 3: Try AppSettings
+        if (!string.IsNullOrWhiteSpace(appSettings.SharedSecurityConfigPath))
+        {
+            Debug.WriteLine($"[Security] Using shared path from AppSettings: {appSettings.SharedSecurityConfigPath}");
+            return appSettings.SharedSecurityConfigPath;
+        }
+
+        Debug.WriteLine("[Security] No shared path configured in any source");
+        return null;
+    }
+
+    /// <summary>
+    /// Reads the shared security path from the security-config.ini file.
+    /// The file should be located in the application root directory.
+    /// </summary>
+    /// <returns>The shared security path from the config file, or null if not found or invalid.</returns>
+    private string? GetSharedPathFromConfigFile()
+    {
+        try
+        {
+            // Look for security-config.ini in the application directory
+            var appDirectory = AppContext.BaseDirectory;
+            var configPath = Path.Combine(appDirectory, SecurityConfigFileName);
+
+            if (!File.Exists(configPath))
+            {
+                Debug.WriteLine($"[Security] Config file not found at: {configPath}");
+                return null;
+            }
+
+            Debug.WriteLine($"[Security] Reading config file: {configPath}");
+            var lines = File.ReadAllLines(configPath);
+
+            foreach (var line in lines)
+            {
+                // Skip comments and empty lines
+                var trimmedLine = line.Trim();
+                if (string.IsNullOrWhiteSpace(trimmedLine) || trimmedLine.StartsWith("#"))
+                {
+                    continue;
+                }
+
+                // Look for SharedSecurityPath=value
+                if (trimmedLine.StartsWith("SharedSecurityPath=", StringComparison.OrdinalIgnoreCase))
+                {
+                    var path = trimmedLine.Substring("SharedSecurityPath=".Length).Trim();
+                    if (!string.IsNullOrWhiteSpace(path))
+                    {
+                        Debug.WriteLine($"[Security] Found SharedSecurityPath in config file");
+                        return path;
+                    }
+                }
+            }
+
+            Debug.WriteLine("[Security] SharedSecurityPath not found in config file");
+            return null;
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"[Security] Error reading config file: {ex.Message}");
+            return null;
+        }
+    }
+
+    /// <summary>
+    /// Decodes the Base64-encoded masked constant to get the shared security path.
+    /// This provides a fallback when the config file is not present.
+    /// </summary>
+    /// <returns>The decoded shared security path, or null if decoding fails.</returns>
+    private string? GetSharedPathFromMaskedConstant()
+    {
+        try
+        {
+            var bytes = Convert.FromBase64String(MaskedSharedSecurityPath);
+            var path = Encoding.UTF8.GetString(bytes);
+            Debug.WriteLine("[Security] Successfully decoded masked constant");
+            return path;
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"[Security] Error decoding masked constant: {ex.Message}");
+            return null;
+        }
+    }
+
+    /// <summary>
     /// Asynchronously initializes the security service by loading the encrypted security configuration.
     /// This method MUST be called after construction and before using any security features.
     /// 
@@ -183,16 +305,16 @@ public class SecurityService
             var appSettings = _settingsService.LoadSettings();
             var configPath = _encryptedSettingsService.GetSecurityConfigPath(appSettings.SecurityConfigPath);
 
-            // First, try to load from shared network location
-            string sharedNetworkPath = @"\\oh1cam01\cml\Internal\LAB STOCK\Important Inventory Related Documents\AIM\AIM_Security\security.config";
+            // Get shared network path using priority chain
+            string? sharedNetworkPath = GetSharedPath(appSettings);
 
-            Debug.WriteLine($"[Security] Checking for shared network config at: {sharedNetworkPath}");
+            Debug.WriteLine($"[Security] Checking for shared network config at: {sharedNetworkPath ?? "not configured"}");
 
             var securityData = null as EncryptedSettingsService.SecurityData;
             bool loadedFromSharedConfig = false;
 
-            // Try shared network config first
-            if (File.Exists(sharedNetworkPath))
+            // Try shared network config first (if configured)
+            if (!string.IsNullOrWhiteSpace(sharedNetworkPath) && File.Exists(sharedNetworkPath))
             {
                 try
                 {
@@ -226,7 +348,14 @@ public class SecurityService
             }
             else
             {
-                Debug.WriteLine($"[Security] Shared network config not accessible at: {sharedNetworkPath}");
+                if (!string.IsNullOrWhiteSpace(sharedNetworkPath))
+                {
+                    Debug.WriteLine($"[Security] Shared network config not accessible at: {sharedNetworkPath}");
+                }
+                else
+                {
+                    Debug.WriteLine($"[Security] No shared network config configured");
+                }
             }
 
             // Fall back to local user-specific config if shared didn't work

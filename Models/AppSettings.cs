@@ -65,4 +65,19 @@ public class AppSettings
     /// This ensures no default or hardcoded passwords are used in production.
     /// </summary>
     public bool IsInitialPasswordSet { get; set; } = false;
+
+    /// <summary>
+    /// Gets or sets the path to the shared security configuration.
+    /// This path is used to locate the centrally managed security configuration
+    /// when UseSharedConfig is enabled. Can be overridden by security-config.ini.
+    /// </summary>
+    public string SharedSecurityConfigPath { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Gets or sets whether to use shared network configuration.
+    /// When true, the application will attempt to load security configuration
+    /// from the shared network path specified in SharedSecurityConfigPath or
+    /// from the security-config.ini file.
+    /// </summary>
+    public bool UseSharedConfig { get; set; } = true;
 }
