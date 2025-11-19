@@ -103,11 +103,30 @@ A professional Windows desktop application for comprehensive asset inventory man
 
 ## Installation
 
-### From Released Build
+### From Released Build (Recommended)
 
-1. Download the latest release from the [Releases](https://github.com/gwchristen/AIM/releases) page
-2. Run the installer and follow the on-screen prompts
+1. Download the latest `AIM-Installer-win-x64.exe` from the [Releases](https://github.com/gwchristen/AIM/releases) page
+2. Run the installer and follow the on-screen wizard:
+   - Choose installation directory
+   - Configure optional shared security
+   - Select shortcut options
 3. Launch AIM from your Start Menu or Desktop shortcut
+
+The installer is a single self-contained EXE with no external dependencies required.
+
+### Building the Installer
+
+To build the installer from source:
+
+```powershell
+# Build the installer (requires Windows)
+.\Build-Installer.ps1
+
+# Or specify configuration and runtime
+.\Build-Installer.ps1 -Configuration Release -Runtime win-x64
+```
+
+For detailed instructions, see [README-INSTALLER.md](README-INSTALLER.md).
 
 ### From Source Code
 
@@ -369,6 +388,7 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 ## Documentation
 
+- **[README-INSTALLER.md](README-INSTALLER.md)** - Complete guide for building and distributing the AIM installer
 - **[ARCHITECTURE.md](ARCHITECTURE.md)** - System architecture, data flows, service documentation, and extension guide
 - **[CONTRIBUTING.md](CONTRIBUTING.md)** - Developer guidelines, code standards, and contribution process
 - **[DESIGN_PATTERNS.md](DESIGN_PATTERNS.md)** - Design pattern implementations, examples, and anti-patterns
