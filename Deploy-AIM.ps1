@@ -28,22 +28,22 @@ param (
     [string]$AIMInstallPath = "C:\Program Files\AIM",
 
     [Parameter(Mandatory = $true)]
-    [string]$SharedSecurityPath,
+    [string]$SharedSecurityPath = "\\oh1cam01\cml\Internal\LAB STOCK\Important Inventory Related Documents\AIM\AIM_Security",
 
     [Parameter(Mandatory = $true)]
-    [string]$DefaultRootDirectory,
+    [string]$DefaultRootDirectory = "\\oh1cam01\cml\Internal\LAB STOCK\LAB STOCK",
 
     [Parameter(Mandatory = $true)]
-    [string]$ArchivePath,
+    [string]$ArchivePath = "\\oh1cam01\cml\Internal\LAB STOCK\Archive",
 
     [Parameter(Mandatory = $true)]
-    [string]$ShippedDirectory,
+    [string]$ShippedDirectory = "\\oh1cam01\cml\Internal\LAB STOCK\Orders shipped",
 
     [Parameter(Mandatory = $true)]
-    [string]$FileScansDirectory,
+    [string]$FileScansDirectory = "C:\Tfile",
 
     [Parameter(Mandatory = $true)]
-    [string]$InventoryArchiveDirectory
+    [string]$InventoryArchiveDirectory = "\\oh1cam01\cml\Internal\LAB STOCK\Physical Inventory Archive"
 )
 
 # Function to validate directory paths and create them if they do not exist

@@ -129,7 +129,7 @@ Write-Host "This may take several minutes..." -ForegroundColor Gray
 
 $publishArgs = @(
     "publish",
-    $aimProjectPath,
+    $installerProjectPath,
     "-c", $Configuration,
     "-r", $Runtime,
     "--self-contained", "true",
@@ -206,6 +206,11 @@ $buildArgs = @(
     "build",
     $installerProjectPath,
     "-c", $Configuration,
+	"-r", $Runtime
+	"--self-contained", "true",
+	"-p:PublishSingleFile=true",
+	"-p:IncludeNativeLibrariesForSelfExtract=true",
+	"-o", $installerOutputPath,
     "--nologo",
     "-v", "minimal"
 )
