@@ -4,13 +4,13 @@ This document provides detailed instructions for building the AIM self-extractin
 
 ## Overview
 
-The AIM Installer is a self-contained Windows Forms application that packages the entire AIM application into a single portable EXE file. It provides a user-friendly installation wizard with the following features:
+The AIM Installer is a self-contained Windows Forms application that packages the entire AIM application into a single portable EXE file. It provides a streamlined installation wizard with the following features:
 
 - **Single EXE Distribution**: No external dependencies or DLLs required
-- **User-Friendly GUI**: Windows Forms-based wizard interface
-- **Configurable Installation**: User selects installation directory and options
+- **User-Friendly GUI**: Windows Forms-based wizard interface with three simple steps
+- **Configurable Installation**: User selects installation directory and shortcut options
 - **Shortcut Creation**: Automatically creates Start Menu and Desktop shortcuts
-- **Optional Security Configuration**: Supports shared security path setup
+- **Hardcoded Configuration**: All directory paths are pre-configured in the installer
 - **Launch After Install**: Option to launch AIM immediately after installation
 
 ## Prerequisites
@@ -42,14 +42,10 @@ AIM/
 │   ├── AIM.Installer.csproj        # Installer project file
 │   ├── Program.cs                  # Entry point
 │   ├── InstallerForm.cs            # Main installer UI
-│   ├── PassphrasePrompt.cs         # Security passphrase dialog
-│   ├── PasswordBox.cs              # Custom password control
 │   ├── FodyWeavers.xml             # Costura.Fody configuration
 │   └── Resources/                  # Embedded resources (auto-generated)
-│       ├── AIM-Published.zip       # Published AIM application (build-time)
-│       └── Deploy-AIM.ps1          # Deployment script (build-time)
+│       └── AIM-Published.zip       # Published AIM application (build-time)
 ├── Build-Installer.ps1             # Build automation script
-├── Deploy-AIM.ps1                  # AIM deployment configuration script
 └── README-INSTALLER.md             # This file
 ```
 
@@ -91,9 +87,8 @@ The build script performs the following steps automatically:
    - Enables ReadyToRun compilation for better startup performance
    - Enables trimming to reduce size
 5. **Creates ZIP Archive**: Packages the published application
-6. **Copies Deployment Script**: Embeds Deploy-AIM.ps1 into resources
-7. **Builds Installer**: Compiles the installer project
-8. **Finalizes Output**: Copies the installer to `bin/AIM-Installer-{runtime}.exe`
+6. **Builds Installer**: Compiles the installer project
+7. **Finalizes Output**: Copies the installer to `bin/AIM-Installer-{runtime}.exe`
 
 #### Build Output
 
@@ -137,21 +132,13 @@ Compress-Archive -Path "bin/Publish/win-x64/*" `
     -Force
 ```
 
-#### Step 4: Copy Deployment Script
-
-```powershell
-Copy-Item -Path "Deploy-AIM.ps1" `
-    -Destination "AIM.Installer/Resources/Deploy-AIM.ps1" `
-    -Force
-```
-
-#### Step 5: Build Installer
+#### Step 4: Build Installer
 
 ```powershell
 dotnet build AIM.Installer/AIM.Installer.csproj -c Release
 ```
 
-#### Step 6: Locate Output
+#### Step 5: Locate Output
 
 The installer will be at:
 ```
@@ -162,9 +149,8 @@ AIM.Installer/bin/Release/net8.0-windows/AIM-Installer.exe
 
 ### Build-Time Process
 
-1. **Resource Embedding**: The build script embeds two resources into the installer:
+1. **Resource Embedding**: The build script embeds the AIM application into the installer:
    - `AIM-Published.zip`: Complete self-contained AIM application
-   - `Deploy-AIM.ps1`: Optional deployment configuration script
 
 2. **Costura.Fody Integration**: Merges all DLL dependencies into the single EXE
    - No external DLLs required
@@ -173,25 +159,34 @@ AIM.Installer/bin/Release/net8.0-windows/AIM-Installer.exe
 
 ### Runtime Process
 
-When the user runs `AIM-Installer.exe`:
+When the user runs `AIM-Installer.exe`, they experience a streamlined 4-step wizard:
 
-1. **Welcome Screen**: Displays welcome message and feature overview
+1. **Welcome Screen**: Displays welcome message and AIM feature overview
 2. **Installation Path Selection**: 
    - Default: `C:\Program Files\AIM`
    - User can browse to select custom location
    - Options for Desktop and Start Menu shortcuts
-3. **Shared Security Configuration** (Optional):
-   - User can optionally configure a shared security path
-   - If enabled, prompts for passphrase
-4. **Installation Progress**:
+3. **Installation Progress**:
    - Extracts embedded ZIP to installation directory
-   - Copies Deploy-AIM.ps1 script
+   - Writes settings.json with hardcoded directory paths to %LOCALAPPDATA%\AIM\
    - Creates shortcuts if selected
-   - Runs Deploy-AIM.ps1 if shared security is configured
    - Shows real-time progress log
-5. **Completion**:
-   - Option to launch AIM immediately
+4. **Completion**:
+   - Option to launch AIM immediately (checked by default)
    - Displays success message
+
+### Hardcoded Configuration
+
+The installer automatically configures AIM with the following hardcoded paths (written to settings.json):
+
+- **DefaultRootDirectory**: `\\oh1cam01\cml\Internal\LAB STOCK\LAB STOCK`
+- **ArchivePath**: `\\oh1cam01\cml\Internal\LAB STOCK\Archive`
+- **ShippedDirectory**: `\\oh1cam01\cml\Internal\LAB STOCK\Orders shipped`
+- **FileScansDirectory**: `C:\Tfile`
+- **InventoryArchiveDirectory**: `\\oh1cam01\cml\Internal\LAB STOCK\Physical Inventory Archive`
+- **SecurityDatabasePath**: `\\oh1cam01\cml\Internal\LAB STOCK\Important Inventory Related Documents\AIM\AIM_Security.db`
+
+These paths are constants in `InstallerForm.cs` and can be modified before building the installer if different paths are needed.
 
 ### Technology Stack
 
@@ -201,6 +196,18 @@ When the user runs `AIM-Installer.exe`:
 - **Compression**: System.IO.Compression (ZIP extraction)
 
 ## Customization
+
+### Changing Hardcoded Directory Paths
+
+Edit `InstallerForm.cs` and modify the constants at the top of the class:
+
+```csharp
+private const string DefaultRootDirectory = @"\\your-server\your-share\path";
+private const string ArchivePath = @"\\your-server\your-share\archive";
+// ... etc
+```
+
+Then rebuild the installer.
 
 ### Changing Default Installation Path
 
