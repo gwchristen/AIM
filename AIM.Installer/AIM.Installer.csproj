@@ -27,10 +27,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-	<Compile Remove="PassphraseObfuscationExample.cs" />
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="Costura.Fody" Version="5.7.0">
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
@@ -38,13 +34,11 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="System.Data.SQLite.Core" Version="1.0.119" />
   </ItemGroup>
 
   <ItemGroup>
     <!-- Embedded resources will be added during build process -->
     <EmbeddedResource Include="Resources\AIM-Published.zip" Condition="Exists('Resources\AIM-Published.zip')" />
-    <EmbeddedResource Include="Resources\Deploy-AIM.ps1" Condition="Exists('Resources\Deploy-AIM.ps1')" />
   </ItemGroup>
 
 </Project>

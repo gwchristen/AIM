@@ -53,12 +53,13 @@ namespace AIM.Installer
         private string installPath = @"C:\Program Files\AIM";
         private bool installationComplete = false;
 
-        // Default network paths (can be changed by users in the AIM application)
-        private readonly string defaultRootDirectory = @"\\oh1cam01\cml\Internal\LAB STOCK\LAB STOCK";
-        private readonly string archivePath = @"\\oh1cam01\cml\Internal\LAB STOCK\Archive";
-        private readonly string shippedDirectory = @"\\oh1cam01\cml\Internal\LAB STOCK\Orders shipped";
-        private readonly string fileScansDirectory = @"C:\Tfile";
-        private readonly string inventoryArchiveDirectory = @"\\oh1cam01\cml\Internal\LAB STOCK\Physical Inventory Archive";
+        // Hardcoded network paths - baked into installer
+        private const string DefaultRootDirectory = @"\\oh1cam01\cml\Internal\LAB STOCK\LAB STOCK";
+        private const string ArchivePath = @"\\oh1cam01\cml\Internal\LAB STOCK\Archive";
+        private const string ShippedDirectory = @"\\oh1cam01\cml\Internal\LAB STOCK\Orders shipped";
+        private const string FileScansDirectory = @"C:\Tfile";
+        private const string InventoryArchiveDirectory = @"\\oh1cam01\cml\Internal\LAB STOCK\Physical Inventory Archive";
+        private const string SecurityDatabasePath = @"\\oh1cam01\cml\Internal\LAB STOCK\Important Inventory Related Documents\AIM\AIM_Security.db";
 
         public InstallerForm()
         {
@@ -457,17 +458,9 @@ namespace AIM.Installer
                     LogMessage("Extracting application files...");
                     ExtractEmbeddedZip();
 
-                    // Copy Deploy-AIM.ps1 script
-                    LogMessage("Copying deployment script...");
-                    CopyDeployScript();
-
                     // Write installer settings to user's LocalAppData
                     LogMessage("Writing installer settings...");
                     WriteInstallerSettings();
-
-                    // Create central security database
-                    LogMessage("Creating central security database...");
-                    CreateSecurityDatabase();
 
                     // Create shortcuts
                     if (desktopShortcutCheckBox.Checked)
@@ -484,10 +477,6 @@ namespace AIM.Installer
                         Directory.CreateDirectory(startMenuPath);
                         CreateShortcut(startMenuPath, "AIM");
                     }
-
-                    // Run Deploy-AIM.ps1 to create network directories
-                    LogMessage("Running deployment configuration (Deploy-AIM.ps1)...");
-                    RunDeployScript();
 
                     LogMessage("Installation completed successfully!");
                     installationComplete = true;
@@ -549,127 +538,6 @@ namespace AIM.Installer
             }
         }
 
-        private void CopyDeployScript()
-        {
-            var assembly = Assembly.GetExecutingAssembly();
-            var resourceName = assembly.GetManifestResourceNames()
-                .FirstOrDefault(r => r.EndsWith("Deploy-AIM.ps1"));
-
-            if (resourceName == null)
-            {
-                LogMessage("Warning: Deploy-AIM.ps1 script not found in installer resources.");
-                return;
-            }
-
-            using (var stream = assembly.GetManifestResourceStream(resourceName))
-            {
-                if (stream == null)
-                {
-                    LogMessage("Warning: Could not read Deploy-AIM.ps1 resource.");
-                    return;
-                }
-
-                var destPath = Path.Combine(installPath, "Deploy-AIM.ps1");
-                using (var fileStream = File.Create(destPath))
-                {
-                    stream.CopyTo(fileStream);
-                }
-                LogMessage("Deploy-AIM.ps1 copied successfully.");
-            }
-        }
-
-        private void CreateShortcut(string directory, string shortcutName)
-        {
-            try
-            {
-                var shell = Type.GetTypeFromProgID("WScript.Shell");
-                if (shell == null) return;
-
-                dynamic? wsh = Activator.CreateInstance(shell);
-                if (wsh == null) return;
-
-                var shortcutPath = Path.Combine(directory, $"{shortcutName}.lnk");
-                dynamic? shortcut = wsh.CreateShortcut(shortcutPath);
-                if (shortcut == null) return;
-
-                var exePath = Path.Combine(installPath, "AIM.exe");
-                shortcut.TargetPath = exePath;
-                shortcut.WorkingDirectory = installPath;
-                shortcut.Description = "AIM - Asset Inventory Management";
-                shortcut.Save();
-
-                LogMessage($"Shortcut created: {shortcutPath}");
-            }
-            catch (Exception ex)
-            {
-                LogMessage($"Warning: Could not create shortcut: {ex.Message}");
-            }
-        }
-
-        private void RunDeployScript()
-        {
-            try
-            {
-                var scriptPath = Path.Combine(installPath, "Deploy-AIM.ps1");
-                if (!File.Exists(scriptPath))
-                {
-                    LogMessage("Warning: Deploy-AIM.ps1 not found. Skipping deployment configuration.");
-                    return;
-                }
-
-                // Build PowerShell arguments with network paths
-                var arguments = new List<string>
-                {
-                    "-ExecutionPolicy", "Bypass",
-                    "-File", $"\"{scriptPath}\"",
-                    "-AIMInstallPath", $"\"{installPath}\"",
-                    "-DefaultRootDirectory", $"\"{defaultRootDirectory}\"",
-                    "-ArchivePath", $"\"{archivePath}\"",
-                    "-ShippedDirectory", $"\"{shippedDirectory}\"",
-                    "-FileScansDirectory", $"\"{fileScansDirectory}\"",
-                    "-InventoryArchiveDirectory", $"\"{inventoryArchiveDirectory}\""
-                };
-
-                var psi = new ProcessStartInfo
-                {
-                    FileName = "powershell.exe",
-                    Arguments = string.Join(" ", arguments),
-                    UseShellExecute = false,
-                    RedirectStandardOutput = true,
-                    RedirectStandardError = true,
-                    CreateNoWindow = true
-                };
-
-                using (var process = Process.Start(psi))
-                {
-                    if (process == null)
-                    {
-                        LogMessage("Warning: Could not start PowerShell process.");
-                        return;
-                    }
-
-                    var output = process.StandardOutput.ReadToEnd();
-                    var error = process.StandardError.ReadToEnd();
-                    process.WaitForExit();
-
-                    if (!string.IsNullOrWhiteSpace(output))
-                        LogMessage(output);
-
-                    if (!string.IsNullOrWhiteSpace(error))
-                        LogMessage($"PowerShell Error: {error}");
-
-                    if (process.ExitCode == 0)
-                        LogMessage("Deployment configuration completed successfully.");
-                    else
-                        LogMessage($"Deployment configuration exited with code: {process.ExitCode}");
-                }
-            }
-            catch (Exception ex)
-            {
-                LogMessage($"Warning: Could not run deployment script: {ex.Message}");
-            }
-        }
-
         private void LaunchAIM()
         {
             try
@@ -704,9 +572,38 @@ namespace AIM.Installer
             logTextBox.ScrollToCaret();
         }
 
+        private void CreateShortcut(string directory, string shortcutName)
+        {
+            try
+            {
+                var shell = Type.GetTypeFromProgID("WScript.Shell");
+                if (shell == null) return;
+
+                dynamic? wsh = Activator.CreateInstance(shell);
+                if (wsh == null) return;
+
+                var shortcutPath = Path.Combine(directory, $"{shortcutName}.lnk");
+                dynamic? shortcut = wsh.CreateShortcut(shortcutPath);
+                if (shortcut == null) return;
+
+                var exePath = Path.Combine(installPath, "AIM.exe");
+                shortcut.TargetPath = exePath;
+                shortcut.WorkingDirectory = installPath;
+                shortcut.Description = "AIM - Asset Inventory Management";
+                shortcut.Save();
+
+                LogMessage($"Shortcut created: {shortcutPath}");
+            }
+            catch (Exception ex)
+            {
+                LogMessage($"Warning: Could not create shortcut: {ex.Message}");
+            }
+        }
+
         /// <summary>
         /// Writes the installer settings to the user's LocalAppData folder.
         /// The path matches where SettingsService expects to find settings.json.
+        /// All directory paths are hardcoded as constants in the installer.
         /// </summary>
         private void WriteInstallerSettings()
         {
@@ -719,18 +616,15 @@ namespace AIM.Installer
 
                 var settingsPath = Path.Combine(aimConfigDir, "settings.json");
                 
-                // Define the security database path (network location for centralized management)
-                var securityDatabasePath = @"\\oh1cam01\cml\Internal\LAB STOCK\Important Inventory Related Documents\AIM\AIM_Security.db";
-                
-                // Create simplified AppSettings object with network paths as defaults
+                // Create AppSettings object with hardcoded network paths
                 var settings = new Dictionary<string, object>
                 {
-                    { "DefaultRootDirectory", defaultRootDirectory },
-                    { "ArchivePath", archivePath },
-                    { "ShippedDirectory", shippedDirectory },
-                    { "FileScansDirectory", fileScansDirectory },
-                    { "InventoryArchiveDirectory", inventoryArchiveDirectory },
-                    { "SecurityDatabasePath", securityDatabasePath },
+                    { "DefaultRootDirectory", DefaultRootDirectory },
+                    { "ArchivePath", ArchivePath },
+                    { "ShippedDirectory", ShippedDirectory },
+                    { "FileScansDirectory", FileScansDirectory },
+                    { "InventoryArchiveDirectory", InventoryArchiveDirectory },
+                    { "SecurityDatabasePath", SecurityDatabasePath },
                     { "Theme", "FollowSystem" },
                     { "AuthorizedUsers", new string[] { } },
                     { "IsInitialPasswordSet", false }
@@ -748,48 +642,6 @@ namespace AIM.Installer
             catch (Exception ex)
             {
                 LogMessage($"Warning: Could not write installer settings: {ex.Message}");
-            }
-        }
-
-        /// <summary>
-        /// Creates and seeds the central security database on the shared network path.
-        /// This database is used for centralized user management across all AIM instances.
-        /// </summary>
-        private void CreateSecurityDatabase()
-        {
-            try
-            {
-                string databaseDirectory = @"\\oh1cam01\cml\Internal\LAB STOCK\Important Inventory Related Documents\AIM";
-                string databasePath = Path.Combine(databaseDirectory, "AIM_Security.db");
-                
-                // Create directory if it doesn't exist
-                if (!Directory.Exists(databaseDirectory))
-                {
-                    Directory.CreateDirectory(databaseDirectory);
-                    LogMessage($"Created database directory: {databaseDirectory}");
-                }
-                
-                // Create and seed the database with current user as SuperAdmin
-                string currentUser = Environment.UserName; // This will be "gwchristen"
-                DatabaseInitializer.CreateAndSeedDatabase(databasePath, currentUser);
-                
-                LogMessage($"Security database created: {databasePath}");
-                LogMessage($"Initial SuperAdmin user: {currentUser}");
-                
-                // Verify database was created successfully
-                if (DatabaseInitializer.VerifyDatabase(databasePath))
-                {
-                    LogMessage("Database verification successful");
-                }
-                else
-                {
-                    LogMessage("WARNING: Database verification failed");
-                }
-            }
-            catch (Exception ex)
-            {
-                LogMessage($"WARNING: Could not create security database: {ex.Message}");
-                // Continue installation even if database creation fails
             }
         }
     }

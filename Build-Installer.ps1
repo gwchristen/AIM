@@ -7,9 +7,8 @@
     1. Cleans previous builds
     2. Publishes the AIM application as a self-contained executable
     3. Creates a ZIP archive of the published application
-    4. Copies the Deploy-AIM.ps1 script to the installer resources
-    5. Builds the AIM.Installer project
-    6. Outputs a single AIM-Installer.exe file
+    4. Builds the AIM.Installer project
+    5. Outputs a single AIM-Installer.exe file
 
 .PARAMETER Configuration
     Build configuration (Debug or Release). Default: Release
@@ -50,12 +49,10 @@ $scriptRoot = $PSScriptRoot
 $aimProjectPath = Join-Path $scriptRoot "AIM.csproj"
 $installerProjectPath = Join-Path $scriptRoot "AIM.Installer\AIM.Installer.csproj"
 $installerResourcesPath = Join-Path $scriptRoot "AIM.Installer\Resources"
-$deployScriptSource = Join-Path $scriptRoot "Deploy-AIM.ps1"
 
 # Output paths
 $publishPath = Join-Path $scriptRoot "bin\Publish\$Runtime"
 $zipPath = Join-Path $installerResourcesPath "AIM-Published.zip"
-$deployScriptDest = Join-Path $installerResourcesPath "Deploy-AIM.ps1"
 $installerOutputPath = Join-Path $scriptRoot "AIM.Installer\bin\$Configuration\net8.0-windows"
 $finalInstallerPath = Join-Path $scriptRoot "bin\AIM-Installer-$Runtime.exe"
 
@@ -67,16 +64,12 @@ Write-Host "Runtime: $Runtime" -ForegroundColor Yellow
 Write-Host ""
 
 # Validate prerequisites
-Write-Host "[1/7] Validating prerequisites..." -ForegroundColor Green
+Write-Host "[1/6] Validating prerequisites..." -ForegroundColor Green
 if (-not (Test-Path $aimProjectPath)) {
     throw "AIM project not found at: $aimProjectPath"
 }
 if (-not (Test-Path $installerProjectPath)) {
     throw "Installer project not found at: $installerProjectPath"
-}
-if (-not (Test-Path $deployScriptSource)) {
-    Write-Host "Warning: Deploy-AIM.ps1 not found at: $deployScriptSource" -ForegroundColor Yellow
-    Write-Host "The installer will be built without the deployment script." -ForegroundColor Yellow
 }
 
 # Check for dotnet CLI
@@ -91,7 +84,7 @@ catch {
 # Clean previous builds
 if (-not $SkipClean) {
     Write-Host ""
-    Write-Host "[2/7] Cleaning previous builds..." -ForegroundColor Green
+    Write-Host "[2/6] Cleaning previous builds..." -ForegroundColor Green
     
     if (Test-Path $publishPath) {
         Remove-Item -Path $publishPath -Recurse -Force
@@ -113,18 +106,18 @@ if (-not $SkipClean) {
 }
 else {
     Write-Host ""
-    Write-Host "[2/7] Skipping clean step..." -ForegroundColor Yellow
+    Write-Host "[2/6] Skipping clean step..." -ForegroundColor Yellow
 }
 
 # Create resources directory
 Write-Host ""
-Write-Host "[3/7] Creating resources directory..." -ForegroundColor Green
+Write-Host "[3/6] Creating resources directory..." -ForegroundColor Green
 New-Item -ItemType Directory -Path $installerResourcesPath -Force | Out-Null
 Write-Host "Created: $installerResourcesPath" -ForegroundColor Gray
 
 # Publish AIM application
 Write-Host ""
-Write-Host "[4/7] Publishing AIM application..." -ForegroundColor Green
+Write-Host "[4/6] Publishing AIM application..." -ForegroundColor Green
 Write-Host "This may take several minutes..." -ForegroundColor Gray
 
 $publishArgs = @(
@@ -157,7 +150,7 @@ catch {
 
 # Create ZIP archive
 Write-Host ""
-Write-Host "[5/7] Creating ZIP archive..." -ForegroundColor Green
+Write-Host "[5/6] Creating ZIP archive..." -ForegroundColor Green
 
 if (-not (Test-Path $publishPath)) {
     throw "Published application not found at: $publishPath"
@@ -180,26 +173,9 @@ catch {
     throw "Error creating ZIP archive: $_"
 }
 
-# Copy Deploy-AIM.ps1 script
-Write-Host ""
-Write-Host "[6/7] Copying deployment script..." -ForegroundColor Green
-
-if (Test-Path $deployScriptSource) {
-    try {
-        Copy-Item -Path $deployScriptSource -Destination $deployScriptDest -Force
-        Write-Host "Deploy-AIM.ps1 copied to resources." -ForegroundColor Gray
-    }
-    catch {
-        Write-Host "Warning: Could not copy Deploy-AIM.ps1: $_" -ForegroundColor Yellow
-    }
-}
-else {
-    Write-Host "Skipping Deploy-AIM.ps1 (not found)." -ForegroundColor Yellow
-}
-
 # Build installer project
 Write-Host ""
-Write-Host "[7/7] Building installer..." -ForegroundColor Green
+Write-Host "[6/6] Building installer..." -ForegroundColor Green
 Write-Host "This may take a few minutes..." -ForegroundColor Gray
 
 $buildArgs = @(
