@@ -318,31 +318,41 @@ public class SecurityService
             {
                 Debug.WriteLine($"[Security] Database security path configured: {appSettings.SecurityDatabasePath}");
                 
-                try
+                // Check if database file exists
+                if (!File.Exists(appSettings.SecurityDatabasePath))
                 {
-                    await InitializeDatabaseSecurityAsync(appSettings.SecurityDatabasePath);
-                    
-                    // Load master password from database
-                    var masterPasswordHash = await _databaseSecurityService?.GetSecuritySettingAsync("MasterPasswordHash");
-                    if (!string.IsNullOrEmpty(masterPasswordHash))
-                    {
-                        _masterPassword = masterPasswordHash; // Store the hash for validation
-                        IsFirstTimeSetup = false;
-                        Debug.WriteLine("[Security] Loaded master password from database");
-                    }
-                    else
-                    {
-                        IsFirstTimeSetup = true;
-                        Debug.WriteLine("[Security] No master password found in database - first time setup");
-                    }
-
-                    LogSecurityEvent("SECURITY_INITIALIZED", $"Security service initialized with database at {appSettings.SecurityDatabasePath}");
-                    return; // Successfully initialized with database
-                }
-                catch (Exception ex)
-                {
-                    Debug.WriteLine($"[Security] Database initialization failed, falling back to file-based security: {ex.Message}");
+                    Debug.WriteLine($"[Security] Database file not found at: {appSettings.SecurityDatabasePath}");
+                    Debug.WriteLine("[Security] Falling back to file-based security");
                     // Fall through to file-based security
+                }
+                else
+                {
+                    try
+                    {
+                        await InitializeDatabaseSecurityAsync(appSettings.SecurityDatabasePath);
+                    
+                        // Load master password from database
+                        var masterPasswordHash = await _databaseSecurityService?.GetSecuritySettingAsync("MasterPasswordHash");
+                        if (!string.IsNullOrEmpty(masterPasswordHash))
+                        {
+                            _masterPassword = masterPasswordHash; // Store the hash for validation
+                            IsFirstTimeSetup = false;
+                            Debug.WriteLine("[Security] Loaded master password from database");
+                        }
+                        else
+                        {
+                            IsFirstTimeSetup = true;
+                            Debug.WriteLine("[Security] No master password found in database - first time setup");
+                        }
+
+                        LogSecurityEvent("SECURITY_INITIALIZED", $"Security service initialized with database at {appSettings.SecurityDatabasePath}");
+                        return; // Successfully initialized with database
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.WriteLine($"[Security] Database initialization failed, falling back to file-based security: {ex.Message}");
+                        // Fall through to file-based security
+                    }
                 }
             }
 
