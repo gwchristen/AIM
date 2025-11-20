@@ -64,6 +64,11 @@ namespace AIM.Installer
         private const string SecurityDatabasePath = @"\\oh1cam01\cml\Internal\LAB STOCK\Important Inventory Related Documents\AIM\AIM_Security.db";
 
         // Hardcoded SuperAdmin credentials - baked into installer
+        // SECURITY NOTE: These credentials are intentionally hardcoded per requirements.
+        // The installer is designed for internal deployment where source code access is controlled.
+        // These credentials provide initial access to create additional admin users.
+        // Organizations should change the SuperAdmin password after installation and create
+        // individual user accounts for proper access control and audit logging.
         private const string SuperAdminUsername = "AIMAdmin";
         private const string SuperAdminPassword = "AIM@2025!SecurePass";
 
@@ -820,15 +825,25 @@ namespace AIM.Installer
         }
 
         /// <summary>
-        /// Hashes a password using SHA256.
+        /// Hashes a password using SHA256 with a fixed salt.
         /// This is a simple hash for the installer - the application uses more secure methods.
+        /// Note: The salt is fixed because we need deterministic hashes for the hardcoded password.
         /// </summary>
         private string HashPassword(string password)
         {
+            // Use a fixed salt for deterministic hashing of the hardcoded password
+            // This allows verification against the same hash each time
+            byte[] salt = Encoding.UTF8.GetBytes("AIM-Security-Salt-2025");
+            
             using (var sha256 = SHA256.Create())
             {
-                var bytes = Encoding.UTF8.GetBytes(password);
-                var hash = sha256.ComputeHash(bytes);
+                var passwordBytes = Encoding.UTF8.GetBytes(password);
+                var saltedPassword = new byte[passwordBytes.Length + salt.Length];
+                
+                Buffer.BlockCopy(passwordBytes, 0, saltedPassword, 0, passwordBytes.Length);
+                Buffer.BlockCopy(salt, 0, saltedPassword, passwordBytes.Length, salt.Length);
+                
+                var hash = sha256.ComputeHash(saltedPassword);
                 return Convert.ToBase64String(hash);
             }
         }
