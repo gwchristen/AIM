@@ -703,6 +703,7 @@ namespace AIM.Installer
         /// <summary>
         /// Writes the installer settings to the user's LocalAppData folder.
         /// The path matches where SettingsService expects to find settings.json.
+        /// Also creates and seeds the security database.
         /// </summary>
         private void WriteInstallerSettings()
         {
@@ -715,6 +716,32 @@ namespace AIM.Installer
 
                 var settingsPath = Path.Combine(aimConfigDir, "settings.json");
                 
+                // Define the security database path (network location for centralized management)
+                var securityDatabasePath = @"\\oh1cam01\cml\Internal\LAB STOCK\Important Inventory Related Documents\AIM\AIM_Security.db";
+                
+                // Create and seed the security database
+                try
+                {
+                    LogMessage("Creating security database...");
+                    var currentUser = Environment.UserName;
+                    DatabaseInitializer.CreateAndSeedDatabase(securityDatabasePath, currentUser);
+                    
+                    if (DatabaseInitializer.VerifyDatabase(securityDatabasePath))
+                    {
+                        LogMessage($"Security database created and seeded successfully with user '{currentUser}' as SuperAdmin");
+                    }
+                    else
+                    {
+                        LogMessage("Warning: Could not verify security database creation");
+                    }
+                }
+                catch (Exception dbEx)
+                {
+                    LogMessage($"Warning: Could not create security database: {dbEx.Message}");
+                    LogMessage("The application will use local file-based security instead.");
+                    // Don't fail installation - allow fallback to file-based security
+                }
+                
                 // Create simplified AppSettings object with network paths as defaults
                 var settings = new Dictionary<string, object>
                 {
@@ -723,6 +750,7 @@ namespace AIM.Installer
                     { "ShippedDirectory", shippedDirectory },
                     { "FileScansDirectory", fileScansDirectory },
                     { "InventoryArchiveDirectory", inventoryArchiveDirectory },
+                    { "SecurityDatabasePath", securityDatabasePath },
                     { "Theme", "FollowSystem" },
                     { "AuthorizedUsers", new string[] { } },
                     { "IsInitialPasswordSet", false }

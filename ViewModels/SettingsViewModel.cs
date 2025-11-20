@@ -97,10 +97,28 @@ public partial class SettingsViewModel : ObservableObject
     private ObservableCollection<string> authorizedUsersList;
 
     /// <summary>
+    /// Gets or sets the collection of authorized users from the database.
+    /// </summary>
+    [ObservableProperty]
+    private ObservableCollection<AuthorizedUser> databaseAuthorizedUsers;
+
+    /// <summary>
     /// Gets or sets the current user ID (Windows username).
     /// </summary>
     [ObservableProperty]
     private string currentUserId;
+
+    /// <summary>
+    /// Gets or sets the current user's access level display name.
+    /// </summary>
+    [ObservableProperty]
+    private string currentUserAccessLevel;
+
+    /// <summary>
+    /// Gets or sets whether the current user has admin access (level 2+).
+    /// </summary>
+    [ObservableProperty]
+    private bool isCurrentUserAdmin;
 
     /// <summary>
     /// Gets or sets whether the master password change operation succeeded.
@@ -237,6 +255,7 @@ public partial class SettingsViewModel : ObservableObject
 
         // Initialize collections
         AuthorizedUsersList = new ObservableCollection<string>();
+        DatabaseAuthorizedUsers = new ObservableCollection<AuthorizedUser>();
         AllLogs = new ObservableCollection<AuditLogEntry>();
         FilteredLogs = new ObservableCollection<AuditLogEntry>();
         AvailableActionTypes = new ObservableCollection<string>();
@@ -251,16 +270,31 @@ public partial class SettingsViewModel : ObservableObject
 
         CurrentUserId = _securityService.CurrentUserId;
         IsUserAuthorized = _securityService.IsFullyUnlocked;
+        IsCurrentUserAdmin = _securityService.IsCurrentUserAdmin();
+        CurrentUserAccessLevel = GetAccessLevelName(_securityService.GetCurrentUserAccessLevel());
 
         // Load theme settings
         InitializeThemes();
 
         Debug.WriteLine($"[Settings] Current user: {CurrentUserId}");
         Debug.WriteLine($"[Settings] Is authorized: {_securityService.IsFullyUnlocked}");
+        Debug.WriteLine($"[Settings] Access level: {CurrentUserAccessLevel}");
 
-        // Load audit logs
+        // Load audit logs and database users
         LoadLogsAsync().ConfigureAwait(false);
+        LoadDatabaseUsersAsync().ConfigureAwait(false);
     }
+
+    /// <summary>
+    /// Gets the display name for an access level.
+    /// </summary>
+    private string GetAccessLevelName(int accessLevel) => accessLevel switch
+    {
+        1 => "Basic",
+        2 => "Admin",
+        3 => "SuperAdmin",
+        _ => "None"
+    };
 
     /// <summary>
     /// Loads application settings from storage and populates the view model properties.
@@ -844,9 +878,10 @@ public partial class SettingsViewModel : ObservableObject
     [RelayCommand]
     private async Task ClearAllLogsAsync()
     {
-        if (!IsUserAuthorized)
+        // Require Admin access (level 2+) to clear logs
+        if (!_securityService.IsCurrentUserAdmin())
         {
-            await ShowErrorDialogAsync("Access Denied", "You do not have permission to clear audit logs. Only authorized users can clear logs.");
+            await ShowErrorDialogAsync("Access Denied", "You do not have permission to clear audit logs. Only Admin users and above can clear logs.");
             _auditLoggingService.LogClearLogsAttempt(false, Environment.UserName);
             return;
         }
@@ -979,5 +1014,272 @@ public partial class SettingsViewModel : ObservableObject
         };
 
         _auditLoggingService.LogAction(entry);
+    }
+
+    /// <summary>
+    /// Loads authorized users from the database.
+    /// </summary>
+    [RelayCommand]
+    private async Task LoadDatabaseUsersAsync()
+    {
+        var dbService = _securityService.GetDatabaseSecurityService();
+        if (dbService == null)
+        {
+            Debug.WriteLine("[Settings] Database security service not available");
+            return;
+        }
+
+        try
+        {
+            var users = await dbService.GetAuthorizedUsersAsync();
+            
+            DatabaseAuthorizedUsers.Clear();
+            foreach (var user in users)
+            {
+                DatabaseAuthorizedUsers.Add(user);
+            }
+
+            Debug.WriteLine($"[Settings] Loaded {DatabaseAuthorizedUsers.Count} users from database");
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"[Settings] ERROR loading database users: {ex.Message}");
+            await ShowErrorDialogAsync("Error", $"Failed to load users from database: {ex.Message}");
+        }
+    }
+
+    /// <summary>
+    /// Command to add a new user to the database.
+    /// </summary>
+    [RelayCommand]
+    private async Task AddDatabaseUserAsync()
+    {
+        if (!_securityService.IsCurrentUserAdmin())
+        {
+            await ShowErrorDialogAsync("Access Denied", "Only Admin users and above can add users.");
+            return;
+        }
+
+        var dbService = _securityService.GetDatabaseSecurityService();
+        if (dbService == null)
+        {
+            await ShowErrorDialogAsync("Error", "Database security is not configured.");
+            return;
+        }
+
+        var dialog = new ContentDialog
+        {
+            Title = "Add Authorized User",
+            PrimaryButtonText = "Add",
+            CloseButtonText = "Cancel",
+            DefaultButton = ContentDialogButton.Primary,
+            XamlRoot = App.MainWindow?.Content?.XamlRoot
+        };
+
+        var stackPanel = new StackPanel { Spacing = 12 };
+
+        stackPanel.Children.Add(new TextBlock
+        {
+            Text = "Username:",
+            FontWeight = FontWeights.SemiBold
+        });
+        var usernameBox = new TextBox { Width = 300 };
+        stackPanel.Children.Add(usernameBox);
+
+        stackPanel.Children.Add(new TextBlock
+        {
+            Text = "Full Name (Optional):",
+            FontWeight = FontWeights.SemiBold
+        });
+        var fullNameBox = new TextBox { Width = 300 };
+        stackPanel.Children.Add(fullNameBox);
+
+        stackPanel.Children.Add(new TextBlock
+        {
+            Text = "Department (Optional):",
+            FontWeight = FontWeights.SemiBold
+        });
+        var departmentBox = new TextBox { Width = 300 };
+        stackPanel.Children.Add(departmentBox);
+
+        stackPanel.Children.Add(new TextBlock
+        {
+            Text = "Access Level:",
+            FontWeight = FontWeights.SemiBold
+        });
+        var accessLevelCombo = new ComboBox { Width = 300 };
+        accessLevelCombo.Items.Add("Basic (1)");
+        accessLevelCombo.Items.Add("Admin (2)");
+        accessLevelCombo.Items.Add("SuperAdmin (3)");
+        accessLevelCombo.SelectedIndex = 0;
+        stackPanel.Children.Add(accessLevelCombo);
+
+        dialog.Content = stackPanel;
+
+        var result = await dialog.ShowAsync();
+
+        if (result == ContentDialogResult.Primary)
+        {
+            string username = usernameBox.Text.Trim();
+            string? fullName = string.IsNullOrWhiteSpace(fullNameBox.Text) ? null : fullNameBox.Text.Trim();
+            string? department = string.IsNullOrWhiteSpace(departmentBox.Text) ? null : departmentBox.Text.Trim();
+            int accessLevel = accessLevelCombo.SelectedIndex + 1;
+
+            if (string.IsNullOrWhiteSpace(username))
+            {
+                await ShowErrorDialogAsync("Validation Error", "Username is required");
+                return;
+            }
+
+            try
+            {
+                await dbService.AddAuthorizedUserAsync(username, fullName, department, accessLevel, CurrentUserId);
+                await LoadDatabaseUsersAsync();
+                await ShowSuccessDialogAsync("Success", $"User '{username}' added successfully with {GetAccessLevelName(accessLevel)} access.");
+                LogAction("USER_ADDED", $"Added user '{username}' with access level {accessLevel}");
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"[Settings] ERROR adding user: {ex.Message}");
+                await ShowErrorDialogAsync("Error", $"Failed to add user: {ex.Message}");
+            }
+        }
+    }
+
+    /// <summary>
+    /// Command to edit a user in the database.
+    /// </summary>
+    [RelayCommand]
+    private async Task EditDatabaseUserAsync(AuthorizedUser user)
+    {
+        if (!_securityService.IsCurrentUserAdmin())
+        {
+            await ShowErrorDialogAsync("Access Denied", "Only Admin users and above can edit users.");
+            return;
+        }
+
+        if (user == null)
+            return;
+
+        var dbService = _securityService.GetDatabaseSecurityService();
+        if (dbService == null)
+        {
+            await ShowErrorDialogAsync("Error", "Database security is not configured.");
+            return;
+        }
+
+        var dialog = new ContentDialog
+        {
+            Title = $"Edit User: {user.Username}",
+            PrimaryButtonText = "Save",
+            CloseButtonText = "Cancel",
+            DefaultButton = ContentDialogButton.Primary,
+            XamlRoot = App.MainWindow?.Content?.XamlRoot
+        };
+
+        var stackPanel = new StackPanel { Spacing = 12 };
+
+        stackPanel.Children.Add(new TextBlock
+        {
+            Text = "Full Name (Optional):",
+            FontWeight = FontWeights.SemiBold
+        });
+        var fullNameBox = new TextBox { Width = 300, Text = user.FullName ?? "" };
+        stackPanel.Children.Add(fullNameBox);
+
+        stackPanel.Children.Add(new TextBlock
+        {
+            Text = "Department (Optional):",
+            FontWeight = FontWeights.SemiBold
+        });
+        var departmentBox = new TextBox { Width = 300, Text = user.Department ?? "" };
+        stackPanel.Children.Add(departmentBox);
+
+        stackPanel.Children.Add(new TextBlock
+        {
+            Text = "Access Level:",
+            FontWeight = FontWeights.SemiBold
+        });
+        var accessLevelCombo = new ComboBox { Width = 300 };
+        accessLevelCombo.Items.Add("Basic (1)");
+        accessLevelCombo.Items.Add("Admin (2)");
+        accessLevelCombo.Items.Add("SuperAdmin (3)");
+        accessLevelCombo.SelectedIndex = user.AccessLevel - 1;
+        stackPanel.Children.Add(accessLevelCombo);
+
+        dialog.Content = stackPanel;
+
+        var result = await dialog.ShowAsync();
+
+        if (result == ContentDialogResult.Primary)
+        {
+            string? fullName = string.IsNullOrWhiteSpace(fullNameBox.Text) ? null : fullNameBox.Text.Trim();
+            string? department = string.IsNullOrWhiteSpace(departmentBox.Text) ? null : departmentBox.Text.Trim();
+            int accessLevel = accessLevelCombo.SelectedIndex + 1;
+
+            try
+            {
+                await dbService.UpdateAuthorizedUserAsync(user.ID, fullName, department, accessLevel, CurrentUserId);
+                await LoadDatabaseUsersAsync();
+                await ShowSuccessDialogAsync("Success", $"User '{user.Username}' updated successfully.");
+                LogAction("USER_MODIFIED", $"Modified user '{user.Username}' with access level {accessLevel}");
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"[Settings] ERROR updating user: {ex.Message}");
+                await ShowErrorDialogAsync("Error", $"Failed to update user: {ex.Message}");
+            }
+        }
+    }
+
+    /// <summary>
+    /// Command to remove a user from the database.
+    /// </summary>
+    [RelayCommand]
+    private async Task RemoveDatabaseUserAsync(AuthorizedUser user)
+    {
+        if (!_securityService.IsCurrentUserAdmin())
+        {
+            await ShowErrorDialogAsync("Access Denied", "Only Admin users and above can remove users.");
+            return;
+        }
+
+        if (user == null)
+            return;
+
+        var dbService = _securityService.GetDatabaseSecurityService();
+        if (dbService == null)
+        {
+            await ShowErrorDialogAsync("Error", "Database security is not configured.");
+            return;
+        }
+
+        var dialog = new ContentDialog
+        {
+            Title = "Remove User",
+            Content = $"Are you sure you want to remove user '{user.Username}'? This action cannot be undone.",
+            PrimaryButtonText = "Remove",
+            CloseButtonText = "Cancel",
+            DefaultButton = ContentDialogButton.Close,
+            XamlRoot = App.MainWindow?.Content?.XamlRoot
+        };
+
+        var result = await dialog.ShowAsync();
+
+        if (result == ContentDialogResult.Primary)
+        {
+            try
+            {
+                await dbService.RemoveAuthorizedUserAsync(user.Username, CurrentUserId);
+                await LoadDatabaseUsersAsync();
+                await ShowSuccessDialogAsync("Success", $"User '{user.Username}' removed successfully.");
+                LogAction("USER_REMOVED", $"Removed user '{user.Username}'");
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"[Settings] ERROR removing user: {ex.Message}");
+                await ShowErrorDialogAsync("Error", $"Failed to remove user: {ex.Message}");
+            }
+        }
     }
 }

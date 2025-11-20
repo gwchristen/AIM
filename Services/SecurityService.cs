@@ -65,9 +65,12 @@ public class SecurityService
     private readonly IEncryptedSettingsService _encryptedSettingsService;
     private readonly ISettingsService _settingsService;
     private readonly AuditLoggingService _auditLoggingService;
+    private DatabaseSecurityService? _databaseSecurityService;
+    private System.Threading.Timer? _refreshTimer;
     
     private string? _masterPassword;
     private List<string> _authorizedUsers = new();
+    private Dictionary<string, int> _userAccessLevels = new(); // Maps username to access level
     private bool _isMasterPasswordOverrideActive;
     
     // Rate limiting state
@@ -75,6 +78,7 @@ public class SecurityService
     private DateTime? _lockoutUntil;
     private const int MaxFailedAttempts = 5;
     private static readonly TimeSpan LockoutDuration = TimeSpan.FromMinutes(15);
+    private static readonly TimeSpan RefreshInterval = TimeSpan.FromSeconds(30);
 
     // Masked constant - Base64-encoded UNC path for fallback
     private const string MaskedSharedSecurityPath = "XFxvaDFjYW0wMVxjbWxcSW50ZXJuYWxcTEFCIFNUT0NLXEltcG9ydGFudCBJbnZlbnRvcnkgUmVsYXRlZCBEb2N1bWVudHNcQUlNXEFJTV9TZWN1cml0eVxzZWN1cml0eS5jb25maWc=";
@@ -301,12 +305,48 @@ public class SecurityService
     /// <summary>
     /// Asynchronously initializes the security service by loading the encrypted security configuration.
     /// Checks for shared network config first, then user-specific config, to allow centralized management.
+    /// Also initializes the database security service if configured.
     /// </summary>
     public async Task InitializeAsync()
     {
         try
         {
             var appSettings = _settingsService.LoadSettings();
+
+            // Check if database security is configured
+            if (!string.IsNullOrWhiteSpace(appSettings.SecurityDatabasePath))
+            {
+                Debug.WriteLine($"[Security] Database security path configured: {appSettings.SecurityDatabasePath}");
+                
+                try
+                {
+                    await InitializeDatabaseSecurityAsync(appSettings.SecurityDatabasePath);
+                    
+                    // Load master password from database
+                    var masterPasswordHash = await _databaseSecurityService?.GetSecuritySettingAsync("MasterPasswordHash");
+                    if (!string.IsNullOrEmpty(masterPasswordHash))
+                    {
+                        _masterPassword = masterPasswordHash; // Store the hash for validation
+                        IsFirstTimeSetup = false;
+                        Debug.WriteLine("[Security] Loaded master password from database");
+                    }
+                    else
+                    {
+                        IsFirstTimeSetup = true;
+                        Debug.WriteLine("[Security] No master password found in database - first time setup");
+                    }
+
+                    LogSecurityEvent("SECURITY_INITIALIZED", $"Security service initialized with database at {appSettings.SecurityDatabasePath}");
+                    return; // Successfully initialized with database
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"[Security] Database initialization failed, falling back to file-based security: {ex.Message}");
+                    // Fall through to file-based security
+                }
+            }
+
+            // Fall back to file-based security (legacy)
             var configPath = _encryptedSettingsService.GetSecurityConfigPath(appSettings.SecurityConfigPath);
 
             // Get shared network path using priority chain
@@ -719,6 +759,110 @@ public class SecurityService
     public bool IsCurrentUserAuthorized()
     {
         return _authorizedUsers.Any(u => u.Equals(CurrentUserId, StringComparison.OrdinalIgnoreCase));
+    }
+
+    /// <summary>
+    /// Gets the access level of the current user.
+    /// </summary>
+    /// <returns>The access level (1=Basic, 2=Admin, 3=SuperAdmin), or 0 if not authorized.</returns>
+    public int GetCurrentUserAccessLevel()
+    {
+        if (_isMasterPasswordOverrideActive)
+        {
+            return 3; // Master password override gives SuperAdmin access
+        }
+
+        if (_userAccessLevels.TryGetValue(CurrentUserId, out int accessLevel))
+        {
+            return accessLevel;
+        }
+
+        return 0; // Not authorized
+    }
+
+    /// <summary>
+    /// Checks if the current user has admin access (level 2 or higher).
+    /// </summary>
+    /// <returns><c>true</c> if the user has admin access; otherwise, <c>false</c>.</returns>
+    public bool IsCurrentUserAdmin()
+    {
+        return GetCurrentUserAccessLevel() >= 2;
+    }
+
+    /// <summary>
+    /// Checks if the current user has super admin access (level 3).
+    /// </summary>
+    /// <returns><c>true</c> if the user has super admin access; otherwise, <c>false</c>.</returns>
+    public bool IsCurrentUserSuperAdmin()
+    {
+        return GetCurrentUserAccessLevel() >= 3;
+    }
+
+    /// <summary>
+    /// Initializes the database security service if a database path is configured.
+    /// </summary>
+    private async Task InitializeDatabaseSecurityAsync(string databasePath)
+    {
+        try
+        {
+            _databaseSecurityService = new DatabaseSecurityService(databasePath);
+            await _databaseSecurityService.InitializeDatabaseAsync();
+
+            // Load users from database
+            await RefreshUsersFromDatabaseAsync();
+
+            // Start periodic refresh timer
+            _refreshTimer = new System.Threading.Timer(
+                async _ => await RefreshUsersFromDatabaseAsync(),
+                null,
+                RefreshInterval,
+                RefreshInterval
+            );
+
+            Debug.WriteLine("[Security] Database security service initialized successfully");
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"[Security] ERROR initializing database security: {ex.Message}");
+            _databaseSecurityService = null;
+        }
+    }
+
+    /// <summary>
+    /// Refreshes the authorized users list from the database.
+    /// </summary>
+    private async Task RefreshUsersFromDatabaseAsync()
+    {
+        if (_databaseSecurityService == null)
+            return;
+
+        try
+        {
+            var users = await _databaseSecurityService.GetAuthorizedUsersAsync();
+            
+            _authorizedUsers.Clear();
+            _userAccessLevels.Clear();
+
+            foreach (var user in users.Where(u => u.IsActive))
+            {
+                _authorizedUsers.Add(user.Username);
+                _userAccessLevels[user.Username] = user.AccessLevel;
+            }
+
+            Debug.WriteLine($"[Security] Refreshed {_authorizedUsers.Count} users from database");
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"[Security] ERROR refreshing users from database: {ex.Message}");
+        }
+    }
+
+    /// <summary>
+    /// Gets the database security service instance.
+    /// </summary>
+    public DatabaseSecurityService? GetDatabaseSecurityService()
+    {
+        return _databaseSecurityService;
     }
 
     /// <summary>

@@ -24,6 +24,7 @@
             <converters:CollectionToVisibilityConverter x:Key="CollectionToVisibilityConverter" />
             <converters:NullToVisibilityConverter x:Key="NullToVisibilityConverter" />
             <converters:ProgressColorConverter x:Key="ProgressColorConverter"/>
+            <converters:AccessLevelColorConverter x:Key="AccessLevelColorConverter"/>
             <local:DateTimeConverter x:Key="DateTimeConverter"/>
 
             <Style TargetType="RadioButton" x:Key="TileRadioButton">

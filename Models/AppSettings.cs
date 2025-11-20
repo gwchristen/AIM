@@ -89,4 +89,11 @@ public class AppSettings
     /// extracted by examining the settings file or application memory.
     /// </summary>
     public string Passphrase { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Gets or sets the path to the centralized SQLite security database.
+    /// This database stores authorized users, security settings, and audit logs.
+    /// All AIM instances read from this shared database for centralized user management.
+    /// </summary>
+    public string SecurityDatabasePath { get; set; } = string.Empty;
 }

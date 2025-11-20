@@ -161,6 +161,110 @@
                                     IsClosable="True"/>
 							</StackPanel>
 						</Expander>
+
+						<!-- Database User Management Section (New) -->
+						<Expander
+                            Visibility="{Binding IsCurrentUserAdmin, Converter={StaticResource BoolToVisibilityConverter}}"
+                            Header="🗄️ Database User Management"
+                            Padding="12"
+                            IsExpanded="True">
+							<StackPanel Spacing="12">
+								<TextBlock Text="Centralized user management with access levels" FontSize="12"/>
+								
+								<TextBlock FontSize="11" Foreground="#666666">
+									<Run Text="Total users: "/>
+									<Run Text="{Binding DatabaseAuthorizedUsers.Count}" FontWeight="SemiBold"/>
+								</TextBlock>
+
+								<!-- Database Users List -->
+								<ListView
+                                    ItemsSource="{Binding DatabaseAuthorizedUsers}"
+                                    Height="250"
+                                    Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                                    BorderThickness="1"
+                                    SelectionMode="None">
+									<ListView.ItemTemplate>
+										<DataTemplate x:DataType="local:AuthorizedUser">
+											<Grid Padding="8" ColumnSpacing="8">
+												<Grid.ColumnDefinitions>
+													<ColumnDefinition Width="2*"/>
+													<ColumnDefinition Width="2*"/>
+													<ColumnDefinition Width="*"/>
+													<ColumnDefinition Width="Auto"/>
+													<ColumnDefinition Width="Auto"/>
+												</Grid.ColumnDefinitions>
+												
+												<StackPanel Grid.Column="0" VerticalAlignment="Center">
+													<TextBlock Text="{Binding Username}" FontWeight="SemiBold"/>
+													<TextBlock Text="{Binding FullName}" FontSize="10" Foreground="#666666" Visibility="{Binding FullName, Converter={StaticResource NullToVisibilityConverter}}"/>
+												</StackPanel>
+												
+												<TextBlock
+                                                    Text="{Binding Department}"
+                                                    VerticalAlignment="Center"
+                                                    Grid.Column="1"
+                                                    FontSize="11"
+                                                    Foreground="#666666"/>
+												
+												<Border
+                                                    Grid.Column="2"
+                                                    Background="{Binding AccessLevel, Converter={StaticResource AccessLevelColorConverter}}"
+                                                    CornerRadius="4"
+                                                    Padding="6,2"
+                                                    VerticalAlignment="Center"
+                                                    HorizontalAlignment="Left">
+													<TextBlock
+                                                        Text="{Binding AccessLevelName}"
+                                                        FontSize="10"
+                                                        Foreground="White"
+                                                        FontWeight="SemiBold"/>
+												</Border>
+												
+												<Button
+                                                    Content="Edit"
+                                                    Grid.Column="3"
+                                                    Command="{Binding DataContext.EditDatabaseUserCommand, ElementName=SettingsPageRoot}"
+                                                    CommandParameter="{Binding}"
+                                                    FontSize="12"
+                                                    Margin="4,0"/>
+												
+												<Button
+                                                    Content="Remove"
+                                                    Grid.Column="4"
+                                                    Command="{Binding DataContext.RemoveDatabaseUserCommand, ElementName=SettingsPageRoot}"
+                                                    CommandParameter="{Binding}"
+                                                    FontSize="12"/>
+											</Grid>
+										</DataTemplate>
+									</ListView.ItemTemplate>
+									<ListView.ItemContainerStyle>
+										<Style TargetType="ListViewItem">
+											<Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+										</Style>
+									</ListView.ItemContainerStyle>
+								</ListView>
+
+								<!-- Add New Database User -->
+								<Button
+                                    Content="➕ Add New User"
+                                    Command="{Binding AddDatabaseUserCommand}"
+                                    HorizontalAlignment="Left"/>
+
+								<Button
+                                    Content="🔄 Refresh Users"
+                                    Command="{Binding LoadDatabaseUsersCommand}"
+                                    HorizontalAlignment="Left"
+                                    Margin="0,0,0,0"/>
+
+								<InfoBar
+                                    IsOpen="True"
+                                    Severity="Informational"
+                                    Title="ℹ️ Access Levels"
+                                    Message="Basic (1): Can use AIM. Admin (2): Can manage users and directories. SuperAdmin (3): Full access including clearing logs."
+                                    IsClosable="True"/>
+							</StackPanel>
+						</Expander>
 					</StackPanel>
 				</ScrollViewer>
 			</TabViewItem>
