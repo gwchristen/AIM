@@ -16,24 +16,35 @@ namespace AIM.Services;
 /// 
 /// <para><strong>Security Architecture:</strong></para>
 /// <para>
-/// This service implements a two-tier authentication model:
-/// 1. <strong>Master Password:</strong> A single administrative password that grants full access to all features.
-///    The master password can be used to override standard authorization checks temporarily.
-/// 2. <strong>Authorized Users:</strong> A list of Windows usernames that are permanently authorized to access
-///    restricted features without needing the master password.
+/// This service implements a database-driven authorization model with fallback to file-based security:
+/// 1. <strong>Database Authorization (Primary):</strong> Users are checked against a centralized SQLite database.
+///    - Users in the database get their assigned access level (Admin, SuperAdmin, etc.)
+///    - Users not in the database get Basic access level automatically
+///    - No blocking dialogs or first-time setup required
+/// 2. <strong>File-Based Authorization (Fallback):</strong> If database is not configured or unavailable,
+///    falls back to encrypted file-based authorized users list
+/// 3. <strong>Master Password Override (Optional):</strong> A master password can temporarily grant full access
 /// </para>
 /// 
 /// <para><strong>Authentication Flow:</strong></para>
 /// <list type="number">
-/// <item>On first launch, the user must set a strong master password (no default password is used).</item>
-/// <item>Users are identified by their Windows username (Environment.UserName).</item>
-/// <item>Access is granted if either:
+/// <item>On launch, users are identified by their Windows username (Environment.UserName).</item>
+/// <item>If database is configured:
 ///   <list type="bullet">
-///     <item>The current Windows user is in the authorized users list, OR</item>
-///     <item>The master password has been entered and validated (master password override active)</item>
+///     <item>Check if user exists in authorized_users table</item>
+///     <item>If yes: Grant user's access level from database (typically Admin or SuperAdmin)</item>
+///     <item>If no: Grant Basic access level (no blocking, just reduced features)</item>
 ///   </list>
 /// </item>
-/// <item>The master password override can be deactivated at any time, reverting to user-based authorization.</item>
+/// <item>If database is not available, fall back to file-based authorization</item>
+/// <item>The master password override can optionally be activated for temporary SuperAdmin access</item>
+/// </list>
+/// 
+/// <para><strong>Access Levels:</strong></para>
+/// <list type="bullet">
+/// <item>1 = Basic: Can use core app features, limited admin functionality</item>
+/// <item>2 = Admin: Can access all features including Inventory and user management</item>
+/// <item>3 = SuperAdmin: Full access including security settings (via master password override)</item>
 /// </list>
 /// 
 /// <para><strong>Encryption and Key Derivation:</strong></para>
@@ -47,11 +58,12 @@ namespace AIM.Services;
 /// 
 /// <para><strong>Security Features:</strong></para>
 /// <list type="bullet">
-/// <item>Strong password enforcement (8+ chars, uppercase, lowercase, numbers, symbols)</item>
+/// <item>Database-driven centralized user management</item>
+/// <item>Automatic Basic access for all users (no blocking)</item>
 /// <item>Rate limiting: 5 failed password attempts trigger a 15-minute lockout</item>
 /// <item>All authentication attempts are logged to the audit log</item>
 /// <item>No hardcoded or default passwords</item>
-/// <item>First-time setup flow requires initial password configuration</item>
+/// <item>No first-time setup blocking - app is always usable</item>
 /// </list>
 /// 
 /// <para><strong>Thread Safety:</strong></para>
@@ -93,8 +105,9 @@ public class SecurityService
     /// <summary>
     /// Gets whether the application is fully unlocked via master password override or authorized user status.
     /// When true, the user has access to all restricted features in the application.
+    /// In the new model, this checks if the user has Admin or SuperAdmin access level.
     /// </summary>
-    public bool IsFullyUnlocked => _isMasterPasswordOverrideActive || IsCurrentUserAuthorized();
+    public bool IsFullyUnlocked => _isMasterPasswordOverrideActive || IsCurrentUserAdmin();
 
     /// <summary>
     /// Gets whether the master password override is currently active.
@@ -103,8 +116,9 @@ public class SecurityService
     public bool IsMasterPasswordOverrideActive => _isMasterPasswordOverrideActive;
 
     /// <summary>
-    /// Gets whether the application is in first-time setup mode (no master password configured yet).
-    /// When true, the application should prompt the user to set an initial master password.
+    /// Gets whether the application is in first-time setup mode.
+    /// In the new database-driven model, this is always false - all users can use the app.
+    /// Users get Basic privileges by default, and Admin privileges if in the database.
     /// </summary>
     public bool IsFirstTimeSetup { get; private set; }
 
@@ -289,24 +303,29 @@ public class SecurityService
     }
 
     /// <summary>
-    /// Asynchronously initializes the security service by loading the encrypted security configuration.
+    /// Asynchronously initializes the security service by loading user authorization from database or files.
     /// This method MUST be called after construction and before using any security features.
     /// 
-    /// <para><strong>Initialization Flow:</strong></para>
+    /// <para><strong>Initialization Flow (Database Mode):</strong></para>
     /// <list type="number">
-    /// <item>Checks if a security configuration file exists.</item>
-    /// <item>If exists: Loads master password and authorized users from encrypted storage.</item>
-    /// <item>If not exists: Sets IsFirstTimeSetup flag to require initial password configuration.</item>
-    /// <item>Updates AppSettings to reflect first-time setup status.</item>
+    /// <item>Checks if database path is configured in settings.json</item>
+    /// <item>Connects to the centralized security database</item>
+    /// <item>Looks up current Windows user in authorized_users table</item>
+    /// <item>If user exists: Grants user's access level from database</item>
+    /// <item>If user does not exist: Grants Basic access level (no blocking)</item>
+    /// <item>Sets IsFirstTimeSetup to false (no blocking setup required)</item>
+    /// </list>
+    /// 
+    /// <para><strong>Initialization Flow (File-Based Fallback):</strong></para>
+    /// <list type="number">
+    /// <item>Attempts to load shared network security config</item>
+    /// <item>Falls back to local user-specific config if network unavailable</item>
+    /// <item>If config exists: Checks if user is in authorized users list</item>
+    /// <item>If no config: Grants Basic access level to allow app usage</item>
+    /// <item>Sets IsFirstTimeSetup to false (no blocking setup required)</item>
     /// </list>
     /// </summary>
     /// <returns>A task representing the asynchronous initialization operation.</returns>
-    /// <exception cref="Exception">Thrown when the security configuration cannot be loaded.</exception>
-    /// <summary>
-    /// Asynchronously initializes the security service by loading the encrypted security configuration.
-    /// Checks for shared network config first, then user-specific config, to allow centralized management.
-    /// Also initializes the database security service if configured.
-    /// </summary>
     public async Task InitializeAsync()
     {
         try
@@ -322,8 +341,13 @@ public class SecurityService
                 if (!File.Exists(appSettings.SecurityDatabasePath))
                 {
                     Debug.WriteLine($"[Security] Database file not found at: {appSettings.SecurityDatabasePath}");
-                    Debug.WriteLine("[Security] Falling back to file-based security");
-                    // Fall through to file-based security
+                    Debug.WriteLine("[Security] Granting Basic privileges - no database available");
+                    
+                    // Grant Basic privileges to allow app usage
+                    IsFirstTimeSetup = false;
+                    _userAccessLevels[CurrentUserId] = 1; // Basic access
+                    LogSecurityEvent("SECURITY_INITIALIZED", $"Security initialized with Basic privileges (no database)");
+                    return;
                 }
                 else
                 {
@@ -331,32 +355,52 @@ public class SecurityService
                     {
                         await InitializeDatabaseSecurityAsync(appSettings.SecurityDatabasePath);
                     
-                        // Load master password from database
+                        // Check if current user exists in database
+                        var currentUser = await _databaseSecurityService?.GetUserByUsernameAsync(CurrentUserId);
+                        if (currentUser != null && currentUser.IsActive)
+                        {
+                            // User exists in database - grant their access level (typically Admin or SuperAdmin)
+                            _userAccessLevels[CurrentUserId] = currentUser.AccessLevel;
+                            Debug.WriteLine($"[Security] User '{CurrentUserId}' found in database with AccessLevel {currentUser.AccessLevel}");
+                            LogSecurityEvent("SECURITY_INITIALIZED", $"User '{CurrentUserId}' authenticated with AccessLevel {currentUser.AccessLevel}");
+                        }
+                        else
+                        {
+                            // User does not exist in database - grant Basic privileges
+                            _userAccessLevels[CurrentUserId] = 1; // Basic access
+                            Debug.WriteLine($"[Security] User '{CurrentUserId}' not found in database - granting Basic privileges");
+                            LogSecurityEvent("SECURITY_INITIALIZED", $"User '{CurrentUserId}' granted Basic privileges (not in database)");
+                        }
+
+                        // No first-time setup required - all users can use the app
+                        IsFirstTimeSetup = false;
+                        
+                        // Load master password from database (optional for override functionality)
                         var masterPasswordHash = await _databaseSecurityService?.GetSecuritySettingAsync("MasterPasswordHash");
                         if (!string.IsNullOrEmpty(masterPasswordHash))
                         {
                             _masterPassword = masterPasswordHash; // Store the hash for validation
-                            IsFirstTimeSetup = false;
                             Debug.WriteLine("[Security] Loaded master password from database");
                         }
-                        else
-                        {
-                            IsFirstTimeSetup = true;
-                            Debug.WriteLine("[Security] No master password found in database - first time setup");
-                        }
 
-                        LogSecurityEvent("SECURITY_INITIALIZED", $"Security service initialized with database at {appSettings.SecurityDatabasePath}");
                         return; // Successfully initialized with database
                     }
                     catch (Exception ex)
                     {
-                        Debug.WriteLine($"[Security] Database initialization failed, falling back to file-based security: {ex.Message}");
-                        // Fall through to file-based security
+                        Debug.WriteLine($"[Security] Database initialization failed: {ex.Message}");
+                        Debug.WriteLine("[Security] Granting Basic privileges - database error");
+                        
+                        // Grant Basic privileges to allow app usage even if database fails
+                        IsFirstTimeSetup = false;
+                        _userAccessLevels[CurrentUserId] = 1; // Basic access
+                        LogSecurityEvent("SECURITY_INITIALIZED", $"Security initialized with Basic privileges (database error)");
+                        return;
                     }
                 }
             }
 
             // Fall back to file-based security (legacy)
+            Debug.WriteLine("[Security] Using file-based security (legacy mode)");
             var configPath = _encryptedSettingsService.GetSecurityConfigPath(appSettings.SecurityConfigPath);
 
             // Get shared network path using priority chain
@@ -431,14 +475,37 @@ public class SecurityService
             if (securityData == null)
             {
                 Debug.WriteLine($"[Security] Attempting to load local config from: {configPath}");
-                securityData = await _encryptedSettingsService.LoadSecurityConfigAsync(configPath, passphrase);
+                try
+                {
+                    securityData = await _encryptedSettingsService.LoadSecurityConfigAsync(configPath, passphrase);
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"[Security] Could not load local config: {ex.Message}");
+                }
             }
 
-            if (securityData != null && appSettings.IsInitialPasswordSet)
+            if (securityData != null)
             {
-                // Configuration exists and initial password was set
+                // Configuration exists - load it
                 _masterPassword = securityData.MasterPassword;
                 _authorizedUsers = securityData.AuthorizedUsers ?? new();
+                
+                // Check if current user is in authorized users list
+                if (IsCurrentUserAuthorized())
+                {
+                    // User is authorized - grant Admin privileges
+                    _userAccessLevels[CurrentUserId] = 2; // Admin access
+                    Debug.WriteLine($"[Security] User '{CurrentUserId}' found in authorized users - granting Admin privileges");
+                }
+                else
+                {
+                    // User not authorized - grant Basic privileges
+                    _userAccessLevels[CurrentUserId] = 1; // Basic access
+                    Debug.WriteLine($"[Security] User '{CurrentUserId}' not in authorized users - granting Basic privileges");
+                }
+                
+                // No first-time setup required
                 IsFirstTimeSetup = false;
 
                 string configSource = loadedFromSharedConfig ? "shared network" : "local";
@@ -447,20 +514,14 @@ public class SecurityService
             }
             else
             {
-                // First time setup - no default password found anywhere
-                Debug.WriteLine("[Security] First-time setup detected - no configuration found");
-                IsFirstTimeSetup = true;
+                // No configuration found - grant Basic privileges to allow app usage
+                Debug.WriteLine("[Security] No security configuration found - granting Basic privileges");
+                IsFirstTimeSetup = false;
                 _masterPassword = null;
                 _authorizedUsers = new();
+                _userAccessLevels[CurrentUserId] = 1; // Basic access
 
-                // Ensure the flag is saved
-                if (!appSettings.IsInitialPasswordSet)
-                {
-                    appSettings.IsInitialPasswordSet = false;
-                    _settingsService.SaveSettings(appSettings);
-                }
-
-                LogSecurityEvent("SECURITY_FIRST_TIME_SETUP", "Application requires initial master password setup");
+                LogSecurityEvent("SECURITY_INITIALIZED", "Security initialized with Basic privileges (no config found)");
             }
         }
         catch (Exception ex)
@@ -468,11 +529,13 @@ public class SecurityService
             Debug.WriteLine($"[Security] ERROR initializing security: {ex.Message}");
             LogSecurityEvent("SECURITY_INIT_ERROR", $"Failed to initialize security: {ex.Message}");
 
-            // On error, assume first-time setup to be safe
-            IsFirstTimeSetup = true;
+            // On error, grant Basic privileges to allow app usage
+            IsFirstTimeSetup = false;
             _masterPassword = null;
             _authorizedUsers = new();
-            throw;
+            _userAccessLevels[CurrentUserId] = 1; // Basic access
+            
+            Debug.WriteLine("[Security] Granted Basic privileges due to initialization error");
         }
     }
 
@@ -774,7 +837,7 @@ public class SecurityService
     /// <summary>
     /// Gets the access level of the current user.
     /// </summary>
-    /// <returns>The access level (1=Basic, 2=Admin, 3=SuperAdmin), or 0 if not authorized.</returns>
+    /// <returns>The access level (1=Basic, 2=Admin, 3=SuperAdmin).</returns>
     public int GetCurrentUserAccessLevel()
     {
         if (_isMasterPasswordOverrideActive)
@@ -787,7 +850,7 @@ public class SecurityService
             return accessLevel;
         }
 
-        return 0; // Not authorized
+        return 1; // Default to Basic access if not found
     }
 
     /// <summary>
@@ -840,6 +903,7 @@ public class SecurityService
 
     /// <summary>
     /// Refreshes the authorized users list from the database.
+    /// Preserves the current user's Basic access level if they're not in the database.
     /// </summary>
     private async Task RefreshUsersFromDatabaseAsync()
     {
@@ -850,6 +914,13 @@ public class SecurityService
         {
             var users = await _databaseSecurityService.GetAuthorizedUsersAsync();
             
+            // Save current user's access level if they have Basic access (not in database)
+            bool currentUserHasBasicAccess = false;
+            if (_userAccessLevels.TryGetValue(CurrentUserId, out int currentLevel) && currentLevel == 1)
+            {
+                currentUserHasBasicAccess = true;
+            }
+            
             _authorizedUsers.Clear();
             _userAccessLevels.Clear();
 
@@ -857,6 +928,13 @@ public class SecurityService
             {
                 _authorizedUsers.Add(user.Username);
                 _userAccessLevels[user.Username] = user.AccessLevel;
+            }
+            
+            // Restore Basic access for current user if they're not in database
+            if (currentUserHasBasicAccess && !_userAccessLevels.ContainsKey(CurrentUserId))
+            {
+                _userAccessLevels[CurrentUserId] = 1; // Restore Basic access
+                Debug.WriteLine($"[Security] Preserved Basic access for user '{CurrentUserId}' (not in database)");
             }
 
             Debug.WriteLine($"[Security] Refreshed {_authorizedUsers.Count} users from database");
