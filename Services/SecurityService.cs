@@ -908,6 +908,7 @@ public class SecurityService
 
     /// <summary>
     /// Refreshes the authorized users list from the database.
+    /// Preserves the current user's Basic access level if they're not in the database.
     /// </summary>
     private async Task RefreshUsersFromDatabaseAsync()
     {
@@ -918,6 +919,13 @@ public class SecurityService
         {
             var users = await _databaseSecurityService.GetAuthorizedUsersAsync();
             
+            // Save current user's access level if they have Basic access (not in database)
+            bool currentUserHasBasicAccess = false;
+            if (_userAccessLevels.TryGetValue(CurrentUserId, out int currentLevel) && currentLevel == 1)
+            {
+                currentUserHasBasicAccess = true;
+            }
+            
             _authorizedUsers.Clear();
             _userAccessLevels.Clear();
 
@@ -925,6 +933,13 @@ public class SecurityService
             {
                 _authorizedUsers.Add(user.Username);
                 _userAccessLevels[user.Username] = user.AccessLevel;
+            }
+            
+            // Restore Basic access for current user if they're not in database
+            if (currentUserHasBasicAccess && !_userAccessLevels.ContainsKey(CurrentUserId))
+            {
+                _userAccessLevels[CurrentUserId] = 1; // Restore Basic access
+                Debug.WriteLine($"[Security] Preserved Basic access for user '{CurrentUserId}' (not in database)");
             }
 
             Debug.WriteLine($"[Security] Refreshed {_authorizedUsers.Count} users from database");
