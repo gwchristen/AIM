@@ -660,7 +660,8 @@ namespace AIM.Installer
         private const string ObfuscatedPassphrase = "hQw1KzRrVHVkYw=="; // <-- REPLACE with your obfuscated value
 
         // XOR key for obfuscation (kept minimal and private in code)
-        private static readonly byte[] ObfuscationKey = new byte[] { 0x4A, 0x2F, 0x19, 0x7C };
+        // CRITICAL: This must match the key in InstallerForm.cs and SecurityService.cs
+        private static readonly byte[] ObfuscationKey = new byte[] { 0xA5, 0x3C, 0x7E, 0x91, 0x42, 0xF8, 0x6D, 0x2B };
 
         private string DeobfuscatePassphrase(string obfuscated)
         {
@@ -674,8 +675,9 @@ namespace AIM.Installer
                 }
                 return Encoding.UTF8.GetString(data);
             }
-            catch
+            catch (Exception ex)
             {
+                LogMessage($"Warning: Could not deobfuscate passphrase: {ex.Message}");
                 return string.Empty;
             }
         }
@@ -694,9 +696,10 @@ namespace AIM.Installer
 
                 var settingsPath = Path.Combine(settingsDir, "settings.json");
 
-                var passphrase = DeobfuscatePassphrase(ObfuscatedPassphrase);
+                // Write the already-obfuscated constant directly to avoid double-obfuscation
+                var obfuscatedPassphrase = ObfuscatedPassphrase;
 
-                // Compose settings object - include Passphrase and SharedSecurityConfigPath
+                // Compose settings object - include obfuscated Passphrase and SharedSecurityConfigPath
                 var settings = new
                 {
                     DefaultRootDirectory = Path.Combine(installPath, "Data"),
@@ -711,7 +714,7 @@ namespace AIM.Installer
                     IsInitialPasswordSet = true,
                     SharedSecurityConfigPath = sharedSecurityPath ?? string.Empty,
                     UseSharedConfig = !string.IsNullOrWhiteSpace(sharedSecurityPath),
-                    Passphrase = passphrase
+                    Passphrase = !string.IsNullOrWhiteSpace(sharedSecurityPath) ? obfuscatedPassphrase : string.Empty
                 };
 
                 var json = System.Text.Json.JsonSerializer.Serialize(settings, new System.Text.Json.JsonSerializerOptions { WriteIndented = true });
