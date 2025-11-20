@@ -465,6 +465,10 @@ namespace AIM.Installer
                     LogMessage("Writing installer settings...");
                     WriteInstallerSettings();
 
+                    // Create central security database
+                    LogMessage("Creating central security database...");
+                    CreateSecurityDatabase();
+
                     // Create shortcuts
                     if (desktopShortcutCheckBox.Checked)
                     {
@@ -703,7 +707,6 @@ namespace AIM.Installer
         /// <summary>
         /// Writes the installer settings to the user's LocalAppData folder.
         /// The path matches where SettingsService expects to find settings.json.
-        /// Also creates and seeds the security database.
         /// </summary>
         private void WriteInstallerSettings()
         {
@@ -718,29 +721,6 @@ namespace AIM.Installer
                 
                 // Define the security database path (network location for centralized management)
                 var securityDatabasePath = @"\\oh1cam01\cml\Internal\LAB STOCK\Important Inventory Related Documents\AIM\AIM_Security.db";
-                
-                // Create and seed the security database
-                try
-                {
-                    LogMessage("Creating security database...");
-                    var currentUser = Environment.UserName;
-                    DatabaseInitializer.CreateAndSeedDatabase(securityDatabasePath, currentUser);
-                    
-                    if (DatabaseInitializer.VerifyDatabase(securityDatabasePath))
-                    {
-                        LogMessage($"Security database created and seeded successfully with user '{currentUser}' as SuperAdmin");
-                    }
-                    else
-                    {
-                        LogMessage("Warning: Could not verify security database creation");
-                    }
-                }
-                catch (Exception dbEx)
-                {
-                    LogMessage($"Warning: Could not create security database: {dbEx.Message}");
-                    LogMessage("The application will use local file-based security instead.");
-                    // Don't fail installation - allow fallback to file-based security
-                }
                 
                 // Create simplified AppSettings object with network paths as defaults
                 var settings = new Dictionary<string, object>
@@ -768,6 +748,48 @@ namespace AIM.Installer
             catch (Exception ex)
             {
                 LogMessage($"Warning: Could not write installer settings: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// Creates and seeds the central security database on the shared network path.
+        /// This database is used for centralized user management across all AIM instances.
+        /// </summary>
+        private void CreateSecurityDatabase()
+        {
+            try
+            {
+                string databaseDirectory = @"\\oh1cam01\cml\Internal\LAB STOCK\Important Inventory Related Documents\AIM";
+                string databasePath = Path.Combine(databaseDirectory, "AIM_Security.db");
+                
+                // Create directory if it doesn't exist
+                if (!Directory.Exists(databaseDirectory))
+                {
+                    Directory.CreateDirectory(databaseDirectory);
+                    LogMessage($"Created database directory: {databaseDirectory}");
+                }
+                
+                // Create and seed the database with current user as SuperAdmin
+                string currentUser = Environment.UserName; // This will be "gwchristen"
+                DatabaseInitializer.CreateAndSeedDatabase(databasePath, currentUser);
+                
+                LogMessage($"Security database created: {databasePath}");
+                LogMessage($"Initial SuperAdmin user: {currentUser}");
+                
+                // Verify database was created successfully
+                if (DatabaseInitializer.VerifyDatabase(databasePath))
+                {
+                    LogMessage("Database verification successful");
+                }
+                else
+                {
+                    LogMessage("WARNING: Database verification failed");
+                }
+            }
+            catch (Exception ex)
+            {
+                LogMessage($"WARNING: Could not create security database: {ex.Message}");
+                // Continue installation even if database creation fails
             }
         }
     }
