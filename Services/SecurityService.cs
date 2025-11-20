@@ -767,15 +767,26 @@ public class SecurityService
     /// <returns>The deobfuscated passphrase</returns>
     private string DeobfuscatePassphrase(string obfuscated)
     {
-        // Simple XOR key - must match the one used in the installer
-        byte[] xorKey = new byte[] { 0xA5, 0x3C, 0x7E, 0x91, 0x42, 0xF8, 0x6D, 0x2B };
-        
-        byte[] data = Convert.FromBase64String(obfuscated);
-        for (int i = 0; i < data.Length; i++)
+        if (string.IsNullOrEmpty(obfuscated))
+            return string.Empty;
+
+        try
         {
-            data[i] ^= xorKey[i % xorKey.Length];
+            // Simple XOR key - must match the one used in the installer
+            byte[] xorKey = new byte[] { 0xA5, 0x3C, 0x7E, 0x91, 0x42, 0xF8, 0x6D, 0x2B };
+            
+            byte[] data = Convert.FromBase64String(obfuscated);
+            for (int i = 0; i < data.Length; i++)
+            {
+                data[i] ^= xorKey[i % xorKey.Length];
+            }
+            
+            return Encoding.UTF8.GetString(data);
         }
-        
-        return Encoding.UTF8.GetString(data);
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"[Security] Warning: Could not deobfuscate passphrase: {ex.Message}");
+            return string.Empty;
+        }
     }
 }

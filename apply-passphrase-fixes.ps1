@@ -657,10 +657,12 @@ namespace AIM.Installer
         // This value should be replaced with your real passphrase obfuscated by the Obfuscate helper.
         // Example obfuscation: Base64( XOR( utf8(passphrase), key ) )
         // WARNING: Obfuscation is NOT encryption - it only deters casual discovery.
-        private const string ObfuscatedPassphrase = "hQw1KzRrVHVkYw=="; // <-- REPLACE with your obfuscated value
+        // Example: "MySecureP@ssphrase2024!" obfuscates to "6EUt9CGNH071fA3iMpAfStZZTKFwzEw="
+        private const string ObfuscatedPassphrase = "6EUt9CGNH071fA3iMpAfStZZTKFwzEw="; // <-- REPLACE with your obfuscated value
 
         // XOR key for obfuscation (kept minimal and private in code)
-        private static readonly byte[] ObfuscationKey = new byte[] { 0x4A, 0x2F, 0x19, 0x7C };
+        // CRITICAL: This must match the key in InstallerForm.cs and SecurityService.cs
+        private static readonly byte[] ObfuscationKey = new byte[] { 0xA5, 0x3C, 0x7E, 0x91, 0x42, 0xF8, 0x6D, 0x2B };
 
         private string DeobfuscatePassphrase(string obfuscated)
         {
@@ -674,8 +676,9 @@ namespace AIM.Installer
                 }
                 return Encoding.UTF8.GetString(data);
             }
-            catch
+            catch (Exception ex)
             {
+                LogMessage($"Warning: Could not deobfuscate passphrase: {ex.Message}");
                 return string.Empty;
             }
         }
@@ -694,9 +697,10 @@ namespace AIM.Installer
 
                 var settingsPath = Path.Combine(settingsDir, "settings.json");
 
-                var passphrase = DeobfuscatePassphrase(ObfuscatedPassphrase);
+                // Write the already-obfuscated constant directly to avoid double-obfuscation
+                var obfuscatedPassphrase = ObfuscatedPassphrase;
 
-                // Compose settings object - include Passphrase and SharedSecurityConfigPath
+                // Compose settings object - include obfuscated Passphrase and SharedSecurityConfigPath
                 var settings = new
                 {
                     DefaultRootDirectory = Path.Combine(installPath, "Data"),
@@ -711,7 +715,7 @@ namespace AIM.Installer
                     IsInitialPasswordSet = true,
                     SharedSecurityConfigPath = sharedSecurityPath ?? string.Empty,
                     UseSharedConfig = !string.IsNullOrWhiteSpace(sharedSecurityPath),
-                    Passphrase = passphrase
+                    Passphrase = !string.IsNullOrWhiteSpace(sharedSecurityPath) ? obfuscatedPassphrase : string.Empty
                 };
 
                 var json = System.Text.Json.JsonSerializer.Serialize(settings, new System.Text.Json.JsonSerializerOptions { WriteIndented = true });
