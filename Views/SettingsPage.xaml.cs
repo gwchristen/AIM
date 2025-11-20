@@ -75,6 +75,20 @@ public sealed partial class SettingsPage : Page, INotifyPropertyChanged
         await BrowseFolderAsync(path => ViewModel.SecurityConfigPath = path);
     }
 
+    private async void BrowseSecurityDatabasePath_Click(object sender, RoutedEventArgs e)
+    {
+        var folderPicker = new FolderPicker();
+        folderPicker.SuggestedStartLocation = PickerLocationId.Desktop;
+        var hwnd = WindowNative.GetWindowHandle(App.MainWindow);
+        InitializeWithWindow.Initialize(folderPicker, hwnd);
+        var folder = await folderPicker.PickSingleFolderAsync();
+        if (folder != null)
+        {
+            // Suggest a default database file name
+            ViewModel.SecurityDatabasePath = System.IO.Path.Combine(folder.Path, "security.db");
+        }
+    }
+
     // Generic Folder Browser
     private async Task BrowseFolderAsync(Action<string> setPath)
     {

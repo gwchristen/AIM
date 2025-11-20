@@ -70,6 +70,12 @@ public partial class SettingsViewModel : ObservableObject
     private string securityConfigPath;
 
     /// <summary>
+    /// Gets or sets the path to the centralized SQLite security database.
+    /// </summary>
+    [ObservableProperty]
+    private string securityDatabasePath;
+
+    /// <summary>
     /// Gets or sets the application password.
     /// This property is deprecated; use SecurityConfigPath for encrypted password storage instead.
     /// </summary>
@@ -119,6 +125,12 @@ public partial class SettingsViewModel : ObservableObject
     /// </summary>
     [ObservableProperty]
     private bool isCurrentUserAdmin;
+
+    /// <summary>
+    /// Gets or sets whether the current user has SuperAdmin access (level 3 or master password override).
+    /// </summary>
+    [ObservableProperty]
+    private bool isCurrentUserSuperAdmin;
 
     /// <summary>
     /// Gets or sets whether the master password change operation succeeded.
@@ -271,6 +283,7 @@ public partial class SettingsViewModel : ObservableObject
         CurrentUserId = _securityService.CurrentUserId;
         IsUserAuthorized = _securityService.IsFullyUnlocked;
         IsCurrentUserAdmin = _securityService.IsCurrentUserAdmin();
+        IsCurrentUserSuperAdmin = _securityService.IsMasterPasswordOverrideActive || _securityService.GetCurrentUserAccessLevel() == 3;
         CurrentUserAccessLevel = GetAccessLevelName(_securityService.GetCurrentUserAccessLevel());
 
         // Load theme settings
@@ -309,6 +322,7 @@ public partial class SettingsViewModel : ObservableObject
         FileScansDirectory = _appSettings.FileScansDirectory;
         InventoryArchiveDirectory = _appSettings.InventoryArchiveDirectory;
         SecurityConfigPath = _appSettings.SecurityConfigPath;
+        SecurityDatabasePath = _appSettings.SecurityDatabasePath;
         Password = _appSettings.Password;
     }
 
@@ -409,6 +423,7 @@ public partial class SettingsViewModel : ObservableObject
         _appSettings.FileScansDirectory = FileScansDirectory;
         _appSettings.InventoryArchiveDirectory = InventoryArchiveDirectory;
         _appSettings.SecurityConfigPath = SecurityConfigPath;
+        _appSettings.SecurityDatabasePath = SecurityDatabasePath;
         _appSettings.Password = Password;
         _appSettings.AuthorizedUsers = _securityService.GetAuthorizedUsers();
 
@@ -593,6 +608,7 @@ public partial class SettingsViewModel : ObservableObject
             {
                 IsMasterPasswordOverrideActive = _securityService.IsMasterPasswordOverrideActive;
                 IsUserAuthorized = true;
+                IsCurrentUserSuperAdmin = true;
                 UpdateUnlockStatus();
                 RefreshAuthorizedUsersList();
 
@@ -600,8 +616,8 @@ public partial class SettingsViewModel : ObservableObject
                 bool isNowVisible = _securityService.IsFullyUnlocked;
                 UpdateMainWindowInventoryTab(isNowVisible);
 
-                await ShowSuccessDialogAsync("Success", "Master password override activated. All features are now unlocked.");
-                Debug.WriteLine($"[Settings] Master password override activated");
+                await ShowSuccessDialogAsync("Success", "SuperAdmin access granted. All features are now unlocked.");
+                Debug.WriteLine($"[Settings] SuperAdmin access granted via master password");
             }
             else
             {
@@ -634,15 +650,16 @@ public partial class SettingsViewModel : ObservableObject
         _securityService.DeactivateMasterPasswordOverride();
         IsMasterPasswordOverrideActive = false;
         IsUserAuthorized = false;
+        IsCurrentUserSuperAdmin = _securityService.GetCurrentUserAccessLevel() == 3;
         UpdateUnlockStatus();
 
         _mainViewModel.UpdateInventoryTabVisibility();
         bool isNowVisible = _securityService.IsFullyUnlocked;
         UpdateMainWindowInventoryTab(isNowVisible);
 
-        Debug.WriteLine($"[Settings] Master password override deactivated");
+        Debug.WriteLine($"[Settings] SuperAdmin access deactivated");
 
-        LogAction("MASTER_LOCK", "Master password override was deactivated");
+        LogAction("SUPERADMIN_LOGOUT", "SuperAdmin access was deactivated");
     }
 
     /// <summary>
@@ -1050,13 +1067,14 @@ public partial class SettingsViewModel : ObservableObject
 
     /// <summary>
     /// Command to add a new user to the database.
+    /// Requires SuperAdmin access (level 3 or master password override).
     /// </summary>
     [RelayCommand]
     private async Task AddDatabaseUserAsync()
     {
-        if (!_securityService.IsCurrentUserAdmin())
+        if (!IsCurrentUserSuperAdmin)
         {
-            await ShowErrorDialogAsync("Access Denied", "Only Admin users and above can add users.");
+            await ShowErrorDialogAsync("Access Denied", "Only SuperAdmin users can add users.");
             return;
         }
 
@@ -1148,13 +1166,14 @@ public partial class SettingsViewModel : ObservableObject
 
     /// <summary>
     /// Command to edit a user in the database.
+    /// Requires SuperAdmin access (level 3 or master password override).
     /// </summary>
     [RelayCommand]
     private async Task EditDatabaseUserAsync(AuthorizedUser user)
     {
-        if (!_securityService.IsCurrentUserAdmin())
+        if (!IsCurrentUserSuperAdmin)
         {
-            await ShowErrorDialogAsync("Access Denied", "Only Admin users and above can edit users.");
+            await ShowErrorDialogAsync("Access Denied", "Only SuperAdmin users can edit users.");
             return;
         }
 
@@ -1234,13 +1253,14 @@ public partial class SettingsViewModel : ObservableObject
 
     /// <summary>
     /// Command to remove a user from the database.
+    /// Requires SuperAdmin access (level 3 or master password override).
     /// </summary>
     [RelayCommand]
     private async Task RemoveDatabaseUserAsync(AuthorizedUser user)
     {
-        if (!_securityService.IsCurrentUserAdmin())
+        if (!IsCurrentUserSuperAdmin)
         {
-            await ShowErrorDialogAsync("Access Denied", "Only Admin users and above can remove users.");
+            await ShowErrorDialogAsync("Access Denied", "Only SuperAdmin users can remove users.");
             return;
         }
 

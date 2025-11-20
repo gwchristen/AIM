@@ -32,43 +32,25 @@
 				<ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
 					<StackPanel Margin="24,16,24,24" Spacing="16">
 
-						<!-- Master Password Management Section -->
-						<Expander Header="🔑 Change Master Password" IsExpanded="False" Padding="12">
+						<!-- SuperAdmin Login Section (Always Visible) -->
+						<Expander Header="🔐 SuperAdmin Login" IsExpanded="True" Padding="12">
 							<StackPanel Spacing="12">
-								<TextBlock Text="Update your master password" FontSize="12" Foreground="#666666"/>
-
-								<Button
-                                    Content="🔑 Change Master Password"
-                                    Command="{Binding ChangeMasterPasswordCommand}"
-                                    Style="{ThemeResource AccentButtonStyle}"/>
-
-								<InfoBar
-                                    IsOpen="True"
-                                    Severity="Informational"
-                                    Title="💡 Note"
-                                    Message="You must have master override enabled or be an authorized user to change the master password."
-                                    IsClosable="True"/>
-							</StackPanel>
-						</Expander>
-
-						<!-- Master Password Override Security Section -->
-						<Expander Header="🔓 Master Password Override" IsExpanded="True" Padding="12">
-							<StackPanel Spacing="12">
-								<TextBlock Text="Emergency Access Control" FontSize="14" FontWeight="Bold"/>
+								<TextBlock Text="Log in as SuperAdmin to unlock all features and manage users" FontSize="12" Foreground="#666666"/>
 
 								<StackPanel Spacing="8">
 									<TextBlock Text="Current User:" FontSize="12" FontWeight="SemiBold"/>
 									<TextBlock Text="{Binding CurrentUserId}" FontSize="12" Foreground="#666666"/>
+									<TextBlock Text="{Binding CurrentUserAccessLevel}" FontSize="12" FontWeight="SemiBold" Foreground="{ThemeResource SystemAccentColor}"/>
 
 									<StackPanel Orientation="Horizontal" Spacing="8">
 										<Button
-                                            Content="🔓 Unlock with Master Password"
+                                            Content="🔓 Login as SuperAdmin"
                                             Command="{Binding UnlockWithMasterPasswordCommand}"
                                             IsEnabled="{Binding IsMasterPasswordOverrideActive, Converter={StaticResource BoolNegationConverter}}"
                                             Style="{ThemeResource AccentButtonStyle}"/>
 
 										<Button
-                                            Content="🔒 Deactivate Override"
+                                            Content="🔒 Logout SuperAdmin"
                                             Command="{Binding DeactivateMasterPasswordOverrideCommand}"
                                             IsEnabled="{Binding IsMasterPasswordOverrideActive}"
                                             Background="Orange"/>
@@ -76,110 +58,39 @@
 
 									<InfoBar
                                         IsOpen="{Binding IsMasterPasswordOverrideActive}"
-                                        Severity="Warning"
-                                        Title="⚠️ Master Password Override Active"
-                                        Message="All features are currently unlocked. Click 'Deactivate Override' to return to normal security mode."
+                                        Severity="Success"
+                                        Title="✓ SuperAdmin Access Active"
+                                        Message="You have full SuperAdmin access. You can manage users, edit all settings, and clear audit logs."
                                         IsClosable="False"/>
+
+									<InfoBar
+                                        IsOpen="{Binding IsMasterPasswordOverrideActive, Converter={StaticResource BoolNegationConverter}}"
+                                        Severity="Informational"
+                                        Title="ℹ️ SuperAdmin Login"
+                                        Message="Enter the master password to gain SuperAdmin access and unlock user management features."
+                                        IsClosable="True"/>
 								</StackPanel>
 							</StackPanel>
 						</Expander>
 
-						<!-- Authorized Users Management Section -->
+						<!-- User Management Section (SuperAdmin Only) -->
 						<Expander
-                            Visibility="{Binding IsDirectoriesUnlocked, Converter={StaticResource BoolToVisibilityConverter}}"
-                            Header="👥 Authorized Users"
+                            Visibility="{Binding IsCurrentUserSuperAdmin, Converter={StaticResource BoolToVisibilityConverter}}"
+                            Header="👥 User Management"
                             Padding="12"
                             IsExpanded="True">
 							<StackPanel Spacing="12">
-								<TextBlock Text="Manage users with full app access:" FontSize="12"/>
-
-								<TextBlock
-                                    Text="{Binding AuthorizedUsersList.Count}"
-                                    FontSize="11"
-                                    Foreground="#666666"/>
-
-								<!-- Authorized Users List -->
-								<ListView
-                                    ItemsSource="{Binding AuthorizedUsersList}"
-                                    Height="150"
-                                    Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
-                                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
-                                    BorderThickness="1"
-                                    x:Name="AuthorizedUsersListView">
-									<ListView.ItemTemplate>
-										<DataTemplate x:DataType="x:String">
-											<Grid Padding="8" ColumnSpacing="8">
-												<Grid.ColumnDefinitions>
-													<ColumnDefinition Width="*"/>
-													<ColumnDefinition Width="Auto"/>
-												</Grid.ColumnDefinitions>
-												<TextBlock
-                                                    Text="{Binding}"
-                                                    VerticalAlignment="Center"
-                                                    Grid.Column="0"/>
-												<Button
-                                                    Content="Remove"
-                                                    Grid.Column="1"
-                                                    Command="{Binding DataContext.RemoveAuthorizedUserCommand, ElementName=SettingsPageRoot}"
-                                                    CommandParameter="{Binding}"
-                                                    FontSize="12"/>
-											</Grid>
-										</DataTemplate>
-									</ListView.ItemTemplate>
-									<ListView.ItemContainerStyle>
-										<Style TargetType="ListViewItem">
-											<Setter Property="HorizontalContentAlignment" Value="Stretch"/>
-										</Style>
-									</ListView.ItemContainerStyle>
-								</ListView>
-
-								<!-- Add New User -->
-								<TextBlock Text="Add New Authorized User:" FontSize="12" FontWeight="SemiBold"/>
-								<Grid ColumnSpacing="8">
-									<Grid.ColumnDefinitions>
-										<ColumnDefinition Width="*"/>
-										<ColumnDefinition Width="Auto"/>
-									</Grid.ColumnDefinitions>
-									<TextBox
-                                        x:Name="NewUserIdTextBox"
-                                        PlaceholderText="Enter user ID (e.g., DOMAIN\username or just username)"
-                                        Grid.Column="0"
-                                        Height="40"/>
-									<Button
-                                        Content="Add User"
-                                        Grid.Column="1"
-                                        Command="{Binding AddAuthorizedUserCommand}"
-                                        CommandParameter="{Binding Text, ElementName=NewUserIdTextBox}"
-                                        Height="40"/>
-								</Grid>
-
-								<InfoBar
-                                    IsOpen="True"
-                                    Severity="Informational"
-                                    Title="💡 Tip"
-                                    Message="Users added here will have full access to the app. Check your Windows user ID above to add authorized users."
-                                    IsClosable="True"/>
-							</StackPanel>
-						</Expander>
-
-						<!-- Database User Management Section (New) -->
-						<Expander
-                            Visibility="{Binding IsCurrentUserAdmin, Converter={StaticResource BoolToVisibilityConverter}}"
-                            Header="🗄️ Database User Management"
-                            Padding="12"
-                            IsExpanded="True">
-							<StackPanel Spacing="12">
-								<TextBlock Text="Centralized user management with access levels" FontSize="12"/>
+								<TextBlock Text="Manage authorized users with role-based access control" FontSize="12" Foreground="#666666"/>
 								
 								<TextBlock FontSize="11" Foreground="#666666">
 									<Run Text="Total users: "/>
 									<Run Text="{Binding DatabaseAuthorizedUsers.Count}" FontWeight="SemiBold"/>
 								</TextBlock>
 
-								<!-- Database Users List -->
+								<!-- Database Users List with Role Badges -->
 								<ListView
                                     ItemsSource="{Binding DatabaseAuthorizedUsers}"
-                                    Height="250"
+                                    Height="300"
                                     Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
                                     BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                                     BorderThickness="1"
@@ -245,23 +156,43 @@
 									</ListView.ItemContainerStyle>
 								</ListView>
 
-								<!-- Add New Database User -->
-								<Button
-                                    Content="➕ Add New User"
-                                    Command="{Binding AddDatabaseUserCommand}"
-                                    HorizontalAlignment="Left"/>
+								<!-- Add/Remove User Buttons (SuperAdmin Only) -->
+								<StackPanel Orientation="Horizontal" Spacing="8">
+									<Button
+                                        Content="➕ Add New User"
+                                        Command="{Binding AddDatabaseUserCommand}"
+                                        HorizontalAlignment="Left"/>
 
-								<Button
-                                    Content="🔄 Refresh Users"
-                                    Command="{Binding LoadDatabaseUsersCommand}"
-                                    HorizontalAlignment="Left"
-                                    Margin="0,0,0,0"/>
+									<Button
+                                        Content="🔄 Refresh Users"
+                                        Command="{Binding LoadDatabaseUsersCommand}"
+                                        HorizontalAlignment="Left"/>
+								</StackPanel>
 
 								<InfoBar
                                     IsOpen="True"
                                     Severity="Informational"
                                     Title="ℹ️ Access Levels"
-                                    Message="Basic (1): Can use AIM. Admin (2): Can manage users and directories. SuperAdmin (3): Full access including clearing logs."
+                                    Message="Basic (1): Can use AIM core features. Admin (2): Can manage directories and advanced features. SuperAdmin (3): Full access including user management and security settings."
+                                    IsClosable="True"/>
+							</StackPanel>
+						</Expander>
+
+						<!-- Master Password Management Section -->
+						<Expander Header="🔑 Change Master Password" IsExpanded="False" Padding="12">
+							<StackPanel Spacing="12">
+								<TextBlock Text="Update the master password for SuperAdmin access" FontSize="12" Foreground="#666666"/>
+
+								<Button
+                                    Content="🔑 Change Master Password"
+                                    Command="{Binding ChangeMasterPasswordCommand}"
+                                    Style="{ThemeResource AccentButtonStyle}"/>
+
+								<InfoBar
+                                    IsOpen="True"
+                                    Severity="Informational"
+                                    Title="💡 Note"
+                                    Message="You must have SuperAdmin access to change the master password."
                                     IsClosable="True"/>
 							</StackPanel>
 						</Expander>
@@ -279,158 +210,216 @@
                         <StackPanel Margin="24,16,24,24" Spacing="16">
                             <TextBlock Text="Configure application directories" FontSize="14" FontWeight="SemiBold"/>
 
-                            <!-- Root Directory -->
-                            <StackPanel Spacing="8">
-                                <TextBlock Text="Root Directory" FontSize="12" FontWeight="SemiBold"/>
-                                <StackPanel Orientation="Horizontal" Spacing="8">
-                                    <TextBox 
-                                            Text="{Binding DefaultRootDirectory, Mode=TwoWay}" 
-                                            Width="400" 
-                                            IsEnabled="{Binding IsDirectoriesUnlocked}"
-                                            PlaceholderText="Select root directory"/>
-                                    <Button 
-                                            Click="BrowseRootDirectory_Click" 
-                                            IsEnabled="{Binding IsDirectoriesUnlocked}"
-                                            VerticalAlignment="Bottom">
-                                        <StackPanel Orientation="Horizontal" Spacing="8">
-                                            <FontIcon Glyph="&#xE8DA;" FontSize="16"/>
-                                            <TextBlock Text="Browse"/>
-                                        </StackPanel>
-                                    </Button>
-                                </StackPanel>
-                            </StackPanel>
-
-                            <!-- Archive Path -->
-                            <StackPanel Spacing="8">
-                                <TextBlock Text="Archive Path" FontSize="12" FontWeight="SemiBold"/>
-                                <StackPanel Orientation="Horizontal" Spacing="8">
-                                    <TextBox 
-                                            Text="{Binding ArchivePath, Mode=TwoWay}" 
-                                            Width="400" 
-                                            IsEnabled="{Binding IsDirectoriesUnlocked}"
-                                            PlaceholderText="Select archive path"/>
-                                    <Button 
-                                            Click="BrowseArchivePath_Click" 
-                                            IsEnabled="{Binding IsDirectoriesUnlocked}"
-                                            VerticalAlignment="Bottom">
-                                        <StackPanel Orientation="Horizontal" Spacing="8">
-                                            <FontIcon Glyph="&#xE8DA;" FontSize="16"/>
-                                            <TextBlock Text="Browse"/>
-                                        </StackPanel>
-                                    </Button>
-                                </StackPanel>
-                            </StackPanel>
-
-                            <!-- Shipped Directory -->
-                            <StackPanel Spacing="8">
-                                <TextBlock Text="Shipped Directory" FontSize="12" FontWeight="SemiBold"/>
-                                <StackPanel Orientation="Horizontal" Spacing="8">
-                                    <TextBox 
-                                            Text="{Binding ShippedDirectory, Mode=TwoWay}" 
-                                            Width="400" 
-                                            IsEnabled="{Binding IsDirectoriesUnlocked}"
-                                            PlaceholderText="Select shipped directory"/>
-                                    <Button 
-                                            Click="BrowseShippedDirectory_Click" 
-                                            IsEnabled="{Binding IsDirectoriesUnlocked}"
-                                            VerticalAlignment="Bottom">
-                                        <StackPanel Orientation="Horizontal" Spacing="8">
-                                            <FontIcon Glyph="&#xE8DA;" FontSize="16"/>
-                                            <TextBlock Text="Browse"/>
-                                        </StackPanel>
-                                    </Button>
-                                </StackPanel>
-                            </StackPanel>
-
-                            <!-- File Scans Directory -->
-                            <StackPanel Spacing="8">
-                                <TextBlock Text="File Scans Directory" FontSize="12" FontWeight="SemiBold"/>
-                                <StackPanel Orientation="Horizontal" Spacing="8">
-                                    <TextBox 
-                                            Text="{Binding FileScansDirectory, Mode=TwoWay}" 
-                                            Width="400" 
-                                            IsEnabled="{Binding IsDirectoriesUnlocked}"
-                                            PlaceholderText="Select file scans directory"/>
-                                    <Button 
-                                            Click="BrowseFileScansDirectory_Click" 
-                                            IsEnabled="{Binding IsDirectoriesUnlocked}"
-                                            VerticalAlignment="Bottom">
-                                        <StackPanel Orientation="Horizontal" Spacing="8">
-                                            <FontIcon Glyph="&#xE8DA;" FontSize="16"/>
-                                            <TextBlock Text="Browse"/>
-                                        </StackPanel>
-                                    </Button>
-                                </StackPanel>
-                            </StackPanel>
-
-                            <!-- Inventory Archive Directory -->
-                            <StackPanel Spacing="8">
-                                <TextBlock Text="Inventory Archive Directory" FontSize="12" FontWeight="SemiBold"/>
-                                <StackPanel Orientation="Horizontal" Spacing="8">
-                                    <TextBox 
-                                            Text="{Binding InventoryArchiveDirectory, Mode=TwoWay}" 
-                                            Width="400" 
-                                            IsEnabled="{Binding IsDirectoriesUnlocked}"
-                                            PlaceholderText="Select inventory archive directory"/>
-                                    <Button 
-                                            Click="BrowseInventoryArchiveDirectory_Click" 
-                                            IsEnabled="{Binding IsDirectoriesUnlocked}"
-                                            VerticalAlignment="Bottom">
-                                        <StackPanel Orientation="Horizontal" Spacing="8">
-                                            <FontIcon Glyph="&#xE8DA;" FontSize="16"/>
-                                            <TextBlock Text="Browse"/>
-                                        </StackPanel>
-                                    </Button>
-                                </StackPanel>
-                            </StackPanel>
-
-                            <!-- Security Configuration Path -->
-                            <StackPanel Spacing="8">
-                                <TextBlock Text="Security Config Storage Path" FontSize="12" FontWeight="SemiBold"/>
-                                <TextBlock Text="Location for encrypted master password and authorized users list" FontSize="11" Foreground="#666666"/>
-                                <StackPanel Orientation="Horizontal" Spacing="8">
-                                    <TextBox 
-                                            Text="{Binding SecurityConfigPath, Mode=TwoWay}" 
-                                            Width="400" 
-                                            IsEnabled="{Binding IsDirectoriesUnlocked}"
-                                            PlaceholderText="Select security config storage path (leave blank for local AppData)"/>
-                                    <Button 
-                                            Click="BrowseSecurityConfigPath_Click" 
-                                            IsEnabled="{Binding IsDirectoriesUnlocked}"
-                                            VerticalAlignment="Bottom">
-                                        <StackPanel Orientation="Horizontal" Spacing="8">
-                                            <FontIcon Glyph="&#xE8DA;" FontSize="16"/>
-                                            <TextBlock Text="Browse"/>
-                                        </StackPanel>
-                                    </Button>
-                                </StackPanel>
-                                <InfoBar 
-                                        IsOpen="True"
-                                        Severity="Warning"
-                                        Title="💡 Shared Drive Tip"
-                                        Message="Point this to a shared network drive (e.g., \\server\shared\AIM) to sync security settings across multiple computers. Leave blank to use local AppData."
-                                        IsClosable="True"/>
-                            </StackPanel>
-
-                            <!-- Save Button -->
-                            <Button 
-                                    Click="SaveButton_Click" 
-                                    Style="{ThemeResource AccentButtonStyle}"
-                                    IsEnabled="{Binding IsDirectoriesUnlocked}"
-                                    Width="200">
-                                <StackPanel Orientation="Horizontal" Spacing="8">
-                                    <FontIcon Glyph="&#xE74E;" FontSize="16"/>
-                                    <TextBlock Text="Save Settings"/>
-                                </StackPanel>
-                            </Button>
-
                             <InfoBar 
-                                    IsOpen="True"
-                                    Severity="Warning"
-                                    Title="🔒 Directory settings are locked"
-                                    Message="You must be authorized or have master override enabled to modify directories."
-                                    IsClosable="True"
-                                    Visibility="{Binding IsDirectoriesUnlocked, Converter={StaticResource BoolNegationConverter}}"/>
+                                IsOpen="{Binding IsCurrentUserAdmin, Converter={StaticResource BoolNegationConverter}}"
+                                Severity="Warning"
+                                Title="🔒 Directory settings are locked"
+                                Message="You need Admin or SuperAdmin access to modify directory paths. Login as SuperAdmin in the Security tab to unlock."
+                                IsClosable="True"/>
+
+                            <!-- Directory Configuration Section -->
+                            <Expander Header="📂 Directory Configuration" IsExpanded="True" Padding="12">
+                                <StackPanel Spacing="16">
+                                    <TextBlock Text="Configure paths for application data storage" FontSize="12" Foreground="#666666"/>
+
+                                    <!-- Root Directory -->
+                                    <StackPanel Spacing="8">
+                                        <TextBlock Text="Default Root Directory" FontSize="12" FontWeight="SemiBold"/>
+                                        <TextBlock Text="Default location for file browsing operations" FontSize="11" Foreground="#666666"/>
+                                        <StackPanel Orientation="Horizontal" Spacing="8">
+                                            <TextBox 
+                                                Text="{Binding DefaultRootDirectory, Mode=TwoWay}" 
+                                                Width="400" 
+                                                IsEnabled="{Binding IsCurrentUserAdmin}"
+                                                PlaceholderText="Select root directory"/>
+                                            <Button 
+                                                Click="BrowseRootDirectory_Click" 
+                                                IsEnabled="{Binding IsCurrentUserAdmin}"
+                                                VerticalAlignment="Bottom">
+                                                <StackPanel Orientation="Horizontal" Spacing="8">
+                                                    <FontIcon Glyph="&#xE8DA;" FontSize="16"/>
+                                                    <TextBlock Text="Browse"/>
+                                                </StackPanel>
+                                            </Button>
+                                        </StackPanel>
+                                    </StackPanel>
+
+                                    <!-- Archive Path -->
+                                    <StackPanel Spacing="8">
+                                        <TextBlock Text="Archive Path" FontSize="12" FontWeight="SemiBold"/>
+                                        <TextBlock Text="Location where archived files are stored" FontSize="11" Foreground="#666666"/>
+                                        <StackPanel Orientation="Horizontal" Spacing="8">
+                                            <TextBox 
+                                                Text="{Binding ArchivePath, Mode=TwoWay}" 
+                                                Width="400" 
+                                                IsEnabled="{Binding IsCurrentUserAdmin}"
+                                                PlaceholderText="Select archive path"/>
+                                            <Button 
+                                                Click="BrowseArchivePath_Click" 
+                                                IsEnabled="{Binding IsCurrentUserAdmin}"
+                                                VerticalAlignment="Bottom">
+                                                <StackPanel Orientation="Horizontal" Spacing="8">
+                                                    <FontIcon Glyph="&#xE8DA;" FontSize="16"/>
+                                                    <TextBlock Text="Browse"/>
+                                                </StackPanel>
+                                            </Button>
+                                        </StackPanel>
+                                    </StackPanel>
+
+                                    <!-- Shipped Directory -->
+                                    <StackPanel Spacing="8">
+                                        <TextBlock Text="Shipped Directory" FontSize="12" FontWeight="SemiBold"/>
+                                        <TextBlock Text="Directory path for shipped items" FontSize="11" Foreground="#666666"/>
+                                        <StackPanel Orientation="Horizontal" Spacing="8">
+                                            <TextBox 
+                                                Text="{Binding ShippedDirectory, Mode=TwoWay}" 
+                                                Width="400" 
+                                                IsEnabled="{Binding IsCurrentUserAdmin}"
+                                                PlaceholderText="Select shipped directory"/>
+                                            <Button 
+                                                Click="BrowseShippedDirectory_Click" 
+                                                IsEnabled="{Binding IsCurrentUserAdmin}"
+                                                VerticalAlignment="Bottom">
+                                                <StackPanel Orientation="Horizontal" Spacing="8">
+                                                    <FontIcon Glyph="&#xE8DA;" FontSize="16"/>
+                                                    <TextBlock Text="Browse"/>
+                                                </StackPanel>
+                                            </Button>
+                                        </StackPanel>
+                                    </StackPanel>
+
+                                    <!-- File Scans Directory -->
+                                    <StackPanel Spacing="8">
+                                        <TextBlock Text="File Scans Directory" FontSize="12" FontWeight="SemiBold"/>
+                                        <TextBlock Text="Directory where file scan results are stored" FontSize="11" Foreground="#666666"/>
+                                        <StackPanel Orientation="Horizontal" Spacing="8">
+                                            <TextBox 
+                                                Text="{Binding FileScansDirectory, Mode=TwoWay}" 
+                                                Width="400" 
+                                                IsEnabled="{Binding IsCurrentUserAdmin}"
+                                                PlaceholderText="Select file scans directory"/>
+                                            <Button 
+                                                Click="BrowseFileScansDirectory_Click" 
+                                                IsEnabled="{Binding IsCurrentUserAdmin}"
+                                                VerticalAlignment="Bottom">
+                                                <StackPanel Orientation="Horizontal" Spacing="8">
+                                                    <FontIcon Glyph="&#xE8DA;" FontSize="16"/>
+                                                    <TextBlock Text="Browse"/>
+                                                </StackPanel>
+                                            </Button>
+                                        </StackPanel>
+                                    </StackPanel>
+
+                                    <!-- Inventory Archive Directory -->
+                                    <StackPanel Spacing="8">
+                                        <TextBlock Text="Inventory Archive Directory" FontSize="12" FontWeight="SemiBold"/>
+                                        <TextBlock Text="Directory where inventory archives are stored" FontSize="11" Foreground="#666666"/>
+                                        <StackPanel Orientation="Horizontal" Spacing="8">
+                                            <TextBox 
+                                                Text="{Binding InventoryArchiveDirectory, Mode=TwoWay}" 
+                                                Width="400" 
+                                                IsEnabled="{Binding IsCurrentUserAdmin}"
+                                                PlaceholderText="Select inventory archive directory"/>
+                                            <Button 
+                                                Click="BrowseInventoryArchiveDirectory_Click" 
+                                                IsEnabled="{Binding IsCurrentUserAdmin}"
+                                                VerticalAlignment="Bottom">
+                                                <StackPanel Orientation="Horizontal" Spacing="8">
+                                                    <FontIcon Glyph="&#xE8DA;" FontSize="16"/>
+                                                    <TextBlock Text="Browse"/>
+                                                </StackPanel>
+                                            </Button>
+                                        </StackPanel>
+                                    </StackPanel>
+
+                                    <!-- Save Button -->
+                                    <Button 
+                                        Click="SaveButton_Click" 
+                                        Style="{ThemeResource AccentButtonStyle}"
+                                        IsEnabled="{Binding IsCurrentUserAdmin}"
+                                        Width="200">
+                                        <StackPanel Orientation="Horizontal" Spacing="8">
+                                            <FontIcon Glyph="&#xE74E;" FontSize="16"/>
+                                            <TextBlock Text="Save Directory Settings"/>
+                                        </StackPanel>
+                                    </Button>
+                                </StackPanel>
+                            </Expander>
+
+                            <!-- Database Configuration Section -->
+                            <Expander Header="🗄️ Database Configuration" IsExpanded="True" Padding="12">
+                                <StackPanel Spacing="16">
+                                    <TextBlock Text="Configure security database location" FontSize="12" Foreground="#666666"/>
+
+                                    <!-- Security Database Path -->
+                                    <StackPanel Spacing="8">
+                                        <TextBlock Text="Security Database Path" FontSize="12" FontWeight="SemiBold"/>
+                                        <TextBlock Text="Location of the centralized SQLite security database for user management" FontSize="11" Foreground="#666666"/>
+                                        <StackPanel Orientation="Horizontal" Spacing="8">
+                                            <TextBox 
+                                                Text="{Binding SecurityDatabasePath, Mode=TwoWay}" 
+                                                Width="400" 
+                                                IsEnabled="{Binding IsCurrentUserAdmin}"
+                                                PlaceholderText="Select security database path (e.g., \\server\shared\AIM\security.db)"/>
+                                            <Button 
+                                                Click="BrowseSecurityDatabasePath_Click" 
+                                                IsEnabled="{Binding IsCurrentUserAdmin}"
+                                                VerticalAlignment="Bottom">
+                                                <StackPanel Orientation="Horizontal" Spacing="8">
+                                                    <FontIcon Glyph="&#xE8DA;" FontSize="16"/>
+                                                    <TextBlock Text="Browse"/>
+                                                </StackPanel>
+                                            </Button>
+                                        </StackPanel>
+                                        <InfoBar 
+                                            IsOpen="True"
+                                            Severity="Warning"
+                                            Title="💡 Shared Database"
+                                            Message="Point this to a shared network location (e.g., \\server\shared\AIM\security.db) to enable centralized user management across all AIM instances."
+                                            IsClosable="True"/>
+                                    </StackPanel>
+
+                                    <!-- Security Configuration Path -->
+                                    <StackPanel Spacing="8">
+                                        <TextBlock Text="Security Config Storage Path" FontSize="12" FontWeight="SemiBold"/>
+                                        <TextBlock Text="Location for encrypted master password and configuration" FontSize="11" Foreground="#666666"/>
+                                        <StackPanel Orientation="Horizontal" Spacing="8">
+                                            <TextBox 
+                                                Text="{Binding SecurityConfigPath, Mode=TwoWay}" 
+                                                Width="400" 
+                                                IsEnabled="{Binding IsCurrentUserAdmin}"
+                                                PlaceholderText="Select security config storage path (leave blank for local AppData)"/>
+                                            <Button 
+                                                Click="BrowseSecurityConfigPath_Click" 
+                                                IsEnabled="{Binding IsCurrentUserAdmin}"
+                                                VerticalAlignment="Bottom">
+                                                <StackPanel Orientation="Horizontal" Spacing="8">
+                                                    <FontIcon Glyph="&#xE8DA;" FontSize="16"/>
+                                                    <TextBlock Text="Browse"/>
+                                                </StackPanel>
+                                            </Button>
+                                        </StackPanel>
+                                        <InfoBar 
+                                            IsOpen="True"
+                                            Severity="Informational"
+                                            Title="💡 Optional Configuration"
+                                            Message="Leave blank to use local AppData. Point to a shared drive to sync master password across computers."
+                                            IsClosable="True"/>
+                                    </StackPanel>
+
+                                    <!-- Save Button -->
+                                    <Button 
+                                        Click="SaveButton_Click" 
+                                        Style="{ThemeResource AccentButtonStyle}"
+                                        IsEnabled="{Binding IsCurrentUserAdmin}"
+                                        Width="200">
+                                        <StackPanel Orientation="Horizontal" Spacing="8">
+                                            <FontIcon Glyph="&#xE74E;" FontSize="16"/>
+                                            <TextBlock Text="Save Database Settings"/>
+                                        </StackPanel>
+                                    </Button>
+                                </StackPanel>
+                            </Expander>
                         </StackPanel>
                     </ScrollViewer>
                 </Grid>
@@ -575,34 +564,6 @@
 								</ListView.ItemContainerStyle>
 							</ListView>
 						</StackPanel>
-
-						<!-- Security Configuration Path -->
-						<StackPanel Spacing="8">
-							<TextBlock Text="Security Config Storage Path" FontSize="12" FontWeight="SemiBold"/>
-							<TextBlock Text="Location for encrypted master password and authorized users list" FontSize="11" Foreground="#666666"/>
-							<StackPanel Orientation="Horizontal" Spacing="8">
-								<TextBox
-                                    Text="{Binding SecurityConfigPath, Mode=TwoWay}"
-                                    Width="400"
-                                    IsEnabled="{Binding IsDirectoriesUnlocked}"
-                                    PlaceholderText="Select security config storage path (leave blank for local AppData)"/>
-								<Button
-                                    Click="BrowseSecurityConfigPath_Click"
-                                    IsEnabled="{Binding IsDirectoriesUnlocked}"
-                                    VerticalAlignment="Bottom">
-									<StackPanel Orientation="Horizontal" Spacing="8">
-										<FontIcon Glyph="&#xE8DA;" FontSize="16"/>
-										<TextBlock Text="Browse"/>
-									</StackPanel>
-								</Button>
-							</StackPanel>
-							<InfoBar
-                                IsOpen="True"
-                                Severity="Warning"
-                                Title="💡 Shared Drive Tip"
-                                Message="Point this to a shared network drive (e.g., \\server\shared\AIM) to sync security settings across multiple computers. Leave blank to use local AppData."
-                                IsClosable="True"/>
-						</StackPanel>						
 					</StackPanel>
 				</ScrollViewer>
 			</TabViewItem>
