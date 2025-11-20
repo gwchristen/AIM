@@ -16,24 +16,35 @@ namespace AIM.Services;
 /// 
 /// <para><strong>Security Architecture:</strong></para>
 /// <para>
-/// This service implements a two-tier authentication model:
-/// 1. <strong>Master Password:</strong> A single administrative password that grants full access to all features.
-///    The master password can be used to override standard authorization checks temporarily.
-/// 2. <strong>Authorized Users:</strong> A list of Windows usernames that are permanently authorized to access
-///    restricted features without needing the master password.
+/// This service implements a database-driven authorization model with fallback to file-based security:
+/// 1. <strong>Database Authorization (Primary):</strong> Users are checked against a centralized SQLite database.
+///    - Users in the database get their assigned access level (Admin, SuperAdmin, etc.)
+///    - Users not in the database get Basic access level automatically
+///    - No blocking dialogs or first-time setup required
+/// 2. <strong>File-Based Authorization (Fallback):</strong> If database is not configured or unavailable,
+///    falls back to encrypted file-based authorized users list
+/// 3. <strong>Master Password Override (Optional):</strong> A master password can temporarily grant full access
 /// </para>
 /// 
 /// <para><strong>Authentication Flow:</strong></para>
 /// <list type="number">
-/// <item>On first launch, the user must set a strong master password (no default password is used).</item>
-/// <item>Users are identified by their Windows username (Environment.UserName).</item>
-/// <item>Access is granted if either:
+/// <item>On launch, users are identified by their Windows username (Environment.UserName).</item>
+/// <item>If database is configured:
 ///   <list type="bullet">
-///     <item>The current Windows user is in the authorized users list, OR</item>
-///     <item>The master password has been entered and validated (master password override active)</item>
+///     <item>Check if user exists in authorized_users table</item>
+///     <item>If yes: Grant user's access level from database (typically Admin or SuperAdmin)</item>
+///     <item>If no: Grant Basic access level (no blocking, just reduced features)</item>
 ///   </list>
 /// </item>
-/// <item>The master password override can be deactivated at any time, reverting to user-based authorization.</item>
+/// <item>If database is not available, fall back to file-based authorization</item>
+/// <item>The master password override can optionally be activated for temporary SuperAdmin access</item>
+/// </list>
+/// 
+/// <para><strong>Access Levels:</strong></para>
+/// <list type="bullet">
+/// <item>1 = Basic: Can use core app features, limited admin functionality</item>
+/// <item>2 = Admin: Can access all features including Inventory and user management</item>
+/// <item>3 = SuperAdmin: Full access including security settings (via master password override)</item>
 /// </list>
 /// 
 /// <para><strong>Encryption and Key Derivation:</strong></para>
@@ -47,11 +58,12 @@ namespace AIM.Services;
 /// 
 /// <para><strong>Security Features:</strong></para>
 /// <list type="bullet">
-/// <item>Strong password enforcement (8+ chars, uppercase, lowercase, numbers, symbols)</item>
+/// <item>Database-driven centralized user management</item>
+/// <item>Automatic Basic access for all users (no blocking)</item>
 /// <item>Rate limiting: 5 failed password attempts trigger a 15-minute lockout</item>
 /// <item>All authentication attempts are logged to the audit log</item>
 /// <item>No hardcoded or default passwords</item>
-/// <item>First-time setup flow requires initial password configuration</item>
+/// <item>No first-time setup blocking - app is always usable</item>
 /// </list>
 /// 
 /// <para><strong>Thread Safety:</strong></para>
@@ -104,8 +116,9 @@ public class SecurityService
     public bool IsMasterPasswordOverrideActive => _isMasterPasswordOverrideActive;
 
     /// <summary>
-    /// Gets whether the application is in first-time setup mode (no master password configured yet).
-    /// When true, the application should prompt the user to set an initial master password.
+    /// Gets whether the application is in first-time setup mode.
+    /// In the new database-driven model, this is always false - all users can use the app.
+    /// Users get Basic privileges by default, and Admin privileges if in the database.
     /// </summary>
     public bool IsFirstTimeSetup { get; private set; }
 
@@ -290,19 +303,29 @@ public class SecurityService
     }
 
     /// <summary>
-    /// Asynchronously initializes the security service by loading the encrypted security configuration.
+    /// Asynchronously initializes the security service by loading user authorization from database or files.
     /// This method MUST be called after construction and before using any security features.
     /// 
-    /// <para><strong>Initialization Flow:</strong></para>
+    /// <para><strong>Initialization Flow (Database Mode):</strong></para>
     /// <list type="number">
-    /// <item>Checks if a security configuration file exists.</item>
-    /// <item>If exists: Loads master password and authorized users from encrypted storage.</item>
-    /// <item>If not exists: Sets IsFirstTimeSetup flag to require initial password configuration.</item>
-    /// <item>Updates AppSettings to reflect first-time setup status.</item>
+    /// <item>Checks if database path is configured in settings.json</item>
+    /// <item>Connects to the centralized security database</item>
+    /// <item>Looks up current Windows user in authorized_users table</item>
+    /// <item>If user exists: Grants user's access level from database</item>
+    /// <item>If user does not exist: Grants Basic access level (no blocking)</item>
+    /// <item>Sets IsFirstTimeSetup to false (no blocking setup required)</item>
+    /// </list>
+    /// 
+    /// <para><strong>Initialization Flow (File-Based Fallback):</strong></para>
+    /// <list type="number">
+    /// <item>Attempts to load shared network security config</item>
+    /// <item>Falls back to local user-specific config if network unavailable</item>
+    /// <item>If config exists: Checks if user is in authorized users list</item>
+    /// <item>If no config: Grants Basic access level to allow app usage</item>
+    /// <item>Sets IsFirstTimeSetup to false (no blocking setup required)</item>
     /// </list>
     /// </summary>
     /// <returns>A task representing the asynchronous initialization operation.</returns>
-    /// <exception cref="Exception">Thrown when the security configuration cannot be loaded.</exception>
     /// <summary>
     /// Asynchronously initializes the security service by loading the encrypted security configuration.
     /// Checks for shared network config first, then user-specific config, to allow centralized management.
