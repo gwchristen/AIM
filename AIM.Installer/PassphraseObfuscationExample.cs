@@ -29,7 +29,7 @@ namespace AIM.Installer
         public static void Main()
         {
             // CHANGE THIS to your actual passphrase
-            string plainPassphrase = "MySecureP@ssphrase2024!";
+            string plainPassphrase = "AEP123";
 
             // Generate obfuscated version
             string obfuscated = ObfuscatePassphrase(plainPassphrase);
