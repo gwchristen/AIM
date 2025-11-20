@@ -657,7 +657,8 @@ namespace AIM.Installer
         // This value should be replaced with your real passphrase obfuscated by the Obfuscate helper.
         // Example obfuscation: Base64( XOR( utf8(passphrase), key ) )
         // WARNING: Obfuscation is NOT encryption - it only deters casual discovery.
-        private const string ObfuscatedPassphrase = "hQw1KzRrVHVkYw=="; // <-- REPLACE with your obfuscated value
+        // Example: "MySecureP@ssphrase2024!" obfuscates to "6EUt9CGNH071fA3iMpAfStZZTKFwzEw="
+        private const string ObfuscatedPassphrase = "6EUt9CGNH071fA3iMpAfStZZTKFwzEw="; // <-- REPLACE with your obfuscated value
 
         // XOR key for obfuscation (kept minimal and private in code)
         // CRITICAL: This must match the key in InstallerForm.cs and SecurityService.cs

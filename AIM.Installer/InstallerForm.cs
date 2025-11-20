@@ -25,7 +25,8 @@ namespace AIM.Installer
         // Obfuscated passphrase constant (XOR with key + Base64)
         // Original passphrase should be set during build process
         // Example: "MySecureP@ssphrase2024!" would be obfuscated
-        private const string ObfuscatedPassphrase = "z1Ij6bVbXOMgp/TJl+yqYqL14afBvC5TpcfU7K==";
+        // This value was generated using PassphraseObfuscationExample.cs with the correct XOR key
+        private const string ObfuscatedPassphrase = "6EUt9CGNH071fA3iMpAfStZZTKFwzEw=";
         
         // UI Controls
         private Panel topPanel;
