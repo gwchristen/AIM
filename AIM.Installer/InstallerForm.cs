@@ -73,12 +73,12 @@ namespace AIM.Installer
         private string? sharedSecurityPath = null;
         private bool installationComplete = false;
 
-        // Network path constants for deployment
-        private const string DEFAULT_ROOT_DIRECTORY = @"\\oh1cam01\cml\Internal\LAB STOCK\LAB STOCK";
-        private const string ARCHIVE_PATH = @"\\oh1cam01\cml\Internal\LAB STOCK\Archive";
-        private const string SHIPPED_DIRECTORY = @"\\oh1cam01\cml\Internal\LAB STOCK\Orders shipped";
-        private const string FILE_SCANS_DIRECTORY = @"C:\Tfile";
-        private const string INVENTORY_ARCHIVE_DIRECTORY = @"\\oh1cam01\cml\Internal\LAB STOCK\Physical Inventory Archive";
+        // Default network paths (can be changed by users in the AIM application)
+        private readonly string defaultRootDirectory = @"\\oh1cam01\cml\Internal\LAB STOCK\LAB STOCK";
+        private readonly string archivePath = @"\\oh1cam01\cml\Internal\LAB STOCK\Archive";
+        private readonly string shippedDirectory = @"\\oh1cam01\cml\Internal\LAB STOCK\Orders shipped";
+        private readonly string fileScansDirectory = @"C:\Tfile";
+        private readonly string inventoryArchiveDirectory = @"\\oh1cam01\cml\Internal\LAB STOCK\Physical Inventory Archive";
 
         public InstallerForm()
         {
@@ -606,8 +606,11 @@ namespace AIM.Installer
                     }
 
                     // Run Deploy-AIM.ps1 to configure paths and directories
-                    LogMessage("Running deployment configuration (Deploy-AIM.ps1)...");
-                    RunDeployScript();
+                    // NOTE: This script only creates directories and doesn't modify settings.json
+                    // The settings are now written directly by WriteInstallerSettings() method.
+                    // Commenting out to avoid unnecessary execution, but keeping the code for reference.
+                    // LogMessage("Running deployment configuration (Deploy-AIM.ps1)...");
+                    // RunDeployScript();
 
                     LogMessage("Installation completed successfully!");
                     installationComplete = true;
@@ -743,11 +746,11 @@ namespace AIM.Installer
                     "-ExecutionPolicy", "Bypass",
                     "-File", $"\"{scriptPath}\"",
                     "-AIMInstallPath", $"\"{installPath}\"",
-                    "-DefaultRootDirectory", $"\"{DEFAULT_ROOT_DIRECTORY}\"",
-                    "-ArchivePath", $"\"{ARCHIVE_PATH}\"",
-                    "-ShippedDirectory", $"\"{SHIPPED_DIRECTORY}\"",
-                    "-FileScansDirectory", $"\"{FILE_SCANS_DIRECTORY}\"",
-                    "-InventoryArchiveDirectory", $"\"{INVENTORY_ARCHIVE_DIRECTORY}\""
+                    "-DefaultRootDirectory", $"\"{defaultRootDirectory}\"",
+                    "-ArchivePath", $"\"{archivePath}\"",
+                    "-ShippedDirectory", $"\"{shippedDirectory}\"",
+                    "-FileScansDirectory", $"\"{fileScansDirectory}\"",
+                    "-InventoryArchiveDirectory", $"\"{inventoryArchiveDirectory}\""
                 };
 
                 // Add shared security parameters if configured
@@ -890,25 +893,27 @@ namespace AIM.Installer
         /// <summary>
         /// Writes the installer settings to the user's LocalAppData folder.
         /// This includes the shared security path and obfuscated passphrase.
+        /// The path matches where SettingsService expects to find settings.json for WinUI3 apps.
         /// </summary>
         private void WriteInstallerSettings()
         {
             try
             {
                 var localAppData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
-                var aimConfigDir = Path.Combine(localAppData, "AIM");
+                // WinUI3 apps use this path structure for ApplicationData.Current.LocalFolder
+                var aimConfigDir = Path.Combine(localAppData, "Microsoft.WinUI.3", "AIM", "LocalState");
                 Directory.CreateDirectory(aimConfigDir);
 
                 var settingsPath = Path.Combine(aimConfigDir, "settings.json");
                 
-                // Create complete AppSettings object with network paths
+                // Create complete AppSettings object with network paths as defaults
                 var settings = new Dictionary<string, object>
                 {
-                    { "DefaultRootDirectory", DEFAULT_ROOT_DIRECTORY },
-                    { "ArchivePath", ARCHIVE_PATH },
-                    { "ShippedDirectory", SHIPPED_DIRECTORY },
-                    { "FileScansDirectory", FILE_SCANS_DIRECTORY },
-                    { "InventoryArchiveDirectory", INVENTORY_ARCHIVE_DIRECTORY },
+                    { "DefaultRootDirectory", defaultRootDirectory },
+                    { "ArchivePath", archivePath },
+                    { "ShippedDirectory", shippedDirectory },
+                    { "FileScansDirectory", fileScansDirectory },
+                    { "InventoryArchiveDirectory", inventoryArchiveDirectory },
                     { "SecurityConfigPath", "" },
                     { "Theme", "FollowSystem" },
                     { "Password", "" },
