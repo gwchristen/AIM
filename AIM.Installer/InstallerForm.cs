@@ -1,11 +1,13 @@
 using System;
 using System.Collections.Generic;
+using System.Data.SQLite;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
 using System.Reflection;
+using System.Security.Cryptography;
 using System.Text;
 using System.Windows.Forms;
 
@@ -60,6 +62,15 @@ namespace AIM.Installer
         private const string FileScansDirectory = @"C:\Tfile";
         private const string InventoryArchiveDirectory = @"\\oh1cam01\cml\Internal\LAB STOCK\Physical Inventory Archive";
         private const string SecurityDatabasePath = @"\\oh1cam01\cml\Internal\LAB STOCK\Important Inventory Related Documents\AIM\AIM_Security.db";
+
+        // Hardcoded SuperAdmin credentials - baked into installer
+        // SECURITY NOTE: These credentials are intentionally hardcoded per requirements.
+        // The installer is designed for internal deployment where source code access is controlled.
+        // These credentials provide initial access to create additional admin users.
+        // Organizations should change the SuperAdmin password after installation and create
+        // individual user accounts for proper access control and audit logging.
+        private const string SuperAdminUsername = "AIMAdmin";
+        private const string SuperAdminPassword = "AIM@2025!SecurePass";
 
         public InstallerForm()
         {
@@ -462,6 +473,10 @@ namespace AIM.Installer
                     LogMessage("Writing installer settings...");
                     WriteInstallerSettings();
 
+                    // Initialize security database with SuperAdmin account
+                    LogMessage("Initializing security database...");
+                    CreateSecurityDatabase();
+
                     // Create shortcuts
                     if (desktopShortcutCheckBox.Checked)
                     {
@@ -642,6 +657,194 @@ namespace AIM.Installer
             catch (Exception ex)
             {
                 LogMessage($"Warning: Could not write installer settings: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// Creates and initializes the security database with the baked-in SuperAdmin account.
+        /// The database is created at the hardcoded SecurityDatabasePath location.
+        /// </summary>
+        private void CreateSecurityDatabase()
+        {
+            try
+            {
+                // Ensure the directory exists
+                var directory = Path.GetDirectoryName(SecurityDatabasePath);
+                if (string.IsNullOrEmpty(directory))
+                {
+                    LogMessage("Warning: Invalid security database path");
+                    return;
+                }
+
+                // Check if network path is accessible
+                if (!Directory.Exists(directory))
+                {
+                    LogMessage("Creating security database directory...");
+                    try
+                    {
+                        Directory.CreateDirectory(directory);
+                    }
+                    catch (Exception ex)
+                    {
+                        LogMessage($"Warning: Could not create security database directory: {ex.Message}");
+                        LogMessage("Security database will need to be initialized manually.");
+                        return;
+                    }
+                }
+
+                // Create connection string
+                var connectionString = $"Data Source={SecurityDatabasePath};Version=3;";
+
+                LogMessage("Initializing security database...");
+
+                using (var connection = new SQLiteConnection(connectionString))
+                {
+                    connection.Open();
+
+                    // Create tables
+                    string createTablesScript = @"
+                        CREATE TABLE IF NOT EXISTS AuthorizedUsers (
+                            ID INTEGER PRIMARY KEY AUTOINCREMENT,
+                            Username TEXT NOT NULL UNIQUE COLLATE NOCASE,
+                            FullName TEXT,
+                            Department TEXT,
+                            AccessLevel INTEGER DEFAULT 1,
+                            IsActive BOOLEAN DEFAULT 1,
+                            CreatedBy TEXT,
+                            CreatedDate DATETIME DEFAULT CURRENT_TIMESTAMP,
+                            ModifiedBy TEXT,
+                            ModifiedDate DATETIME DEFAULT CURRENT_TIMESTAMP
+                        );
+
+                        CREATE TABLE IF NOT EXISTS SecuritySettings (
+                            Key TEXT PRIMARY KEY,
+                            Value TEXT NOT NULL,
+                            ModifiedBy TEXT,
+                            ModifiedDate DATETIME DEFAULT CURRENT_TIMESTAMP
+                        );
+
+                        CREATE TABLE IF NOT EXISTS SecurityAuditLog (
+                            ID INTEGER PRIMARY KEY AUTOINCREMENT,
+                            Action TEXT NOT NULL,
+                            TargetUser TEXT,
+                            ModifiedBy TEXT NOT NULL,
+                            Details TEXT,
+                            Timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
+                        );
+                    ";
+
+                    using (var command = new SQLiteCommand(createTablesScript, connection))
+                    {
+                        command.ExecuteNonQuery();
+                    }
+
+                    LogMessage("Security database schema created successfully.");
+
+                    // Check if SuperAdmin already exists
+                    string checkUserQuery = "SELECT COUNT(*) FROM AuthorizedUsers WHERE Username = @Username COLLATE NOCASE";
+                    using (var checkCommand = new SQLiteCommand(checkUserQuery, connection))
+                    {
+                        checkCommand.Parameters.AddWithValue("@Username", SuperAdminUsername);
+                        var count = Convert.ToInt32(checkCommand.ExecuteScalar());
+
+                        if (count == 0)
+                        {
+                            // Insert SuperAdmin user
+                            string insertUserQuery = @"
+                                INSERT INTO AuthorizedUsers (Username, FullName, Department, AccessLevel, IsActive, CreatedBy, ModifiedBy, CreatedDate, ModifiedDate)
+                                VALUES (@Username, @FullName, @Department, @AccessLevel, @IsActive, @CreatedBy, @ModifiedBy, @CreatedDate, @ModifiedDate)
+                            ";
+
+                            using (var insertCommand = new SQLiteCommand(insertUserQuery, connection))
+                            {
+                                insertCommand.Parameters.AddWithValue("@Username", SuperAdminUsername);
+                                insertCommand.Parameters.AddWithValue("@FullName", "AIM Super Administrator");
+                                insertCommand.Parameters.AddWithValue("@Department", "System");
+                                insertCommand.Parameters.AddWithValue("@AccessLevel", 3); // SuperAdmin level
+                                insertCommand.Parameters.AddWithValue("@IsActive", true);
+                                insertCommand.Parameters.AddWithValue("@CreatedBy", "Installer");
+                                insertCommand.Parameters.AddWithValue("@ModifiedBy", "Installer");
+                                insertCommand.Parameters.AddWithValue("@CreatedDate", DateTime.UtcNow);
+                                insertCommand.Parameters.AddWithValue("@ModifiedDate", DateTime.UtcNow);
+
+                                insertCommand.ExecuteNonQuery();
+                            }
+
+                            LogMessage($"SuperAdmin account created: {SuperAdminUsername}");
+
+                            // Log the action
+                            string logQuery = @"
+                                INSERT INTO SecurityAuditLog (Action, TargetUser, ModifiedBy, Details, Timestamp)
+                                VALUES (@Action, @TargetUser, @ModifiedBy, @Details, @Timestamp)
+                            ";
+
+                            using (var logCommand = new SQLiteCommand(logQuery, connection))
+                            {
+                                logCommand.Parameters.AddWithValue("@Action", "INITIAL_SETUP");
+                                logCommand.Parameters.AddWithValue("@TargetUser", SuperAdminUsername);
+                                logCommand.Parameters.AddWithValue("@ModifiedBy", "Installer");
+                                logCommand.Parameters.AddWithValue("@Details", "SuperAdmin account created during installation");
+                                logCommand.Parameters.AddWithValue("@Timestamp", DateTime.UtcNow);
+
+                                logCommand.ExecuteNonQuery();
+                            }
+                        }
+                        else
+                        {
+                            LogMessage("SuperAdmin account already exists.");
+                        }
+                    }
+
+                    // Store the master password hash
+                    string passwordHash = HashPassword(SuperAdminPassword);
+                    string upsertPasswordQuery = @"
+                        INSERT OR REPLACE INTO SecuritySettings (Key, Value, ModifiedBy, ModifiedDate)
+                        VALUES (@Key, @Value, @ModifiedBy, @ModifiedDate)
+                    ";
+
+                    using (var passwordCommand = new SQLiteCommand(upsertPasswordQuery, connection))
+                    {
+                        passwordCommand.Parameters.AddWithValue("@Key", "MasterPasswordHash");
+                        passwordCommand.Parameters.AddWithValue("@Value", passwordHash);
+                        passwordCommand.Parameters.AddWithValue("@ModifiedBy", "Installer");
+                        passwordCommand.Parameters.AddWithValue("@ModifiedDate", DateTime.UtcNow);
+
+                        passwordCommand.ExecuteNonQuery();
+                    }
+
+                    LogMessage("Master password configured successfully.");
+                }
+
+                LogMessage("Security database initialized successfully.");
+            }
+            catch (Exception ex)
+            {
+                LogMessage($"Warning: Could not initialize security database: {ex.Message}");
+                LogMessage("Security database will need to be initialized manually.");
+            }
+        }
+
+        /// <summary>
+        /// Hashes a password using SHA256 with a fixed salt.
+        /// This is a simple hash for the installer - the application uses more secure methods.
+        /// Note: The salt is fixed because we need deterministic hashes for the hardcoded password.
+        /// </summary>
+        private string HashPassword(string password)
+        {
+            // Use a fixed salt for deterministic hashing of the hardcoded password
+            // This allows verification against the same hash each time
+            byte[] salt = Encoding.UTF8.GetBytes("AIM-Security-Salt-2025");
+            
+            using (var sha256 = SHA256.Create())
+            {
+                var passwordBytes = Encoding.UTF8.GetBytes(password);
+                var saltedPassword = new byte[passwordBytes.Length + salt.Length];
+                
+                Buffer.BlockCopy(passwordBytes, 0, saltedPassword, 0, passwordBytes.Length);
+                Buffer.BlockCopy(salt, 0, saltedPassword, passwordBytes.Length, salt.Length);
+                
+                var hash = sha256.ComputeHash(saltedPassword);
+                return Convert.ToBase64String(hash);
             }
         }
     }
