@@ -326,11 +326,6 @@ public class SecurityService
     /// </list>
     /// </summary>
     /// <returns>A task representing the asynchronous initialization operation.</returns>
-    /// <summary>
-    /// Asynchronously initializes the security service by loading the encrypted security configuration.
-    /// Checks for shared network config first, then user-specific config, to allow centralized management.
-    /// Also initializes the database security service if configured.
-    /// </summary>
     public async Task InitializeAsync()
     {
         try
