@@ -25,13 +25,25 @@ namespace AIM.Installer
                     Directory.CreateDirectory(directory);
                 }
 
-                // If database already exists, delete it to start fresh
+                // Only create database if it doesn't already exist
                 if (File.Exists(databasePath))
                 {
-                    File.Delete(databasePath);
+                    // Database exists - verify it has correct schema but don't recreate
+                    if (VerifyDatabase(databasePath))
+                    {
+                        // Database is valid, don't recreate it
+                        return;
+                    }
+                    else
+                    {
+                        // Database exists but is invalid, back it up before recreating
+                        var backupPath = $"{databasePath}.backup.{DateTime.Now:yyyyMMdd_HHmmss}";
+                        File.Copy(databasePath, backupPath);
+                        File.Delete(databasePath);
+                    }
                 }
 
-                // Create the database file
+                // Create the database file (only if it didn't exist or was invalid)
                 SQLiteConnection.CreateFile(databasePath);
 
                 using var connection = new SQLiteConnection($"Data Source={databasePath};Version=3;");
