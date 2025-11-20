@@ -73,6 +73,13 @@ namespace AIM.Installer
         private string? sharedSecurityPath = null;
         private bool installationComplete = false;
 
+        // Network path constants for deployment
+        private const string DEFAULT_ROOT_DIRECTORY = @"\\oh1cam01\cml\Internal\LAB STOCK\LAB STOCK";
+        private const string ARCHIVE_PATH = @"\\oh1cam01\cml\Internal\LAB STOCK\Archive";
+        private const string SHIPPED_DIRECTORY = @"\\oh1cam01\cml\Internal\LAB STOCK\Orders shipped";
+        private const string FILE_SCANS_DIRECTORY = @"C:\Tfile";
+        private const string INVENTORY_ARCHIVE_DIRECTORY = @"\\oh1cam01\cml\Internal\LAB STOCK\Physical Inventory Archive";
+
         public InstallerForm()
         {
             InitializeComponent();
@@ -572,12 +579,12 @@ namespace AIM.Installer
                     CopyDeployScript();
 
                     // Write installer settings to user's LocalAppData
+                    LogMessage("Writing installer settings...");
+                    WriteInstallerSettings();
+                    
+                    // Create security-config.ini if shared security is configured
                     if (!string.IsNullOrWhiteSpace(sharedSecurityPath))
                     {
-                        LogMessage("Writing installer settings...");
-                        WriteInstallerSettings();
-                        
-                        // Create security-config.ini
                         LogMessage("Creating security config file...");
                         CreateSecurityConfigIni();
                     }
@@ -598,12 +605,9 @@ namespace AIM.Installer
                         CreateShortcut(startMenuPath, "AIM");
                     }
 
-                    // Run Deploy-AIM.ps1 if shared security is configured (optional/for completeness)
-                    if (!string.IsNullOrWhiteSpace(sharedSecurityPath))
-                    {
-                        LogMessage("Configuring shared security (Deploy-AIM.ps1)...");
-                        RunDeployScript();
-                    }
+                    // Run Deploy-AIM.ps1 to configure paths and directories
+                    LogMessage("Running deployment configuration (Deploy-AIM.ps1)...");
+                    RunDeployScript();
 
                     LogMessage("Installation completed successfully!");
                     installationComplete = true;
@@ -724,9 +728,6 @@ namespace AIM.Installer
 
         private void RunDeployScript()
         {
-            if (string.IsNullOrWhiteSpace(sharedSecurityPath))
-                return;
-
             try
             {
                 var scriptPath = Path.Combine(installPath, "Deploy-AIM.ps1");
@@ -736,24 +737,31 @@ namespace AIM.Installer
                     return;
                 }
 
-                // Use the embedded passphrase instead of prompting
-                string passphrase = DeobfuscatePassphrase(ObfuscatedPassphrase);
-                LogMessage("Using embedded passphrase for deployment script...");
-
-                // Build PowerShell arguments
+                // Build PowerShell arguments with network paths
                 var arguments = new List<string>
                 {
                     "-ExecutionPolicy", "Bypass",
                     "-File", $"\"{scriptPath}\"",
                     "-AIMInstallPath", $"\"{installPath}\"",
-                    "-SharedSecurityPath", $"\"{sharedSecurityPath}\"",
-                    "-Passphrase", $"\"{passphrase}\"",
-                    "-DefaultRootDirectory", $"\"{Path.Combine(installPath, "Data")}\"",
-                    "-ArchivePath", $"\"{Path.Combine(installPath, "Archive")}\"",
-                    "-ShippedDirectory", $"\"{Path.Combine(installPath, "Shipped")}\"",
-                    "-FileScansDirectory", $"\"{Path.Combine(installPath, "FileScans")}\"",
-                    "-InventoryArchiveDirectory", $"\"{Path.Combine(installPath, "InventoryArchive")}\""
+                    "-DefaultRootDirectory", $"\"{DEFAULT_ROOT_DIRECTORY}\"",
+                    "-ArchivePath", $"\"{ARCHIVE_PATH}\"",
+                    "-ShippedDirectory", $"\"{SHIPPED_DIRECTORY}\"",
+                    "-FileScansDirectory", $"\"{FILE_SCANS_DIRECTORY}\"",
+                    "-InventoryArchiveDirectory", $"\"{INVENTORY_ARCHIVE_DIRECTORY}\""
                 };
+
+                // Add shared security parameters if configured
+                if (!string.IsNullOrWhiteSpace(sharedSecurityPath))
+                {
+                    // Use the embedded passphrase instead of prompting
+                    string passphrase = DeobfuscatePassphrase(ObfuscatedPassphrase);
+                    LogMessage("Using shared security configuration with embedded passphrase...");
+                    
+                    arguments.Add("-SharedSecurityPath");
+                    arguments.Add($"\"{sharedSecurityPath}\"");
+                    arguments.Add("-Passphrase");
+                    arguments.Add($"\"{passphrase}\"");
+                }
 
                 var psi = new ProcessStartInfo
                 {
@@ -893,14 +901,14 @@ namespace AIM.Installer
 
                 var settingsPath = Path.Combine(aimConfigDir, "settings.json");
                 
-                // Create complete AppSettings object with all required properties
+                // Create complete AppSettings object with network paths
                 var settings = new Dictionary<string, object>
                 {
-                    { "DefaultRootDirectory", Path.Combine(installPath, "Data") },
-                    { "ArchivePath", Path.Combine(installPath, "Archive") },
-                    { "ShippedDirectory", Path.Combine(installPath, "Shipped") },
-                    { "FileScansDirectory", Path.Combine(installPath, "FileScans") },
-                    { "InventoryArchiveDirectory", Path.Combine(installPath, "InventoryArchive") },
+                    { "DefaultRootDirectory", DEFAULT_ROOT_DIRECTORY },
+                    { "ArchivePath", ARCHIVE_PATH },
+                    { "ShippedDirectory", SHIPPED_DIRECTORY },
+                    { "FileScansDirectory", FILE_SCANS_DIRECTORY },
+                    { "InventoryArchiveDirectory", INVENTORY_ARCHIVE_DIRECTORY },
                     { "SecurityConfigPath", "" },
                     { "Theme", "FollowSystem" },
                     { "Password", "" },

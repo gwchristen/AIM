@@ -33,7 +33,7 @@ param (
     [Parameter(Mandatory = $true)]
     [string]$AIMInstallPath = "C:\Program Files\AIM",
 
-    [Parameter(Mandatory = $true)]
+    [Parameter(Mandatory = $false)]
     [string]$SharedSecurityPath = "\\oh1cam01\cml\Internal\LAB STOCK\Important Inventory Related Documents\AIM\AIM_Security",
 
     [Parameter(Mandatory = $false)]
@@ -71,13 +71,17 @@ function Validate-And-Create-Directory {
 # Validate and create necessary directories
 $directories = @(
     $AIMInstallPath,
-    $SharedSecurityPath,
     $DefaultRootDirectory,
     $ArchivePath,
     $ShippedDirectory,
     $FileScansDirectory,
     $InventoryArchiveDirectory
 )
+
+# Add SharedSecurityPath only if provided
+if (-not [string]::IsNullOrWhiteSpace($SharedSecurityPath)) {
+    $directories += $SharedSecurityPath
+}
 
 foreach ($dir in $directories) {
     Validate-And-Create-Directory -path $dir
@@ -86,11 +90,15 @@ foreach ($dir in $directories) {
 # Summary of the configuration
 Write-Host "Configuration Summary:" 
 Write-Host "AIM Install Path: $AIMInstallPath" 
-Write-Host "Shared Security Path: $SharedSecurityPath" 
-if ($Passphrase) {
-    Write-Host "Passphrase: ********** (provided - will use passphrase-based encryption)"
+if (-not [string]::IsNullOrWhiteSpace($SharedSecurityPath)) {
+    Write-Host "Shared Security Path: $SharedSecurityPath" 
+    if ($Passphrase) {
+        Write-Host "Passphrase: ********** (provided - will use passphrase-based encryption)"
+    } else {
+        Write-Host "Passphrase: (not provided - will use DPAPI encryption)"
+    }
 } else {
-    Write-Host "Passphrase: (not provided - will use DPAPI encryption)"
+    Write-Host "Shared Security Path: (not configured - using local security)"
 }
 Write-Host "Default Root Directory: $DefaultRootDirectory" 
 Write-Host "Archive Path: $ArchivePath" 
