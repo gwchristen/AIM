@@ -16,18 +16,6 @@ namespace AIM.Installer
     /// </summary>
     public class InstallerForm : Form
     {
-        // SECURITY NOTE: This passphrase is obfuscated but NOT cryptographically protected.
-        // It can be extracted by examining the installer binary or memory.
-        // This obfuscation only prevents casual discovery.
-        // For production deployments, consider using Azure Key Vault, domain certificates,
-        // or other enterprise secret management solutions.
-        
-        // Obfuscated passphrase constant (XOR with key + Base64)
-        // Original passphrase should be set during build process
-        // Example: "MySecureP@ssphrase2024!" would be obfuscated
-        // This value was generated using PassphraseObfuscationExample.cs with the correct XOR key
-        private const string ObfuscatedPassphrase = "6EUt9CGNH071fA3iMpAfStZZTKFwzEw=";
-        
         // UI Controls
         private Panel topPanel;
         private Label titleLabel;
@@ -50,12 +38,6 @@ namespace AIM.Installer
         private CheckBox desktopShortcutCheckBox;
         private CheckBox startMenuShortcutCheckBox;
 
-        // Shared Security Path Page Controls
-        private Label sharedSecurityLabel;
-        private CheckBox enableSharedSecurityCheckBox;
-        private TextBox sharedSecurityPathTextBox;
-        private Button browseSharedSecurityButton;
-
         // Progress Page Controls
         private Label progressLabel;
         private RichTextBox logTextBox;
@@ -65,12 +47,10 @@ namespace AIM.Installer
         private int currentStep = 0;
         private const int STEP_WELCOME = 0;
         private const int STEP_INSTALL_PATH = 1;
-        private const int STEP_SHARED_SECURITY = 2;
-        private const int STEP_PROGRESS = 3;
-        private const int STEP_COMPLETE = 4;
+        private const int STEP_PROGRESS = 2;
+        private const int STEP_COMPLETE = 3;
 
         private string installPath = @"C:\Program Files\AIM";
-        private string? sharedSecurityPath = null;
         private bool installationComplete = false;
 
         // Default network paths (can be changed by users in the AIM application)
@@ -108,12 +88,6 @@ namespace AIM.Installer
             this.browseButton = new Button();
             this.desktopShortcutCheckBox = new CheckBox();
             this.startMenuShortcutCheckBox = new CheckBox();
-
-            // Shared Security Page
-            this.sharedSecurityLabel = new Label();
-            this.enableSharedSecurityCheckBox = new CheckBox();
-            this.sharedSecurityPathTextBox = new TextBox();
-            this.browseSharedSecurityButton = new Button();
 
             // Progress Page
             this.progressLabel = new Label();
@@ -223,7 +197,6 @@ namespace AIM.Installer
 
             InitializeWelcomePage();
             InitializeInstallPathPage();
-            InitializeSharedSecurityPage();
             InitializeProgressPage();
         }
 
@@ -303,48 +276,6 @@ namespace AIM.Installer
             this.startMenuShortcutCheckBox.UseVisualStyleBackColor = true;
         }
 
-        private void InitializeSharedSecurityPage()
-        {
-            // sharedSecurityLabel
-            this.sharedSecurityLabel.Location = new Point(30, 40);
-            this.sharedSecurityLabel.Name = "sharedSecurityLabel";
-            this.sharedSecurityLabel.Size = new Size(540, 60);
-            this.sharedSecurityLabel.TabIndex = 0;
-            this.sharedSecurityLabel.Text = 
-                "Shared Security Configuration (Optional)\n\n" +
-                "You can optionally configure a shared security path for centralized authentication.\n" +
-                "If you skip this step, AIM will use local security settings.";
-
-            // enableSharedSecurityCheckBox
-            this.enableSharedSecurityCheckBox.AutoSize = true;
-            this.enableSharedSecurityCheckBox.Location = new Point(30, 110);
-            this.enableSharedSecurityCheckBox.Name = "enableSharedSecurityCheckBox";
-            this.enableSharedSecurityCheckBox.Size = new Size(250, 19);
-            this.enableSharedSecurityCheckBox.TabIndex = 1;
-            this.enableSharedSecurityCheckBox.Text = "Enable shared security configuration";
-            this.enableSharedSecurityCheckBox.UseVisualStyleBackColor = true;
-            this.enableSharedSecurityCheckBox.CheckedChanged += EnableSharedSecurityCheckBox_CheckedChanged;
-
-            // sharedSecurityPathTextBox
-            this.sharedSecurityPathTextBox.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
-            this.sharedSecurityPathTextBox.Enabled = false;
-            this.sharedSecurityPathTextBox.Location = new Point(30, 140);
-            this.sharedSecurityPathTextBox.Name = "sharedSecurityPathTextBox";
-            this.sharedSecurityPathTextBox.Size = new Size(450, 23);
-            this.sharedSecurityPathTextBox.TabIndex = 2;
-
-            // browseSharedSecurityButton
-            this.browseSharedSecurityButton.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-            this.browseSharedSecurityButton.Enabled = false;
-            this.browseSharedSecurityButton.Location = new Point(490, 139);
-            this.browseSharedSecurityButton.Name = "browseSharedSecurityButton";
-            this.browseSharedSecurityButton.Size = new Size(80, 25);
-            this.browseSharedSecurityButton.TabIndex = 3;
-            this.browseSharedSecurityButton.Text = "Browse...";
-            this.browseSharedSecurityButton.UseVisualStyleBackColor = true;
-            this.browseSharedSecurityButton.Click += BrowseSharedSecurityButton_Click;
-        }
-
         private void InitializeProgressPage()
         {
             // progressLabel
@@ -408,18 +339,6 @@ namespace AIM.Installer
                     contentPanel.Controls.Add(startMenuShortcutCheckBox);
                     backButton.Enabled = true;
                     nextButton.Enabled = true;
-                    nextButton.Text = "Next >";
-                    break;
-
-                case STEP_SHARED_SECURITY:
-                    titleLabel.Text = "Shared Security";
-                    descriptionLabel.Text = "Configure optional shared security settings";
-                    contentPanel.Controls.Add(sharedSecurityLabel);
-                    contentPanel.Controls.Add(enableSharedSecurityCheckBox);
-                    contentPanel.Controls.Add(sharedSecurityPathTextBox);
-                    contentPanel.Controls.Add(browseSharedSecurityButton);
-                    backButton.Enabled = true;
-                    nextButton.Enabled = true;
                     nextButton.Text = "Install";
                     break;
 
@@ -468,23 +387,6 @@ namespace AIM.Installer
                     MessageBox.Show("Please select an installation directory.", "Validation Error",
                         MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     return;
-                }
-            }
-            else if (currentStep == STEP_SHARED_SECURITY)
-            {
-                if (enableSharedSecurityCheckBox.Checked)
-                {
-                    sharedSecurityPath = sharedSecurityPathTextBox.Text.Trim();
-                    if (string.IsNullOrWhiteSpace(sharedSecurityPath))
-                    {
-                        MessageBox.Show("Please select a shared security path or disable the option.", "Validation Error",
-                            MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                        return;
-                    }
-                }
-                else
-                {
-                    sharedSecurityPath = null;
                 }
             }
             else if (currentStep == STEP_COMPLETE)
@@ -537,25 +439,6 @@ namespace AIM.Installer
             }
         }
 
-        private void BrowseSharedSecurityButton_Click(object? sender, EventArgs e)
-        {
-            using (var dialog = new FolderBrowserDialog())
-            {
-                dialog.Description = "Select shared security directory";
-                dialog.SelectedPath = sharedSecurityPathTextBox.Text;
-                if (dialog.ShowDialog() == DialogResult.OK)
-                {
-                    sharedSecurityPathTextBox.Text = dialog.SelectedPath;
-                }
-            }
-        }
-
-        private void EnableSharedSecurityCheckBox_CheckedChanged(object? sender, EventArgs e)
-        {
-            sharedSecurityPathTextBox.Enabled = enableSharedSecurityCheckBox.Checked;
-            browseSharedSecurityButton.Enabled = enableSharedSecurityCheckBox.Checked;
-        }
-
         private void PerformInstallation()
         {
             // Run installation on background thread to avoid freezing UI
@@ -581,13 +464,6 @@ namespace AIM.Installer
                     // Write installer settings to user's LocalAppData
                     LogMessage("Writing installer settings...");
                     WriteInstallerSettings();
-                    
-                    // Create security-config.ini if shared security is configured
-                    if (!string.IsNullOrWhiteSpace(sharedSecurityPath))
-                    {
-                        LogMessage("Creating security config file...");
-                        CreateSecurityConfigIni();
-                    }
 
                     // Create shortcuts
                     if (desktopShortcutCheckBox.Checked)
@@ -605,12 +481,9 @@ namespace AIM.Installer
                         CreateShortcut(startMenuPath, "AIM");
                     }
 
-                    // Run Deploy-AIM.ps1 to configure paths and directories
-                    // NOTE: This script only creates directories and doesn't modify settings.json
-                    // The settings are now written directly by WriteInstallerSettings() method.
-                    // Commenting out to avoid unnecessary execution, but keeping the code for reference.
-                    // LogMessage("Running deployment configuration (Deploy-AIM.ps1)...");
-                    // RunDeployScript();
+                    // Run Deploy-AIM.ps1 to create network directories
+                    LogMessage("Running deployment configuration (Deploy-AIM.ps1)...");
+                    RunDeployScript();
 
                     LogMessage("Installation completed successfully!");
                     installationComplete = true;
@@ -753,19 +626,6 @@ namespace AIM.Installer
                     "-InventoryArchiveDirectory", $"\"{inventoryArchiveDirectory}\""
                 };
 
-                // Add shared security parameters if configured
-                if (!string.IsNullOrWhiteSpace(sharedSecurityPath))
-                {
-                    // Use the embedded passphrase instead of prompting
-                    string passphrase = DeobfuscatePassphrase(ObfuscatedPassphrase);
-                    LogMessage("Using shared security configuration with embedded passphrase...");
-                    
-                    arguments.Add("-SharedSecurityPath");
-                    arguments.Add($"\"{sharedSecurityPath}\"");
-                    arguments.Add("-Passphrase");
-                    arguments.Add($"\"{passphrase}\"");
-                }
-
                 var psi = new ProcessStartInfo
                 {
                     FileName = "powershell.exe",
@@ -841,72 +701,21 @@ namespace AIM.Installer
         }
 
         /// <summary>
-        /// Obfuscates a passphrase using simple XOR with a key and Base64 encoding.
-        /// WARNING: This is obfuscation, NOT encryption. It only prevents casual discovery.
-        /// </summary>
-        /// <param name="passphrase">The passphrase to obfuscate</param>
-        /// <returns>The obfuscated passphrase as a Base64 string</returns>
-        private string ObfuscatePassphrase(string passphrase)
-        {
-            // Simple XOR key - must match the one used in SecurityService
-            byte[] xorKey = new byte[] { 0xA5, 0x3C, 0x7E, 0x91, 0x42, 0xF8, 0x6D, 0x2B };
-            
-            byte[] data = Encoding.UTF8.GetBytes(passphrase);
-            for (int i = 0; i < data.Length; i++)
-            {
-                data[i] ^= xorKey[i % xorKey.Length];
-            }
-            
-            return Convert.ToBase64String(data);
-        }
-
-        /// <summary>
-        /// Deobfuscates a passphrase that was obfuscated with ObfuscatePassphrase.
-        /// </summary>
-        /// <param name="obfuscated">The obfuscated passphrase string</param>
-        /// <returns>The original passphrase</returns>
-        private string DeobfuscatePassphrase(string obfuscated)
-        {
-            if (string.IsNullOrEmpty(obfuscated))
-                return string.Empty;
-
-            try
-            {
-                // Simple XOR key - must match the one used in SecurityService
-                byte[] xorKey = new byte[] { 0xA5, 0x3C, 0x7E, 0x91, 0x42, 0xF8, 0x6D, 0x2B };
-                
-                byte[] data = Convert.FromBase64String(obfuscated);
-                for (int i = 0; i < data.Length; i++)
-                {
-                    data[i] ^= xorKey[i % xorKey.Length];
-                }
-                
-                return Encoding.UTF8.GetString(data);
-            }
-            catch (Exception ex)
-            {
-                LogMessage($"Warning: Could not deobfuscate passphrase: {ex.Message}");
-                return string.Empty;
-            }
-        }
-
-        /// <summary>
         /// Writes the installer settings to the user's LocalAppData folder.
-        /// This includes the shared security path and obfuscated passphrase.
-        /// The path matches where SettingsService expects to find settings.json for WinUI3 apps.
+        /// The path matches where SettingsService expects to find settings.json.
         /// </summary>
         private void WriteInstallerSettings()
         {
             try
             {
                 var localAppData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
-                // WinUI3 apps use this path structure for ApplicationData.Current.LocalFolder
-                var aimConfigDir = Path.Combine(localAppData, "Microsoft.WinUI.3", "AIM", "LocalState");
+                // Simplified path for AIM settings
+                var aimConfigDir = Path.Combine(localAppData, "AIM");
                 Directory.CreateDirectory(aimConfigDir);
 
                 var settingsPath = Path.Combine(aimConfigDir, "settings.json");
                 
-                // Create complete AppSettings object with network paths as defaults
+                // Create simplified AppSettings object with network paths as defaults
                 var settings = new Dictionary<string, object>
                 {
                     { "DefaultRootDirectory", defaultRootDirectory },
@@ -914,20 +723,10 @@ namespace AIM.Installer
                     { "ShippedDirectory", shippedDirectory },
                     { "FileScansDirectory", fileScansDirectory },
                     { "InventoryArchiveDirectory", inventoryArchiveDirectory },
-                    { "SecurityConfigPath", "" },
                     { "Theme", "FollowSystem" },
-                    { "Password", "" },
                     { "AuthorizedUsers", new string[] { } },
-                    { "IsInitialPasswordSet", true },
-                    { "UseSharedConfig", !string.IsNullOrWhiteSpace(sharedSecurityPath) },
-                    { "SharedSecurityConfigPath", sharedSecurityPath ?? "" },
-                    { "Passphrase", !string.IsNullOrWhiteSpace(sharedSecurityPath) ? ObfuscatedPassphrase : "" }
+                    { "IsInitialPasswordSet", false }
                 };
-
-                if (!string.IsNullOrWhiteSpace(sharedSecurityPath))
-                {
-                    LogMessage("Writing passphrase to settings (obfuscated)...");
-                }
 
                 // Write settings as JSON
                 var json = System.Text.Json.JsonSerializer.Serialize(settings, new System.Text.Json.JsonSerializerOptions 
@@ -941,31 +740,6 @@ namespace AIM.Installer
             catch (Exception ex)
             {
                 LogMessage($"Warning: Could not write installer settings: {ex.Message}");
-            }
-        }
-
-        /// <summary>
-        /// Creates a security-config.ini file in the installation directory
-        /// pointing to the shared security path.
-        /// </summary>
-        private void CreateSecurityConfigIni()
-        {
-            if (string.IsNullOrWhiteSpace(sharedSecurityPath))
-                return;
-
-            try
-            {
-                var configIniPath = Path.Combine(installPath, "security-config.ini");
-                var content = $"# AIM Shared Security Configuration\r\n" +
-                             $"# This file points to the centralized security configuration\r\n" +
-                             $"SharedSecurityPath={sharedSecurityPath}\r\n";
-                
-                File.WriteAllText(configIniPath, content);
-                LogMessage($"Created security-config.ini at: {configIniPath}");
-            }
-            catch (Exception ex)
-            {
-                LogMessage($"Warning: Could not create security-config.ini: {ex.Message}");
             }
         }
     }
