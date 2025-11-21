@@ -654,15 +654,16 @@ Since AIM is a WinUI 3 application, manual testing is the primary testing method
 6. Test undo (if applicable)
 
 **Security**:
-1. Clear security configuration
-2. Launch app (should prompt for password setup)
-3. Set a weak password (should reject)
-4. Set a strong password (should accept)
-5. Restart app and validate password
-6. Test incorrect password (should reject)
-7. Test 5 failed attempts (should lock out)
-8. Add authorized user
-9. Test authorized user access
+1. Verify user is in authorized users database
+2. Check user's access level is correct
+3. Test Basic user cannot access Admin features
+4. Test Admin user can manage other users
+5. Test SuperAdmin has full access
+6. Add new user through UI
+7. Edit user's access level
+8. Verify changes sync to database
+9. Verify audit log captures security changes
+10. Test user deactivation (removal)
 
 **Theme**:
 1. Change theme to Light
@@ -710,45 +711,51 @@ Document your testing in the PR description:
 
 1. **No Hardcoded Secrets**:
    - Never commit passwords, API keys, or encryption keys
-   - Use encrypted configuration for sensitive data
+   - All security managed through centralized database
 
-2. **Encryption**:
-   - Use Windows Data Protection API (DPAPI) for sensitive settings
-   - Never store passwords in plain text
-   - Use SHA-256 or better for password hashing
+2. **Database Security**:
+   - Always use parameterized SQL queries (prevent SQL injection)
+   - Never concatenate user input into SQL strings
+   - Validate database path before use
+   - Handle database connection errors gracefully
 
-3. **Input Validation**:
+3. **Access Control**:
+   - Check user access level before privileged operations
+   - Use `IsCurrentUserAdmin()` or `IsCurrentUserSuperAdmin()` for checks
+   - Never bypass access level checks
+   - Log access denied attempts
+
+4. **Input Validation**:
    - Validate all user input
    - Sanitize file paths to prevent directory traversal
    - Check for null/empty values
+   - Validate usernames against Windows username format
 
-4. **Error Messages**:
-   - Don't expose system details in error messages
+5. **Error Messages**:
+   - Don't expose database structure or schema in error messages
    - Don't reveal whether a user exists or not
-   - Use generic messages for authentication failures
+   - Use generic messages for authorization failures
 
-5. **Audit Logging**:
+6. **Audit Logging**:
+   - Log all user management operations (add/edit/remove)
    - Log all authentication attempts (success and failure)
    - Log all file operations
-   - Log all security configuration changes
+   - Log security configuration changes to SecurityAuditLog table
    - **Never log passwords or sensitive data**
-
-6. **Rate Limiting**:
-   - Implement rate limiting for authentication
-   - Use exponential backoff for retries
 
 ### Security Checklist
 
 Before submitting security-related PRs:
 
 - [ ] No secrets in code or configuration
-- [ ] Sensitive data is encrypted
+- [ ] Database queries use parameterized statements (prevent SQL injection)
 - [ ] Input validation implemented
 - [ ] Error messages don't expose system details
-- [ ] Audit logging captures security events
-- [ ] Rate limiting implemented (if applicable)
+- [ ] Audit logging captures security events to database
+- [ ] Access level checks implemented correctly (Basic/Admin/SuperAdmin)
 - [ ] Security configuration is documented
-- [ ] ARCHITECTURE.md security section updated
+- [ ] ARCHITECTURE.md security section updated (if needed)
+- [ ] IMPLEMENTATION-DATABASE-SECURITY.md updated (if database changes)
 
 ### Reporting Security Vulnerabilities
 

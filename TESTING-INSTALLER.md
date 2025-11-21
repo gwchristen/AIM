@@ -92,17 +92,12 @@ Test the complete installation wizard:
    - ✅ Desktop shortcut checkbox is checked by default
    - ✅ Start Menu shortcut checkbox is checked by default
 
-4. **Shared Security Screen**
-   - ✅ Enable checkbox toggles controls correctly
-   - ✅ Browse button is disabled when unchecked
-   - ✅ Browse button works when enabled
-
-5. **Installation Progress**
+4. **Installation Progress**
    - ✅ Progress log shows real-time updates
    - ✅ No error messages in log
    - ✅ All files extracted successfully
 
-6. **Completion Screen**
+5. **Completion Screen**
    - ✅ Success message displayed
    - ✅ "Launch AIM after installation" checkbox visible
    - ✅ "Finish" button closes installer
@@ -432,7 +427,7 @@ If you find issues during testing:
 |-----------|------------|------------|---------|---------|-------|
 | Basic Install | [ ] | [ ] | [ ] | [ ] | Default settings |
 | Custom Path | [ ] | [ ] | [ ] | [ ] | Non-default directory |
-| Shared Security | [ ] | [ ] | [ ] | [ ] | Optional feature |
+| Database Security | [ ] | [ ] | [ ] | [ ] | SuperAdmin init |
 | No Shortcuts | [ ] | [ ] | [ ] | [ ] | All unchecked |
 | Reinstall | [ ] | [ ] | [ ] | [ ] | Over existing |
 | Launch After | [ ] | [ ] | [ ] | [ ] | Auto-launch |

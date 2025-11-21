@@ -14,8 +14,9 @@ Location: `\\oh1cam01\cml\Internal\LAB STOCK\Important Inventory Related Documen
 - Tracks who created/modified each user and when
 
 **SecuritySettings Table:**
-- Stores master password hash and other security settings
+- Stores application-wide security configuration
 - Key-value structure for flexibility
+- Currently reserved for future security settings
 
 **SecurityAuditLog Table:**
 - Complete audit trail of all security-related changes
@@ -151,6 +152,47 @@ Added `SecurityDatabasePath` property for centralized database location.
 - Full unrestricted access
 - Seeded by installer
 - Should be limited to IT administrators
+
+
+
+## SuperAdmin Initialization
+
+### During Installation
+
+The AIM installer automatically creates the first SuperAdmin account:
+
+1. **User Detection**: Installer detects current Windows username
+2. **Database Creation**: Creates AIM_Security.db at configured network path
+3. **SuperAdmin Seeding**: Adds installer user as SuperAdmin (AccessLevel = 3)
+4. **Settings Configuration**: Writes SecurityDatabasePath to settings.json
+
+**Initial SuperAdmin Record:**
+```sql
+INSERT INTO AuthorizedUsers (
+    Username, FullName, Department, AccessLevel, 
+    IsActive, CreatedBy, CreatedDate, ModifiedDate
+) VALUES (
+    'CURRENT_USER', 
+    'Initial SuperAdmin', 
+    'IT', 
+    3, -- SuperAdmin
+    1, -- Active
+    'Installer', 
+    CURRENT_TIMESTAMP, 
+    CURRENT_TIMESTAMP
+);
+```
+
+### Post-Installation User Management
+
+After installation, the SuperAdmin can:
+
+1. **Add Additional Admins**: Create more Admin or SuperAdmin users
+2. **Add Basic Users**: Grant read-only access to end users
+3. **Modify Access Levels**: Promote/demote users as needed
+4. **Deactivate Users**: Remove access without deleting audit trail
+
+**All user management is done through Settings → User Management tab (Admin+ access only)**
 
 ## Security Features
 
