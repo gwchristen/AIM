@@ -103,6 +103,58 @@ public class SettingsService : ISettingsService
     }
 
     /// <summary>
+    /// CRITICAL Issue #3: Validates that critical properties in AppSettings are populated with valid values.
+    /// </summary>
+    /// <param name="settings">The settings object to validate</param>
+    /// <exception cref="SettingsCorruptedException">Thrown when required properties are missing or invalid</exception>
+    private void ValidateAppSettings(AppSettings settings)
+    {
+        var missingProperties = new List<string>();
+
+        // Check critical required properties
+        if (string.IsNullOrWhiteSpace(settings.SecurityDatabasePath))
+        {
+            missingProperties.Add("SecurityDatabasePath");
+        }
+
+        if (string.IsNullOrWhiteSpace(settings.DefaultRootDirectory))
+        {
+            missingProperties.Add("DefaultRootDirectory");
+        }
+
+        // Additional critical path validations
+        if (string.IsNullOrWhiteSpace(settings.ArchivePath))
+        {
+            missingProperties.Add("ArchivePath");
+        }
+
+        if (string.IsNullOrWhiteSpace(settings.ShippedDirectory))
+        {
+            missingProperties.Add("ShippedDirectory");
+        }
+
+        if (string.IsNullOrWhiteSpace(settings.FileScansDirectory))
+        {
+            missingProperties.Add("FileScansDirectory");
+        }
+
+        if (string.IsNullOrWhiteSpace(settings.InventoryArchiveDirectory))
+        {
+            missingProperties.Add("InventoryArchiveDirectory");
+        }
+
+        // If any critical properties are missing, throw exception with details
+        if (missingProperties.Count > 0)
+        {
+            var propertiesList = string.Join(", ", missingProperties);
+            System.Diagnostics.Debug.WriteLine($"[SettingsService] ERROR: Missing or invalid required properties: {propertiesList}");
+            throw new SettingsCorruptedException(
+                $"Settings file is missing required properties: {propertiesList}. " +
+                "Please reinstall AIM or restore from backup.");
+        }
+    }
+
+    /// <summary>
     /// Loads application settings from the canonical settings file.
     /// Throws SettingsNotFoundException if settings file is missing.
     /// Throws SettingsCorruptedException if settings file is corrupted.
@@ -135,6 +187,9 @@ public class SettingsService : ISettingsService
                 System.Diagnostics.Debug.WriteLine($"[SettingsService] ERROR: Failed to deserialize settings from {_settingsPath}");
                 throw new SettingsCorruptedException($"Settings file is corrupted at {_settingsPath}. Please reinstall AIM or restore from backup.");
             }
+
+            // CRITICAL Issue #3: Validate that critical properties are populated after deserialization
+            ValidateAppSettings(settings);
 
             System.Diagnostics.Debug.WriteLine($"[SettingsService] Settings loaded successfully from {_settingsPath}");
             return settings;
