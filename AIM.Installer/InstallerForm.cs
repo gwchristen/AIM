@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Data.SQLite;
 using System.Diagnostics;
 using System.Drawing;
@@ -747,9 +748,14 @@ namespace AIM.Installer
                         throw new IOException("Insufficient disk space - installation cannot continue");
                     }
 
-                    // Create installation directory
+                    // MEDIUM Issue #12: Create installation directory with timeout
+                    // Use CreateDirectoryWithTimeoutAsync to protect against hanging network paths
                     LogMessage("Creating installation directory...");
-                    Directory.CreateDirectory(installPath);
+                    if (!await CreateDirectoryWithTimeoutAsync(installPath, timeoutSeconds: 15))
+                    {
+                        LogMessage("ERROR: Failed to create installation directory or operation timed out");
+                        throw new IOException($"Failed to create installation directory: {installPath}");
+                    }
 
                     // Extract embedded ZIP file
                     LogMessage("Extracting application files...");
@@ -913,12 +919,13 @@ namespace AIM.Installer
                 }
 
                 LogMessage("Launching AIM...");
-                // CRITICAL Issue #1: Use UseShellExecute=false to get the actual AIM.exe process
-                // instead of the shell process. This allows proper process tracking and exit code detection.
+                // HIGH Issue #9: Use UseShellExecute=false with CreateNoWindow=true
+                // This prevents console window from appearing and allows proper process tracking
                 aimProcess = Process.Start(new ProcessStartInfo
                 {
                     FileName = exePath,
                     UseShellExecute = false,
+                    CreateNoWindow = true,
                     WorkingDirectory = installPath
                 });
 
@@ -1032,6 +1039,36 @@ namespace AIM.Installer
                     LogMessage("User cancelled the launch progress dialog");
                     LogMessage("Installation completed, but AIM launch monitoring was cancelled by user");
                 }
+            }
+            catch (Win32Exception ex)
+            {
+                // HIGH Issue #9: Handle Win32Exception specifically for better diagnostics
+                LogMessage($"ERROR launching AIM (Win32): {ex.Message}");
+                
+                string userMessage = "Could not launch AIM:\n\n";
+                if (ex.Message.Contains("not found") || ex.NativeErrorCode == 2)
+                {
+                    userMessage += "AIM.exe not found or inaccessible.\n\n";
+                    LogMessage("Win32 error: AIM.exe not found or inaccessible");
+                }
+                else if (ex.Message.ToLower().Contains("permission") || ex.Message.ToLower().Contains("denied") || ex.NativeErrorCode == 5)
+                {
+                    userMessage += "Permission denied to launch AIM.\n\n";
+                    LogMessage("Win32 error: Permission denied to launch AIM");
+                }
+                else
+                {
+                    userMessage += $"Win32 error (code {ex.NativeErrorCode}): {ex.Message}\n\n";
+                    LogMessage($"Win32 error code {ex.NativeErrorCode}: {ex.Message}");
+                }
+                
+                userMessage += "Please ensure:\n";
+                userMessage += "• AIM.exe exists in the installation directory\n";
+                userMessage += "• You have permission to run the application\n";
+                userMessage += "• The installation completed successfully";
+                
+                MessageBox.Show(userMessage, "Launch Error",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
             catch (Exception ex)
             {
@@ -1282,16 +1319,17 @@ namespace AIM.Installer
                     continue; // Continue validating other paths
                 }
 
-                // CRITICAL Issue #3: Only check if directory exists, don't create it
-                // Directory creation is handled separately after validation passes
+                // CRITICAL Issues #1, #2, #3: Validate directory accessibility without creating it
+                // Validation should NOT modify the filesystem - only check what exists
+                bool directoryExists = false;
                 try
                 {
-                    if (!Directory.Exists(directoryToCheck))
+                    directoryExists = Directory.Exists(directoryToCheck);
+                    if (!directoryExists)
                     {
-                        var error = "Directory does not exist and needs to be created";
-                        LogMessage($"  WARNING: {error}");
-                        // Don't add to invalidPaths - this is just informational
-                        // We'll try to create it later in a separate method
+                        LogMessage($"  WARNING: Directory does not exist (will be created later)");
+                        // Don't add to invalidPaths - directory creation happens in CreateNetworkDirectoriesAsync()
+                        // We just warn the user that the directory will need to be created
                     }
                     else
                     {
@@ -1320,22 +1358,15 @@ namespace AIM.Installer
                     continue; // Continue validating other paths
                 }
 
-                // CRITICAL Issue #2: Test write permissions directly in the actual network path
-                // This ensures we validate write capability where it's actually needed
-                if (requireWrite)
+                // CRITICAL Issues #1, #2, #3: Only test write permissions on EXISTING directories
+                // This prevents false positives and avoids creating directories during validation
+                if (requireWrite && directoryExists)
                 {
-                    // Test write permission directly in the target directory
+                    // Test write permission in the existing directory
                     var testFileName = Path.Combine(directoryToCheck ?? path, $"__aim_write_test_{Guid.NewGuid()}.tmp");
                     try
                     {
-                        // Create directory if it doesn't exist (needed to test write permission)
-                        if (!Directory.Exists(directoryToCheck ?? path))
-                        {
-                            Directory.CreateDirectory(directoryToCheck ?? path);
-                            LogMessage($"  Created directory for write test");
-                        }
-
-                        // Attempt to create and write to a test file in the actual network path
+                        // Attempt to create and write to a test file in the existing directory
                         File.WriteAllText(testFileName, "AIM write permission test");
                         
                         // Verify we can read it back
@@ -1345,29 +1376,30 @@ namespace AIM.Installer
                             throw new IOException("Write verification failed");
                         }
                         
-                        LogMessage($"  Write permission verified in actual path: {directoryToCheck ?? path}");
+                        LogMessage($"  Write permission verified in existing path: {directoryToCheck ?? path}");
                     }
                     catch (UnauthorizedAccessException ex)
                     {
-                        var error = $"No write permission to {pathName} at {directoryToCheck ?? path}: {ex.Message}";
+                        var error = $"No write permission: {ex.Message}";
                         LogMessage($"  ERROR: {error}");
                         invalidPaths[pathName] = error;
                     }
                     catch (IOException ex)
                     {
-                        var error = $"Write test failed for {pathName} at {directoryToCheck ?? path}: {ex.Message}";
+                        var error = $"Write test failed: {ex.Message}";
                         LogMessage($"  ERROR: {error}");
                         invalidPaths[pathName] = error;
                     }
                     catch (Exception ex)
                     {
-                        var error = $"Write test error for {pathName} at {directoryToCheck ?? path}: {ex.Message}";
+                        var error = $"Write test error: {ex.Message}";
                         LogMessage($"  ERROR: {error}");
                         invalidPaths[pathName] = error;
                     }
                     finally
                     {
-                        // Ensure test file cleanup in finally block
+                        // CRITICAL Issue #2: Ensure test file cleanup in finally block
+                        // This guarantees cleanup even if an error occurs
                         try 
                         { 
                             if (File.Exists(testFileName)) 
@@ -1381,6 +1413,10 @@ namespace AIM.Installer
                             LogMessage($"  WARNING: Failed to cleanup test file: {ex.Message}");
                         }
                     }
+                }
+                else if (requireWrite && !directoryExists)
+                {
+                    LogMessage($"  Skipping write test (directory doesn't exist, will test after creation)");
                 }
 
                 LogMessage($"  Validation PASSED");
@@ -1495,6 +1531,27 @@ namespace AIM.Installer
                 {
                     LogMessage($"  - {name}: {error}");
                 }
+                
+                // CRITICAL Issue #4: Show user dialog with all failed directories
+                // This provides detailed information to the user about which directories failed and why
+                var errorMessage = "The following network directories could not be created:\n\n";
+                foreach (var (name, error) in failedDirectories)
+                {
+                    errorMessage += $"• {name}:\n  {error}\n\n";
+                }
+                errorMessage += "This usually indicates:\n";
+                errorMessage += "• Network path is not accessible\n";
+                errorMessage += "• You don't have permission to create directories\n";
+                errorMessage += "• Network share is offline or unreachable\n";
+                errorMessage += "• Operation timed out due to slow network\n\n";
+                errorMessage += "Please check network connectivity and permissions, then try again.";
+                
+                MessageBox.Show(
+                    errorMessage,
+                    "Directory Creation Failed",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Error
+                );
             }
             LogMessage("========================================");
 
@@ -1704,6 +1761,14 @@ namespace AIM.Installer
         /// <returns>True if write permissions are available, false otherwise.</returns>
         private bool VerifyWritePermissions(string directoryPath)
         {
+            // HIGH Issue #6: Check if directory exists before testing write permissions
+            // This distinguishes between "directory missing" and "permission denied"
+            if (!Directory.Exists(directoryPath))
+            {
+                LogMessage($"ERROR: Directory does not exist: {directoryPath}");
+                return false;
+            }
+            
             var testFileName = Path.Combine(directoryPath, $"__aim_db_write_test_{Guid.NewGuid()}.tmp");
             try
             {
@@ -2106,28 +2171,42 @@ namespace AIM.Installer
                 var timeoutTask = System.Threading.Tasks.Task.Delay(TimeSpan.FromSeconds(timeoutSeconds));
                 var completedTask = await System.Threading.Tasks.Task.WhenAny(createTask, timeoutTask);
 
+                // HIGH Issue #7: Check which task completed BEFORE awaiting createTask
+                // This prevents exceptions from being masked by timeout handling
                 if (completedTask == timeoutTask)
                 {
                     LogMessage($"ERROR: Directory creation timed out after {timeoutSeconds} seconds");
-                    MessageBox.Show(
-                        $"Directory creation timed out after {timeoutSeconds} seconds.\n\n" +
-                        $"Path: {path}\n\n" +
-                        "This usually indicates:\n" +
-                        "• Network path is slow or unresponsive\n" +
-                        "• Network share is experiencing issues\n\n" +
-                        "Please check network connectivity and try again.",
-                        "Operation Timeout",
-                        MessageBoxButtons.OK,
-                        MessageBoxIcon.Error
-                    );
                     return false;
                 }
 
-                // Wait for the create task to complete (it already finished)
-                await createTask;
-                
-                LogMessage($"Directory created successfully");
-                return true;
+                // HIGH Issue #7: Await createTask to get any exceptions it may have thrown
+                // Distinguish between different error types for better diagnostics
+                try
+                {
+                    await createTask;
+                    LogMessage($"Directory created successfully");
+                    return true;
+                }
+                catch (UnauthorizedAccessException ex)
+                {
+                    LogMessage($"ERROR: Permission denied to create directory: {ex.Message}");
+                    return false;
+                }
+                catch (IOException ex)
+                {
+                    LogMessage($"ERROR: I/O error creating directory: {ex.Message}");
+                    return false;
+                }
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                LogMessage($"ERROR: Permission denied: {ex.Message}");
+                return false;
+            }
+            catch (IOException ex)
+            {
+                LogMessage($"ERROR: I/O error: {ex.Message}");
+                return false;
             }
             catch (Exception ex)
             {
@@ -2212,35 +2291,21 @@ namespace AIM.Installer
                     testDir = path;
                 }
 
-                // Create parent directory if it doesn't exist
+                // HIGH Issue #10: Don't create parent directory during validation
+                // Validation should be read-only - directory creation happens in PerformInstallation()
                 if (!Directory.Exists(testDir))
                 {
-                    try
-                    {
-                        Directory.CreateDirectory(testDir);
-                        LogMessage($"Created installation parent directory: {testDir}");
-                    }
-                    catch (UnauthorizedAccessException ex)
-                    {
-                        LogMessage($"ERROR: No write permission to create installation directory: {ex.Message}");
-                        MessageBox.Show(
-                            $"Insufficient permissions to create installation directory:\n\n" +
-                            $"Path: {testDir}\n\n" +
-                            "Please choose a different location or run the installer as Administrator.",
-                            "Permission Denied",
-                            MessageBoxButtons.OK,
-                            MessageBoxIcon.Error
-                        );
-                        return false;
-                    }
+                    LogMessage($"WARNING: Installation parent directory does not exist (will be created during installation): {testDir}");
+                    // Don't fail validation - directory will be created with timeout in PerformInstallation()
+                    LogMessage("Installation path validation passed (directory will be created)");
+                    return true;
                 }
 
-                // Test write permissions with a temporary file
+                // HIGH Issue #8: Test write permissions with guaranteed cleanup in finally block
                 var testFile = Path.Combine(testDir, $"__aim_install_test_{Guid.NewGuid()}.tmp");
                 try
                 {
                     File.WriteAllText(testFile, "AIM installation path test");
-                    File.Delete(testFile);
                     LogMessage("Installation path write permissions verified");
                 }
                 catch (UnauthorizedAccessException ex)
@@ -2268,6 +2333,23 @@ namespace AIM.Installer
                         MessageBoxIcon.Error
                     );
                     return false;
+                }
+                finally
+                {
+                    // HIGH Issue #8: Guarantee test file cleanup in finally block
+                    // This ensures cleanup happens regardless of which catch executes or if write succeeds
+                    try
+                    {
+                        if (File.Exists(testFile))
+                        {
+                            File.Delete(testFile);
+                            LogMessage("Test file cleaned up");
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        LogMessage($"WARNING: Failed to cleanup test file: {ex.Message}");
+                    }
                 }
 
                 LogMessage("Installation path validation passed");
@@ -2298,10 +2380,22 @@ namespace AIM.Installer
             {
                 // Get the drive from the installation path
                 var drive = Path.GetPathRoot(path);
+                
+                // MEDIUM Issue #11: Handle UNC paths and missing drive gracefully
                 if (string.IsNullOrEmpty(drive))
                 {
                     LogMessage("WARNING: Could not determine drive for disk space check");
-                    return true; // Continue anyway
+                    LogMessage("Skipping disk space check - path may be invalid or UNC path");
+                    return true; // Continue anyway - validation happens elsewhere
+                }
+                
+                // Check if this is a UNC path (\\server\share format)
+                if (drive.StartsWith(@"\\"))
+                {
+                    LogMessage($"WARNING: UNC path detected: {drive}");
+                    LogMessage("Skipping disk space check for UNC path - cannot reliably determine free space");
+                    LogMessage("Note: Ensure network share has sufficient space (500+ MB recommended)");
+                    return true; // Continue - can't easily check space on UNC paths with DriveInfo
                 }
 
                 var driveInfo = new DriveInfo(drive);
@@ -2337,6 +2431,7 @@ namespace AIM.Installer
             catch (Exception ex)
             {
                 LogMessage($"WARNING: Disk space check failed: {ex.Message}");
+                LogMessage("Continuing installation - ensure sufficient disk space is available");
                 // Don't fail installation if we can't check disk space
                 return true;
             }
