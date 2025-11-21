@@ -9,13 +9,12 @@ namespace AIM.ViewModels;
 
 /// <summary>
 /// Main application view model that manages the primary application state.
-/// Handles directory tree navigation, file selection, and security-based feature visibility.
+/// Handles directory tree navigation and file selection.
 /// </summary>
 public partial class MainViewModel : ObservableObject
 {
     private readonly ISettingsService _settingsService;
     private readonly IFileService _fileService;
-    private readonly SecurityService _securityService;
 
     /// <summary>
     /// Gets or sets the currently selected root directory path.
@@ -23,13 +22,6 @@ public partial class MainViewModel : ObservableObject
     /// </summary>
     [ObservableProperty]
     private string selectedRoot;
-
-    /// <summary>
-    /// Gets or sets whether the Inventory tab is visible in the navigation.
-    /// Visibility is controlled by user authorization status.
-    /// </summary>
-    [ObservableProperty]
-    private bool isInventoryTabVisible;
 
     /// <summary>
     /// Gets the collection of directory items for the left navigation tree.
@@ -45,67 +37,22 @@ public partial class MainViewModel : ObservableObject
 
     /// <summary>
     /// Initializes a new instance of the <see cref="MainViewModel"/> class.
-    /// Loads settings, initializes security, and sets up the initial application state.
+    /// Loads settings and sets up the initial application state.
     /// </summary>
     /// <param name="settingsService">Service for loading and saving application settings.</param>
     /// <param name="fileService">Service for file and directory operations.</param>
-    /// <param name="securityService">Service for managing security and authorization.</param>
-    public MainViewModel(ISettingsService settingsService, IFileService fileService, SecurityService securityService)
+    public MainViewModel(ISettingsService settingsService, IFileService fileService)
     {
         _settingsService = settingsService;
         _fileService = fileService;
-        _securityService = securityService;
 
         Debug.WriteLine($"[MainViewModel] Constructor starting");
-
-        // Load authorized users from settings (for backward compatibility)
-        LoadAuthorizedUsersFromSettings();
 
         // Load the selected root from settings
         var appSettings = _settingsService.LoadSettings();
         SelectedRoot = appSettings.DefaultRootDirectory;
 
-        // Check inventory visibility based on current authorization
-        UpdateInventoryTabVisibility();
-
-        Debug.WriteLine($"[Main] MainViewModel initialized");
-        Debug.WriteLine($"[Main] Current user: {_securityService.CurrentUserId}");
-        Debug.WriteLine($"[Main] Is fully unlocked: {_securityService.IsFullyUnlocked}");
-        Debug.WriteLine($"[Main] Inventory tab visible: {IsInventoryTabVisible}");
-    }
-
-    /// <summary>
-    /// Loads authorized users from application settings and updates the security service.
-    /// This method must be called early in initialization, before checking authorization status.
-    /// </summary>
-    private void LoadAuthorizedUsersFromSettings()
-    {
-        var appSettings = _settingsService.LoadSettings();
-        var authorizedUsers = appSettings?.AuthorizedUsers ?? new System.Collections.Generic.List<string>();
-
-        Debug.WriteLine($"[MainViewModel] Loaded {authorizedUsers.Count} authorized users from settings");
-        foreach (var user in authorizedUsers)
-        {
-            Debug.WriteLine($"[MainViewModel]   - {user}");
-        }
-
-        // Set the authorized users list in SecurityService
-        _securityService.SetAuthorizedUsers(authorizedUsers);
-        Debug.WriteLine($"[MainViewModel] SecurityService.IsFullyUnlocked after loading: {_securityService.IsFullyUnlocked}");
-    }
-
-    /// <summary>
-    /// Updates the visibility of the Inventory tab based on current security status.
-    /// Should be called whenever the security status changes (e.g., master password override activated/deactivated).
-    /// </summary>
-    public void UpdateInventoryTabVisibility()
-    {
-        bool newValue = _securityService.IsFullyUnlocked;
-        Debug.WriteLine($"[MainViewModel] UpdateInventoryTabVisibility called. Current: {IsInventoryTabVisible}, New: {newValue}");
-
-        IsInventoryTabVisible = newValue;
-
-        Debug.WriteLine($"[MainViewModel] IsInventoryTabVisible set to: {IsInventoryTabVisible}");
+        Debug.WriteLine($"[MainViewModel] MainViewModel initialized");
     }
 
     /// <summary>

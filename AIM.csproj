@@ -32,7 +32,6 @@
     <None Remove="Views\InventoryArchivePage.xaml" />
     <None Remove="Views\InventoryViewerPage.xaml" />
     <None Remove="Views\LogViewerPage.xaml" />
-    <None Remove="Views\PasswordInputControl.xaml" />
     <None Remove="Views\PreviewPage.xaml" />
     <None Remove="Views\PrintableFormPage.xaml" />
     <None Remove="Views\ScansPage.xaml" />
@@ -77,22 +76,11 @@
     <PackageReference Include="Serilog.Extensions.Logging" Version="9.0.3-dev-02320" />
     <PackageReference Include="Serilog.Sinks.File" Version="7.0.0" />
     <PackageReference Include="SkiaSharp.Views.WinUI" Version="3.119.1" />
-    <PackageReference Include="System.Data.SQLite.Core" Version="1.0.119" />
     <PackageReference Include="System.Text.Json" Version="9.0.9" />
     <PackageReference Include="WinUI3XamlPreview" Version="0.8.2" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Helpers\" />
-  </ItemGroup>
-  <ItemGroup>
-    <Page Update="Views\LogViewerPage.xaml">
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-  </ItemGroup>
-  <ItemGroup>
-    <Page Update="Views\PasswordInputControl.xaml">
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
   </ItemGroup>
   <ItemGroup>
     <Page Update="Views\FormGeneratorPage.xaml">

@@ -3,7 +3,6 @@ using System;
 using System.IO;
 using System.Text.Json;
 using Windows.Storage;
-using System.Collections.Generic;
 
 namespace AIM.Services;
 
@@ -32,7 +31,6 @@ public class SettingsService : ISettingsService
 
     /// <summary>
     /// Gets the canonical settings path: %LOCALAPPDATA%\AIM\settings.json
-    /// This path is shared between the installer and the application.
     /// </summary>
     public static string GetCanonicalSettingsPath()
     {
@@ -104,58 +102,6 @@ public class SettingsService : ISettingsService
     }
 
     /// <summary>
-    /// CRITICAL Issue #3: Validates that critical properties in AppSettings are populated with valid values.
-    /// </summary>
-    /// <param name="settings">The settings object to validate</param>
-    /// <exception cref="SettingsCorruptedException">Thrown when required properties are missing or invalid</exception>
-    private void ValidateAppSettings(AppSettings settings)
-    {
-        var missingProperties = new List<string>();
-
-        // Check critical required properties
-        if (string.IsNullOrWhiteSpace(settings.SecurityDatabasePath))
-        {
-            missingProperties.Add("SecurityDatabasePath");
-        }
-
-        if (string.IsNullOrWhiteSpace(settings.DefaultRootDirectory))
-        {
-            missingProperties.Add("DefaultRootDirectory");
-        }
-
-        // Additional critical path validations
-        if (string.IsNullOrWhiteSpace(settings.ArchivePath))
-        {
-            missingProperties.Add("ArchivePath");
-        }
-
-        if (string.IsNullOrWhiteSpace(settings.ShippedDirectory))
-        {
-            missingProperties.Add("ShippedDirectory");
-        }
-
-        if (string.IsNullOrWhiteSpace(settings.FileScansDirectory))
-        {
-            missingProperties.Add("FileScansDirectory");
-        }
-
-        if (string.IsNullOrWhiteSpace(settings.InventoryArchiveDirectory))
-        {
-            missingProperties.Add("InventoryArchiveDirectory");
-        }
-
-        // If any critical properties are missing, throw exception with details
-        if (missingProperties.Count > 0)
-        {
-            var propertiesList = string.Join(", ", missingProperties);
-            System.Diagnostics.Debug.WriteLine($"[SettingsService] ERROR: Missing or invalid required properties: {propertiesList}");
-            throw new SettingsCorruptedException(
-                $"Settings file is missing required properties: {propertiesList}. " +
-                "Please reinstall AIM or restore from backup.");
-        }
-    }
-
-    /// <summary>
     /// Loads application settings from the canonical settings file.
     /// Throws SettingsNotFoundException if settings file is missing.
     /// Throws SettingsCorruptedException if settings file is corrupted.
@@ -170,49 +116,48 @@ public class SettingsService : ISettingsService
 
             if (!File.Exists(_settingsPath))
             {
-                System.Diagnostics.Debug.WriteLine($"[SettingsService] ERROR: Settings file not found at {_settingsPath}");
-                throw new SettingsNotFoundException($"Settings file not found at {_settingsPath}. Please run the AIM installer to initialize the application.");
+                System.Diagnostics.Debug.WriteLine($"[SettingsService] Settings file not found at {_settingsPath}. Creating default settings.");
+                return CreateDefaultSettings();
             }
 
             var json = File.ReadAllText(_settingsPath);
             
             if (string.IsNullOrWhiteSpace(json))
             {
-                System.Diagnostics.Debug.WriteLine($"[SettingsService] ERROR: Settings file is empty at {_settingsPath}");
-                throw new SettingsCorruptedException($"Settings file is empty at {_settingsPath}. Please reinstall AIM or restore from backup.");
+                System.Diagnostics.Debug.WriteLine($"[SettingsService] Settings file is empty at {_settingsPath}. Creating default settings.");
+                return CreateDefaultSettings();
             }
 
             var settings = JsonSerializer.Deserialize<AppSettings>(json);
             if (settings == null)
             {
-                System.Diagnostics.Debug.WriteLine($"[SettingsService] ERROR: Failed to deserialize settings from {_settingsPath}");
-                throw new SettingsCorruptedException($"Settings file is corrupted at {_settingsPath}. Please reinstall AIM or restore from backup.");
+                System.Diagnostics.Debug.WriteLine($"[SettingsService] Failed to deserialize settings. Creating default settings.");
+                return CreateDefaultSettings();
             }
-
-            // CRITICAL Issue #3: Validate that critical properties are populated after deserialization
-            ValidateAppSettings(settings);
 
             System.Diagnostics.Debug.WriteLine($"[SettingsService] Settings loaded successfully from {_settingsPath}");
             return settings;
         }
-        catch (SettingsNotFoundException)
-        {
-            throw; // Re-throw custom exceptions
-        }
-        catch (SettingsCorruptedException)
-        {
-            throw; // Re-throw custom exceptions
-        }
         catch (JsonException ex)
         {
-            System.Diagnostics.Debug.WriteLine($"[SettingsService] ERROR: JSON deserialization failed: {ex.Message}");
-            throw new SettingsCorruptedException($"Settings file is corrupted at {_settingsPath}: {ex.Message}. Please reinstall AIM or restore from backup.", ex);
+            System.Diagnostics.Debug.WriteLine($"[SettingsService] JSON deserialization failed: {ex.Message}. Creating default settings.");
+            return CreateDefaultSettings();
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine($"[SettingsService] ERROR: Unexpected error loading settings: {ex.Message}");
-            throw new SettingsCorruptedException($"Error loading settings from {_settingsPath}: {ex.Message}. Please reinstall AIM or contact support.", ex);
+            System.Diagnostics.Debug.WriteLine($"[SettingsService] Error loading settings: {ex.Message}. Creating default settings.");
+            return CreateDefaultSettings();
         }
+    }
+
+    /// <summary>
+    /// Creates and saves default settings.
+    /// </summary>
+    private AppSettings CreateDefaultSettings()
+    {
+        var defaultSettings = new AppSettings();
+        SaveSettings(defaultSettings);
+        return defaultSettings;
     }
 
     public void SaveSettings(AppSettings settings)
@@ -223,6 +168,7 @@ public class SettingsService : ISettingsService
 
             var json = JsonSerializer.Serialize(settings, new JsonSerializerOptions { WriteIndented = true });
             File.WriteAllText(_settingsPath, json);
+            System.Diagnostics.Debug.WriteLine($"[SettingsService] Settings saved successfully to {_settingsPath}");
         }
         catch (Exception ex)
         {

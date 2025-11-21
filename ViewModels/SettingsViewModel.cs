@@ -1,33 +1,20 @@
-﻿using AIM.Models;
+using AIM.Models;
 using AIM.Services;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using Microsoft.UI.Text;
 using Microsoft.UI.Xaml;
-using Microsoft.UI.Xaml.Controls;
 using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Diagnostics;
-using System.Linq;
-using System.Threading.Tasks;
-using WinRT.Interop;
 
 namespace AIM.ViewModels;
 
 /// <summary>
-/// ViewModel for the Settings page, managing application configuration, security, and audit logs.
-/// Provides properties and commands for directory settings, theme management, user authorization,
-/// master password management, and audit log viewing/filtering.
+/// ViewModel for the Settings page, managing application configuration.
 /// </summary>
 public partial class SettingsViewModel : ObservableObject
 {
     private readonly ISettingsService _settingsService;
-    private readonly SecurityService _securityService;
-    private readonly AuditLoggingService _auditLoggingService;
     private readonly IDialogService _dialogService;
-    private readonly INavigationService _navigationService;
-    private readonly MainViewModel _mainViewModel;
     private readonly IThemeService _themeService;
     private AppSettings _appSettings;
 
@@ -63,1243 +50,155 @@ public partial class SettingsViewModel : ObservableObject
     [ObservableProperty]
     private string inventoryArchiveDirectory;
 
-    /// <summary>
-    /// Gets or sets the file path to the encrypted security configuration.
-    /// </summary>
-    [ObservableProperty]
-    private string securityConfigPath;
-
-    /// <summary>
-    /// Gets or sets the path to the centralized SQLite security database.
-    /// </summary>
-    [ObservableProperty]
-    private string securityDatabasePath;
-
-    /// <summary>
-    /// Gets or sets the application password.
-    /// This property is deprecated; use SecurityConfigPath for encrypted password storage instead.
-    /// </summary>
-    [ObservableProperty]
-    private string password;
-
-    // Security Properties
-    
-    /// <summary>
-    /// Gets or sets whether directory editing features are unlocked.
-    /// </summary>
-    [ObservableProperty]
-    private bool isDirectoriesUnlocked;
-
-    /// <summary>
-    /// Gets or sets whether the master password override is currently active.
-    /// </summary>
-    [ObservableProperty]
-    private bool isMasterPasswordOverrideActive;
-
-    /// <summary>
-    /// Gets or sets the collection of authorized user IDs.
-    /// </summary>
-    [ObservableProperty]
-    private ObservableCollection<string> authorizedUsersList;
-
-    /// <summary>
-    /// Gets or sets the collection of authorized users from the database.
-    /// </summary>
-    [ObservableProperty]
-    private ObservableCollection<AuthorizedUser> databaseAuthorizedUsers;
-
-    /// <summary>
-    /// Gets or sets the current user ID (Windows username).
-    /// </summary>
-    [ObservableProperty]
-    private string currentUserId;
-
-    /// <summary>
-    /// Gets or sets the current user's access level display name.
-    /// </summary>
-    [ObservableProperty]
-    private string currentUserAccessLevel;
-
-    /// <summary>
-    /// Gets or sets whether the current user has admin access (level 2+).
-    /// </summary>
-    [ObservableProperty]
-    private bool isCurrentUserAdmin;
-
-    /// <summary>
-    /// Gets or sets whether the current user has SuperAdmin access (level 3 or master password override).
-    /// </summary>
-    [ObservableProperty]
-    private bool isCurrentUserSuperAdmin;
-
-    /// <summary>
-    /// Gets or sets whether the master password change operation succeeded.
-    /// </summary>
-    [ObservableProperty]
-    private bool masterPasswordChangeSuccess;
-
-    /// <summary>
-    /// Gets or sets whether the master password change operation failed.
-    /// </summary>
-    [ObservableProperty]
-    private bool masterPasswordChangeError;
-
-    /// <summary>
-    /// Gets or sets the error message for master password change failures.
-    /// </summary>
-    [ObservableProperty]
-    private string masterPasswordErrorMessage;
-
-    // Audit Log Properties
-    
-    /// <summary>
-    /// Gets or sets the complete collection of all audit logs.
-    /// </summary>
-    [ObservableProperty]
-    private ObservableCollection<AuditLogEntry> allLogs;
-
-    /// <summary>
-    /// Gets or sets the filtered collection of audit logs based on current filter criteria.
-    /// </summary>
-    [ObservableProperty]
-    private ObservableCollection<AuditLogEntry> filteredLogs;
-
-    /// <summary>
-    /// Gets or sets the text filter applied to audit log search.
-    /// </summary>
-    [ObservableProperty]
-    private string filterText = string.Empty;
-
-    /// <summary>
-    /// Gets or sets the selected action type filter for audit logs.
-    /// </summary>
-    [ObservableProperty]
-    private string selectedActionTypeFilter = "All";
-
-    /// <summary>
-    /// Gets or sets the selected user filter for audit logs.
-    /// </summary>
-    [ObservableProperty]
-    private string selectedUserFilter = "All";
-
-    /// <summary>
-    /// Gets or sets the collection of available action types for filtering.
-    /// </summary>
-    [ObservableProperty]
-    private ObservableCollection<string> availableActionTypes;
-
-    /// <summary>
-    /// Gets or sets the collection of available users for filtering.
-    /// </summary>
-    [ObservableProperty]
-    private ObservableCollection<string> availableUsers;
-
-    /// <summary>
-    /// Gets or sets the total count of audit logs before filtering.
-    /// </summary>
-    [ObservableProperty]
-    private int totalLogCount;
-
-    /// <summary>
-    /// Gets or sets the message displaying log statistics (filtered vs. total).
-    /// </summary>
-    [ObservableProperty]
-    private string logStatsMessage;
-
-    /// <summary>
-    /// Gets or sets whether the current user is authorized to access restricted features.
-    /// </summary>
-    [ObservableProperty]
-    private bool isUserAuthorized;
-
     // Theme Properties
-    
-    /// <summary>
-    /// Gets or sets the currently selected theme name for display in the UI.
-    /// </summary>
-    [ObservableProperty]
-    private string selectedThemeName = string.Empty;
 
     /// <summary>
-    /// Gets or sets the collection of available theme names.
+    /// Gets or sets the selected theme.
     /// </summary>
     [ObservableProperty]
-    private ObservableCollection<string> availableThemes;
-
-    /// <summary>
-    /// Gets or sets the hexadecimal representation of the Windows accent color.
-    /// </summary>
-    [ObservableProperty]
-    private string accentColorHex;
-
-    /// <summary>
-    /// Gets or sets whether Windows high contrast mode is currently enabled.
-    /// </summary>
-    [ObservableProperty]
-    private bool isHighContrast;
+    private string selectedTheme;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="SettingsViewModel"/> class.
     /// </summary>
-    /// <param name="settingsService">Service for loading and saving application settings.</param>
-    /// <param name="securityService">Service for managing security and authorization.</param>
-    /// <param name="auditLoggingService">Service for managing audit logs.</param>
-    /// <param name="mainViewModel">The main application view model.</param>
-    /// <param name="dialogService">Service for displaying dialogs.</param>
-    /// <param name="navigationService">Service for navigation between pages.</param>
-    /// <param name="themeService">Service for managing application themes.</param>
     public SettingsViewModel(
         ISettingsService settingsService,
-        SecurityService securityService,
-        AuditLoggingService auditLoggingService,
-        MainViewModel mainViewModel,
         IDialogService dialogService,
-        INavigationService navigationService,
         IThemeService themeService)
     {
         _settingsService = settingsService;
-        _securityService = securityService;
-        _auditLoggingService = auditLoggingService;
-        _mainViewModel = mainViewModel;
         _dialogService = dialogService;
-        _navigationService = navigationService;
         _themeService = themeService;
 
-        // Initialize collections
-        AuthorizedUsersList = new ObservableCollection<string>();
-        DatabaseAuthorizedUsers = new ObservableCollection<AuthorizedUser>();
-        AllLogs = new ObservableCollection<AuditLogEntry>();
-        FilteredLogs = new ObservableCollection<AuditLogEntry>();
-        AvailableActionTypes = new ObservableCollection<string>();
-        AvailableUsers = new ObservableCollection<string>();
-        AvailableThemes = new ObservableCollection<string>();
-
-        // Load settings and check authorization
         LoadSettings();
-
-        RefreshAuthorizedUsersList();
-        UpdateUnlockStatus();
-
-        CurrentUserId = _securityService.CurrentUserId;
-        IsUserAuthorized = _securityService.IsFullyUnlocked;
-        IsCurrentUserAdmin = _securityService.IsCurrentUserAdmin();
-        IsCurrentUserSuperAdmin = _securityService.IsMasterPasswordOverrideActive || _securityService.GetCurrentUserAccessLevel() == 3;
-        CurrentUserAccessLevel = GetAccessLevelName(_securityService.GetCurrentUserAccessLevel());
-
-        // Load theme settings
-        InitializeThemes();
-
-        Debug.WriteLine($"[Settings] Current user: {CurrentUserId}");
-        Debug.WriteLine($"[Settings] Is authorized: {_securityService.IsFullyUnlocked}");
-        Debug.WriteLine($"[Settings] Access level: {CurrentUserAccessLevel}");
-
-        // Load audit logs and database users
-        LoadLogsAsync().ConfigureAwait(false);
-        LoadDatabaseUsersAsync().ConfigureAwait(false);
     }
 
     /// <summary>
-    /// Gets the display name for an access level.
-    /// </summary>
-    private string GetAccessLevelName(int accessLevel) => accessLevel switch
-    {
-        1 => "Basic",
-        2 => "Admin",
-        3 => "SuperAdmin",
-        _ => "None"
-    };
-
-    /// <summary>
-    /// Loads application settings from storage and populates the view model properties.
+    /// Loads application settings.
     /// </summary>
     private void LoadSettings()
     {
-        _appSettings = _settingsService.LoadSettings();
-
-        DefaultRootDirectory = _appSettings.DefaultRootDirectory;
-        ArchivePath = _appSettings.ArchivePath;
-        ShippedDirectory = _appSettings.ShippedDirectory;
-        FileScansDirectory = _appSettings.FileScansDirectory;
-        InventoryArchiveDirectory = _appSettings.InventoryArchiveDirectory;
-        SecurityConfigPath = _appSettings.SecurityConfigPath;
-        SecurityDatabasePath = _appSettings.SecurityDatabasePath;
-        Password = _appSettings.Password;
-    }
-
-    /// <summary>
-    /// Initializes theme-related properties and loads available themes.
-    /// </summary>
-    private void InitializeThemes()
-    {
-        AvailableThemes.Clear();
-        foreach (var theme in _themeService.GetAvailableThemes())
-        {
-            AvailableThemes.Add(_themeService.GetThemeName(theme));
-        }
-
-        // Set the current theme name as a string
-        SelectedThemeName = _themeService.GetThemeName(_themeService.CurrentTheme);
-        UpdateAccentColorDisplay();
-        IsHighContrast = _themeService.IsHighContrast;
-
-        Debug.WriteLine($"[Settings] Initialized themes - Current: {SelectedThemeName}");
-    }
-
-    /// <summary>
-    /// Updates the accent color hex display string from the current theme service accent color.
-    /// </summary>
-    private void UpdateAccentColorDisplay()
-    {
-        var color = _themeService.AccentColor;
-        AccentColorHex = $"#{color.R:X2}{color.G:X2}{color.B:X2}";
-        Debug.WriteLine($"[Settings] Accent color: {AccentColorHex}");
-    }
-
-    /// <summary>
-    /// Command to change the application theme.
-    /// </summary>
-    /// <param name="themeName">The user-friendly name of the theme to apply.</param>
-    [RelayCommand]
-    private void ChangeTheme(string themeName)
-    {
-        if (string.IsNullOrEmpty(themeName))
-            return;
-
-        Debug.WriteLine($"[Settings] Theme selection changed to: {themeName}");
-
-        // Convert theme name back to AppTheme enum
-        AppTheme selectedTheme = themeName switch
-        {
-            "Follow Windows Theme" => AppTheme.FollowSystem,
-            "Light" => AppTheme.Light,
-            "Dark" => AppTheme.Dark,
-            "High Contrast" => AppTheme.HighContrast,
-            _ => AppTheme.FollowSystem
-        };
-
-        _themeService.CurrentTheme = selectedTheme;
-        _themeService.SaveThemePreference(selectedTheme);
-        _themeService.InitializeTheme();
-
-        LogAction("THEME_CHANGED", $"Application theme changed to {themeName}");
-        Debug.WriteLine($"[Settings] Theme applied: {selectedTheme}");
-    }
-
-    /// <summary>
-    /// Command to refresh the Windows accent color from system settings.
-    /// </summary>
-    [RelayCommand]
-    private void RefreshAccentColor()
-    {
-        _themeService.RefreshAccentColor();
-        UpdateAccentColorDisplay();
-
-        LogAction("ACCENT_COLOR_REFRESHED", "Windows accent color was refreshed");
-        Debug.WriteLine($"[Settings] Accent color refreshed");
-    }
-
-    /// <summary>
-    /// Refreshes the authorized users list from the security service.
-    /// </summary>
-    private void RefreshAuthorizedUsersList()
-    {
-        AuthorizedUsersList.Clear();
-        foreach (var user in _securityService.GetAuthorizedUsers())
-        {
-            AuthorizedUsersList.Add(user);
-        }
-        Debug.WriteLine($"[Settings] Refreshed authorized users list - Count: {AuthorizedUsersList.Count}");
-    }
-
-    /// <summary>
-    /// Command to save all application settings.
-    /// </summary>
-    [RelayCommand]
-    private void SaveSettings()
-    {
-        _appSettings.DefaultRootDirectory = DefaultRootDirectory;
-        _appSettings.ArchivePath = ArchivePath;
-        _appSettings.ShippedDirectory = ShippedDirectory;
-        _appSettings.FileScansDirectory = FileScansDirectory;
-        _appSettings.InventoryArchiveDirectory = InventoryArchiveDirectory;
-        _appSettings.SecurityConfigPath = SecurityConfigPath;
-        _appSettings.SecurityDatabasePath = SecurityDatabasePath;
-        _appSettings.Password = Password;
-        _appSettings.AuthorizedUsers = _securityService.GetAuthorizedUsers();
-
-        _settingsService.SaveSettings(_appSettings);
-        Debug.WriteLine($"[Settings] Settings saved");
-
-        LogAction("SETTINGS_CHANGED", "Application settings were updated");
-    }
-
-    /// <summary>
-    /// Command to change the master password after validating the current password.
-    /// Prompts the user for current password, new password, and confirmation.
-    /// Enforces strong password requirements.
-    /// </summary>
-    /// <returns>A task representing the asynchronous operation.</returns>
-    [RelayCommand(CanExecute = nameof(CanChangeMasterPassword))]
-    private async Task ChangeMasterPasswordAsync()
-    {
-        if (!_securityService.IsFullyUnlocked)
-        {
-            await ShowErrorDialogAsync("Access Denied", "You must be authorized or have master override enabled to change the master password.");
-            LogAction("MASTER_PASSWORD_CHANGE_DENIED", "Unauthorized user attempted to change master password");
-            return;
-        }
-
-        var dialog = new ContentDialog
-        {
-            Title = "Change Master Password",
-            PrimaryButtonText = "Change",
-            CloseButtonText = "Cancel",
-            DefaultButton = ContentDialogButton.Primary,
-            XamlRoot = App.MainWindow?.Content?.XamlRoot
-        };
-
-        var stackPanel = new StackPanel { Spacing = 12 };
-
-        // Show password requirements
-        stackPanel.Children.Add(new TextBlock
-        {
-            Text = PasswordValidator.GetPasswordRequirementsMessage(),
-            TextWrapping = TextWrapping.Wrap,
-            Margin = new Microsoft.UI.Xaml.Thickness(0, 0, 0, 12)
-        });
-
-        stackPanel.Children.Add(new TextBlock
-        {
-            Text = "Current Master Password:",
-            FontWeight = FontWeights.SemiBold
-        });
-        var currentPasswordBox = new PasswordBox { Width = 300 };
-        stackPanel.Children.Add(currentPasswordBox);
-
-        stackPanel.Children.Add(new TextBlock
-        {
-            Text = "New Master Password:",
-            FontWeight = FontWeights.SemiBold
-        });
-        var newPasswordBox = new PasswordBox { Width = 300 };
-        stackPanel.Children.Add(newPasswordBox);
-
-        stackPanel.Children.Add(new TextBlock
-        {
-            Text = "Confirm New Password:",
-            FontWeight = FontWeights.SemiBold
-        });
-        var confirmPasswordBox = new PasswordBox { Width = 300 };
-        stackPanel.Children.Add(confirmPasswordBox);
-
-        dialog.Content = stackPanel;
-
-        var result = await dialog.ShowAsync();
-
-        if (result == ContentDialogResult.Primary)
-        {
-            string currentPassword = currentPasswordBox.Password;
-            string newPassword = newPasswordBox.Password;
-            string confirmPassword = confirmPasswordBox.Password;
-
-            if (string.IsNullOrWhiteSpace(currentPassword))
-            {
-                await ShowErrorDialogAsync("Validation Error", "Current password is required");
-                return;
-            }
-
-            if (string.IsNullOrWhiteSpace(newPassword))
-            {
-                await ShowErrorDialogAsync("Validation Error", "New password is required");
-                return;
-            }
-
-            if (newPassword != confirmPassword)
-            {
-                await ShowErrorDialogAsync("Validation Error", "New passwords do not match");
-                return;
-            }
-
-            // Validate password strength
-            if (!PasswordValidator.ValidatePassword(newPassword, out string errorMessage))
-            {
-                await ShowErrorDialogAsync("Password Requirements Not Met", errorMessage);
-                return;
-            }
-
-            try
-            {
-                if (await _securityService.ChangeMasterPasswordAsync(currentPassword, newPassword))
-                {
-                    await ShowSuccessDialogAsync("Success", "Master password changed successfully!");
-                    LogAction("MASTER_PASSWORD_CHANGED", "User successfully changed the master password");
-                }
-                else
-                {
-                    await ShowErrorDialogAsync("Error", "Current password is incorrect");
-                    LogAction("MASTER_PASSWORD_CHANGE_FAILED", "Failed to change master password - incorrect old password");
-                }
-            }
-            catch (ArgumentException ex)
-            {
-                await ShowErrorDialogAsync("Password Requirements Not Met", ex.Message);
-                LogAction("MASTER_PASSWORD_CHANGE_FAILED", $"Password change rejected - {ex.Message}");
-            }
-        }
-    }
-
-    /// <summary>
-    /// Determines whether the change master password command can execute.
-    /// </summary>
-    /// <returns><c>true</c> if the user is fully unlocked; otherwise, <c>false</c>.</returns>
-    private bool CanChangeMasterPassword()
-    {
-        return _securityService.IsFullyUnlocked;
-    }
-
-    /// <summary>
-    /// Command to unlock features using the master password.
-    /// Prompts the user for the master password and activates override if valid.
-    /// Implements rate limiting to prevent brute force attacks.
-    /// </summary>
-    /// <returns>A task representing the asynchronous operation.</returns>
-    [RelayCommand]
-    private async Task UnlockWithMasterPasswordAsync()
-    {
-        // Check if locked out
-        if (_securityService.IsLockedOut)
-        {
-            var remainingTime = _securityService.RemainingLockoutTime;
-            await ShowErrorDialogAsync(
-                "Authentication Locked", 
-                $"Too many failed attempts. Please try again in {remainingTime?.TotalMinutes:F0} minutes."
-            );
-            return;
-        }
-
-        var dialog = new ContentDialog
-        {
-            Title = "Master Password Override",
-            PrimaryButtonText = "Unlock",
-            CloseButtonText = "Cancel",
-            DefaultButton = ContentDialogButton.Primary,
-            XamlRoot = App.MainWindow?.Content?.XamlRoot
-        };
-
-        var stackPanel = new StackPanel { Spacing = 12 };
-        stackPanel.Children.Add(new TextBlock
-        {
-            Text = "Enter master password to unlock all features:",
-            TextWrapping = TextWrapping.Wrap
-        });
-
-        var passwordBox = new PasswordBox { Width = 300 };
-        stackPanel.Children.Add(passwordBox);
-
-        dialog.Content = stackPanel;
-
-        var result = await dialog.ShowAsync();
-
-        if (result == ContentDialogResult.Primary)
-        {
-            string password = passwordBox.Password;
-
-            if (_securityService.ValidateMasterPassword(password))
-            {
-                IsMasterPasswordOverrideActive = _securityService.IsMasterPasswordOverrideActive;
-                IsUserAuthorized = true;
-                IsCurrentUserSuperAdmin = true;
-                UpdateUnlockStatus();
-                RefreshAuthorizedUsersList();
-
-                _mainViewModel.UpdateInventoryTabVisibility();
-                bool isNowVisible = _securityService.IsFullyUnlocked;
-                UpdateMainWindowInventoryTab(isNowVisible);
-
-                await ShowSuccessDialogAsync("Success", "SuperAdmin access granted. All features are now unlocked.");
-                Debug.WriteLine($"[Settings] SuperAdmin access granted via master password");
-            }
-            else
-            {
-                if (_securityService.IsLockedOut)
-                {
-                    var remainingTime = _securityService.RemainingLockoutTime;
-                    await ShowErrorDialogAsync(
-                        "Authentication Locked", 
-                        $"Too many failed attempts. Authentication is locked for {remainingTime?.TotalMinutes:F0} minutes."
-                    );
-                }
-                else
-                {
-                    await ShowErrorDialogAsync("Invalid Password", "The password you entered is incorrect.");
-                }
-                Debug.WriteLine($"[Settings] Master password override failed - incorrect password");
-            }
-        }
-    }
-
-    /// <summary>
-    /// Command to deactivate the master password override.
-    /// Locks features that require authorization.
-    /// </summary>
-    [RelayCommand]
-    private void DeactivateMasterPasswordOverride()
-    {
-        Debug.WriteLine($"[Settings] DeactivateMasterPasswordOverride called");
-
-        _securityService.DeactivateMasterPasswordOverride();
-        IsMasterPasswordOverrideActive = false;
-        IsUserAuthorized = false;
-        IsCurrentUserSuperAdmin = _securityService.GetCurrentUserAccessLevel() == 3;
-        UpdateUnlockStatus();
-
-        _mainViewModel.UpdateInventoryTabVisibility();
-        bool isNowVisible = _securityService.IsFullyUnlocked;
-        UpdateMainWindowInventoryTab(isNowVisible);
-
-        Debug.WriteLine($"[Settings] SuperAdmin access deactivated");
-
-        LogAction("SUPERADMIN_LOGOUT", "SuperAdmin access was deactivated");
-    }
-
-    /// <summary>
-    /// Command to add a user to the authorized users list.
-    /// Requires the current user to be fully unlocked.
-    /// </summary>
-    /// <param name="userId">The user ID to add to the authorized list.</param>
-    [RelayCommand]
-    private async Task AddAuthorizedUserAsync(string userId)
-    {
-        if (_securityService.IsFullyUnlocked && !string.IsNullOrWhiteSpace(userId))
-        {
-            await _securityService.AddAuthorizedUserAsync(userId);
-            AuthorizedUsersList.Add(userId);
-            SaveSettings();
-
-            // Refresh authorization status
-            IsUserAuthorized = _securityService.IsFullyUnlocked;
-            UpdateUnlockStatus();
-
-            UpdateMainWindowForUserChanges();
-
-            Debug.WriteLine($"[Settings] Added authorized user: {userId}");
-            LogAction("USER_ADDED", $"User '{userId}' was added to authorized users");
-        }
-    }
-
-    /// <summary>
-    /// Command to remove a user from the authorized users list.
-    /// Requires the current user to be fully unlocked.
-    /// </summary>
-    /// <param name="userId">The user ID to remove from the authorized list.</param>
-    [RelayCommand]
-    private async Task RemoveAuthorizedUserAsync(string userId)
-    {
-        if (_securityService.IsFullyUnlocked)
-        {
-            await _securityService.RemoveAuthorizedUserAsync(userId);
-            AuthorizedUsersList.Remove(userId);
-            SaveSettings();
-
-            // Refresh authorization status
-            IsUserAuthorized = _securityService.IsFullyUnlocked;
-            UpdateUnlockStatus();
-
-            UpdateMainWindowForUserChanges();
-
-            Debug.WriteLine($"[Settings] Removed authorized user: {userId}");
-            LogAction("USER_REMOVED", $"User '{userId}' was removed from authorized users");
-        }
-    }
-
-    /// <summary>
-    /// Command to load audit logs asynchronously from the audit logging service.
-    /// Populates the AllLogs collection and applies current filters.
-    /// </summary>
-    /// <returns>A task representing the asynchronous operation.</returns>
-    [RelayCommand]
-    private async Task LoadLogsAsync()
-    {
         try
         {
-            var logs = await _auditLoggingService.GetLogsAsync();
+            _appSettings = _settingsService.LoadSettings();
 
-            AllLogs.Clear();
-            foreach (var log in logs.OrderByDescending(l => l.Timestamp))
-            {
-                AllLogs.Add(log);
-            }
+            DefaultRootDirectory = _appSettings.DefaultRootDirectory;
+            ArchivePath = _appSettings.ArchivePath;
+            ShippedDirectory = _appSettings.ShippedDirectory;
+            FileScansDirectory = _appSettings.FileScansDirectory;
+            InventoryArchiveDirectory = _appSettings.InventoryArchiveDirectory;
+            SelectedTheme = _appSettings.Theme;
 
-            UpdateFilters();
-            TotalLogCount = AllLogs.Count;
-            UpdateLogStats();
-
-            Debug.WriteLine($"[Settings] Loaded {AllLogs.Count} logs");
-
-            ApplyFilters();
+            Debug.WriteLine("[SettingsViewModel] Settings loaded successfully");
         }
         catch (Exception ex)
         {
-            Debug.WriteLine($"[Settings] ERROR loading logs: {ex.Message}");
+            Debug.WriteLine($"[SettingsViewModel] Error loading settings: {ex.Message}");
         }
     }
 
     /// <summary>
-    /// Partial method invoked when the filter text changes.
-    /// Reapplies filters to the audit logs.
+    /// Saves the current settings.
     /// </summary>
-    partial void OnFilterTextChanged(string value) => ApplyFilters();
-    
-    /// <summary>
-    /// Partial method invoked when the selected action type filter changes.
-    /// Reapplies filters to the audit logs.
-    /// </summary>
-    partial void OnSelectedActionTypeFilterChanged(string value) => ApplyFilters();
-    
-    /// <summary>
-    /// Partial method invoked when the selected user filter changes.
-    /// Reapplies filters to the audit logs.
-    /// </summary>
-    partial void OnSelectedUserFilterChanged(string value) => ApplyFilters();
-
-    /// <summary>
-    /// Updates the available filter options based on the current audit logs.
-    /// Populates action types and user lists for filtering.
-    /// </summary>
-    private void UpdateFilters()
-    {
-        var actionTypes = AllLogs
-            .Select(l => l.ActionType)
-            .Distinct()
-            .OrderBy(a => a)
-            .ToList();
-
-        AvailableActionTypes.Clear();
-        AvailableActionTypes.Add("All");
-        foreach (var actionType in actionTypes)
-        {
-            AvailableActionTypes.Add(actionType);
-        }
-
-        var users = AllLogs
-            .Select(l => l.UserId)
-            .Distinct()
-            .OrderBy(u => u)
-            .ToList();
-
-        AvailableUsers.Clear();
-        AvailableUsers.Add("All");
-        foreach (var user in users)
-        {
-            AvailableUsers.Add(user);
-        }
-    }
-
-    /// <summary>
-    /// Applies the current filter criteria to the audit logs.
-    /// Updates the FilteredLogs collection with matching entries.
-    /// </summary>
-    private void ApplyFilters()
-    {
-        var filtered = AllLogs.AsEnumerable();
-
-        if (!string.IsNullOrEmpty(SelectedActionTypeFilter) && SelectedActionTypeFilter != "All")
-        {
-            filtered = filtered.Where(l => l.ActionType == SelectedActionTypeFilter);
-        }
-
-        if (!string.IsNullOrEmpty(SelectedUserFilter) && SelectedUserFilter != "All")
-        {
-            filtered = filtered.Where(l => l.UserId.Equals(SelectedUserFilter, StringComparison.OrdinalIgnoreCase));
-        }
-
-        if (!string.IsNullOrWhiteSpace(FilterText))
-        {
-            var searchText = FilterText.ToLower();
-            filtered = filtered.Where(l =>
-                l.Description.ToLower().Contains(searchText) ||
-                l.TargetPath.ToLower().Contains(searchText) ||
-                l.Details.ToLower().Contains(searchText)
-            );
-        }
-
-        FilteredLogs.Clear();
-        foreach (var log in filtered.OrderByDescending(l => l.Timestamp))
-        {
-            FilteredLogs.Add(log);
-        }
-
-        UpdateLogStats();
-    }
-
-    /// <summary>
-    /// Updates the log statistics message showing filtered vs. total log counts.
-    /// </summary>
-    private void UpdateLogStats()
-    {
-        LogStatsMessage = $"Showing {FilteredLogs.Count} of {TotalLogCount} total logs";
-    }
-
-    /// <summary>
-    /// Command to export audit logs to a file.
-    /// Prompts the user to choose between CSV and JSON formats.
-    /// </summary>
-    /// <returns>A task representing the asynchronous operation.</returns>
     [RelayCommand]
-    private async Task ExportLogsAsync()
+    private async Task SaveSettingsAsync()
     {
         try
         {
-            var savePicker = new Windows.Storage.Pickers.FileSavePicker();
-            savePicker.SuggestedStartLocation = Windows.Storage.Pickers.PickerLocationId.DocumentsLibrary;
-            savePicker.FileTypeChoices.Add("CSV File", new System.Collections.Generic.List<string> { ".csv" });
-            savePicker.FileTypeChoices.Add("JSON File", new System.Collections.Generic.List<string> { ".json" });
-            savePicker.SuggestedFileName = $"AIM_Audit_Log_{DateTime.UtcNow:yyyy-MM-dd_HH-mm-ss}";
+            _appSettings.DefaultRootDirectory = DefaultRootDirectory;
+            _appSettings.ArchivePath = ArchivePath;
+            _appSettings.ShippedDirectory = ShippedDirectory;
+            _appSettings.FileScansDirectory = FileScansDirectory;
+            _appSettings.InventoryArchiveDirectory = InventoryArchiveDirectory;
+            _appSettings.Theme = SelectedTheme;
 
-            var window = App.MainWindow;
-            if (window != null)
-            {
-                IntPtr hwnd = WindowNative.GetWindowHandle(window);
-                InitializeWithWindow.Initialize(savePicker, hwnd);
-            }
+            _settingsService.SaveSettings(_appSettings);
 
-            var file = await savePicker.PickSaveFileAsync();
-            if (file != null)
-            {
-                if (file.Name.EndsWith(".csv", StringComparison.OrdinalIgnoreCase))
-                {
-                    await _auditLoggingService.ExportToCSVAsync(file.Path);
-                }
-                else
-                {
-                    await _auditLoggingService.ExportToJsonAsync(file.Path, FilteredLogs.ToList());
-                }
+            Debug.WriteLine("[SettingsViewModel] Settings saved successfully");
 
-                Debug.WriteLine($"[Settings] Logs exported to: {file.Path}");
-
-                await ShowSuccessDialogAsync("Export Successful", $"Logs exported to:\n{file.Path}");
-            }
+            await _dialogService.ShowMessageAsync("Success", "Settings saved successfully.");
         }
         catch (Exception ex)
         {
-            Debug.WriteLine($"[Settings] ERROR exporting logs: {ex.Message}\n{ex.StackTrace}");
-            await ShowErrorDialogAsync("Export Failed", $"Error exporting logs: {ex.Message}");
+            Debug.WriteLine($"[SettingsViewModel] Error saving settings: {ex.Message}");
+            await _dialogService.ShowMessageAsync("Error", $"Failed to save settings: {ex.Message}");
         }
     }
 
     /// <summary>
-    /// Command to clear all audit logs.
-    /// Requires user authorization and prompts for confirmation.
+    /// Handles changes to the selected theme.
     /// </summary>
-    /// <returns>A task representing the asynchronous operation.</returns>
-    [RelayCommand]
-    private async Task ClearAllLogsAsync()
+    partial void OnSelectedThemeChanged(string value)
     {
-        // Require Admin access (level 2+) to clear logs
-        if (!_securityService.IsCurrentUserAdmin())
+        if (_themeService != null)
         {
-            await ShowErrorDialogAsync("Access Denied", "You do not have permission to clear audit logs. Only Admin users and above can clear logs.");
-            _auditLoggingService.LogClearLogsAttempt(false, Environment.UserName);
-            return;
-        }
-
-        var dialog = new ContentDialog
-        {
-            Title = "Clear All Logs",
-            Content = "Are you sure you want to delete all audit logs? This action cannot be undone.",
-            PrimaryButtonText = "Clear",
-            CloseButtonText = "Cancel",
-            DefaultButton = ContentDialogButton.Close,
-            XamlRoot = App.MainWindow?.Content?.XamlRoot
-        };
-
-        var result = await dialog.ShowAsync();
-
-        if (result == ContentDialogResult.Primary)
-        {
-            try
-            {
-                await _auditLoggingService.ClearLogsAsync(isAuthorized: true);
-                _auditLoggingService.LogClearLogsAttempt(true, Environment.UserName);
-
-                await LoadLogsAsync();
-
-                await ShowSuccessDialogAsync("Logs Cleared", "All audit logs have been cleared.");
-                Debug.WriteLine($"[Settings] Logs cleared by authorized user");
-            }
-            catch (Exception ex)
-            {
-                await ShowErrorDialogAsync("Error", $"Failed to clear logs: {ex.Message}");
-            }
+            _themeService.SetTheme(value);
+            Debug.WriteLine($"[SettingsViewModel] Theme changed to: {value}");
         }
     }
 
     /// <summary>
-    /// Updates the unlock status and notifies commands of state changes.
-    /// </summary>
-    private void UpdateUnlockStatus()
-    {
-        IsDirectoriesUnlocked = _securityService.IsFullyUnlocked;
-        IsMasterPasswordOverrideActive = _securityService.IsMasterPasswordOverrideActive;
-
-        ChangeMasterPasswordCommand.NotifyCanExecuteChanged();
-        UnlockWithMasterPasswordCommand.NotifyCanExecuteChanged();
-        SaveSettingsCommand.NotifyCanExecuteChanged();
-        AddAuthorizedUserCommand.NotifyCanExecuteChanged();
-        RemoveAuthorizedUserCommand.NotifyCanExecuteChanged();
-
-        Debug.WriteLine($"[Settings] Unlock status updated - Directories unlocked: {IsDirectoriesUnlocked}");
-        Debug.WriteLine($"[Settings] IsFullyUnlocked: {_securityService.IsFullyUnlocked}");
-    }
-
-    /// <summary>
-    /// Updates the inventory tab visibility in the main window.
-    /// </summary>
-    /// <param name="shouldBeVisible">Whether the inventory tab should be visible.</param>
-    private void UpdateMainWindowInventoryTab(bool shouldBeVisible)
-    {
-        if (App.MainWindow is MainWindow mainWindow)
-        {
-            Debug.WriteLine($"[Settings] Directly updating MainWindow inventory tab visibility to: {shouldBeVisible}");
-            mainWindow.UpdateInventoryTabVisibility(shouldBeVisible);
-        }
-        else
-        {
-            Debug.WriteLine($"[Settings] WARNING: Could not access MainWindow");
-        }
-    }
-
-    /// <summary>
-    /// Updates the main window state when authorized users list changes.
-    /// </summary>
-    private void UpdateMainWindowForUserChanges()
-    {
-        bool isNowVisible = _securityService.IsFullyUnlocked;
-        UpdateMainWindowInventoryTab(isNowVisible);
-    }
-
-    /// <summary>
-    /// Shows a success dialog with the specified title and message.
-    /// </summary>
-    /// <param name="title">The dialog title.</param>
-    /// <param name="message">The success message to display.</param>
-    /// <returns>A task representing the asynchronous operation.</returns>
-    private async Task ShowSuccessDialogAsync(string title, string message)
-    {
-        var dialog = new ContentDialog
-        {
-            Title = title,
-            Content = message,
-            CloseButtonText = "OK",
-            XamlRoot = App.MainWindow?.Content?.XamlRoot
-        };
-        await dialog.ShowAsync();
-    }
-
-    /// <summary>
-    /// Shows an error dialog with the specified title and message.
-    /// </summary>
-    /// <param name="title">The dialog title.</param>
-    /// <param name="message">The error message to display.</param>
-    /// <returns>A task representing the asynchronous operation.</returns>
-    private async Task ShowErrorDialogAsync(string title, string message)
-    {
-        var dialog = new ContentDialog
-        {
-            Title = title,
-            Content = message,
-            CloseButtonText = "OK",
-            XamlRoot = App.MainWindow?.Content?.XamlRoot
-        };
-        await dialog.ShowAsync();
-    }
-
-    /// <summary>
-    /// Logs an action to the audit logging service.
-    /// </summary>
-    /// <param name="actionType">The type of action being logged.</param>
-    /// <param name="description">A description of the action.</param>
-    private void LogAction(string actionType, string description)
-    {
-        var entry = new AuditLogEntry
-        {
-            ActionType = actionType,
-            Description = description,
-            UserId = CurrentUserId,
-            TargetPath = "SETTINGS",
-            Details = ""
-        };
-
-        _auditLoggingService.LogAction(entry);
-    }
-
-    /// <summary>
-    /// Loads authorized users from the database.
+    /// Selects a directory for the default root directory.
     /// </summary>
     [RelayCommand]
-    private async Task LoadDatabaseUsersAsync()
+    private async Task SelectDefaultRootDirectoryAsync()
     {
-        var dbService = _securityService.GetDatabaseSecurityService();
-        if (dbService == null)
+        var selectedPath = await _dialogService.PickFolderAsync();
+        if (!string.IsNullOrEmpty(selectedPath))
         {
-            Debug.WriteLine("[Settings] Database security service not available");
-            return;
-        }
-
-        try
-        {
-            var users = await dbService.GetAuthorizedUsersAsync();
-            
-            DatabaseAuthorizedUsers.Clear();
-            foreach (var user in users)
-            {
-                DatabaseAuthorizedUsers.Add(user);
-            }
-
-            Debug.WriteLine($"[Settings] Loaded {DatabaseAuthorizedUsers.Count} users from database");
-        }
-        catch (Exception ex)
-        {
-            Debug.WriteLine($"[Settings] ERROR loading database users: {ex.Message}");
-            await ShowErrorDialogAsync("Error", $"Failed to load users from database: {ex.Message}");
+            DefaultRootDirectory = selectedPath;
         }
     }
 
     /// <summary>
-    /// Command to add a new user to the database.
-    /// Requires SuperAdmin access (level 3 or master password override).
+    /// Selects a directory for the archive path.
     /// </summary>
     [RelayCommand]
-    private async Task AddDatabaseUserAsync()
+    private async Task SelectArchivePathAsync()
     {
-        if (!IsCurrentUserSuperAdmin)
+        var selectedPath = await _dialogService.PickFolderAsync();
+        if (!string.IsNullOrEmpty(selectedPath))
         {
-            await ShowErrorDialogAsync("Access Denied", "Only SuperAdmin users can add users.");
-            return;
-        }
-
-        var dbService = _securityService.GetDatabaseSecurityService();
-        if (dbService == null)
-        {
-            await ShowErrorDialogAsync("Error", "Database security is not configured.");
-            return;
-        }
-
-        var dialog = new ContentDialog
-        {
-            Title = "Add Authorized User",
-            PrimaryButtonText = "Add",
-            CloseButtonText = "Cancel",
-            DefaultButton = ContentDialogButton.Primary,
-            XamlRoot = App.MainWindow?.Content?.XamlRoot
-        };
-
-        var stackPanel = new StackPanel { Spacing = 12 };
-
-        stackPanel.Children.Add(new TextBlock
-        {
-            Text = "Username:",
-            FontWeight = FontWeights.SemiBold
-        });
-        var usernameBox = new TextBox { Width = 300 };
-        stackPanel.Children.Add(usernameBox);
-
-        stackPanel.Children.Add(new TextBlock
-        {
-            Text = "Full Name (Optional):",
-            FontWeight = FontWeights.SemiBold
-        });
-        var fullNameBox = new TextBox { Width = 300 };
-        stackPanel.Children.Add(fullNameBox);
-
-        stackPanel.Children.Add(new TextBlock
-        {
-            Text = "Department (Optional):",
-            FontWeight = FontWeights.SemiBold
-        });
-        var departmentBox = new TextBox { Width = 300 };
-        stackPanel.Children.Add(departmentBox);
-
-        stackPanel.Children.Add(new TextBlock
-        {
-            Text = "Access Level:",
-            FontWeight = FontWeights.SemiBold
-        });
-        var accessLevelCombo = new ComboBox { Width = 300 };
-        accessLevelCombo.Items.Add("Basic (1)");
-        accessLevelCombo.Items.Add("Admin (2)");
-        accessLevelCombo.Items.Add("SuperAdmin (3)");
-        accessLevelCombo.SelectedIndex = 0;
-        stackPanel.Children.Add(accessLevelCombo);
-
-        dialog.Content = stackPanel;
-
-        var result = await dialog.ShowAsync();
-
-        if (result == ContentDialogResult.Primary)
-        {
-            string username = usernameBox.Text.Trim();
-            string? fullName = string.IsNullOrWhiteSpace(fullNameBox.Text) ? null : fullNameBox.Text.Trim();
-            string? department = string.IsNullOrWhiteSpace(departmentBox.Text) ? null : departmentBox.Text.Trim();
-            int accessLevel = accessLevelCombo.SelectedIndex + 1;
-
-            if (string.IsNullOrWhiteSpace(username))
-            {
-                await ShowErrorDialogAsync("Validation Error", "Username is required");
-                return;
-            }
-
-            try
-            {
-                await dbService.AddAuthorizedUserAsync(username, fullName, department, accessLevel, CurrentUserId);
-                await LoadDatabaseUsersAsync();
-                await ShowSuccessDialogAsync("Success", $"User '{username}' added successfully with {GetAccessLevelName(accessLevel)} access.");
-                LogAction("USER_ADDED", $"Added user '{username}' with access level {accessLevel}");
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine($"[Settings] ERROR adding user: {ex.Message}");
-                await ShowErrorDialogAsync("Error", $"Failed to add user: {ex.Message}");
-            }
+            ArchivePath = selectedPath;
         }
     }
 
     /// <summary>
-    /// Command to edit a user in the database.
-    /// Requires SuperAdmin access (level 3 or master password override).
+    /// Selects a directory for the shipped directory.
     /// </summary>
     [RelayCommand]
-    private async Task EditDatabaseUserAsync(AuthorizedUser user)
+    private async Task SelectShippedDirectoryAsync()
     {
-        if (!IsCurrentUserSuperAdmin)
+        var selectedPath = await _dialogService.PickFolderAsync();
+        if (!string.IsNullOrEmpty(selectedPath))
         {
-            await ShowErrorDialogAsync("Access Denied", "Only SuperAdmin users can edit users.");
-            return;
-        }
-
-        if (user == null)
-            return;
-
-        var dbService = _securityService.GetDatabaseSecurityService();
-        if (dbService == null)
-        {
-            await ShowErrorDialogAsync("Error", "Database security is not configured.");
-            return;
-        }
-
-        var dialog = new ContentDialog
-        {
-            Title = $"Edit User: {user.Username}",
-            PrimaryButtonText = "Save",
-            CloseButtonText = "Cancel",
-            DefaultButton = ContentDialogButton.Primary,
-            XamlRoot = App.MainWindow?.Content?.XamlRoot
-        };
-
-        var stackPanel = new StackPanel { Spacing = 12 };
-
-        stackPanel.Children.Add(new TextBlock
-        {
-            Text = "Full Name (Optional):",
-            FontWeight = FontWeights.SemiBold
-        });
-        var fullNameBox = new TextBox { Width = 300, Text = user.FullName ?? "" };
-        stackPanel.Children.Add(fullNameBox);
-
-        stackPanel.Children.Add(new TextBlock
-        {
-            Text = "Department (Optional):",
-            FontWeight = FontWeights.SemiBold
-        });
-        var departmentBox = new TextBox { Width = 300, Text = user.Department ?? "" };
-        stackPanel.Children.Add(departmentBox);
-
-        stackPanel.Children.Add(new TextBlock
-        {
-            Text = "Access Level:",
-            FontWeight = FontWeights.SemiBold
-        });
-        var accessLevelCombo = new ComboBox { Width = 300 };
-        accessLevelCombo.Items.Add("Basic (1)");
-        accessLevelCombo.Items.Add("Admin (2)");
-        accessLevelCombo.Items.Add("SuperAdmin (3)");
-        accessLevelCombo.SelectedIndex = user.AccessLevel - 1;
-        stackPanel.Children.Add(accessLevelCombo);
-
-        dialog.Content = stackPanel;
-
-        var result = await dialog.ShowAsync();
-
-        if (result == ContentDialogResult.Primary)
-        {
-            string? fullName = string.IsNullOrWhiteSpace(fullNameBox.Text) ? null : fullNameBox.Text.Trim();
-            string? department = string.IsNullOrWhiteSpace(departmentBox.Text) ? null : departmentBox.Text.Trim();
-            int accessLevel = accessLevelCombo.SelectedIndex + 1;
-
-            try
-            {
-                await dbService.UpdateAuthorizedUserAsync(user.ID, fullName, department, accessLevel, CurrentUserId);
-                await LoadDatabaseUsersAsync();
-                await ShowSuccessDialogAsync("Success", $"User '{user.Username}' updated successfully.");
-                LogAction("USER_MODIFIED", $"Modified user '{user.Username}' with access level {accessLevel}");
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine($"[Settings] ERROR updating user: {ex.Message}");
-                await ShowErrorDialogAsync("Error", $"Failed to update user: {ex.Message}");
-            }
+            ShippedDirectory = selectedPath;
         }
     }
 
     /// <summary>
-    /// Command to remove a user from the database.
-    /// Requires SuperAdmin access (level 3 or master password override).
+    /// Selects a directory for the file scans directory.
     /// </summary>
     [RelayCommand]
-    private async Task RemoveDatabaseUserAsync(AuthorizedUser user)
+    private async Task SelectFileScansDirectoryAsync()
     {
-        if (!IsCurrentUserSuperAdmin)
+        var selectedPath = await _dialogService.PickFolderAsync();
+        if (!string.IsNullOrEmpty(selectedPath))
         {
-            await ShowErrorDialogAsync("Access Denied", "Only SuperAdmin users can remove users.");
-            return;
+            FileScansDirectory = selectedPath;
         }
+    }
 
-        if (user == null)
-            return;
-
-        var dbService = _securityService.GetDatabaseSecurityService();
-        if (dbService == null)
+    /// <summary>
+    /// Selects a directory for the inventory archive directory.
+    /// </summary>
+    [RelayCommand]
+    private async Task SelectInventoryArchiveDirectoryAsync()
+    {
+        var selectedPath = await _dialogService.PickFolderAsync();
+        if (!string.IsNullOrEmpty(selectedPath))
         {
-            await ShowErrorDialogAsync("Error", "Database security is not configured.");
-            return;
-        }
-
-        var dialog = new ContentDialog
-        {
-            Title = "Remove User",
-            Content = $"Are you sure you want to remove user '{user.Username}'? This action cannot be undone.",
-            PrimaryButtonText = "Remove",
-            CloseButtonText = "Cancel",
-            DefaultButton = ContentDialogButton.Close,
-            XamlRoot = App.MainWindow?.Content?.XamlRoot
-        };
-
-        var result = await dialog.ShowAsync();
-
-        if (result == ContentDialogResult.Primary)
-        {
-            try
-            {
-                await dbService.RemoveAuthorizedUserAsync(user.Username, CurrentUserId);
-                await LoadDatabaseUsersAsync();
-                await ShowSuccessDialogAsync("Success", $"User '{user.Username}' removed successfully.");
-                LogAction("USER_REMOVED", $"Removed user '{user.Username}'");
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine($"[Settings] ERROR removing user: {ex.Message}");
-                await ShowErrorDialogAsync("Error", $"Failed to remove user: {ex.Message}");
-            }
+            InventoryArchiveDirectory = selectedPath;
         }
     }
 }
