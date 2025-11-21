@@ -9,10 +9,132 @@ using System.Linq;
 using System.Reflection;
 using System.Security.Cryptography;
 using System.Text;
+using System.Threading;
 using System.Windows.Forms;
 
 namespace AIM.Installer
 {
+    /// <summary>
+    /// Simple progress dialog for displaying AIM launch status.
+    /// </summary>
+    internal class LaunchProgressDialog : Form
+    {
+        private Label statusLabel;
+        private Label countdownLabel;
+        private Button cancelButton;
+        private System.Windows.Forms.Timer countdownTimer;
+        private int remainingSeconds;
+        private bool cancelled = false;
+
+        public bool IsCancelled => cancelled;
+
+        public LaunchProgressDialog(int timeoutSeconds)
+        {
+            remainingSeconds = timeoutSeconds;
+            InitializeComponents();
+            countdownTimer.Start();
+        }
+
+        private void InitializeComponents()
+        {
+            this.Text = "Launching AIM";
+            this.Size = new Size(400, 180);
+            this.StartPosition = FormStartPosition.CenterScreen;
+            this.FormBorderStyle = FormBorderStyle.FixedDialog;
+            this.MaximizeBox = false;
+            this.MinimizeBox = false;
+            this.ControlBox = false;
+
+            statusLabel = new Label
+            {
+                Text = "AIM is initializing...\n\nPlease wait while the application starts.",
+                Location = new Point(20, 20),
+                Size = new Size(360, 60),
+                TextAlign = ContentAlignment.MiddleCenter
+            };
+
+            countdownLabel = new Label
+            {
+                Text = $"Time remaining: {remainingSeconds} seconds",
+                Location = new Point(20, 90),
+                Size = new Size(360, 25),
+                TextAlign = ContentAlignment.MiddleCenter,
+                Font = new Font(this.Font, FontStyle.Bold)
+            };
+
+            cancelButton = new Button
+            {
+                Text = "Close Installer",
+                Location = new Point(140, 115),
+                Size = new Size(120, 30)
+            };
+            cancelButton.Click += (s, e) =>
+            {
+                cancelled = true;
+                this.Close();
+            };
+
+            countdownTimer = new System.Windows.Forms.Timer
+            {
+                Interval = 1000 // 1 second
+            };
+            countdownTimer.Tick += CountdownTimer_Tick;
+
+            this.Controls.Add(statusLabel);
+            this.Controls.Add(countdownLabel);
+            this.Controls.Add(cancelButton);
+        }
+
+        private void CountdownTimer_Tick(object sender, EventArgs e)
+        {
+            remainingSeconds--;
+            countdownLabel.Text = $"Time remaining: {remainingSeconds} seconds";
+
+            if (remainingSeconds <= 0)
+            {
+                countdownTimer.Stop();
+                statusLabel.Text = "AIM is still loading...\n\nYou can safely close this installer.";
+                countdownLabel.Text = "Installation complete";
+            }
+        }
+
+        public void UpdateStatus(string message)
+        {
+            if (statusLabel.InvokeRequired)
+            {
+                statusLabel.Invoke(new Action(() => statusLabel.Text = message));
+            }
+            else
+            {
+                statusLabel.Text = message;
+            }
+        }
+
+        protected override void OnFormClosing(FormClosingEventArgs e)
+        {
+            countdownTimer?.Stop();
+            countdownTimer?.Dispose();
+            base.OnFormClosing(e);
+        }
+    }
+
+    /// <summary>
+    /// Represents the application configuration settings.
+    /// This is a simplified version of the main AIM AppSettings for installer use.
+    /// </summary>
+    internal class AppSettings
+    {
+        public string DefaultRootDirectory { get; set; } = string.Empty;
+        public string ArchivePath { get; set; } = string.Empty;
+        public string ShippedDirectory { get; set; } = string.Empty;
+        public string FileScansDirectory { get; set; } = string.Empty;
+        public string InventoryArchiveDirectory { get; set; } = string.Empty;
+        public string SecurityDatabasePath { get; set; } = string.Empty;
+        public string Theme { get; set; } = "FollowSystem";
+        public List<string> AuthorizedUsers { get; set; } = new();
+        public bool IsInitialPasswordSet { get; set; } = false;
+    }
+
     /// <summary>
     /// Main installer form with wizard-style interface.
     /// </summary>
@@ -65,13 +187,14 @@ namespace AIM.Installer
         private const int DEFAULT_DB_TIMEOUT = 30; // seconds
         private System.Threading.CancellationTokenSource? installCancellationSource;
 
-        // Hardcoded network paths - baked into installer
-        private const string DefaultRootDirectory = @"\\oh1cam01\cml\Internal\LAB STOCK\LAB STOCK";
-        private const string ArchivePath = @"\\oh1cam01\cml\Internal\LAB STOCK\Archive";
-        private const string ShippedDirectory = @"\\oh1cam01\cml\Internal\LAB STOCK\Orders shipped";
-        private const string FileScansDirectory = @"C:\Tfile";
-        private const string InventoryArchiveDirectory = @"\\oh1cam01\cml\Internal\LAB STOCK\Physical Inventory Archive";
-        private const string SecurityDatabasePath = @"\\oh1cam01\cml\Internal\LAB STOCK\Important Inventory Related Documents\AIM\AIM_Security.db";
+        // Network paths - configurable via environment variables with hardcoded defaults
+        // Environment variables: AIM_ROOT_DIR, AIM_ARCHIVE_DIR, AIM_SHIPPED_DIR, AIM_SCANS_DIR, AIM_INVENTORY_ARCHIVE_DIR, AIM_SECURITY_DB_PATH
+        private static readonly string DefaultRootDirectory = Environment.GetEnvironmentVariable("AIM_ROOT_DIR") ?? @"\\oh1cam01\cml\Internal\LAB STOCK\LAB STOCK";
+        private static readonly string ArchivePath = Environment.GetEnvironmentVariable("AIM_ARCHIVE_DIR") ?? @"\\oh1cam01\cml\Internal\LAB STOCK\Archive";
+        private static readonly string ShippedDirectory = Environment.GetEnvironmentVariable("AIM_SHIPPED_DIR") ?? @"\\oh1cam01\cml\Internal\LAB STOCK\Orders shipped";
+        private static readonly string FileScansDirectory = Environment.GetEnvironmentVariable("AIM_SCANS_DIR") ?? @"C:\Tfile";
+        private static readonly string InventoryArchiveDirectory = Environment.GetEnvironmentVariable("AIM_INVENTORY_ARCHIVE_DIR") ?? @"\\oh1cam01\cml\Internal\LAB STOCK\Physical Inventory Archive";
+        private static readonly string SecurityDatabasePath = Environment.GetEnvironmentVariable("AIM_SECURITY_DB_PATH") ?? @"\\oh1cam01\cml\Internal\LAB STOCK\Important Inventory Related Documents\AIM\AIM_Security.db";
 
         // Hardcoded SuperAdmin credentials - baked into installer
         // SECURITY NOTE: These credentials are intentionally hardcoded per requirements.
@@ -86,6 +209,7 @@ namespace AIM.Installer
         {
             InitializeComponent();
             InitializeInstallerLogging();
+            LogNetworkPathConfiguration();
             ShowStep(STEP_WELCOME);
         }
 
@@ -647,6 +771,8 @@ namespace AIM.Installer
         private void LaunchAIM()
         {
             Process? aimProcess = null;
+            LaunchProgressDialog? progressDialog = null;
+            
             try
             {
                 var exePath = Path.Combine(installPath, "AIM.exe");
@@ -677,22 +803,73 @@ namespace AIM.Installer
                 LogMessage($"AIM process started (PID: {aimProcess.Id})");
                 LogMessage("Waiting for AIM to complete initialization...");
 
-                // Wait for AIM to exit or timeout (60 seconds)
+                // Create and show progress dialog
                 const int timeoutSeconds = 60;
-                bool exited = aimProcess.WaitForExit(timeoutSeconds * 1000);
+                progressDialog = new LaunchProgressDialog(timeoutSeconds);
+                progressDialog.UpdateStatus($"AIM is initializing...\n\nProcess ID: {aimProcess.Id}\n\nPlease wait while the application starts.");
+                
+                // Show dialog modally in a separate thread so we can monitor the process
+                var dialogThread = new Thread(() =>
+                {
+                    Application.Run(progressDialog);
+                });
+                dialogThread.SetApartmentState(ApartmentState.STA);
+                dialogThread.Start();
+
+                // Wait for AIM to exit or timeout
+                var startTime = DateTime.Now;
+                bool exited = false;
+                
+                while (!exited && (DateTime.Now - startTime).TotalSeconds < timeoutSeconds)
+                {
+                    // Check if process has exited
+                    exited = aimProcess.WaitForExit(1000); // Check every second
+                    
+                    // Check if user cancelled the dialog
+                    if (progressDialog.IsCancelled)
+                    {
+                        LogMessage("User closed the progress dialog");
+                        break;
+                    }
+                    
+                    // Update status
+                    var elapsed = (int)(DateTime.Now - startTime).TotalSeconds;
+                    if (!exited && elapsed % 5 == 0) // Update every 5 seconds
+                    {
+                        LogMessage($"AIM still initializing... ({elapsed}s elapsed)");
+                    }
+                }
+
+                // Close progress dialog
+                if (progressDialog != null && !progressDialog.IsDisposed)
+                {
+                    progressDialog.Invoke(new Action(() => progressDialog.Close()));
+                }
 
                 if (exited)
                 {
                     LogMessage($"AIM process exited with code: {aimProcess.ExitCode}");
+                    
                     if (aimProcess.ExitCode != 0)
                     {
-                        MessageBox.Show($"AIM exited with error code {aimProcess.ExitCode}", "Launch Warning",
-                            MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        MessageBox.Show(
+                            $"AIM exited with error code {aimProcess.ExitCode}\n\n" +
+                            $"Please check the installer log for details:\n" +
+                            $"{installerLogPath}",
+                            "Launch Warning",
+                            MessageBoxButtons.OK,
+                            MessageBoxIcon.Warning
+                        );
+                    }
+                    else
+                    {
+                        LogMessage("AIM exited successfully");
                     }
                 }
                 else
                 {
                     LogMessage($"AIM is running (timeout after {timeoutSeconds} seconds - this is normal for long initialization)");
+                    LogMessage("Installation completed successfully");
                 }
             }
             catch (Exception ex)
@@ -703,6 +880,19 @@ namespace AIM.Installer
             }
             finally
             {
+                // Clean up progress dialog
+                if (progressDialog != null && !progressDialog.IsDisposed)
+                {
+                    try
+                    {
+                        progressDialog.Invoke(new Action(() => progressDialog.Close()));
+                    }
+                    catch
+                    {
+                        // Ignore disposal errors
+                    }
+                }
+                
                 aimProcess?.Dispose();
             }
         }
@@ -773,6 +963,29 @@ namespace AIM.Installer
                 Debug.WriteLine($"Failed to initialize installer logging: {ex.Message}");
                 // Non-fatal - continue without persistent logging
             }
+        }
+
+        /// <summary>
+        /// Logs the network path configuration, indicating which paths are from environment variables vs defaults.
+        /// </summary>
+        private void LogNetworkPathConfiguration()
+        {
+            LogMessage("========================================");
+            LogMessage("Network Path Configuration");
+            LogMessage("========================================");
+            LogMessage($"DefaultRootDirectory: {DefaultRootDirectory}");
+            LogMessage($"  Source: {(Environment.GetEnvironmentVariable("AIM_ROOT_DIR") != null ? "Environment Variable (AIM_ROOT_DIR)" : "Hardcoded Default")}");
+            LogMessage($"ArchivePath: {ArchivePath}");
+            LogMessage($"  Source: {(Environment.GetEnvironmentVariable("AIM_ARCHIVE_DIR") != null ? "Environment Variable (AIM_ARCHIVE_DIR)" : "Hardcoded Default")}");
+            LogMessage($"ShippedDirectory: {ShippedDirectory}");
+            LogMessage($"  Source: {(Environment.GetEnvironmentVariable("AIM_SHIPPED_DIR") != null ? "Environment Variable (AIM_SHIPPED_DIR)" : "Hardcoded Default")}");
+            LogMessage($"FileScansDirectory: {FileScansDirectory}");
+            LogMessage($"  Source: {(Environment.GetEnvironmentVariable("AIM_SCANS_DIR") != null ? "Environment Variable (AIM_SCANS_DIR)" : "Hardcoded Default")}");
+            LogMessage($"InventoryArchiveDirectory: {InventoryArchiveDirectory}");
+            LogMessage($"  Source: {(Environment.GetEnvironmentVariable("AIM_INVENTORY_ARCHIVE_DIR") != null ? "Environment Variable (AIM_INVENTORY_ARCHIVE_DIR)" : "Hardcoded Default")}");
+            LogMessage($"SecurityDatabasePath: {SecurityDatabasePath}");
+            LogMessage($"  Source: {(Environment.GetEnvironmentVariable("AIM_SECURITY_DB_PATH") != null ? "Environment Variable (AIM_SECURITY_DB_PATH)" : "Hardcoded Default")}");
+            LogMessage("========================================");
         }
 
         /// <summary>
@@ -847,47 +1060,318 @@ namespace AIM.Installer
         }
 
         /// <summary>
+        /// Validates network paths by testing accessibility and write permissions.
+        /// </summary>
+        /// <returns>Dictionary of paths and their validation status messages. Empty if all paths are valid.</returns>
+        private Dictionary<string, string> ValidateNetworkPaths()
+        {
+            var invalidPaths = new Dictionary<string, string>();
+            
+            LogMessage("========================================");
+            LogMessage("Validating Network Paths");
+            LogMessage("========================================");
+
+            // Define paths to validate with their descriptions
+            var pathsToValidate = new Dictionary<string, (string path, bool requireWrite)>
+            {
+                { "DefaultRootDirectory", (DefaultRootDirectory, true) },
+                { "ArchivePath", (ArchivePath, true) },
+                { "ShippedDirectory", (ShippedDirectory, true) },
+                { "FileScansDirectory", (FileScansDirectory, true) },
+                { "InventoryArchiveDirectory", (InventoryArchiveDirectory, true) },
+                { "SecurityDatabasePath", (SecurityDatabasePath, true) }
+            };
+
+            foreach (var kvp in pathsToValidate)
+            {
+                var pathName = kvp.Key;
+                var (path, requireWrite) = kvp.Value;
+                
+                LogMessage($"Validating {pathName}: {path}");
+
+                // For database path, validate the directory, not the file
+                var directoryToCheck = pathName == "SecurityDatabasePath" 
+                    ? Path.GetDirectoryName(path) 
+                    : path;
+
+                if (string.IsNullOrEmpty(directoryToCheck))
+                {
+                    var error = "Path is empty or invalid";
+                    LogMessage($"  ERROR: {error}");
+                    invalidPaths[pathName] = error;
+                    continue;
+                }
+
+                // Test directory accessibility
+                try
+                {
+                    if (!Directory.Exists(directoryToCheck))
+                    {
+                        LogMessage($"  Directory does not exist, attempting to create...");
+                        Directory.CreateDirectory(directoryToCheck);
+                        LogMessage($"  Directory created successfully");
+                    }
+                    else
+                    {
+                        LogMessage($"  Directory exists");
+                    }
+                }
+                catch (UnauthorizedAccessException ex)
+                {
+                    var error = $"Access denied: {ex.Message}";
+                    LogMessage($"  ERROR: {error}");
+                    invalidPaths[pathName] = error;
+                    continue;
+                }
+                catch (IOException ex)
+                {
+                    var error = $"I/O error: {ex.Message}";
+                    LogMessage($"  ERROR: {error}");
+                    invalidPaths[pathName] = error;
+                    continue;
+                }
+                catch (Exception ex)
+                {
+                    var error = $"Cannot access: {ex.Message}";
+                    LogMessage($"  ERROR: {error}");
+                    invalidPaths[pathName] = error;
+                    continue;
+                }
+
+                // Test write permissions if required
+                if (requireWrite)
+                {
+                    var testFileName = Path.Combine(directoryToCheck, $"__aim_write_test_{Guid.NewGuid()}.tmp");
+                    try
+                    {
+                        // Attempt to create and write to a test file
+                        File.WriteAllText(testFileName, "AIM write permission test");
+                        
+                        // Verify we can read it back
+                        var content = File.ReadAllText(testFileName);
+                        if (content != "AIM write permission test")
+                        {
+                            throw new IOException("Write verification failed");
+                        }
+                        
+                        // Clean up
+                        File.Delete(testFileName);
+                        LogMessage($"  Write permissions verified");
+                    }
+                    catch (UnauthorizedAccessException ex)
+                    {
+                        var error = $"No write permission: {ex.Message}";
+                        LogMessage($"  ERROR: {error}");
+                        invalidPaths[pathName] = error;
+                        
+                        // Try to clean up test file if it was created
+                        try { if (File.Exists(testFileName)) File.Delete(testFileName); } catch { }
+                        continue;
+                    }
+                    catch (IOException ex)
+                    {
+                        var error = $"Write test failed: {ex.Message}";
+                        LogMessage($"  ERROR: {error}");
+                        invalidPaths[pathName] = error;
+                        
+                        // Try to clean up test file if it was created
+                        try { if (File.Exists(testFileName)) File.Delete(testFileName); } catch { }
+                        continue;
+                    }
+                    catch (Exception ex)
+                    {
+                        var error = $"Write test error: {ex.Message}";
+                        LogMessage($"  ERROR: {error}");
+                        invalidPaths[pathName] = error;
+                        
+                        // Try to clean up test file if it was created
+                        try { if (File.Exists(testFileName)) File.Delete(testFileName); } catch { }
+                        continue;
+                    }
+                }
+
+                LogMessage($"  Validation PASSED");
+            }
+
+            LogMessage("========================================");
+            if (invalidPaths.Count > 0)
+            {
+                LogMessage($"Validation completed with {invalidPaths.Count} error(s)");
+            }
+            else
+            {
+                LogMessage("All paths validated successfully");
+            }
+            LogMessage("========================================");
+
+            return invalidPaths;
+        }
+
+        /// <summary>
         /// Writes the installer settings to the user's LocalAppData folder.
         /// The path matches where SettingsService expects to find settings.json.
-        /// All directory paths are hardcoded as constants in the installer.
+        /// Validates network paths before writing and blocks on validation failures.
         /// </summary>
         private void WriteInstallerSettings()
         {
             try
             {
+                // Validate all network paths before writing settings
+                var invalidPaths = ValidateNetworkPaths();
+                
+                if (invalidPaths.Count > 0)
+                {
+                    // Build error message
+                    var errorMessage = "The following network paths could not be validated:\n\n";
+                    foreach (var kvp in invalidPaths)
+                    {
+                        errorMessage += $"• {kvp.Key}: {kvp.Value}\n";
+                    }
+                    errorMessage += "\nPlease ensure:\n";
+                    errorMessage += "• Network paths are accessible\n";
+                    errorMessage += "• You have read/write permissions\n";
+                    errorMessage += "• Network shares are online and reachable\n\n";
+                    errorMessage += "Would you like to retry the validation?";
+
+                    LogMessage("ERROR: Path validation failed, prompting user for retry");
+                    
+                    var result = MessageBox.Show(
+                        errorMessage,
+                        "Network Path Validation Failed",
+                        MessageBoxButtons.RetryCancel,
+                        MessageBoxIcon.Error
+                    );
+
+                    if (result == DialogResult.Retry)
+                    {
+                        LogMessage("User requested retry, recursively calling WriteInstallerSettings");
+                        WriteInstallerSettings(); // Recursive call for retry
+                        return;
+                    }
+                    else
+                    {
+                        LogMessage("User cancelled due to path validation errors");
+                        throw new IOException("Network path validation failed - installation cannot continue");
+                    }
+                }
+
                 var localAppData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
-                // Simplified path for AIM settings
                 var aimConfigDir = Path.Combine(localAppData, "AIM");
                 Directory.CreateDirectory(aimConfigDir);
 
                 var settingsPath = Path.Combine(aimConfigDir, "settings.json");
                 
-                // Create AppSettings object with hardcoded network paths
-                var settings = new Dictionary<string, object>
+                LogMessage($"Writing settings to: {settingsPath}");
+                
+                // Create AppSettings object with properly typed properties
+                var settings = new AppSettings
                 {
-                    { "DefaultRootDirectory", DefaultRootDirectory },
-                    { "ArchivePath", ArchivePath },
-                    { "ShippedDirectory", ShippedDirectory },
-                    { "FileScansDirectory", FileScansDirectory },
-                    { "InventoryArchiveDirectory", InventoryArchiveDirectory },
-                    { "SecurityDatabasePath", SecurityDatabasePath },
-                    { "Theme", "FollowSystem" },
-                    { "AuthorizedUsers", new string[] { } },
-                    { "IsInitialPasswordSet", false }
+                    DefaultRootDirectory = DefaultRootDirectory,
+                    ArchivePath = ArchivePath,
+                    ShippedDirectory = ShippedDirectory,
+                    FileScansDirectory = FileScansDirectory,
+                    InventoryArchiveDirectory = InventoryArchiveDirectory,
+                    SecurityDatabasePath = SecurityDatabasePath,
+                    Theme = "FollowSystem",
+                    AuthorizedUsers = new List<string>(),
+                    IsInitialPasswordSet = false
                 };
 
-                // Write settings as JSON
+                // Serialize to JSON with proper formatting
                 var json = System.Text.Json.JsonSerializer.Serialize(settings, new System.Text.Json.JsonSerializerOptions 
                 { 
                     WriteIndented = true 
                 });
+                
+                // Write to file
                 File.WriteAllText(settingsPath, json);
                 
-                LogMessage($"Settings written to: {settingsPath}");
+                LogMessage("Settings written successfully");
+                LogMessage($"Settings structure:");
+                LogMessage($"  DefaultRootDirectory: {settings.DefaultRootDirectory}");
+                LogMessage($"  ArchivePath: {settings.ArchivePath}");
+                LogMessage($"  ShippedDirectory: {settings.ShippedDirectory}");
+                LogMessage($"  FileScansDirectory: {settings.FileScansDirectory}");
+                LogMessage($"  InventoryArchiveDirectory: {settings.InventoryArchiveDirectory}");
+                LogMessage($"  SecurityDatabasePath: {settings.SecurityDatabasePath}");
+                LogMessage($"  Theme: {settings.Theme}");
+                LogMessage($"  IsInitialPasswordSet: {settings.IsInitialPasswordSet}");
+            }
+            catch (IOException)
+            {
+                // Already logged, re-throw to abort installation
+                throw;
             }
             catch (Exception ex)
             {
-                LogMessage($"Warning: Could not write installer settings: {ex.Message}");
+                LogMessage($"ERROR: Could not write installer settings: {ex.Message}");
+                MessageBox.Show(
+                    $"Failed to write settings file:\n{ex.Message}\n\nInstallation cannot continue.",
+                    "Settings Write Failed",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Error
+                );
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// Verifies write permissions to a directory by creating and deleting a test file.
+        /// </summary>
+        /// <param name="directoryPath">The directory path to test.</param>
+        /// <returns>True if write permissions are available, false otherwise.</returns>
+        private bool VerifyWritePermissions(string directoryPath)
+        {
+            var testFileName = Path.Combine(directoryPath, $"__aim_db_write_test_{Guid.NewGuid()}.tmp");
+            try
+            {
+                LogMessage($"Verifying write permissions for: {directoryPath}");
+                
+                // Attempt to create and write to a test file
+                File.WriteAllText(testFileName, "AIM database write permission test");
+                
+                // Verify we can read it back
+                var content = File.ReadAllText(testFileName);
+                if (content != "AIM database write permission test")
+                {
+                    LogMessage("ERROR: Write verification failed - content mismatch");
+                    return false;
+                }
+                
+                // Clean up
+                File.Delete(testFileName);
+                LogMessage("Write permissions verified successfully");
+                return true;
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                LogMessage($"ERROR: No write permission: {ex.Message}");
+                return false;
+            }
+            catch (IOException ex)
+            {
+                LogMessage($"ERROR: Write test I/O error: {ex.Message}");
+                return false;
+            }
+            catch (Exception ex)
+            {
+                LogMessage($"ERROR: Write test failed: {ex.Message}");
+                return false;
+            }
+            finally
+            {
+                // Ensure test file is cleaned up
+                try
+                {
+                    if (File.Exists(testFileName))
+                    {
+                        File.Delete(testFileName);
+                    }
+                }
+                catch
+                {
+                    // Ignore cleanup errors
+                }
             }
         }
 
@@ -975,8 +1459,45 @@ namespace AIM.Installer
                     {
                         LogMessage($"ERROR: Could not create security database directory: {ex.Message}");
                         LogMessage("The network path may not be accessible.");
+                        
+                        MessageBox.Show(
+                            $"Failed to create security database directory:\n\n" +
+                            $"Path: {directory}\n" +
+                            $"Error: {ex.Message}\n\n" +
+                            "Please ensure:\n" +
+                            "• The network path is accessible\n" +
+                            "• The network share is online\n" +
+                            "• You have permissions to create directories",
+                            "Directory Creation Failed",
+                            MessageBoxButtons.OK,
+                            MessageBoxIcon.Error
+                        );
                         return false;
                     }
+                }
+
+                // Verify write permissions before attempting database creation
+                if (!VerifyWritePermissions(directory))
+                {
+                    LogMessage("ERROR: Write permissions verification failed for database directory");
+                    
+                    MessageBox.Show(
+                        $"Insufficient permissions to create security database:\n\n" +
+                        $"Path: {directory}\n" +
+                        $"Current User: {Environment.UserDomainName}\\{Environment.UserName}\n\n" +
+                        "Please ensure:\n" +
+                        "• You have write permissions to this directory\n" +
+                        "• The network share allows file creation\n" +
+                        "• NTFS permissions grant write access\n\n" +
+                        "You may need to:\n" +
+                        "• Run the installer as Administrator\n" +
+                        "• Contact your network administrator\n" +
+                        "• Check network share permissions",
+                        "Insufficient Permissions",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Error
+                    );
+                    return false;
                 }
 
                 // Create connection string with timeout
