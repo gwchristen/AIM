@@ -411,8 +411,6 @@ public class SecurityService
             var securityData = null as EncryptedSettingsService.SecurityData;
             bool loadedFromSharedConfig = false;
 
-
-
             // Try shared network config first (if configured)
             if (!string.IsNullOrWhiteSpace(sharedNetworkPath) && File.Exists(sharedNetworkPath))
             {

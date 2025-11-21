@@ -33,9 +33,6 @@ public class EncryptedSettingsService : IEncryptedSettingsService
 
         [JsonPropertyName("lastModified")]
         public DateTime LastModified { get; set; }
-
-        [JsonPropertyName("encryptionMode")]
-        public string EncryptionMode { get; set; } = "dpapi";
     }
 
     public class SecurityData
@@ -91,7 +88,6 @@ public class EncryptedSettingsService : IEncryptedSettingsService
             IBuffer buffData = CryptographicBuffer.ConvertStringToBinary(json, BinaryStringEncoding.Utf8);
             IBuffer buffEncrypted = await provider.ProtectAsync(buffData);
             string encryptedData = CryptographicBuffer.EncodeToBase64String(buffEncrypted);
-            Debug.WriteLine("[EncryptedSettings] Using DPAPI encryption");
 
             // Hash the master password for verification
             string masterPasswordHash = HashPassword(masterPassword);
@@ -101,8 +97,7 @@ public class EncryptedSettingsService : IEncryptedSettingsService
                 MasterPasswordHash = masterPasswordHash,
                 AuthorizedUsers = authorizedUsers,
                 EncryptedData = encryptedData,
-                LastModified = DateTime.UtcNow,
-                EncryptionMode = "dpapi"
+                LastModified = DateTime.UtcNow
             };
 
             // Ensure directory exists
@@ -147,12 +142,11 @@ public class EncryptedSettingsService : IEncryptedSettingsService
                 return null;
             }
 
-            // Use DPAPI decryption
+            // Decrypt data using DPAPI
             var provider = new DataProtectionProvider("LOCAL=user");
             IBuffer buffEncrypted = CryptographicBuffer.DecodeFromBase64String(config.EncryptedData);
             IBuffer buffDecrypted = await provider.UnprotectAsync(buffEncrypted);
             string json = CryptographicBuffer.ConvertBinaryToString(BinaryStringEncoding.Utf8, buffDecrypted);
-            Debug.WriteLine("[EncryptedSettings] Successfully decrypted using DPAPI");
 
             var securityData = JsonSerializer.Deserialize<SecurityData>(json);
 
