@@ -411,20 +411,7 @@ public class SecurityService
             var securityData = null as EncryptedSettingsService.SecurityData;
             bool loadedFromSharedConfig = false;
 
-            // Deobfuscate passphrase if provided in settings
-            string? passphrase = null;
-            if (!string.IsNullOrEmpty(appSettings.Passphrase))
-            {
-                try
-                {
-                    passphrase = DeobfuscatePassphrase(appSettings.Passphrase);
-                    Debug.WriteLine("[Security] Deobfuscated passphrase from settings");
-                }
-                catch (Exception ex)
-                {
-                    Debug.WriteLine($"[Security] Warning: Could not deobfuscate passphrase: {ex.Message}");
-                }
-            }
+
 
             // Try shared network config first (if configured)
             if (!string.IsNullOrWhiteSpace(sharedNetworkPath) && File.Exists(sharedNetworkPath))
@@ -432,7 +419,7 @@ public class SecurityService
                 try
                 {
                     Debug.WriteLine($"[Security] Found shared network security config, attempting to load...");
-                    securityData = await _encryptedSettingsService.LoadSecurityConfigAsync(sharedNetworkPath, passphrase);
+                    securityData = await _encryptedSettingsService.LoadSecurityConfigAsync(sharedNetworkPath);
 
                     if (securityData != null)
                     {
@@ -442,7 +429,7 @@ public class SecurityService
                         // Also cache it locally for offline access
                         try
                         {
-                            await _encryptedSettingsService.SaveSecurityConfigAsync(configPath, securityData.MasterPassword, securityData.AuthorizedUsers, passphrase);
+                            await _encryptedSettingsService.SaveSecurityConfigAsync(configPath, securityData.MasterPassword, securityData.AuthorizedUsers);
                             Debug.WriteLine($"[Security] Cached shared config locally at: {configPath}");
                         }
                         catch (Exception ex)
@@ -477,7 +464,7 @@ public class SecurityService
                 Debug.WriteLine($"[Security] Attempting to load local config from: {configPath}");
                 try
                 {
-                    securityData = await _encryptedSettingsService.LoadSecurityConfigAsync(configPath, passphrase);
+                    securityData = await _encryptedSettingsService.LoadSecurityConfigAsync(configPath);
                 }
                 catch (Exception ex)
                 {
@@ -987,38 +974,6 @@ public class SecurityService
         catch (Exception ex)
         {
             Debug.WriteLine($"[Security] ERROR logging security event: {ex.Message}");
-        }
-    }
-
-    /// <summary>
-    /// Deobfuscates a passphrase that was obfuscated by the installer.
-    /// This uses simple XOR with a key and Base64 encoding - NOT cryptographic protection.
-    /// The obfuscation only prevents casual discovery of the passphrase in configuration files.
-    /// </summary>
-    /// <param name="obfuscated">The obfuscated passphrase string</param>
-    /// <returns>The deobfuscated passphrase</returns>
-    private string DeobfuscatePassphrase(string obfuscated)
-    {
-        if (string.IsNullOrEmpty(obfuscated))
-            return string.Empty;
-
-        try
-        {
-            // Simple XOR key - must match the one used in the installer
-            byte[] xorKey = new byte[] { 0xA5, 0x3C, 0x7E, 0x91, 0x42, 0xF8, 0x6D, 0x2B };
-            
-            byte[] data = Convert.FromBase64String(obfuscated);
-            for (int i = 0; i < data.Length; i++)
-            {
-                data[i] ^= xorKey[i % xorKey.Length];
-            }
-            
-            return Encoding.UTF8.GetString(data);
-        }
-        catch (Exception ex)
-        {
-            Debug.WriteLine($"[Security] Warning: Could not deobfuscate passphrase: {ex.Message}");
-            return string.Empty;
         }
     }
 }
