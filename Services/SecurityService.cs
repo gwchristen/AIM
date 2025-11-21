@@ -91,6 +91,9 @@ public class SecurityService
     private const int MaxFailedAttempts = 5;
     private static readonly TimeSpan LockoutDuration = TimeSpan.FromMinutes(15);
     private static readonly TimeSpan RefreshInterval = TimeSpan.FromSeconds(30);
+    
+    // Minimum length for a Base64-encoded SHA256 hash (44 characters for 256 bits)
+    private const int MinBase64HashLength = 40;
 
     // Masked constant - Base64-encoded UNC path for fallback
     private const string MaskedSharedSecurityPath = "XFxvaDFjYW0wMVxjbWxcSW50ZXJuYWxcTEFCIFNUT0NLXEltcG9ydGFudCBJbnZlbnRvcnkgUmVsYXRlZCBEb2N1bWVudHNcQUlNXEFJTV9TZWN1cml0eVxzZWN1cml0eS5jb25maWc=";
@@ -631,6 +634,13 @@ public class SecurityService
     /// After 5 failed attempts, authentication is locked out for 15 minutes.
     /// All failed attempts are logged to the audit log for security monitoring.
     /// </para>
+    /// 
+    /// <para><strong>Password Hashing:</strong></para>
+    /// <para>
+    /// If the stored master password appears to be a hash (Base64-encoded), the user input
+    /// is hashed using the same algorithm before comparison. Otherwise, plain text comparison
+    /// is used for backward compatibility with file-based security.
+    /// </para>
     /// </summary>
     /// <param name="password">The password to validate.</param>
     /// <returns><c>true</c> if the password is correct and not locked out; otherwise, <c>false</c>.</returns>
@@ -648,7 +658,23 @@ public class SecurityService
             return false;
         }
 
-        bool isValid = password == _masterPassword;
+        bool isValid = false;
+
+        // Check if the stored password is a hash (Base64-encoded, typically 44 characters for SHA256)
+        // Database security stores hashes, file-based security may store plain text
+        if (!string.IsNullOrEmpty(_masterPassword) && _masterPassword.Length >= MinBase64HashLength && IsBase64String(_masterPassword))
+        {
+            // Stored password is a hash - hash the user input and compare
+            var hashedInput = HashPassword(password);
+            isValid = hashedInput == _masterPassword;
+            Debug.WriteLine($"[Security] Validating against stored hash");
+        }
+        else
+        {
+            // Stored password is plain text (legacy file-based security) - direct comparison
+            isValid = password == _masterPassword;
+            Debug.WriteLine($"[Security] Validating against plain text (legacy mode)");
+        }
 
         if (isValid)
         {
@@ -685,6 +711,32 @@ public class SecurityService
                 );
             }
 
+            return false;
+        }
+    }
+
+    /// <summary>
+    /// Checks if a string is a valid Base64-encoded string.
+    /// Used to detect if a stored password is a hash or plain text.
+    /// </summary>
+    private bool IsBase64String(string value)
+    {
+        if (string.IsNullOrEmpty(value))
+            return false;
+
+        try
+        {
+            Convert.FromBase64String(value);
+            return true;
+        }
+        catch (FormatException)
+        {
+            // Not a valid Base64 string
+            return false;
+        }
+        catch (ArgumentException)
+        {
+            // Invalid argument to FromBase64String
             return false;
         }
     }
@@ -972,6 +1024,32 @@ public class SecurityService
         catch (Exception ex)
         {
             Debug.WriteLine($"[Security] ERROR logging security event: {ex.Message}");
+        }
+    }
+
+    /// <summary>
+    /// Hashes a password using SHA256 with a fixed salt.
+    /// This method must use the same algorithm and salt as the installer's HashPassword method.
+    /// Note: The salt is fixed because we need deterministic hashes for password verification.
+    /// </summary>
+    /// <param name="password">The password to hash.</param>
+    /// <returns>Base64-encoded hash of the password.</returns>
+    private string HashPassword(string password)
+    {
+        // Use the same fixed salt as the installer for deterministic hashing
+        // This allows verification against the same hash each time
+        byte[] salt = System.Text.Encoding.UTF8.GetBytes("AIM-Security-Salt-2025");
+        
+        using (var sha256 = System.Security.Cryptography.SHA256.Create())
+        {
+            var passwordBytes = System.Text.Encoding.UTF8.GetBytes(password);
+            var saltedPassword = new byte[passwordBytes.Length + salt.Length];
+            
+            Buffer.BlockCopy(passwordBytes, 0, saltedPassword, 0, passwordBytes.Length);
+            Buffer.BlockCopy(salt, 0, saltedPassword, passwordBytes.Length, salt.Length);
+            
+            var hash = sha256.ComputeHash(saltedPassword);
+            return Convert.ToBase64String(hash);
         }
     }
 }

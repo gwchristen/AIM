@@ -469,13 +469,39 @@ namespace AIM.Installer
                     LogMessage("Extracting application files...");
                     ExtractEmbeddedZip();
 
+                    // Initialize security database with SuperAdmin account FIRST
+                    // This must succeed before writing settings
+                    LogMessage("Initializing security database...");
+                    bool dbSuccess = CreateSecurityDatabase();
+                    
+                    if (!dbSuccess)
+                    {
+                        LogMessage("ERROR: Security database initialization failed!");
+                        LogMessage("Installation cannot continue without a valid security database.");
+                        
+                        this.Invoke(new Action(() =>
+                        {
+                            MessageBox.Show(
+                                "Failed to initialize the security database.\n\n" +
+                                "This usually happens when:\n" +
+                                "1. The network path is not accessible\n" +
+                                "2. You don't have write permissions to the network location\n" +
+                                "3. The network share is offline\n\n" +
+                                $"Database path: {SecurityDatabasePath}\n\n" +
+                                "Please ensure the network path is accessible and try again.",
+                                "Database Initialization Failed",
+                                MessageBoxButtons.OK,
+                                MessageBoxIcon.Error
+                            );
+                            this.Close();
+                        }));
+                        return;
+                    }
+
                     // Write installer settings to user's LocalAppData
+                    // Only write settings AFTER database is successfully created
                     LogMessage("Writing installer settings...");
                     WriteInstallerSettings();
-
-                    // Initialize security database with SuperAdmin account
-                    LogMessage("Initializing security database...");
-                    CreateSecurityDatabase();
 
                     // Create shortcuts
                     if (desktopShortcutCheckBox.Checked)
@@ -664,7 +690,8 @@ namespace AIM.Installer
         /// Creates and initializes the security database with the baked-in SuperAdmin account.
         /// The database is created at the hardcoded SecurityDatabasePath location.
         /// </summary>
-        private void CreateSecurityDatabase()
+        /// <returns>True if the database was created successfully, false otherwise.</returns>
+        private bool CreateSecurityDatabase()
         {
             try
             {
@@ -672,8 +699,8 @@ namespace AIM.Installer
                 var directory = Path.GetDirectoryName(SecurityDatabasePath);
                 if (string.IsNullOrEmpty(directory))
                 {
-                    LogMessage("Warning: Invalid security database path");
-                    return;
+                    LogMessage("ERROR: Invalid security database path");
+                    return false;
                 }
 
                 // Check if network path is accessible
@@ -686,9 +713,9 @@ namespace AIM.Installer
                     }
                     catch (Exception ex)
                     {
-                        LogMessage($"Warning: Could not create security database directory: {ex.Message}");
-                        LogMessage("Security database will need to be initialized manually.");
-                        return;
+                        LogMessage($"ERROR: Could not create security database directory: {ex.Message}");
+                        LogMessage("The network path may not be accessible.");
+                        return false;
                     }
                 }
 
@@ -816,11 +843,17 @@ namespace AIM.Installer
                 }
 
                 LogMessage("Security database initialized successfully.");
+                return true;
             }
             catch (Exception ex)
             {
-                LogMessage($"Warning: Could not initialize security database: {ex.Message}");
-                LogMessage("Security database will need to be initialized manually.");
+                LogMessage($"ERROR: Failed to initialize security database: {ex.Message}");
+                LogMessage($"Exception type: {ex.GetType().Name}");
+                if (ex.InnerException != null)
+                {
+                    LogMessage($"Inner exception: {ex.InnerException.Message}");
+                }
+                return false;
             }
         }
 
