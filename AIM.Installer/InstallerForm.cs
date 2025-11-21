@@ -1304,7 +1304,16 @@ namespace AIM.Installer
                 var pathName = kvp.Key;
                 var (path, requireWrite) = kvp.Value;
                 
-                LogMessage($"Validating {pathName}: {path}");
+                LogMessage($"Validating {pathName}: {path ?? "(null)"}");
+
+                // Check if path is null or empty before processing
+                if (string.IsNullOrWhiteSpace(path))
+                {
+                    var error = "Path is null or empty";
+                    LogMessage($"  ERROR: {error}");
+                    invalidPaths[pathName] = error;
+                    continue; // Continue validating other paths
+                }
 
                 // For database path, validate the directory, not the file
                 var directoryToCheck = pathName == "SecurityDatabasePath" 
@@ -1832,11 +1841,34 @@ namespace AIM.Installer
         {
             try
             {
+                // Validate SecurityDatabasePath is not null or empty
+                if (string.IsNullOrWhiteSpace(SecurityDatabasePath))
+                {
+                    LogMessage("ERROR: SecurityDatabasePath is null or empty");
+                    LogMessage($"Environment variable AIM_SECURITY_DB_PATH: {Environment.GetEnvironmentVariable("AIM_SECURITY_DB_PATH") ?? "(not set)"}");
+                    MessageBox.Show(
+                        "Security database path is not configured properly.\n\n" +
+                        "The path is null or empty, which indicates a configuration issue.\n\n" +
+                        "Please check:\n" +
+                        "• The AIM_SECURITY_DB_PATH environment variable (if used)\n" +
+                        "• The installer configuration and hardcoded defaults",
+                        "Configuration Error",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Error
+                    );
+                    return false;
+                }
+
+                // Log the path being used for diagnostics
+                LogMessage($"Using SecurityDatabasePath: {SecurityDatabasePath}");
+                
                 // Ensure the directory exists
                 var directory = Path.GetDirectoryName(SecurityDatabasePath);
                 if (string.IsNullOrEmpty(directory))
                 {
-                    LogMessage("ERROR: Invalid security database path");
+                    LogMessage("ERROR: Invalid security database path - could not extract directory name");
+                    LogMessage($"SecurityDatabasePath value: '{SecurityDatabasePath}'");
+                    LogMessage("This typically indicates the path is not a valid file path (e.g., root path, relative path without directory)");
                     return false;
                 }
 
@@ -2241,11 +2273,18 @@ namespace AIM.Installer
                 }
 
                 // MEDIUM Issue #12: Verify and log full SecurityDatabasePath
-                LogMessage($"Full SecurityDatabasePath: {SecurityDatabasePath}");
-                LogMessage($"SecurityDatabasePath length: {SecurityDatabasePath.Length} characters");
-                if (SecurityDatabasePath.Length >= 260)
+                if (!string.IsNullOrWhiteSpace(SecurityDatabasePath))
                 {
-                    LogMessage("WARNING: SecurityDatabasePath exceeds Windows MAX_PATH (260 characters)");
+                    LogMessage($"Full SecurityDatabasePath: {SecurityDatabasePath}");
+                    LogMessage($"SecurityDatabasePath length: {SecurityDatabasePath.Length} characters");
+                    if (SecurityDatabasePath.Length >= 260)
+                    {
+                        LogMessage("WARNING: SecurityDatabasePath exceeds Windows MAX_PATH (260 characters)");
+                    }
+                }
+                else
+                {
+                    LogMessage("WARNING: SecurityDatabasePath is null or empty");
                 }
 
                 // Check path length (Windows MAX_PATH limitation)
