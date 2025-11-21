@@ -18,6 +18,12 @@ public class DatabaseSecurityService
 {
     private readonly string _databasePath;
     private readonly object _lockObject = new object();
+    
+    // Database timeout and retry configuration
+    private const int DEFAULT_DB_TIMEOUT = 30; // seconds
+    private const int MAX_RETRY_ATTEMPTS = 3;
+    private const int INITIAL_RETRY_DELAY_MS = 100;
+    private const int MAX_RETRY_DELAY_MS = 500;
 
     /// <summary>
     /// Initializes a new instance of the DatabaseSecurityService.
@@ -30,70 +36,143 @@ public class DatabaseSecurityService
     }
 
     /// <summary>
-    /// Gets the connection string for the SQLite database.
+    /// Gets the connection string for the SQLite database with timeout configured.
     /// </summary>
-    private string ConnectionString => $"Data Source={_databasePath};Version=3;";
+    private string ConnectionString
+    {
+        get
+        {
+            var builder = new System.Data.SQLite.SQLiteConnectionStringBuilder
+            {
+                DataSource = _databasePath,
+                Version = 3,
+                DefaultTimeout = DEFAULT_DB_TIMEOUT
+            };
+            return builder.ConnectionString;
+        }
+    }
 
     /// <summary>
     /// Initializes the database schema if it doesn't exist.
     /// Creates the AuthorizedUsers, SecuritySettings, and SecurityAuditLog tables.
+    /// Implements retry logic with exponential backoff for database locking scenarios.
     /// </summary>
     public async Task InitializeDatabaseAsync()
     {
-        try
+        int attempt = 0;
+        Exception? lastException = null;
+
+        while (attempt < MAX_RETRY_ATTEMPTS)
         {
-            // Ensure the directory exists
-            var directory = Path.GetDirectoryName(_databasePath);
-            if (!string.IsNullOrEmpty(directory) && !Directory.Exists(directory))
+            try
             {
-                Directory.CreateDirectory(directory);
-                Debug.WriteLine($"[DatabaseSecurity] Created directory: {directory}");
+                attempt++;
+                if (attempt > 1)
+                {
+                    Debug.WriteLine($"[DatabaseSecurity] Retry attempt {attempt}/{MAX_RETRY_ATTEMPTS}");
+                }
+
+                // Ensure the directory exists
+                var directory = Path.GetDirectoryName(_databasePath);
+                if (!string.IsNullOrEmpty(directory) && !Directory.Exists(directory))
+                {
+                    Directory.CreateDirectory(directory);
+                    Debug.WriteLine($"[DatabaseSecurity] Created directory: {directory}");
+                }
+
+                using var connection = new SQLiteConnection(ConnectionString);
+                await connection.OpenAsync();
+
+                string createTablesScript = @"
+                    CREATE TABLE IF NOT EXISTS AuthorizedUsers (
+                        ID INTEGER PRIMARY KEY AUTOINCREMENT,
+                        Username TEXT NOT NULL UNIQUE COLLATE NOCASE,
+                        FullName TEXT,
+                        Department TEXT,
+                        AccessLevel INTEGER DEFAULT 1,
+                        IsActive BOOLEAN DEFAULT 1,
+                        CreatedBy TEXT,
+                        CreatedDate DATETIME DEFAULT CURRENT_TIMESTAMP,
+                        ModifiedBy TEXT,
+                        ModifiedDate DATETIME DEFAULT CURRENT_TIMESTAMP
+                    );
+
+                    CREATE TABLE IF NOT EXISTS SecuritySettings (
+                        Key TEXT PRIMARY KEY,
+                        Value TEXT NOT NULL,
+                        ModifiedBy TEXT,
+                        ModifiedDate DATETIME DEFAULT CURRENT_TIMESTAMP
+                    );
+
+                    CREATE TABLE IF NOT EXISTS SecurityAuditLog (
+                        ID INTEGER PRIMARY KEY AUTOINCREMENT,
+                        Action TEXT NOT NULL,
+                        TargetUser TEXT,
+                        ModifiedBy TEXT NOT NULL,
+                        Details TEXT,
+                        Timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
+                    );
+                ";
+
+                using var command = new SQLiteCommand(createTablesScript, connection);
+                await command.ExecuteNonQueryAsync();
+
+                Debug.WriteLine("[DatabaseSecurity] Database schema initialized successfully");
+                return; // Success - exit retry loop
             }
-
-            using var connection = new SQLiteConnection(ConnectionString);
-            await connection.OpenAsync();
-
-            string createTablesScript = @"
-                CREATE TABLE IF NOT EXISTS AuthorizedUsers (
-                    ID INTEGER PRIMARY KEY AUTOINCREMENT,
-                    Username TEXT NOT NULL UNIQUE COLLATE NOCASE,
-                    FullName TEXT,
-                    Department TEXT,
-                    AccessLevel INTEGER DEFAULT 1,
-                    IsActive BOOLEAN DEFAULT 1,
-                    CreatedBy TEXT,
-                    CreatedDate DATETIME DEFAULT CURRENT_TIMESTAMP,
-                    ModifiedBy TEXT,
-                    ModifiedDate DATETIME DEFAULT CURRENT_TIMESTAMP
-                );
-
-                CREATE TABLE IF NOT EXISTS SecuritySettings (
-                    Key TEXT PRIMARY KEY,
-                    Value TEXT NOT NULL,
-                    ModifiedBy TEXT,
-                    ModifiedDate DATETIME DEFAULT CURRENT_TIMESTAMP
-                );
-
-                CREATE TABLE IF NOT EXISTS SecurityAuditLog (
-                    ID INTEGER PRIMARY KEY AUTOINCREMENT,
-                    Action TEXT NOT NULL,
-                    TargetUser TEXT,
-                    ModifiedBy TEXT NOT NULL,
-                    Details TEXT,
-                    Timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
-                );
-            ";
-
-            using var command = new SQLiteCommand(createTablesScript, connection);
-            await command.ExecuteNonQueryAsync();
-
-            Debug.WriteLine("[DatabaseSecurity] Database schema initialized successfully");
+            catch (SQLiteException ex) when (IsDatabaseLockedException(ex) && attempt < MAX_RETRY_ATTEMPTS)
+            {
+                lastException = ex;
+                int delayMs = CalculateRetryDelay(attempt);
+                Debug.WriteLine($"[DatabaseSecurity] Database locked, retrying in {delayMs}ms (attempt {attempt}/{MAX_RETRY_ATTEMPTS})");
+                await Task.Delay(delayMs);
+            }
+            catch (SQLiteException ex) when (IsDatabaseTimeoutException(ex))
+            {
+                Debug.WriteLine($"[DatabaseSecurity] Database connection timeout: {ex.Message}");
+                throw new InvalidOperationException(
+                    $"Database connection timed out after {DEFAULT_DB_TIMEOUT} seconds. " +
+                    "The network database may be unavailable or slow to respond.", ex);
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"[DatabaseSecurity] ERROR initializing database: {ex.Message}");
+                throw new InvalidOperationException($"Failed to initialize security database: {ex.Message}", ex);
+            }
         }
-        catch (Exception ex)
-        {
-            Debug.WriteLine($"[DatabaseSecurity] ERROR initializing database: {ex.Message}");
-            throw;
-        }
+
+        // All retry attempts exhausted
+        Debug.WriteLine($"[DatabaseSecurity] All {MAX_RETRY_ATTEMPTS} retry attempts exhausted");
+        throw new InvalidOperationException(
+            $"Database initialization failed after {MAX_RETRY_ATTEMPTS} attempts. " +
+            "The database may be locked by another process or the network path may be inaccessible.",
+            lastException);
+    }
+
+    /// <summary>
+    /// Checks if an exception is a SQLite database locked error.
+    /// </summary>
+    private bool IsDatabaseLockedException(SQLiteException ex)
+    {
+        return ex.Message.Contains("database is locked", StringComparison.OrdinalIgnoreCase) ||
+               ex.Message.Contains("locked", StringComparison.OrdinalIgnoreCase);
+    }
+
+    /// <summary>
+    /// Checks if an exception is a SQLite timeout error.
+    /// </summary>
+    private bool IsDatabaseTimeoutException(SQLiteException ex)
+    {
+        return ex.Message.Contains("timeout", StringComparison.OrdinalIgnoreCase);
+    }
+
+    /// <summary>
+    /// Calculates retry delay with exponential backoff.
+    /// </summary>
+    private int CalculateRetryDelay(int attemptNumber)
+    {
+        int delay = INITIAL_RETRY_DELAY_MS * (1 << (attemptNumber - 1)); // Exponential: 100, 200, 400
+        return Math.Min(delay, MAX_RETRY_DELAY_MS);
     }
 
     /// <summary>

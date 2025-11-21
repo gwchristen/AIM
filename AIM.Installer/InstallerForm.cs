@@ -54,6 +54,15 @@ namespace AIM.Installer
 
         private string installPath = @"C:\Program Files\AIM";
         private bool installationComplete = false;
+        
+        // Installer logging
+        private string? installerLogPath;
+        private StreamWriter? logFileWriter;
+        private const int MAX_LOG_FILES = 5;
+
+        // Database timeout configuration
+        private const int DEFAULT_DB_TIMEOUT = 30; // seconds
+        private System.Threading.CancellationTokenSource? installCancellationSource;
 
         // Hardcoded network paths - baked into installer
         private const string DefaultRootDirectory = @"\\oh1cam01\cml\Internal\LAB STOCK\LAB STOCK";
@@ -75,6 +84,7 @@ namespace AIM.Installer
         public InstallerForm()
         {
             InitializeComponent();
+            InitializeInstallerLogging();
             ShowStep(STEP_WELCOME);
         }
 
@@ -377,6 +387,20 @@ namespace AIM.Installer
                     nextButton.Text = "Finish";
                     cancelButton.Enabled = false;
                     progressBar.Visible = false;
+                    
+                    // Show log file location
+                    if (!string.IsNullOrEmpty(installerLogPath) && File.Exists(installerLogPath))
+                    {
+                        var logLocationLabel = new Label
+                        {
+                            Anchor = AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right,
+                            Location = new Point(30, 300),
+                            Size = new Size(540, 40),
+                            Text = $"Installation log saved to:\n{installerLogPath}",
+                            ForeColor = Color.DarkGreen
+                        };
+                        contentPanel.Controls.Add(logLocationLabel);
+                    }
                     break;
             }
         }
@@ -434,8 +458,19 @@ namespace AIM.Installer
                     MessageBoxButtons.YesNo, MessageBoxIcon.Warning) != DialogResult.Yes)
                 {
                     e.Cancel = true;
+                    return;
                 }
             }
+            
+            // Cleanup resources
+            try
+            {
+                installCancellationSource?.Cancel();
+                installCancellationSource?.Dispose();
+                logFileWriter?.Close();
+                logFileWriter?.Dispose();
+            }
+            catch { }
         }
 
         private void BrowseButton_Click(object? sender, EventArgs e)
@@ -453,8 +488,11 @@ namespace AIM.Installer
 
         private void PerformInstallation()
         {
+            // Create cancellation token source for the installation
+            installCancellationSource = new System.Threading.CancellationTokenSource();
+            
             // Run installation on background thread to avoid freezing UI
-            var installTask = System.Threading.Tasks.Task.Run(() =>
+            var installTask = System.Threading.Tasks.Task.Run(async () =>
             {
                 try
                 {
@@ -472,7 +510,7 @@ namespace AIM.Installer
                     // Initialize security database with SuperAdmin account FIRST
                     // This must succeed before writing settings
                     LogMessage("Initializing security database...");
-                    bool dbSuccess = CreateSecurityDatabase();
+                    bool dbSuccess = await CreateSecurityDatabaseAsync();
                     
                     if (!dbSuccess)
                     {
@@ -520,6 +558,13 @@ namespace AIM.Installer
                     }
 
                     LogMessage("Installation completed successfully!");
+                    
+                    // Log the installer log location
+                    if (!string.IsNullOrEmpty(installerLogPath))
+                    {
+                        LogMessage($"Installer log saved to: {installerLogPath}");
+                    }
+                    
                     installationComplete = true;
 
                     // Move to completion step
@@ -528,12 +573,23 @@ namespace AIM.Installer
                 catch (Exception ex)
                 {
                     LogMessage($"ERROR: {ex.Message}");
+                    LogMessage($"Stack trace: {ex.StackTrace}");
                     this.Invoke(new Action(() =>
                     {
                         MessageBox.Show($"Installation failed: {ex.Message}", "Installation Error",
                             MessageBoxButtons.OK, MessageBoxIcon.Error);
                         this.Close();
                     }));
+                }
+                finally
+                {
+                    // Close log file writer
+                    try
+                    {
+                        logFileWriter?.Close();
+                        logFileWriter?.Dispose();
+                    }
+                    catch { }
                 }
             });
         }
@@ -581,23 +637,64 @@ namespace AIM.Installer
 
         private void LaunchAIM()
         {
+            Process? aimProcess = null;
             try
             {
                 var exePath = Path.Combine(installPath, "AIM.exe");
-                if (File.Exists(exePath))
+                if (!File.Exists(exePath))
                 {
-                    Process.Start(new ProcessStartInfo
+                    LogMessage($"ERROR: AIM.exe not found at {exePath}");
+                    MessageBox.Show($"Could not find AIM.exe at {exePath}", "Launch Error",
+                        MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+
+                LogMessage("Launching AIM...");
+                aimProcess = Process.Start(new ProcessStartInfo
+                {
+                    FileName = exePath,
+                    UseShellExecute = true,
+                    WorkingDirectory = installPath
+                });
+
+                if (aimProcess == null)
+                {
+                    LogMessage("ERROR: Failed to start AIM process");
+                    MessageBox.Show("Failed to start AIM process", "Launch Error",
+                        MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+
+                LogMessage($"AIM process started (PID: {aimProcess.Id})");
+                LogMessage("Waiting for AIM to complete initialization...");
+
+                // Wait for AIM to exit or timeout (60 seconds)
+                const int timeoutSeconds = 60;
+                bool exited = aimProcess.WaitForExit(timeoutSeconds * 1000);
+
+                if (exited)
+                {
+                    LogMessage($"AIM process exited with code: {aimProcess.ExitCode}");
+                    if (aimProcess.ExitCode != 0)
                     {
-                        FileName = exePath,
-                        UseShellExecute = true,
-                        WorkingDirectory = installPath
-                    });
+                        MessageBox.Show($"AIM exited with error code {aimProcess.ExitCode}", "Launch Warning",
+                            MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    }
+                }
+                else
+                {
+                    LogMessage($"AIM is running (timeout after {timeoutSeconds} seconds - this is normal for long initialization)");
                 }
             }
             catch (Exception ex)
             {
+                LogMessage($"ERROR launching AIM: {ex.Message}");
                 MessageBox.Show($"Could not launch AIM: {ex.Message}", "Launch Error",
                     MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            }
+            finally
+            {
+                aimProcess?.Dispose();
             }
         }
 
@@ -609,8 +706,91 @@ namespace AIM.Installer
                 return;
             }
 
-            logTextBox.AppendText($"[{DateTime.Now:HH:mm:ss}] {message}\r\n");
+            var timestampedMessage = $"[{DateTime.Now:HH:mm:ss}] {message}";
+            logTextBox.AppendText(timestampedMessage + "\r\n");
             logTextBox.ScrollToCaret();
+            
+            // Also write to persistent log file
+            try
+            {
+                logFileWriter?.WriteLine(timestampedMessage);
+                logFileWriter?.Flush();
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Failed to write to log file: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// Initializes persistent logging for the installer.
+        /// Creates log file at %APPDATA%\AIM\installer.log with rotation.
+        /// </summary>
+        private void InitializeInstallerLogging()
+        {
+            try
+            {
+                var appDataPath = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+                var aimLogDir = Path.Combine(appDataPath, "AIM");
+                Directory.CreateDirectory(aimLogDir);
+
+                // Rotate old log files
+                RotateLogFiles(aimLogDir);
+
+                // Create new log file
+                installerLogPath = Path.Combine(aimLogDir, "installer.log");
+                logFileWriter = new StreamWriter(installerLogPath, append: false);
+                
+                // Write header with system info
+                logFileWriter.WriteLine($"========================================");
+                logFileWriter.WriteLine($"AIM Installer Log");
+                logFileWriter.WriteLine($"Started: {DateTime.Now}");
+                logFileWriter.WriteLine($"OS: {Environment.OSVersion}");
+                logFileWriter.WriteLine($".NET Version: {Environment.Version}");
+                logFileWriter.WriteLine($"Machine: {Environment.MachineName}");
+                logFileWriter.WriteLine($"User: {Environment.UserName}");
+                logFileWriter.WriteLine($"========================================");
+                logFileWriter.Flush();
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Failed to initialize installer logging: {ex.Message}");
+                // Non-fatal - continue without persistent logging
+            }
+        }
+
+        /// <summary>
+        /// Rotates installer log files, keeping only the last MAX_LOG_FILES logs.
+        /// </summary>
+        private void RotateLogFiles(string logDirectory)
+        {
+            try
+            {
+                var logFiles = Directory.GetFiles(logDirectory, "installer*.log")
+                    .Select(f => new FileInfo(f))
+                    .OrderByDescending(f => f.LastWriteTime)
+                    .ToList();
+
+                // Archive the current log if it exists
+                var currentLog = Path.Combine(logDirectory, "installer.log");
+                if (File.Exists(currentLog))
+                {
+                    var timestamp = File.GetLastWriteTime(currentLog).ToString("yyyyMMdd_HHmmss");
+                    var archivedName = Path.Combine(logDirectory, $"installer_{timestamp}.log");
+                    File.Move(currentLog, archivedName);
+                    logFiles.Insert(0, new FileInfo(archivedName));
+                }
+
+                // Delete old logs beyond MAX_LOG_FILES
+                for (int i = MAX_LOG_FILES; i < logFiles.Count; i++)
+                {
+                    logFiles[i].Delete();
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Failed to rotate log files: {ex.Message}");
+            }
         }
 
         private void CreateShortcut(string directory, string shortcutName)
@@ -689,9 +869,10 @@ namespace AIM.Installer
         /// <summary>
         /// Creates and initializes the security database with the baked-in SuperAdmin account.
         /// The database is created at the hardcoded SecurityDatabasePath location.
+        /// Handles pre-existing databases and implements async operations with timeout.
         /// </summary>
         /// <returns>True if the database was created successfully, false otherwise.</returns>
-        private bool CreateSecurityDatabase()
+        private async Task<bool> CreateSecurityDatabaseAsync()
         {
             try
             {
@@ -701,6 +882,60 @@ namespace AIM.Installer
                 {
                     LogMessage("ERROR: Invalid security database path");
                     return false;
+                }
+
+                // Check if database already exists
+                if (File.Exists(SecurityDatabasePath))
+                {
+                    LogMessage("NOTICE: Security database already exists at target location");
+                    
+                    // Show dialog with options
+                    var result = MessageBox.Show(
+                        "A security database already exists at the target location.\n\n" +
+                        $"Path: {SecurityDatabasePath}\n\n" +
+                        "What would you like to do?\n\n" +
+                        "• YES - Use the existing database (recommended)\n" +
+                        "• NO - Backup existing and create fresh database\n" +
+                        "• CANCEL - Abort installation",
+                        "Existing Database Detected",
+                        MessageBoxButtons.YesNoCancel,
+                        MessageBoxIcon.Question
+                    );
+
+                    if (result == DialogResult.Cancel)
+                    {
+                        LogMessage("Installation cancelled by user (existing database)");
+                        return false;
+                    }
+                    else if (result == DialogResult.Yes)
+                    {
+                        LogMessage("Using existing security database");
+                        return true; // Use existing database
+                    }
+                    else // DialogResult.No - Backup and reinitialize
+                    {
+                        var timestamp = DateTime.Now.ToString("yyyyMMdd_HHmmss");
+                        var backupPath = $"{SecurityDatabasePath}.backup.{timestamp}";
+                        
+                        try
+                        {
+                            LogMessage($"Backing up existing database to: {backupPath}");
+                            File.Copy(SecurityDatabasePath, backupPath);
+                            File.Delete(SecurityDatabasePath);
+                            LogMessage("Existing database backed up and removed");
+                        }
+                        catch (Exception ex)
+                        {
+                            LogMessage($"ERROR: Failed to backup existing database: {ex.Message}");
+                            MessageBox.Show(
+                                $"Failed to backup existing database:\n{ex.Message}\n\nInstallation cannot continue.",
+                                "Backup Failed",
+                                MessageBoxButtons.OK,
+                                MessageBoxIcon.Error
+                            );
+                            return false;
+                        }
+                    }
                 }
 
                 // Check if network path is accessible
@@ -719,14 +954,60 @@ namespace AIM.Installer
                     }
                 }
 
-                // Create connection string
-                var connectionString = $"Data Source={SecurityDatabasePath};Version=3;";
+                // Create connection string with timeout
+                var connectionStringBuilder = new System.Data.SQLite.SQLiteConnectionStringBuilder
+                {
+                    DataSource = SecurityDatabasePath,
+                    Version = 3,
+                    DefaultTimeout = DEFAULT_DB_TIMEOUT
+                };
+                var connectionString = connectionStringBuilder.ConnectionString;
 
                 LogMessage("Initializing security database...");
+                LogMessage($"Database timeout configured: {DEFAULT_DB_TIMEOUT} seconds");
 
                 using (var connection = new SQLiteConnection(connectionString))
                 {
-                    connection.Open();
+                    // Use async open with cancellation support
+                    var cancellationToken = installCancellationSource?.Token ?? System.Threading.CancellationToken.None;
+                    
+                    try
+                    {
+                        await connection.OpenAsync(cancellationToken);
+                    }
+                    catch (SQLiteException ex) when (ex.Message.Contains("timeout", StringComparison.OrdinalIgnoreCase))
+                    {
+                        LogMessage($"ERROR: Database connection timeout after {DEFAULT_DB_TIMEOUT} seconds");
+                        MessageBox.Show(
+                            $"Database connection timed out after {DEFAULT_DB_TIMEOUT} seconds.\n\n" +
+                            "This usually means:\n" +
+                            "• The network path is slow or unresponsive\n" +
+                            "• The network share is experiencing issues\n\n" +
+                            $"Database path: {SecurityDatabasePath}\n\n" +
+                            "Please check the network connection and try again.",
+                            "Connection Timeout",
+                            MessageBoxButtons.OK,
+                            MessageBoxIcon.Error
+                        );
+                        return false;
+                    }
+                    catch (SQLiteException ex) when (ex.Message.Contains("locked", StringComparison.OrdinalIgnoreCase))
+                    {
+                        LogMessage($"ERROR: Database is locked by another process");
+                        MessageBox.Show(
+                            "The database is currently locked by another process.\n\n" +
+                            "This usually means:\n" +
+                            "• Another installer is running\n" +
+                            "• AIM is currently accessing the database\n\n" +
+                            "Please close all instances of AIM and try again.",
+                            "Database Locked",
+                            MessageBoxButtons.OK,
+                            MessageBoxIcon.Error
+                        );
+                        return false;
+                    }
+
+                    LogMessage("Database connection established");
 
                     // Create tables
                     string createTablesScript = @"
@@ -762,7 +1043,7 @@ namespace AIM.Installer
 
                     using (var command = new SQLiteCommand(createTablesScript, connection))
                     {
-                        command.ExecuteNonQuery();
+                        await command.ExecuteNonQueryAsync(cancellationToken);
                     }
 
                     LogMessage("Security database schema created successfully.");
@@ -772,7 +1053,7 @@ namespace AIM.Installer
                     using (var checkCommand = new SQLiteCommand(checkUserQuery, connection))
                     {
                         checkCommand.Parameters.AddWithValue("@Username", SuperAdminUsername);
-                        var count = Convert.ToInt32(checkCommand.ExecuteScalar());
+                        var count = Convert.ToInt32(await checkCommand.ExecuteScalarAsync(cancellationToken));
 
                         if (count == 0)
                         {
@@ -794,7 +1075,7 @@ namespace AIM.Installer
                                 insertCommand.Parameters.AddWithValue("@CreatedDate", DateTime.UtcNow);
                                 insertCommand.Parameters.AddWithValue("@ModifiedDate", DateTime.UtcNow);
 
-                                insertCommand.ExecuteNonQuery();
+                                await insertCommand.ExecuteNonQueryAsync(cancellationToken);
                             }
 
                             LogMessage($"SuperAdmin account created: {SuperAdminUsername}");
@@ -813,12 +1094,12 @@ namespace AIM.Installer
                                 logCommand.Parameters.AddWithValue("@Details", "SuperAdmin account created during installation");
                                 logCommand.Parameters.AddWithValue("@Timestamp", DateTime.UtcNow);
 
-                                logCommand.ExecuteNonQuery();
+                                await logCommand.ExecuteNonQueryAsync(cancellationToken);
                             }
                         }
                         else
                         {
-                            LogMessage("SuperAdmin account already exists.");
+                            LogMessage("SuperAdmin account already exists in database.");
                         }
                     }
 
@@ -836,7 +1117,7 @@ namespace AIM.Installer
                         passwordCommand.Parameters.AddWithValue("@ModifiedBy", "Installer");
                         passwordCommand.Parameters.AddWithValue("@ModifiedDate", DateTime.UtcNow);
 
-                        passwordCommand.ExecuteNonQuery();
+                        await passwordCommand.ExecuteNonQueryAsync(cancellationToken);
                     }
 
                     LogMessage("Master password configured successfully.");
@@ -844,6 +1125,11 @@ namespace AIM.Installer
 
                 LogMessage("Security database initialized successfully.");
                 return true;
+            }
+            catch (OperationCanceledException)
+            {
+                LogMessage("Database initialization cancelled by user");
+                return false;
             }
             catch (Exception ex)
             {
