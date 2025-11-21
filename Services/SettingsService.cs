@@ -3,6 +3,7 @@ using System;
 using System.IO;
 using System.Text.Json;
 using Windows.Storage;
+using System.Collections.Generic;
 
 namespace AIM.Services;
 
@@ -228,4 +229,5 @@ public class SettingsService : ISettingsService
             System.Diagnostics.Debug.WriteLine($"[SettingsService] Error saving settings: {ex.Message}");
         }
     }
+
 }
