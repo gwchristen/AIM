@@ -155,7 +155,8 @@ public class DatabaseSecurityService
     private bool IsDatabaseLockedException(SQLiteException ex)
     {
         return ex.Message.Contains("database is locked", StringComparison.OrdinalIgnoreCase) ||
-               ex.Message.Contains("locked", StringComparison.OrdinalIgnoreCase);
+               (ex.Message.Contains("locked", StringComparison.OrdinalIgnoreCase) && 
+                ex.ErrorCode == SQLiteErrorCode.Locked);
     }
 
     /// <summary>

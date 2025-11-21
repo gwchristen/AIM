@@ -1114,5 +1114,6 @@ public class SecurityService : IDisposable
     {
         _refreshTimer?.Dispose();
         _userAccessLock?.Dispose();
+        GC.SuppressFinalize(this);
     }
 }

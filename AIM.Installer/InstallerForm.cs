@@ -58,6 +58,7 @@ namespace AIM.Installer
         // Installer logging
         private string? installerLogPath;
         private StreamWriter? logFileWriter;
+        private bool logFileWriterDisposed = false;
         private const int MAX_LOG_FILES = 5;
 
         // Database timeout configuration
@@ -463,14 +464,18 @@ namespace AIM.Installer
             }
             
             // Cleanup resources
-            try
+            if (!logFileWriterDisposed)
             {
-                installCancellationSource?.Cancel();
-                installCancellationSource?.Dispose();
-                logFileWriter?.Close();
-                logFileWriter?.Dispose();
+                try
+                {
+                    installCancellationSource?.Cancel();
+                    installCancellationSource?.Dispose();
+                    logFileWriter?.Close();
+                    logFileWriter?.Dispose();
+                    logFileWriterDisposed = true;
+                }
+                catch { }
             }
-            catch { }
         }
 
         private void BrowseButton_Click(object? sender, EventArgs e)
@@ -584,12 +589,16 @@ namespace AIM.Installer
                 finally
                 {
                     // Close log file writer
-                    try
+                    if (!logFileWriterDisposed)
                     {
-                        logFileWriter?.Close();
-                        logFileWriter?.Dispose();
+                        try
+                        {
+                            logFileWriter?.Close();
+                            logFileWriter?.Dispose();
+                            logFileWriterDisposed = true;
+                        }
+                        catch { }
                     }
-                    catch { }
                 }
             });
         }
@@ -711,14 +720,21 @@ namespace AIM.Installer
             logTextBox.ScrollToCaret();
             
             // Also write to persistent log file
-            try
+            if (!logFileWriterDisposed)
             {
-                logFileWriter?.WriteLine(timestampedMessage);
-                logFileWriter?.Flush();
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine($"Failed to write to log file: {ex.Message}");
+                try
+                {
+                    logFileWriter?.WriteLine(timestampedMessage);
+                    logFileWriter?.Flush();
+                }
+                catch (ObjectDisposedException)
+                {
+                    // Log writer already disposed, ignore
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"Failed to write to log file: {ex.Message}");
+                }
             }
         }
 
@@ -777,6 +793,15 @@ namespace AIM.Installer
                 {
                     var timestamp = File.GetLastWriteTime(currentLog).ToString("yyyyMMdd_HHmmss");
                     var archivedName = Path.Combine(logDirectory, $"installer_{timestamp}.log");
+                    
+                    // Handle case where archived file already exists (multiple concurrent installers)
+                    int suffix = 1;
+                    while (File.Exists(archivedName))
+                    {
+                        archivedName = Path.Combine(logDirectory, $"installer_{timestamp}_{suffix}.log");
+                        suffix++;
+                    }
+                    
                     File.Move(currentLog, archivedName);
                     logFiles.Insert(0, new FileInfo(archivedName));
                 }
