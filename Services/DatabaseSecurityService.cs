@@ -156,7 +156,7 @@ public class DatabaseSecurityService
     {
         return ex.Message.Contains("database is locked", StringComparison.OrdinalIgnoreCase) ||
                (ex.Message.Contains("locked", StringComparison.OrdinalIgnoreCase) && 
-                ex.ErrorCode == SQLiteErrorCode.Locked);
+                ex.ErrorCode == (int)SQLiteErrorCode.Locked);
     }
 
     /// <summary>
