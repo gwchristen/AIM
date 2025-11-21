@@ -1847,8 +1847,11 @@ namespace AIM.Installer
                     LogMessage("ERROR: SecurityDatabasePath is null or empty");
                     LogMessage($"Environment variable AIM_SECURITY_DB_PATH: {Environment.GetEnvironmentVariable("AIM_SECURITY_DB_PATH") ?? "(not set)"}");
                     MessageBox.Show(
-                        "Security database path is not configured.\n\n" +
-                        "Please set the AIM_SECURITY_DB_PATH environment variable or check the installer configuration.",
+                        "Security database path is not configured properly.\n\n" +
+                        "The path is null or empty, which indicates a configuration issue.\n\n" +
+                        "Please check:\n" +
+                        "• The AIM_SECURITY_DB_PATH environment variable (if used)\n" +
+                        "• The installer configuration and hardcoded defaults",
                         "Configuration Error",
                         MessageBoxButtons.OK,
                         MessageBoxIcon.Error
@@ -1864,7 +1867,8 @@ namespace AIM.Installer
                 if (string.IsNullOrEmpty(directory))
                 {
                     LogMessage("ERROR: Invalid security database path - could not extract directory name");
-                    LogMessage($"SecurityDatabasePath value: {SecurityDatabasePath}");
+                    LogMessage($"SecurityDatabasePath value: '{SecurityDatabasePath}'");
+                    LogMessage("This typically indicates the path is not a valid file path (e.g., root path, relative path without directory)");
                     return false;
                 }
 
