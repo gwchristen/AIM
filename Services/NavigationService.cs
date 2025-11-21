@@ -6,6 +6,12 @@ namespace AIM.Services;
 public class NavigationService : INavigationService
 {
     private Frame? _frame;
+    private readonly IAuditLoggingService _auditLoggingService;
+
+    public NavigationService(IAuditLoggingService auditLoggingService)
+    {
+        _auditLoggingService = auditLoggingService;
+    }
 
     public bool CanGoBack => _frame?.CanGoBack ?? false;
 
@@ -23,6 +29,12 @@ public class NavigationService : INavigationService
             throw new InvalidOperationException("Navigation frame has not been initialized.");
         }
         _frame.Navigate(pageType);
+        
+        _auditLoggingService.LogAudit(
+            "PAGE_NAVIGATION",
+            null,
+            $"Navigated to {pageType.Name}"
+        );
     }
 
     public void NavigateTo(Type pageType, object parameter)
@@ -32,6 +44,12 @@ public class NavigationService : INavigationService
             throw new InvalidOperationException("Navigation frame has not been initialized.");
         }
         _frame.Navigate(pageType, parameter);
+        
+        _auditLoggingService.LogAudit(
+            "PAGE_NAVIGATION",
+            null,
+            $"Navigated to {pageType.Name} with parameter"
+        );
     }
 
     public void NavigateTo(Type pageType, string navigationTag)
@@ -51,6 +69,12 @@ public class NavigationService : INavigationService
         if (CanGoBack)
         {
             _frame?.GoBack();
+            
+            _auditLoggingService.LogAudit(
+                "PAGE_NAVIGATION_BACK",
+                null,
+                "Navigated back"
+            );
         }
     }
 }

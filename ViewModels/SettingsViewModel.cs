@@ -18,6 +18,7 @@ public partial class SettingsViewModel : ObservableObject
     private readonly IDialogService _dialogService;
     private readonly IThemeService _themeService;
     private readonly ILockService _lockService;
+    private readonly IAuditLoggingService _auditLoggingService;
     private AppSettings _appSettings;
 
     // Directory Settings Properties
@@ -73,12 +74,14 @@ public partial class SettingsViewModel : ObservableObject
         ISettingsService settingsService,
         IDialogService dialogService,
         IThemeService themeService,
-        ILockService lockService)
+        ILockService lockService,
+        IAuditLoggingService auditLoggingService)
     {
         _settingsService = settingsService;
         _dialogService = dialogService;
         _themeService = themeService;
         _lockService = lockService;
+        _auditLoggingService = auditLoggingService;
 
         // Subscribe to lock state changes
         _lockService.LockStateChanged += OnLockStateChanged;
@@ -125,6 +128,16 @@ public partial class SettingsViewModel : ObservableObject
     {
         try
         {
+            var oldSettings = new 
+            {
+                DefaultRootDirectory = _appSettings.DefaultRootDirectory,
+                ArchivePath = _appSettings.ArchivePath,
+                ShippedDirectory = _appSettings.ShippedDirectory,
+                FileScansDirectory = _appSettings.FileScansDirectory,
+                InventoryArchiveDirectory = _appSettings.InventoryArchiveDirectory,
+                Theme = _appSettings.Theme
+            };
+
             _appSettings.DefaultRootDirectory = DefaultRootDirectory;
             _appSettings.ArchivePath = ArchivePath;
             _appSettings.ShippedDirectory = ShippedDirectory;
@@ -136,12 +149,44 @@ public partial class SettingsViewModel : ObservableObject
 
             Debug.WriteLine("[SettingsViewModel] Settings saved successfully");
 
+            // Log settings changes
+            var changes = new System.Collections.Generic.Dictionary<string, string>();
+            if (oldSettings.DefaultRootDirectory != DefaultRootDirectory)
+                changes["DefaultRootDirectory"] = $"{oldSettings.DefaultRootDirectory} → {DefaultRootDirectory}";
+            if (oldSettings.ArchivePath != ArchivePath)
+                changes["ArchivePath"] = $"{oldSettings.ArchivePath} → {ArchivePath}";
+            if (oldSettings.ShippedDirectory != ShippedDirectory)
+                changes["ShippedDirectory"] = $"{oldSettings.ShippedDirectory} → {ShippedDirectory}";
+            if (oldSettings.FileScansDirectory != FileScansDirectory)
+                changes["FileScansDirectory"] = $"{oldSettings.FileScansDirectory} → {FileScansDirectory}";
+            if (oldSettings.InventoryArchiveDirectory != InventoryArchiveDirectory)
+                changes["InventoryArchiveDirectory"] = $"{oldSettings.InventoryArchiveDirectory} → {InventoryArchiveDirectory}";
+            if (oldSettings.Theme != SelectedTheme)
+                changes["Theme"] = $"{oldSettings.Theme} → {SelectedTheme}";
+
+            if (changes.Count > 0)
+            {
+                _auditLoggingService.LogAudit(
+                    "SETTINGS_CHANGED",
+                    null,
+                    $"User modified {changes.Count} setting(s)",
+                    changes
+                );
+            }
+
             await _dialogService.ShowMessageAsync("Success", "Settings saved successfully.");
         }
         catch (Exception ex)
         {
             Debug.WriteLine($"[SettingsViewModel] Error saving settings: {ex.Message}");
             await _dialogService.ShowMessageAsync("Error", $"Failed to save settings: {ex.Message}");
+            
+            _auditLoggingService.LogAudit(
+                "SETTINGS_SAVE_FAILED",
+                null,
+                $"Failed to save settings: {ex.Message}",
+                new System.Collections.Generic.Dictionary<string, string> { { "error", ex.Message } }
+            );
         }
     }
 
@@ -150,10 +195,16 @@ public partial class SettingsViewModel : ObservableObject
     /// </summary>
     partial void OnSelectedThemeChanged(string value)
     {
-        if (_themeService != null)
+        if (_themeService != null && !string.IsNullOrEmpty(value) && value != _appSettings.Theme)
         {
             _themeService.SetTheme(value);
             Debug.WriteLine($"[SettingsViewModel] Theme changed to: {value}");
+            
+            _auditLoggingService.LogAudit(
+                "THEME_CHANGED",
+                null,
+                $"Theme changed from '{_appSettings.Theme}' to '{value}'"
+            );
         }
     }
 
