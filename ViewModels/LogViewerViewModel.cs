@@ -25,7 +25,7 @@ public partial class LogViewerViewModel : ObservableObject
         // Basic implementation - no audit logging available
         var welcomeEntry = new LogEntry
         {
-            Timestamp = DateTime.Now,
+            Timestamp = DateTime.UtcNow,
             UserName = Environment.UserName,
             Action = "LOG_VIEWER_OPENED",
             Details = "Log viewer initialized"

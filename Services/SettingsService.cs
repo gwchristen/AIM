@@ -117,11 +117,7 @@ public class SettingsService : ISettingsService
             if (!File.Exists(_settingsPath))
             {
                 System.Diagnostics.Debug.WriteLine($"[SettingsService] Settings file not found at {_settingsPath}. Creating default settings.");
-                
-                // Create default settings
-                var defaultSettings = new AppSettings();
-                SaveSettings(defaultSettings);
-                return defaultSettings;
+                return CreateDefaultSettings();
             }
 
             var json = File.ReadAllText(_settingsPath);
@@ -129,18 +125,14 @@ public class SettingsService : ISettingsService
             if (string.IsNullOrWhiteSpace(json))
             {
                 System.Diagnostics.Debug.WriteLine($"[SettingsService] Settings file is empty at {_settingsPath}. Creating default settings.");
-                var defaultSettings = new AppSettings();
-                SaveSettings(defaultSettings);
-                return defaultSettings;
+                return CreateDefaultSettings();
             }
 
             var settings = JsonSerializer.Deserialize<AppSettings>(json);
             if (settings == null)
             {
                 System.Diagnostics.Debug.WriteLine($"[SettingsService] Failed to deserialize settings. Creating default settings.");
-                var defaultSettings = new AppSettings();
-                SaveSettings(defaultSettings);
-                return defaultSettings;
+                return CreateDefaultSettings();
             }
 
             System.Diagnostics.Debug.WriteLine($"[SettingsService] Settings loaded successfully from {_settingsPath}");
@@ -149,17 +141,23 @@ public class SettingsService : ISettingsService
         catch (JsonException ex)
         {
             System.Diagnostics.Debug.WriteLine($"[SettingsService] JSON deserialization failed: {ex.Message}. Creating default settings.");
-            var defaultSettings = new AppSettings();
-            SaveSettings(defaultSettings);
-            return defaultSettings;
+            return CreateDefaultSettings();
         }
         catch (Exception ex)
         {
             System.Diagnostics.Debug.WriteLine($"[SettingsService] Error loading settings: {ex.Message}. Creating default settings.");
-            var defaultSettings = new AppSettings();
-            SaveSettings(defaultSettings);
-            return defaultSettings;
+            return CreateDefaultSettings();
         }
+    }
+
+    /// <summary>
+    /// Creates and saves default settings.
+    /// </summary>
+    private AppSettings CreateDefaultSettings()
+    {
+        var defaultSettings = new AppSettings();
+        SaveSettings(defaultSettings);
+        return defaultSettings;
     }
 
     public void SaveSettings(AppSettings settings)

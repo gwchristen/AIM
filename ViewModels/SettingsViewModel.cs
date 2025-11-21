@@ -101,7 +101,7 @@ public partial class SettingsViewModel : ObservableObject
     /// Saves the current settings.
     /// </summary>
     [RelayCommand]
-    private async void SaveSettings()
+    private async Task SaveSettingsAsync()
     {
         try
         {
@@ -141,7 +141,7 @@ public partial class SettingsViewModel : ObservableObject
     /// Selects a directory for the default root directory.
     /// </summary>
     [RelayCommand]
-    private async void SelectDefaultRootDirectory()
+    private async Task SelectDefaultRootDirectoryAsync()
     {
         var selectedPath = await _dialogService.PickFolderAsync();
         if (!string.IsNullOrEmpty(selectedPath))
@@ -154,7 +154,7 @@ public partial class SettingsViewModel : ObservableObject
     /// Selects a directory for the archive path.
     /// </summary>
     [RelayCommand]
-    private async void SelectArchivePath()
+    private async Task SelectArchivePathAsync()
     {
         var selectedPath = await _dialogService.PickFolderAsync();
         if (!string.IsNullOrEmpty(selectedPath))
@@ -167,7 +167,7 @@ public partial class SettingsViewModel : ObservableObject
     /// Selects a directory for the shipped directory.
     /// </summary>
     [RelayCommand]
-    private async void SelectShippedDirectory()
+    private async Task SelectShippedDirectoryAsync()
     {
         var selectedPath = await _dialogService.PickFolderAsync();
         if (!string.IsNullOrEmpty(selectedPath))
@@ -180,7 +180,7 @@ public partial class SettingsViewModel : ObservableObject
     /// Selects a directory for the file scans directory.
     /// </summary>
     [RelayCommand]
-    private async void SelectFileScansDirectory()
+    private async Task SelectFileScansDirectoryAsync()
     {
         var selectedPath = await _dialogService.PickFolderAsync();
         if (!string.IsNullOrEmpty(selectedPath))
@@ -193,7 +193,7 @@ public partial class SettingsViewModel : ObservableObject
     /// Selects a directory for the inventory archive directory.
     /// </summary>
     [RelayCommand]
-    private async void SelectInventoryArchiveDirectory()
+    private async Task SelectInventoryArchiveDirectoryAsync()
     {
         var selectedPath = await _dialogService.PickFolderAsync();
         if (!string.IsNullOrEmpty(selectedPath))
