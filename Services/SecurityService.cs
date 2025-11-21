@@ -12,6 +12,16 @@ using AIM.Models;
 namespace AIM.Services;
 
 /// <summary>
+/// Result from the network error dialog shown when network paths are inaccessible.
+/// </summary>
+internal enum NetworkErrorDialogResult
+{
+    Retry,
+    ContinueWithBasic,
+    Exit
+}
+
+/// <summary>
 /// Provides comprehensive security services for authentication, authorization, and user access control.
 /// 
 /// <para><strong>Security Architecture:</strong></para>
@@ -343,29 +353,42 @@ public class SecurityService : IDisposable
                 Debug.WriteLine($"[Security] Database security path configured: {appSettings.SecurityDatabasePath}");
                 
                 // Probe network paths with retry logic before proceeding
-                var (isAccessible, errorMessage) = await ProbeNetworkPathsAsync(appSettings);
-                
-                if (!isAccessible)
+                // Loop to allow user-initiated retries from the error dialog
+                bool networkCheckComplete = false;
+                while (!networkCheckComplete)
                 {
-                    Debug.WriteLine($"[Security] Network connectivity check failed: {errorMessage}");
+                    var (isAccessible, errorMessage) = await ProbeNetworkPathsAsync(appSettings);
                     
-                    // Show blocking error dialog with troubleshooting guidance
-                    var continueAnyway = await ShowNetworkErrorDialogAsync(errorMessage);
-                    
-                    if (!continueAnyway)
+                    if (!isAccessible)
                     {
-                        // User chose to exit application
-                        Debug.WriteLine("[Security] User chose to exit due to network connectivity issues");
-                        LogSecurityEvent("SECURITY_INIT_FAILED", "User exited due to network connectivity issues");
-                        throw new InvalidOperationException("Application initialization cancelled due to network connectivity issues");
+                        Debug.WriteLine($"[Security] Network connectivity check failed: {errorMessage}");
+                        
+                        // Show blocking error dialog with troubleshooting guidance
+                        var userChoice = await ShowNetworkErrorDialogAsync(errorMessage);
+                        
+                        if (userChoice == NetworkErrorDialogResult.Exit)
+                        {
+                            // User chose to exit application
+                            Debug.WriteLine("[Security] User chose to exit due to network connectivity issues");
+                            LogSecurityEvent("SECURITY_INIT_FAILED", "User exited due to network connectivity issues");
+                            throw new InvalidOperationException("Application initialization cancelled due to network connectivity issues");
+                        }
+                        else if (userChoice == NetworkErrorDialogResult.ContinueWithBasic)
+                        {
+                            // User explicitly chose to continue with Basic privileges
+                            Debug.WriteLine("[Security] User chose to continue with Basic privileges despite network issues");
+                            IsFirstTimeSetup = false;
+                            _userAccessLevels[CurrentUserId] = 1; // Basic access
+                            LogSecurityEvent("SECURITY_INITIALIZED", $"User '{CurrentUserId}' granted Basic privileges (network unavailable, explicit user choice)");
+                            return;
+                        }
+                        // else userChoice == Retry, loop continues
+                        Debug.WriteLine("[Security] User chose to retry network connectivity check");
                     }
-                    
-                    // User explicitly chose to continue with Basic privileges
-                    Debug.WriteLine("[Security] User chose to continue with Basic privileges despite network issues");
-                    IsFirstTimeSetup = false;
-                    _userAccessLevels[CurrentUserId] = 1; // Basic access
-                    LogSecurityEvent("SECURITY_INITIALIZED", $"User '{CurrentUserId}' granted Basic privileges (network unavailable, explicit user choice)");
-                    return;
+                    else
+                    {
+                        networkCheckComplete = true;
+                    }
                 }
                 
                 // Check if database file exists
@@ -1058,13 +1081,13 @@ public class SecurityService : IDisposable
     /// Provides troubleshooting guidance and allows user to retry or continue with Basic privileges.
     /// </summary>
     /// <param name="unreachablePaths">List of unreachable paths with error details.</param>
-    /// <returns>True if user chooses to continue with Basic privileges, false to exit application.</returns>
-    private async Task<bool> ShowNetworkErrorDialogAsync(string unreachablePaths)
+    /// <returns>User's choice: Retry, ContinueWithBasic, or Exit.</returns>
+    private async Task<NetworkErrorDialogResult> ShowNetworkErrorDialogAsync(string unreachablePaths)
     {
         try
         {
             // Need to invoke on UI thread for WinUI
-            var tcs = new TaskCompletionSource<bool>();
+            var tcs = new TaskCompletionSource<NetworkErrorDialogResult>();
             
             await Windows.ApplicationModel.Core.CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(
                 Windows.UI.Core.CoreDispatcherPriority.Normal,
@@ -1098,27 +1121,27 @@ public class SecurityService : IDisposable
                         
                         if (result == Microsoft.UI.Xaml.Controls.ContentDialogResult.Primary)
                         {
-                            // Retry - recursively call ProbeNetworkPathsAsync
+                            // Retry
                             Debug.WriteLine("[Security] User chose to retry network connectivity check");
-                            tcs.SetResult(false); // Signal to retry (will be handled by caller)
+                            tcs.SetResult(NetworkErrorDialogResult.Retry);
                         }
                         else if (result == Microsoft.UI.Xaml.Controls.ContentDialogResult.Secondary)
                         {
                             // Continue with Basic privileges - explicit user choice
                             Debug.WriteLine("[Security] User explicitly chose to continue with Basic privileges");
-                            tcs.SetResult(true);
+                            tcs.SetResult(NetworkErrorDialogResult.ContinueWithBasic);
                         }
                         else
                         {
                             // Exit application
                             Debug.WriteLine("[Security] User chose to exit application");
-                            tcs.SetResult(false);
+                            tcs.SetResult(NetworkErrorDialogResult.Exit);
                         }
                     }
                     catch (Exception ex)
                     {
                         Debug.WriteLine($"[Security] Error showing network error dialog: {ex.Message}");
-                        tcs.SetResult(false); // Default to not continuing on error
+                        tcs.SetResult(NetworkErrorDialogResult.Exit); // Default to exit on error
                     }
                 });
 
@@ -1127,7 +1150,7 @@ public class SecurityService : IDisposable
         catch (Exception ex)
         {
             Debug.WriteLine($"[Security] Failed to show network error dialog: {ex.Message}");
-            return false; // Default to not continuing on error
+            return NetworkErrorDialogResult.Exit; // Default to exit on error
         }
     }
 

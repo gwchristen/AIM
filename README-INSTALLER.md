@@ -391,6 +391,68 @@ else
 }
 ```
 
+## Environment Variable Configuration
+
+As of the latest version, the AIM Installer supports environment variables for flexible network path configuration. This allows you to customize network paths without recompiling the installer.
+
+### Supported Environment Variables
+
+The following environment variables can be set to override default network paths:
+
+| Environment Variable | Description | Default Value |
+|---------------------|-------------|---------------|
+| `AIM_ROOT_DIR` | Default root directory for file browsing | `\\oh1cam01\cml\Internal\LAB STOCK\LAB STOCK` |
+| `AIM_ARCHIVE_DIR` | Path where archived files are stored | `\\oh1cam01\cml\Internal\LAB STOCK\Archive` |
+| `AIM_SHIPPED_DIR` | Directory for shipped items | `\\oh1cam01\cml\Internal\LAB STOCK\Orders shipped` |
+| `AIM_SCANS_DIR` | Directory for file scan results | `C:\Tfile` |
+| `AIM_INVENTORY_ARCHIVE_DIR` | Directory for inventory archives | `\\oh1cam01\cml\Internal\LAB STOCK\Physical Inventory Archive` |
+| `AIM_SECURITY_DB_PATH` | Path to the centralized security database | `\\oh1cam01\cml\Internal\LAB STOCK\Important Inventory Related Documents\AIM\AIM_Security.db` |
+
+### Setting Environment Variables
+
+**System-wide (requires Administrator privileges):**
+
+```powershell
+[System.Environment]::SetEnvironmentVariable("AIM_ROOT_DIR", "\\myserver\aim\root", "Machine")
+[System.Environment]::SetEnvironmentVariable("AIM_SECURITY_DB_PATH", "\\myserver\aim\security\AIM_Security.db", "Machine")
+```
+
+**User-specific:**
+
+```powershell
+[System.Environment]::SetEnvironmentVariable("AIM_ROOT_DIR", "\\myserver\aim\root", "User")
+```
+
+**Temporary (current session only):**
+
+```powershell
+$env:AIM_ROOT_DIR = "\\myserver\aim\root"
+```
+
+### Path Resolution Priority
+
+The installer uses the following priority when resolving paths:
+
+1. **Environment Variable**: If set, this value is used
+2. **Hardcoded Default**: If no environment variable is set, the hardcoded default is used
+
+All path resolutions are logged to the installer log file (`%AppData%\AIM\installer.log`) for troubleshooting.
+
+### Network Path Validation
+
+The installer validates all network paths before writing the settings file:
+
+- **Accessibility Check**: Verifies each path exists or can be created
+- **Write Permission Check**: Tests write permissions by creating and deleting a temporary file
+- **User Feedback**: Shows detailed error messages if validation fails
+- **Retry Option**: Allows users to retry validation after fixing network issues
+
+If validation fails, the installer will:
+1. Display which paths are problematic and why
+2. Provide troubleshooting guidance
+3. Offer a retry option
+4. Block installation until paths are accessible or user cancels
+
 ## Support
 
 For issues or questions:
