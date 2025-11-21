@@ -5,6 +5,7 @@ using CommunityToolkit.Mvvm.Input;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
+using System.Threading.Tasks;
 
 namespace AIM.ViewModels;
 

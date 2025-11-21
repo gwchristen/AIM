@@ -5,6 +5,7 @@ using CommunityToolkit.Mvvm.Input;
 using Microsoft.UI.Xaml;
 using System;
 using System.Diagnostics;
+using System.Threading.Tasks;
 
 namespace AIM.ViewModels;
 
