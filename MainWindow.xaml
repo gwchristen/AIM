@@ -4,8 +4,13 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:converters="using:AIM.Converters"
     mc:Ignorable="d"
     Title="AIM">
+
+    <Window.Resources>
+        <converters:InverseBoolToVisibilityConverter x:Key="InverseBoolToVisibilityConverter" />
+    </Window.Resources>
 
     <Grid>
         <Grid.RowDefinitions>
@@ -61,8 +66,8 @@
                     </NavigationViewItem.Icon>
                 </NavigationViewItem>
 
-                <!-- INVENTORY ITEM - Visibility handled in code-behind -->
-                <NavigationViewItem Content="📦 Inventory">
+                <!-- INVENTORY ITEM - Visibility controlled by lock state -->
+                <NavigationViewItem x:Name="InventoryMenuItem" Content="📦 Inventory" Visibility="{Binding IsLocked, Converter={StaticResource InverseBoolToVisibilityConverter}}">
                     <NavigationViewItem.Icon>
                         <FontIcon Glyph="&#xE8B7;" Foreground="#F38181"/>
                     </NavigationViewItem.Icon>
@@ -98,6 +103,15 @@
                 </NavigationViewItem>
 
             </NavigationView.MenuItems>
+
+            <NavigationView.FooterMenuItems>
+                <!-- Lock/Unlock Button -->
+                <NavigationViewItem x:Name="LockMenuItem" Tag="LockToggle">
+                    <NavigationViewItem.Icon>
+                        <FontIcon x:Name="LockIcon" Glyph="&#xE72E;" Foreground="#FF6B6B"/>
+                    </NavigationViewItem.Icon>
+                </NavigationViewItem>
+            </NavigationView.FooterMenuItems>
 
             <Frame x:Name="ContentFrame"/>
 

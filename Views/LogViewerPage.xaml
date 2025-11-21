@@ -20,6 +20,9 @@
                     Message="Application logs are displayed here."
                     IsClosable="False"/>
 
+                <!-- Clear Logs Button -->
+                <Button Content="🗑️ Clear Logs" Command="{Binding ClearLogsCommand}" IsEnabled="{Binding IsClearLogsEnabled}" HorizontalAlignment="Left"/>
+
                 <!-- Logs List -->
                 <ListView ItemsSource="{Binding AuditLogs}" 
                          SelectionMode="None"
