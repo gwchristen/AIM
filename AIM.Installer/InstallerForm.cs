@@ -144,10 +144,34 @@ namespace AIM.Installer
     /// </summary>
     internal class AppSettings
     {
+        /// <summary>
+        /// Gets or sets the default root directory for file browsing operations.
+        /// This is a required property that must be populated during installation.
+        /// </summary>
         public string DefaultRootDirectory { get; set; } = string.Empty;
+        
+        /// <summary>
+        /// Gets or sets the path where archived files are stored.
+        /// This is a required property that must be populated during installation.
+        /// </summary>
         public string ArchivePath { get; set; } = string.Empty;
+        
+        /// <summary>
+        /// Gets or sets the directory path for shipped items.
+        /// This is a required property that must be populated during installation.
+        /// </summary>
         public string ShippedDirectory { get; set; } = string.Empty;
+        
+        /// <summary>
+        /// Gets or sets the directory where file scan results are stored.
+        /// This is a required property that must be populated during installation.
+        /// </summary>
         public string FileScansDirectory { get; set; } = string.Empty;
+        
+        /// <summary>
+        /// Gets or sets the directory where inventory archives are stored.
+        /// This is a required property that must be populated during installation.
+        /// </summary>
         public string InventoryArchiveDirectory { get; set; } = string.Empty;
         
         /// <summary>
@@ -157,6 +181,11 @@ namespace AIM.Installer
         /// </summary>
         public string SecurityConfigPath { get; set; } = string.Empty;
         
+        /// <summary>
+        /// Gets or sets the current application theme preference.
+        /// Valid values: "FollowSystem", "Light", "Dark", "HighContrast".
+        /// Defaults to "FollowSystem".
+        /// </summary>
         public string Theme { get; set; } = "FollowSystem";
         
         /// <summary>
@@ -166,14 +195,45 @@ namespace AIM.Installer
         /// </summary>
         public string Password { get; set; } = string.Empty;
         
+        /// <summary>
+        /// Gets or sets the list of authorized user IDs.
+        /// This property is deprecated; use SecurityDatabasePath for user management instead.
+        /// Kept for backward compatibility with old settings.json files.
+        /// </summary>
         public List<string> AuthorizedUsers { get; set; } = new();
+        
+        /// <summary>
+        /// Gets or sets whether the initial master password has been set.
+        /// When false, the application requires the user to set a master password on first launch.
+        /// This ensures no default or hardcoded passwords are used in production.
+        /// </summary>
         public bool IsInitialPasswordSet { get; set; } = false;
+        
+        /// <summary>
+        /// Gets or sets the path to the shared security configuration.
+        /// DEPRECATED: This property is maintained for backward compatibility but is no longer
+        /// actively used in newer versions. Security settings are now stored in SecurityDatabasePath.
+        /// Legacy behavior: When UseSharedConfig was enabled, this path was used to locate
+        /// the centrally managed security configuration. Could be overridden by security-config.ini.
+        /// </summary>
         public string SharedSecurityConfigPath { get; set; } = string.Empty;
+        
+        /// <summary>
+        /// Gets or sets whether to use shared network configuration.
+        /// DEPRECATED: This property is maintained for backward compatibility but is no longer
+        /// actively used in newer versions. All instances now read from the centralized
+        /// SecurityDatabasePath regardless of this setting.
+        /// Legacy behavior: When true, the application attempted to load security configuration
+        /// from SharedSecurityConfigPath or security-config.ini file.
+        /// </summary>
         public bool UseSharedConfig { get; set; } = true;
         
         /// <summary>
         /// Path to the centralized SQLite security database.
         /// This is the ACTIVE property used by the application.
+        /// This database stores authorized users, security settings, and audit logs.
+        /// All AIM instances read from this shared database for centralized user management.
+        /// This is a required property that must be populated during installation.
         /// </summary>
         public string SecurityDatabasePath { get; set; } = string.Empty;
     }
@@ -853,10 +913,12 @@ namespace AIM.Installer
                 }
 
                 LogMessage("Launching AIM...");
+                // CRITICAL Issue #1: Use UseShellExecute=false to get the actual AIM.exe process
+                // instead of the shell process. This allows proper process tracking and exit code detection.
                 aimProcess = Process.Start(new ProcessStartInfo
                 {
                     FileName = exePath,
-                    UseShellExecute = true,
+                    UseShellExecute = false,
                     WorkingDirectory = installPath
                 });
 
@@ -1258,16 +1320,22 @@ namespace AIM.Installer
                     continue; // Continue validating other paths
                 }
 
-                // HIGH Issue #8: Test write permissions using temp directory to avoid conflicts
-                // NOTE: This tests general write capability, not specific network path permissions
+                // CRITICAL Issue #2: Test write permissions directly in the actual network path
+                // This ensures we validate write capability where it's actually needed
                 if (requireWrite)
                 {
-                    // Use system temp directory for test file to avoid conflicts with concurrent installers
-                    var tempDir = Path.GetTempPath();
-                    var testFileName = Path.Combine(tempDir, $"__aim_write_test_{Guid.NewGuid()}.tmp");
+                    // Test write permission directly in the target directory
+                    var testFileName = Path.Combine(directoryToCheck ?? path, $"__aim_write_test_{Guid.NewGuid()}.tmp");
                     try
                     {
-                        // Attempt to create and write to a test file in temp directory
+                        // Create directory if it doesn't exist (needed to test write permission)
+                        if (!Directory.Exists(directoryToCheck ?? path))
+                        {
+                            Directory.CreateDirectory(directoryToCheck ?? path);
+                            LogMessage($"  Created directory for write test");
+                        }
+
+                        // Attempt to create and write to a test file in the actual network path
                         File.WriteAllText(testFileName, "AIM write permission test");
                         
                         // Verify we can read it back
@@ -1277,29 +1345,29 @@ namespace AIM.Installer
                             throw new IOException("Write verification failed");
                         }
                         
-                        LogMessage($"  Basic write capability verified (temp directory test - network path permissions checked during directory creation)");
+                        LogMessage($"  Write permission verified in actual path: {directoryToCheck ?? path}");
                     }
                     catch (UnauthorizedAccessException ex)
                     {
-                        var error = $"No write permission to temp directory: {ex.Message}";
+                        var error = $"No write permission to {pathName} at {directoryToCheck ?? path}: {ex.Message}";
                         LogMessage($"  ERROR: {error}");
                         invalidPaths[pathName] = error;
                     }
                     catch (IOException ex)
                     {
-                        var error = $"Write test failed: {ex.Message}";
+                        var error = $"Write test failed for {pathName} at {directoryToCheck ?? path}: {ex.Message}";
                         LogMessage($"  ERROR: {error}");
                         invalidPaths[pathName] = error;
                     }
                     catch (Exception ex)
                     {
-                        var error = $"Write test error: {ex.Message}";
+                        var error = $"Write test error for {pathName} at {directoryToCheck ?? path}: {ex.Message}";
                         LogMessage($"  ERROR: {error}");
                         invalidPaths[pathName] = error;
                     }
                     finally
                     {
-                        // CRITICAL Issue #8: Ensure test file cleanup in finally block
+                        // Ensure test file cleanup in finally block
                         try 
                         { 
                             if (File.Exists(testFileName)) 
@@ -1355,6 +1423,7 @@ namespace AIM.Installer
             };
 
             bool allCreated = true;
+            var failedDirectories = new List<(string name, string error)>();
 
             foreach (var (name, path) in directoriesToCreate)
             {
@@ -1364,15 +1433,52 @@ namespace AIM.Installer
                     continue;
                 }
 
-                // HIGH Issue #9: Use timeout for directory creation
-                if (!await CreateDirectoryWithTimeoutAsync(path, timeoutSeconds: 15))
+                // CRITICAL Issue #4: Wrap CreateDirectoryWithTimeoutAsync() in try-catch to handle exceptions
+                try
                 {
-                    LogMessage($"  ERROR: Failed to create {name}");
-                    allCreated = false;
+                    if (!await CreateDirectoryWithTimeoutAsync(path, timeoutSeconds: 15))
+                    {
+                        var error = "Directory creation failed or timed out";
+                        LogMessage($"  ERROR: Failed to create {name}: {error}");
+                        failedDirectories.Add((name, error));
+                        allCreated = false;
+                    }
+                    else
+                    {
+                        LogMessage($"  {name} ready");
+                    }
                 }
-                else
+                catch (UnauthorizedAccessException ex)
                 {
-                    LogMessage($"  {name} ready");
+                    var error = $"Access denied: {ex.Message}";
+                    LogMessage($"  ERROR: Failed to create {name} - {error}");
+                    failedDirectories.Add((name, error));
+                    allCreated = false;
+                    // Continue to next directory instead of failing entire operation
+                }
+                catch (IOException ex)
+                {
+                    var error = $"I/O error: {ex.Message}";
+                    LogMessage($"  ERROR: Failed to create {name} - {error}");
+                    failedDirectories.Add((name, error));
+                    allCreated = false;
+                    // Continue to next directory instead of failing entire operation
+                }
+                catch (TimeoutException ex)
+                {
+                    var error = $"Operation timed out: {ex.Message}";
+                    LogMessage($"  ERROR: Failed to create {name} - {error}");
+                    failedDirectories.Add((name, error));
+                    allCreated = false;
+                    // Continue to next directory instead of failing entire operation
+                }
+                catch (Exception ex)
+                {
+                    var error = $"Unexpected error: {ex.Message}";
+                    LogMessage($"  ERROR: Failed to create {name} - {error}");
+                    failedDirectories.Add((name, error));
+                    allCreated = false;
+                    // Continue to next directory instead of failing entire operation
                 }
             }
 
@@ -1384,6 +1490,11 @@ namespace AIM.Installer
             else
             {
                 LogMessage("Some directories could not be created");
+                LogMessage($"Failed directories ({failedDirectories.Count}):");
+                foreach (var (name, error) in failedDirectories)
+                {
+                    LogMessage($"  - {name}: {error}");
+                }
             }
             LogMessage("========================================");
 
