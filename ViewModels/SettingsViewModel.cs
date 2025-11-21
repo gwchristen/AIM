@@ -195,7 +195,7 @@ public partial class SettingsViewModel : ObservableObject
     /// </summary>
     partial void OnSelectedThemeChanged(string value)
     {
-        if (_themeService != null && !string.IsNullOrEmpty(value))
+        if (_themeService != null && !string.IsNullOrEmpty(value) && value != _appSettings.Theme)
         {
             _themeService.SetTheme(value);
             Debug.WriteLine($"[SettingsViewModel] Theme changed to: {value}");
@@ -203,7 +203,7 @@ public partial class SettingsViewModel : ObservableObject
             _auditLoggingService.LogAudit(
                 "THEME_CHANGED",
                 null,
-                $"Theme changed to {value}"
+                $"Theme changed from '{_appSettings.Theme}' to '{value}'"
             );
         }
     }

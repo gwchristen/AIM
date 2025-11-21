@@ -83,13 +83,13 @@ public partial class BrowseViewModel : ObservableObject
         if (value != null)
         {
             SelectedLeftDirectory = value;
+            
+            _auditLoggingService.LogAudit(
+                "DIR_ACCESS",
+                value.FullPath,
+                $"Browsed to directory: {value.Name}"
+            );
         }
-
-        _auditLoggingService.LogAudit(
-            "DIR_ACCESS",
-            value?.FullPath,
-            $"Browsed to directory: {value?.Name}"
-        );
 
         UpdateLeftBreadcrumbs(value?.FullPath);
         UpdateAndSortLeftFilteredContents();

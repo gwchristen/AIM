@@ -76,6 +76,8 @@ public class AuditLoggingService : IAuditLoggingService
     /// <summary>
     /// Asynchronously reads audit log entries from the log file.
     /// Parses the Serilog text format and returns structured LogEntry objects.
+    /// NOTE: For large log files (>10MB), this may be slow as it loads the entire file into memory.
+    /// Consider implementing pagination or file streaming for production environments with high log volume.
     /// </summary>
     public async Task<IEnumerable<LogEntry>> ReadAuditLogsAsync(int maxEntries = 1000)
     {
@@ -126,9 +128,10 @@ public class AuditLoggingService : IAuditLoggingService
                         logEntries.Add(entry);
                     }
                 }
-                catch
+                catch (Exception ex)
                 {
-                    // Skip malformed log lines
+                    // Skip malformed log lines but log the error for debugging
+                    System.Diagnostics.Debug.WriteLine($"[AuditLoggingService] Failed to parse log line: {ex.Message}");
                     continue;
                 }
             }
