@@ -482,13 +482,13 @@ examples and usage patterns.
 ```
 
 ```
-security: implement rate limiting for password attempts
+security: enhance database user validation
 
-Add 5-attempt limit with 15-minute lockout to prevent brute
-force attacks on master password.
+Add additional validation for user access levels and
+ensure proper synchronization across instances.
 
-BREAKING CHANGE: SecurityService constructor signature changed
-to include new rate limiting parameters.
+BREAKING CHANGE: DatabaseSecurityService.AddUserAsync now
+requires CreatedBy parameter for audit trail.
 ```
 
 **Bad Examples**:

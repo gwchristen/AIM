@@ -335,7 +335,7 @@ Security is managed through a centralized SQLite database (not local files):
 
 ### Inventory Management
 
-Requires authorized access (master password or authorized user):
+Requires authorized access (Admin or SuperAdmin user):
 1. Navigate to **Inventory Tools**
 2. Select operation:
    - **Directory Archiver**: Archive directory structures

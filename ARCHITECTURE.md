@@ -143,7 +143,7 @@ AIM/
 │   ├── NavigationService.cs       # Frame navigation implementation
 │   ├── SecurityService.cs         # Authentication & authorization
 │   ├── EncryptionService.cs       # Data encryption (AES)
-│   ├── EncryptedSettingsService.cs # Secure settings storage (DPAPI)
+│   ├── DatabaseSecurityService.cs # Database security operations
 │   ├── AuditLoggingService.cs     # Audit trail logging
 │   ├── ThemeService.cs            # Theme management
 │   ├── IFileService.cs            # File operations abstraction
@@ -319,7 +319,7 @@ public class FileService : IFileService
 **File and settings access is abstracted** behind service interfaces.
 
 - `SettingsService`: Reads/writes JSON configuration files
-- `EncryptedSettingsService`: Reads/writes encrypted security configuration
+- `DatabaseSecurityService`: Manages database security operations
 - `AuditLoggingService`: Appends to audit log file
 
 This pattern allows:
@@ -396,7 +396,7 @@ User Action              ViewModel          SecurityService      EncryptedSettin
     │                        │                      │  LoadConfig()      │                 │
     │                        │                      ├──────────────────> │                 │
     │                        │                      │                    │                 │
-    │                        │                      │  Decrypt (DPAPI)   │                 │
+    │                        │                      │  Query Database    │                 │
     │                        │                      │ <────────────────  │                 │
     │                        │                      │                    │                 │
     │                        │                      │  Hash & Compare    │                 │
@@ -784,7 +784,7 @@ ViewModels
 **Key Features**:
 - Theme selection
 - Root directory configuration
-- Security settings (master password, authorized users)
+- User management and access control
 - Master password override toggle
 
 **Key Properties**:
