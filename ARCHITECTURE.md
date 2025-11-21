@@ -143,7 +143,7 @@ AIM/
 │   ├── NavigationService.cs       # Frame navigation implementation
 │   ├── SecurityService.cs         # Authentication & authorization
 │   ├── EncryptionService.cs       # Data encryption (AES)
-│   ├── EncryptedSettingsService.cs # Secure settings storage (DPAPI)
+│   ├── DatabaseSecurityService.cs # Database security operations
 │   ├── AuditLoggingService.cs     # Audit trail logging
 │   ├── ThemeService.cs            # Theme management
 │   ├── IFileService.cs            # File operations abstraction
@@ -319,7 +319,7 @@ public class FileService : IFileService
 **File and settings access is abstracted** behind service interfaces.
 
 - `SettingsService`: Reads/writes JSON configuration files
-- `EncryptedSettingsService`: Reads/writes encrypted security configuration
+- `DatabaseSecurityService`: Manages database security operations
 - `AuditLoggingService`: Appends to audit log file
 
 This pattern allows:
@@ -396,7 +396,7 @@ User Action              ViewModel          SecurityService      EncryptedSettin
     │                        │                      │  LoadConfig()      │                 │
     │                        │                      ├──────────────────> │                 │
     │                        │                      │                    │                 │
-    │                        │                      │  Decrypt (DPAPI)   │                 │
+    │                        │                      │  Query Database    │                 │
     │                        │                      │ <────────────────  │                 │
     │                        │                      │                    │                 │
     │                        │                      │  Hash & Compare    │                 │
@@ -503,62 +503,71 @@ _navigationService.NavigateTo(typeof(BrowsePage));
 
 #### 2. SecurityService
 
-**Purpose**: Provides authentication, authorization, and access control.
+**Purpose**: Provides database-driven authentication, authorization, and role-based access control.
 
 **Responsibilities**:
-- Master password validation
-- Authorized user management
-- Rate limiting (5 failed attempts = 15-minute lockout)
-- First-time setup detection
-- Master password override management
+- Database-based user authorization
+- Role-based access control enforcement
+- Real-time user synchronization (30-second refresh)
+- Access level checking (Basic/Admin/SuperAdmin)
+- Integration with DatabaseSecurityService
 
 **Key Properties**:
-- `IsFullyUnlocked`: Whether user has access to restricted features
-- `IsMasterPasswordOverrideActive`: Whether master password bypass is active
-- `IsFirstTimeSetup`: Whether initial password setup is needed
+- `IsFullyUnlocked`: Whether current user is authorized in database
 - `CurrentUserId`: Current Windows username
+- `CurrentUserAccessLevel`: User's access level (0=None, 1=Basic, 2=Admin, 3=SuperAdmin)
 
 **Key Methods**:
-- `InitializeAsync()`: Load encrypted security configuration
-- `ValidatePasswordAsync(string password)`: Validate password attempt
-- `SetInitialPasswordAsync(string password)`: Set first-time password
-- `ActivateMasterPasswordOverride()`: Enable override mode
-- `DeactivateMasterPasswordOverride()`: Disable override mode
-- `AddAuthorizedUser(string username)`: Add user to whitelist
-- `RemoveAuthorizedUser(string username)`: Remove user from whitelist
+- `InitializeDatabaseSecurityAsync()`: Initialize database connection
+- `RefreshUsersFromDatabaseAsync()`: Sync users from database
+- `GetCurrentUserAccessLevel()`: Get current user's access level
+- `IsCurrentUserAdmin()`: Check if user is Admin (level 2+)
+- `IsCurrentUserSuperAdmin()`: Check if user is SuperAdmin (level 3)
 
 **Location**: `/Services/SecurityService.cs`
 
 **Security Model**:
 ```
-Two-Tier Authentication:
-1. Master Password: Administrative override (temporary)
-2. Authorized Users: Permanent user whitelist
+Database-Centric Authorization:
+1. Query user from centralized database
+2. Check IsActive status
+3. Return AccessLevel (1/2/3)
+4. Enforce role-based restrictions
 
-Access Granted if:
-  - Current Windows user is in authorized list, OR
-  - Master password override is active
+Access Levels:
+  - Basic (1): View-only access
+  - Admin (2): Can manage users and settings
+  - SuperAdmin (3): Full unrestricted access
 ```
 
 ---
 
-#### 3. EncryptedSettingsService
+#### 3. DatabaseSecurityService
 
-**Purpose**: Encrypts and decrypts sensitive security configuration.
+**Purpose**: Manages all database operations for security and user management.
 
-**Interface**: `IEncryptedSettingsService`
+**Responsibilities**:
+- Database initialization and schema creation
+- CRUD operations for authorized users
+- Security settings management
+- Security audit logging to database
 
 **Key Methods**:
-- `SaveSecurityConfigAsync(path, masterPassword, authorizedUsers)`: Encrypt and save
-- `LoadSecurityConfigAsync(path)`: Decrypt and load
-- `VerifyPasswordAsync(path, password)`: Verify without full load
+- `InitializeDatabaseAsync()`: Create database schema if not exists
+- `GetAuthorizedUsersAsync()`: Retrieve all active users
+- `AddAuthorizedUserAsync(user)`: Add new user with audit logging
+- `UpdateAuthorizedUserAsync(user)`: Modify user details with audit logging
+- `RemoveAuthorizedUserAsync(username)`: Soft-delete user (set IsActive=false)
+- `GetSecuritySettingAsync(key)`: Read setting from database
+- `SetSecuritySettingAsync(key, value)`: Write setting to database
+- `LogSecurityActionAsync(action, targetUser, details, success)`: Audit logging
 
-**Encryption**: Windows Data Protection API (DPAPI) with `LOCAL=user` scope
-- Machine-specific encryption
-- User-specific encryption
-- No keys stored in code or config
+**Database Schema**:
+- AuthorizedUsers table: User records with access levels
+- SecuritySettings table: Key-value configuration pairs
+- SecurityAuditLog table: Complete security event history
 
-**Location**: `/Services/EncryptedSettingsService.cs`
+**Location**: `/Services/DatabaseSecurityService.cs`
 
 ---
 
@@ -775,7 +784,7 @@ ViewModels
 **Key Features**:
 - Theme selection
 - Root directory configuration
-- Security settings (master password, authorized users)
+- User management and access control
 - Master password override toggle
 
 **Key Properties**:
@@ -867,127 +876,140 @@ ViewModels
 
 ## Security Architecture
 
-### Multi-Layered Security Model
+### Central Database Security Model
 
-```
-┌─────────────────────────────────────────────────────────────┐
-│                   APPLICATION ACCESS LAYER                   │
-│  ┌───────────────────────────────────────────────────────┐  │
-│  │  Is Current User Authorized?                          │  │
-│  │  ┌──────────────────────┬─────────────────────────┐  │  │
-│  │  │  Authorized Users    │  Master Password        │  │  │
-│  │  │  List Check          │  Override Active?       │  │  │
-│  │  └──────────────────────┴─────────────────────────┘  │  │
-│  │                  │                 │                  │  │
-│  │                  └────────┬────────┘                  │  │
-│  │                           ↓                           │  │
-│  │                    GRANT ACCESS                       │  │
-│  └───────────────────────────────────────────────────────┘  │
-└─────────────────────────────────────────────────────────────┘
-                             ↓
-┌─────────────────────────────────────────────────────────────┐
-│                  PASSWORD VALIDATION LAYER                   │
-│  ┌───────────────────────────────────────────────────────┐  │
-│  │  1. Load Encrypted Config (DPAPI Decrypt)            │  │
-│  │  2. Hash Input Password (SHA-256)                    │  │
-│  │  3. Compare Hash with Stored Hash                    │  │
-│  │  4. Check Rate Limiting (5 attempts = 15 min lockout)│  │
-│  │  5. Log Authentication Attempt (Audit)               │  │
-│  └───────────────────────────────────────────────────────┘  │
-└─────────────────────────────────────────────────────────────┘
-                             ↓
-┌─────────────────────────────────────────────────────────────┐
-│                   ENCRYPTION LAYER (DPAPI)                   │
-│  ┌───────────────────────────────────────────────────────┐  │
-│  │  Windows Data Protection API                         │  │
-│  │  - Machine-specific encryption                       │  │
-│  │  - User-specific encryption                          │  │
-│  │  - No hardcoded keys                                 │  │
-│  │  - Cannot decrypt on different machine/user         │  │
-│  └───────────────────────────────────────────────────────┘  │
-└─────────────────────────────────────────────────────────────┘
-                             ↓
-┌─────────────────────────────────────────────────────────────┐
-│                    STORAGE LAYER                             │
-│  security.config (encrypted JSON):                          │
-│  {                                                           │
-│    "masterPasswordHash": "SHA-256 hash",                    │
-│    "authorizedUsers": ["user1", "user2"],                   │
-│    "encryptedData": "DPAPI-encrypted blob",                 │
-│    "lastModified": "2025-11-17T01:20:00Z"                   │
-│  }                                                           │
-└─────────────────────────────────────────────────────────────┘
-```
+AIM uses a **centralized SQLite database** for security management. This provides consistent, real-time access control across all AIM instances in the organization.
 
-### Password Requirements
+#### Architecture Overview
 
-- **Minimum Length**: 8 characters
-- **Uppercase**: At least 1 uppercase letter
-- **Lowercase**: At least 1 lowercase letter
-- **Digits**: At least 1 number
-- **Symbols**: At least 1 special character
+**Database-Centric Access Control:**
+- Single source of truth for all user permissions
+- Real-time synchronization across all AIM instances (30-second refresh)
+- Role-based access control with three levels: Basic (1), Admin (2), SuperAdmin (3)
+- Centralized audit logging of all security events
 
-**Enforcement**: `PasswordValidator.ValidatePassword()`
+#### User Access Levels
 
-### Rate Limiting
+**Level 1 - Basic User:**
+- View and browse assets
+- Search functionality
+- Read-only operations
+- Cannot modify settings or manage users
 
-- **Max Failed Attempts**: 5
-- **Lockout Duration**: 15 minutes
-- **Lockout Reset**: After duration expires or app restart
-- **Logging**: All attempts logged to audit log
+**Level 2 - Admin:**
+- All Basic permissions
+- Modify directory settings
+- Manage users (add/edit/remove)
+- Clear audit logs
+- Change configuration paths through Settings tab
 
-### Encryption Flow
+**Level 3 - SuperAdmin:**
+- All Admin permissions
+- Full unrestricted access
+- Initialized automatically by installer
+- Should be limited to IT administrators
 
-```
-┌──────────────────┐
-│  Plain Password  │
-│  + User List     │
-└────────┬─────────┘
-         │
-         ↓
-┌────────────────────────┐
-│  Serialize to JSON     │
-└────────┬───────────────┘
-         │
-         ↓
-┌────────────────────────┐
-│  DPAPI Encrypt         │
-│  (LOCAL=user scope)    │
-└────────┬───────────────┘
-         │
-         ↓
-┌────────────────────────┐
-│  Base64 Encode         │
-└────────┬───────────────┘
-         │
-         ↓
-┌────────────────────────┐
-│  Store in JSON         │
-│  (encryptedData field) │
-└────────────────────────┘
+#### Database Schema
+
+**Location:** Network share accessible to all users  
+**Path:** `\\server\share\...\AIM_Security.db` (configured during installation)
+
+**AuthorizedUsers Table:**
+```sql
+CREATE TABLE AuthorizedUsers (
+    ID INTEGER PRIMARY KEY AUTOINCREMENT,
+    Username TEXT NOT NULL UNIQUE,
+    FullName TEXT,
+    Department TEXT,
+    AccessLevel INTEGER NOT NULL DEFAULT 1,
+    IsActive INTEGER NOT NULL DEFAULT 1,
+    CreatedBy TEXT,
+    CreatedDate TEXT NOT NULL,
+    ModifiedBy TEXT,
+    ModifiedDate TEXT NOT NULL
+);
 ```
 
-### First-Time Setup Flow
+**SecuritySettings Table:**
+```sql
+CREATE TABLE SecuritySettings (
+    SettingKey TEXT PRIMARY KEY,
+    SettingValue TEXT,
+    ModifiedBy TEXT,
+    ModifiedDate TEXT NOT NULL
+);
+```
 
+**SecurityAuditLog Table:**
+```sql
+CREATE TABLE SecurityAuditLog (
+    ID INTEGER PRIMARY KEY AUTOINCREMENT,
+    Timestamp TEXT NOT NULL,
+    Username TEXT NOT NULL,
+    Action TEXT NOT NULL,
+    TargetUser TEXT,
+    Details TEXT,
+    Success INTEGER NOT NULL
+);
 ```
-1. Application Launch
-   ↓
-2. Check if security.config exists
-   ↓ (No)
-3. Set IsFirstTimeSetup = true
-   ↓
-4. Show Welcome Dialog (MainWindow)
-   ↓
-5. User enters password + confirmation
-   ↓
-6. Validate password requirements
-   ↓
-7. Encrypt and save password
-   ↓
-8. Set IsFirstTimeSetup = false
-   ↓
-9. Continue to main application
-```
+
+#### Authentication Flow
+
+1. **Application Launch:**
+   - SecurityService reads database path from settings.json
+   - Initializes DatabaseSecurityService with network path
+   - Queries current Windows username against AuthorizedUsers table
+
+2. **Authorization Check:**
+   - User exists in database AND IsActive = true → Grant access
+   - Retrieve user's AccessLevel (1/2/3)
+   - Apply role-based restrictions based on AccessLevel
+
+3. **Real-time Synchronization:**
+   - Background timer refreshes user list every 30 seconds
+   - Changes to users propagate to all instances automatically
+   - Manual refresh available via "Refresh Users" button in Settings
+
+#### Security Features
+
+**Centralized Management:**
+- Admin users manage all users from Settings → User Management section
+- Changes immediately visible to all instances after sync
+- Complete audit trail of who added/modified/removed users
+
+**No Local Configuration:**
+- No local password files or encrypted configs
+- No passphrase required
+- No shared config file distribution needed
+- Simplified deployment and management
+
+**Audit Logging:**
+- All security events logged to SecurityAuditLog table
+- Who performed action, when, and what changed
+- Success/failure tracking
+- Queryable history for compliance
+
+#### User Management
+
+**Adding Users (Admin+ required):**
+1. Navigate to Settings → User Management
+2. Click "Add User"
+3. Enter Username (Windows username), Full Name, Department
+4. Select Access Level (Basic/Admin/SuperAdmin)
+5. Changes sync across all instances within 30 seconds
+
+**Editing Users (Admin+ required):**
+1. Select user from list
+2. Click "Edit"
+3. Modify Full Name, Department, or Access Level
+4. Cannot edit Username (unique identifier)
+
+**Removing Users (Admin+ required):**
+1. Select user from list
+2. Click "Remove"
+3. User is soft-deleted (IsActive = false)
+4. User immediately loses access on all instances
+
 
 ---
 
@@ -1066,19 +1088,29 @@ Use `LogViewerPage` (Navigation → Log Viewer) to:
 ```json
 {
   "DefaultRootDirectory": "C:\\AssetInventory",
+  "ArchivePath": "\\\\server\\share\\Archive",
+  "ShippedDirectory": "\\\\server\\share\\Shipped",
+  "FileScansDirectory": "C:\\Tfile",
+  "InventoryArchiveDirectory": "\\\\server\\share\\InventoryArchive",
+  "SecurityDatabasePath": "\\\\server\\share\\AIM_Security.db",
   "Theme": "FollowSystem",
-  "AuthorizedUsers": ["user1", "user2"],
   "LastOpenedPaths": ["C:\\Path1", "C:\\Path2"],
   "FormTemplateType": "Ohio"
 }
 ```
 
 **Properties**:
-- `DefaultRootDirectory`: Default starting directory
+- `DefaultRootDirectory`: Default starting directory (hardcoded during installation)
+- `ArchivePath`: Archive directory path (hardcoded during installation)
+- `ShippedDirectory`: Shipped orders directory (hardcoded during installation)
+- `FileScansDirectory`: File scans directory (hardcoded during installation)
+- `InventoryArchiveDirectory`: Inventory archive path (hardcoded during installation)
+- `SecurityDatabasePath`: Network path to security database (set during installation)
 - `Theme`: Selected theme (FollowSystem, Light, Dark, HighContrast)
-- `AuthorizedUsers`: List of Windows usernames with access
 - `LastOpenedPaths`: Recently accessed directories
 - `FormTemplateType`: Default form template
+
+**Note**: Directory paths are hardcoded by the installer. Admin and SuperAdmin users can modify these paths through the Settings tab after installation.
 
 **Access**:
 ```csharp
@@ -1089,30 +1121,42 @@ _settingsService.SaveSettings(settings);
 
 ---
 
-### Security Configuration (`security.config`)
+### Security Configuration (Database)
 
-**File**: `security.config` in `%LocalAppData%\AIM\Security\`
+**File**: SQLite database on network share (configured during installation)
 
-**Structure** (encrypted):
-```json
-{
-  "masterPasswordHash": "SHA-256 hash of password",
-  "authorizedUsers": ["user1", "user2"],
-  "encryptedData": "Base64-encoded DPAPI-encrypted blob",
-  "lastModified": "2025-11-17T01:20:00Z"
-}
-```
+**Location**: Specified in `settings.json` as `SecurityDatabasePath`
+
+**Example Path**: `\\server\share\...\AIM_Security.db`
+
+**Schema**: See Security Architecture section for complete database schema
 
 **Access**:
 ```csharp
-await _encryptedSettingsService.SaveSecurityConfigAsync(
-    configPath,
-    masterPassword,
-    authorizedUsers
-);
+// Read users from database
+var users = await _databaseSecurityService.GetAuthorizedUsersAsync();
 
-var data = await _encryptedSettingsService.LoadSecurityConfigAsync(configPath);
+// Add new user (Admin+ required)
+var newUser = new AuthorizedUser 
+{ 
+    Username = "jdoe",
+    FullName = "John Doe",
+    Department = "IT",
+    AccessLevel = 2, // Admin
+    CreatedBy = currentUser
+};
+await _databaseSecurityService.AddAuthorizedUserAsync(newUser);
+
+// Update user (Admin+ required)
+existingUser.AccessLevel = 3; // Promote to SuperAdmin
+existingUser.ModifiedBy = currentUser;
+await _databaseSecurityService.UpdateAuthorizedUserAsync(existingUser);
 ```
+
+**Configuration Management**:
+- Admin and SuperAdmin users can change directory paths through Settings tab
+- Changes are saved to `settings.json` locally
+- Database location cannot be changed after installation (requires reinstall)
 
 ---
 

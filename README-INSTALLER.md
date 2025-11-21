@@ -159,19 +159,26 @@ AIM.Installer/bin/Release/net8.0-windows/AIM-Installer.exe
 
 ### Runtime Process
 
-When the user runs `AIM-Installer.exe`, they experience a streamlined 4-step wizard:
+When the user runs `AIM-Installer.exe`, they experience a streamlined 3-screen wizard:
 
-1. **Welcome Screen**: Displays welcome message and AIM feature overview
+1. **Welcome Screen**: 
+   - Displays welcome message and AIM feature overview
+   - Explains the simplified installation process
+
 2. **Installation Path Selection**: 
    - Default: `C:\Program Files\AIM`
    - User can browse to select custom location
    - Options for Desktop and Start Menu shortcuts
-3. **Installation Progress**:
+   - No security configuration required (handled automatically)
+
+3. **Installation Progress & Completion**:
    - Extracts embedded ZIP to installation directory
+   - Creates security database at hardcoded network location
+   - Initializes database schema (AuthorizedUsers, SecuritySettings, SecurityAuditLog)
+   - Seeds current Windows user as SuperAdmin (AccessLevel = 3)
    - Writes settings.json with hardcoded directory paths to %LOCALAPPDATA%\AIM\
    - Creates shortcuts if selected
    - Shows real-time progress log
-4. **Completion**:
    - Option to launch AIM immediately (checked by default)
    - Displays success message
 
@@ -187,6 +194,21 @@ The installer automatically configures AIM with the following hardcoded paths (w
 - **SecurityDatabasePath**: `\\oh1cam01\cml\Internal\LAB STOCK\Important Inventory Related Documents\AIM\AIM_Security.db`
 
 These paths are constants in `InstallerForm.cs` and can be modified before building the installer if different paths are needed.
+
+**Security Initialization:**
+
+The installer also handles security setup automatically:
+
+1. **Database Creation**: Creates `AIM_Security.db` at the SecurityDatabasePath
+2. **Schema Initialization**: Creates AuthorizedUsers, SecuritySettings, and SecurityAuditLog tables
+3. **SuperAdmin Seeding**: Adds the current installer user as SuperAdmin (AccessLevel = 3)
+4. **No Password Required**: Database-centric model eliminates the need for master passwords or passphrases
+
+**Post-Installation Configuration:**
+
+- Admin and SuperAdmin users can modify directory paths through Settings → Directory Configuration
+- All configuration changes are saved to local settings.json
+- Security database location cannot be changed after installation (requires reinstall)
 
 ### Technology Stack
 

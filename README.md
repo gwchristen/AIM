@@ -64,11 +64,11 @@ A professional Windows desktop application for comprehensive asset inventory man
 
 | Feature | Description |
 |---------|-------------|
-| **Master Password** | Override authentication for administrative access |
-| **Authorized Users** | Whitelist specific Windows users for access control |
-| **Encrypted Storage** | Security configuration encrypted with AES-256 |
-| **Audit Logging** | Complete audit trail of all system activities |
-| **Session Management** | Lock/unlock sensitive features on demand |
+| **Database-Centric Security** | Centralized SQLite database for user management |
+| **Role-Based Access Control** | Three access levels: Basic, Admin, and SuperAdmin |
+| **Real-Time Synchronization** | User changes propagate across all instances within 30 seconds |
+| **Audit Logging** | Complete audit trail of all system and security activities |
+| **No Passwords Required** | Windows authentication eliminates password management |
 
 ### User Experience Features
 
@@ -154,12 +154,12 @@ For detailed instructions, see [README-INSTALLER.md](README-INSTALLER.md).
 
 ### First Launch
 
-On first launch, you'll be prompted to set a master password. The password must meet the following requirements:
-- Minimum 8 characters
-- At least one uppercase letter
-- At least one lowercase letter
-- At least one number
-- At least one special character
+On first launch after installation:
+1. AIM automatically detects your Windows username
+2. Verifies you are authorized in the security database
+3. If you are the installer user, you have SuperAdmin access
+4. If added by an Admin, you have the assigned access level
+5. No password required - Windows authentication only
 
 ### Basic Usage
 
@@ -210,24 +210,50 @@ For detailed architecture documentation, see:
 
 ## Security Model
 
-AIM implements a multi-layered security architecture:
+AIM implements a centralized database security architecture:
 
-### Authentication
+### Authentication & Authorization
 
-**Two-Tier Authentication Model**:
-1. **Master Password**: Administrative override for temporary access
-2. **Authorized Users**: Windows usernames permanently authorized for access
+**Database-Centric Model**:
+- Centralized SQLite database stores all authorized users
+- Windows username authentication (no passwords required)
+- Network-accessible database enables real-time synchronization
 
-### Encryption
+### Role-Based Access Control
 
-- **DPAPI (Data Protection API)**: Machine and user-specific encryption for security configuration
-- **SHA-256 Hashing**: Password storage with secure hashing
-- **No Hardcoded Keys**: All encryption keys are system-generated
+**Three Access Levels**:
 
-### Rate Limiting
+1. **Basic User (Level 1)**:
+   - View and browse assets
+   - Search functionality
+   - Read-only operations
 
-- **5 Failed Attempts**: Triggers a 15-minute lockout
-- **Audit Logging**: All authentication attempts are logged
+2. **Admin (Level 2)**:
+   - All Basic permissions
+   - Modify directory settings
+   - Manage users (add/edit/remove)
+   - Clear audit logs
+   - Change configuration paths
+
+3. **SuperAdmin (Level 3)**:
+   - All Admin permissions
+   - Full unrestricted access
+   - Automatically created during installation
+
+### Security Database
+
+**Location**: Network share (configured during installation)
+
+**Schema**:
+- **AuthorizedUsers**: User records with access levels, active status, and audit fields
+- **SecuritySettings**: Application-wide security configuration (key-value pairs)
+- **SecurityAuditLog**: Complete security event history
+
+### Synchronization
+
+- **30-Second Refresh**: All AIM instances sync users from database automatically
+- **Real-Time Updates**: Changes to users propagate within 30 seconds
+- **Manual Refresh**: Available via Settings → User Management
 
 ### Audit Trail
 
@@ -235,12 +261,14 @@ Every action is logged with:
 - Timestamp (UTC)
 - User ID (Windows username)
 - Action type
-- Target path/resource
+- Target path/resource or user
 - Detailed operation information
+- Success/failure status
 
-Audit logs are stored in: `%LocalAppData%\AIM\Logs\audit_log.json`
+Application audit logs: `%LocalAppData%\AIM\Logs\audit_log.json`  
+Security audit logs: Stored in SecurityAuditLog table in database
 
-For more details, see the **Security Architecture** section in [ARCHITECTURE.md](ARCHITECTURE.md).
+For more details, see the **Security Architecture** section in [ARCHITECTURE.md](ARCHITECTURE.md) and [IMPLEMENTATION-DATABASE-SECURITY.md](IMPLEMENTATION-DATABASE-SECURITY.md).
 
 ---
 
@@ -250,22 +278,36 @@ For more details, see the **Security Architecture** section in [ARCHITECTURE.md]
 
 Settings are stored in: `%LocalAppData%\Microsoft.WinUI.3\AIM\settings.json`
 
-Configurable options include:
+**Hardcoded Paths** (set by installer):
 - Default root directory
+- Archive path
+- Shipped directory
+- File scans directory
+- Inventory archive directory
+- Security database path (network location)
+
+**User-Configurable Options**:
 - Theme preference (Light, Dark, High Contrast, Follow System)
-- Authorized users list
 - Form template preferences
+- Recently accessed paths
+
+**Admin/SuperAdmin Configuration**:
+- Admin and SuperAdmin users can change directory paths through Settings → Directory Configuration
+- Changes are saved to local settings.json
+- Database location is set during installation and cannot be changed (requires reinstall)
 
 ### Security Configuration
 
-Security settings are stored encrypted in: `%LocalAppData%\AIM\Security\security.config`
+Security is managed through a centralized SQLite database (not local files):
 
-Includes:
-- Master password (hashed and encrypted)
-- Authorized users list
-- Last modified timestamp
+**Database Location**: Configured during installation (e.g., `\\server\share\...\AIM_Security.db`)
 
-**Note**: Security configuration cannot be decrypted on different machines or by different users.
+**User Management**:
+- Admin and SuperAdmin users manage users through Settings → User Management
+- Add, edit, or remove users with appropriate access levels
+- Changes sync to all AIM instances within 30 seconds
+
+**No Local Security Files**: AIM no longer uses encrypted local security configuration files. All security is database-driven.
 
 ---
 
@@ -293,7 +335,7 @@ Includes:
 
 ### Inventory Management
 
-Requires authorized access (master password or authorized user):
+Requires authorized access (Admin or SuperAdmin user):
 1. Navigate to **Inventory Tools**
 2. Select operation:
    - **Directory Archiver**: Archive directory structures
