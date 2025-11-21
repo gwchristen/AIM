@@ -98,11 +98,10 @@ For production deployments, consider these more secure approaches:
 ### For Administrators
 
 1. **Setting Up Shared Security Config**
-   ```powershell
-   # Create shared security config with passphrase
-   # Run on administrative workstation
-   .\Deploy-AIM.ps1 -SharedSecurityPath "\\server\share\AIM_Security\security.config" -Passphrase "YourSecurePassphrase123!"
-   ```
+   
+   **Note**: Deploy-AIM.ps1 has been simplified to only provision directories and no longer handles security configuration.
+   
+   To create a passphrase-encrypted security.config, use the AIM application directly or create the configuration manually.
 
 2. **Building Installer with Embedded Passphrase**
    - Edit `AIM.Installer/InstallerForm.cs`

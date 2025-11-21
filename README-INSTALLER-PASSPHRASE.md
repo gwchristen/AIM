@@ -63,7 +63,9 @@ Installer Workflow:
    d. Set SharedSecurityConfigPath
    e. Create security-config.ini in install directory
 3. Create shortcuts (desktop/start menu)
-4. Optional: Run Deploy-AIM.ps1 script
+4. **Optional: Run Deploy-AIM.ps1 script**
+   
+   Deploy-AIM.ps1 can be used to pre-provision network directories for AIM. It no longer handles security configuration.
 ```
 
 ### Files Created
@@ -289,21 +291,9 @@ New-GPPPassphrase -Name "AIM-Passphrase" -Value $securePassphrase
 
 ### Creating Shared Security Config
 
-Use Deploy-AIM.ps1 with passphrase:
+**Note**: Deploy-AIM.ps1 has been simplified to only provision directories and no longer handles security configuration.
 
-```powershell
-.\Deploy-AIM.ps1 `
-    -AIMInstallPath "C:\Program Files\AIM" `
-    -SharedSecurityPath "\\server\share\AIM_Security\security.config" `
-    -Passphrase "YourSecurePassphrase123!" `
-    -DefaultRootDirectory "C:\AIM\Data" `
-    -ArchivePath "C:\AIM\Archive" `
-    -ShippedDirectory "C:\AIM\Shipped" `
-    -FileScansDirectory "C:\AIM\FileScans" `
-    -InventoryArchiveDirectory "C:\AIM\InventoryArchive"
-```
-
-This creates a passphrase-encrypted security.config that can be shared.
+To create a passphrase-encrypted security.config, use the AIM application directly or create the configuration manually.
 
 ## Files Modified
 
@@ -318,7 +308,7 @@ This creates a passphrase-encrypted security.config that can be shared.
 - `AIM.Installer/PassphraseObfuscationExample.cs` - Utility for developers
 
 ### Scripts
-- `Deploy-AIM.ps1` - Added passphrase parameter
+- `Deploy-AIM.ps1` - Simplified to directory provisioning utility (no longer handles passphrase or security configuration)
 
 ### Documentation
 - `SECURITY-PASSPHRASE.md` - Comprehensive security documentation

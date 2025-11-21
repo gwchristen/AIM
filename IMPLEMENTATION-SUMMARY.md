@@ -49,10 +49,12 @@ This implementation adds automatic connection to shared encrypted security confi
 
 ### Scripts (1 file)
 
-7. **Deploy-AIM.ps1** (31 lines changed)
-   - Added optional `-Passphrase` parameter
-   - Updated documentation with passphrase usage examples
-   - Shows passphrase status in summary output (masked for security)
+7. **Deploy-AIM.ps1** (simplified)
+   - **Updated**: Simplified to directory provisioning utility only
+   - Removed all passphrase and security configuration functionality
+   - Now only validates and creates the 5 required directories
+   - Optional utility for pre-provisioning network directories before AIM installation
+
 
 ### Documentation (2 files)
 
@@ -119,10 +121,11 @@ This implementation adds automatic connection to shared encrypted security confi
 - Includes verification to ensure round-trip works
 - Clear usage instructions
 
-**Deploy-AIM.ps1 Enhancement**
-- Accepts passphrase parameter for creating shared configs
-- Shows passphrase status in output (masked)
-- Compatible with existing deployment scripts
+**Deploy-AIM.ps1 Update**
+- **Simplified**: Now only a directory provisioning utility
+- No longer handles passphrase or security configuration
+- Validates and creates the 5 required AIM directories
+- Optional tool for pre-provisioning network directories
 
 ## Security Analysis
 
@@ -309,9 +312,9 @@ Due to the minimal changes requirement, unit tests were not added. However, reco
 ### From DPAPI to Passphrase
 
 1. Create shared security config with passphrase:
-   ```powershell
-   .\Deploy-AIM.ps1 -SharedSecurityPath "\\server\share\security.config" -Passphrase "NewPassphrase"
-   ```
+   
+   **Note**: Deploy-AIM.ps1 no longer handles security configuration. Use the AIM application directly to create passphrase-encrypted security configurations.
+   
 
 2. Update installer with obfuscated passphrase
 
