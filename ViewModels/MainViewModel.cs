@@ -19,6 +19,7 @@ public partial class MainViewModel : ObservableObject
     private readonly IFileService _fileService;
     private readonly ILockService _lockService;
     private readonly IDialogService _dialogService;
+    private readonly IAuditLoggingService _auditLoggingService;
 
     /// <summary>
     /// Gets whether the application is currently locked.
@@ -53,12 +54,13 @@ public partial class MainViewModel : ObservableObject
     /// <param name="fileService">Service for file and directory operations.</param>
     /// <param name="lockService">Service for managing application lock state.</param>
     /// <param name="dialogService">Service for showing dialogs.</param>
-    public MainViewModel(ISettingsService settingsService, IFileService fileService, ILockService lockService, IDialogService dialogService)
+    public MainViewModel(ISettingsService settingsService, IFileService fileService, ILockService lockService, IDialogService dialogService, IAuditLoggingService auditLoggingService)
     {
         _settingsService = settingsService;
         _fileService = fileService;
         _lockService = lockService;
         _dialogService = dialogService;
+        _auditLoggingService = auditLoggingService;
 
         Debug.WriteLine($"[MainViewModel] Constructor starting");
 
@@ -71,6 +73,12 @@ public partial class MainViewModel : ObservableObject
         SelectedRoot = appSettings.DefaultRootDirectory;
 
         Debug.WriteLine($"[MainViewModel] MainViewModel initialized");
+        
+        _auditLoggingService.LogAudit(
+            "APP_INITIALIZED",
+            null,
+            "Application main view model initialized"
+        );
     }
 
     private void OnLockStateChanged(object? sender, bool isLocked)
@@ -94,10 +102,22 @@ public partial class MainViewModel : ObservableObject
                 if (_lockService.Unlock(pin))
                 {
                     await _dialogService.ShowSuccessDialog("Unlocked", "Application unlocked successfully.");
+                    
+                    _auditLoggingService.LogAudit(
+                        "APP_UNLOCKED",
+                        null,
+                        "Application unlocked successfully"
+                    );
                 }
                 else
                 {
                     await _dialogService.ShowErrorDialogAsync("Invalid PIN", "The PIN you entered is incorrect.");
+                    
+                    _auditLoggingService.LogAudit(
+                        "UNLOCK_FAILED",
+                        null,
+                        "Failed unlock attempt - invalid PIN"
+                    );
                 }
             }
         }
@@ -106,6 +126,12 @@ public partial class MainViewModel : ObservableObject
             // Lock the application
             _lockService.Lock();
             await _dialogService.ShowSuccessDialog("Locked", "Application locked successfully.");
+            
+            _auditLoggingService.LogAudit(
+                "APP_LOCKED",
+                null,
+                "Application locked by user"
+            );
         }
     }
 
@@ -117,8 +143,15 @@ public partial class MainViewModel : ObservableObject
     partial void OnSelectedRootChanged(string value)
     {
         var appSettings = _settingsService.LoadSettings();
+        var oldRoot = appSettings.DefaultRootDirectory;
         appSettings.DefaultRootDirectory = value;
         _settingsService.SaveSettings(appSettings);
+
+        _auditLoggingService.LogAudit(
+            "ROOT_DIRECTORY_CHANGED",
+            value,
+            $"Root directory changed from '{oldRoot}' to '{value}'"
+        );
 
         BuildTree();
     }

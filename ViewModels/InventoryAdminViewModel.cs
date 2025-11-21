@@ -17,6 +17,7 @@ public partial class InventoryAdminViewModel : ObservableObject
     private readonly IDialogService _dialogService;
     private readonly IDirectoryOperationService _directoryOperationService;
     private readonly INavigationService _navigationService;
+    private readonly IAuditLoggingService _auditLoggingService;
 
     [ObservableProperty]
     [NotifyCanExecuteChangedFor(nameof(CreateStructureCommand))]
@@ -56,11 +57,12 @@ public partial class InventoryAdminViewModel : ObservableObject
     private bool CanGenerateForm() => !string.IsNullOrEmpty(FormDirectory);
     private bool CanRenameFiles() => !string.IsNullOrEmpty(RenameDirectory);
 
-    public InventoryAdminViewModel(IDialogService dialogService, IDirectoryOperationService directoryOperationService, INavigationService navigationService)
+    public InventoryAdminViewModel(IDialogService dialogService, IDirectoryOperationService directoryOperationService, INavigationService navigationService, IAuditLoggingService auditLoggingService)
     {
         _dialogService = dialogService;
         _directoryOperationService = directoryOperationService;
         _navigationService = navigationService;
+        _auditLoggingService = auditLoggingService;
 
         _opCoStats = new ObservableCollection<OpCoStatItem>();
         _misplacedOhFiles = new ObservableCollection<string>();
@@ -88,10 +90,29 @@ public partial class InventoryAdminViewModel : ObservableObject
         {
             await _directoryOperationService.CopyDirectoryStructureAsync(SourceDirectory!, DestinationDirectory!, newName);
             await _dialogService.ShowSuccessDialog("Success", $"The directory structure was successfully created at '{System.IO.Path.Combine(DestinationDirectory!, newName)}'.");
+            
+            _auditLoggingService.LogAudit(
+                "DIRECTORY_STRUCTURE_CREATED",
+                System.IO.Path.Combine(DestinationDirectory!, newName),
+                $"Created directory structure '{newName}' from source '{SourceDirectory}'",
+                new System.Collections.Generic.Dictionary<string, string>
+                {
+                    { "source", SourceDirectory! },
+                    { "destination", DestinationDirectory! },
+                    { "newName", newName }
+                }
+            );
         }
         catch (Exception ex)
         {
             await _dialogService.ShowErrorDialogAsync("Operation Failed", $"Could not create the directory structure.\nError: {ex.Message}");
+            
+            _auditLoggingService.LogAudit(
+                "DIRECTORY_STRUCTURE_CREATE_FAILED",
+                DestinationDirectory,
+                $"Failed to create directory structure: {ex.Message}",
+                new System.Collections.Generic.Dictionary<string, string> { { "error", ex.Message } }
+            );
         }
     }
 

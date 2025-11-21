@@ -6,6 +6,7 @@ using CommunityToolkit.Mvvm.Messaging;
 using LiveChartsCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Xaml;
+using Serilog;
 using System;
 using System.IO;
 using System.Threading.Tasks;
@@ -17,6 +18,31 @@ public partial class App : Application
     public App()
     {
         this.InitializeComponent();
+        InitializeSerilog();
+    }
+
+    /// <summary>
+    /// Initializes Serilog for audit logging.
+    /// Logs are written to %LOCALAPPDATA%\AIM\Logs\audit.log with daily rolling.
+    /// </summary>
+    private void InitializeSerilog()
+    {
+        var localAppData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+        var logDirectory = Path.Combine(localAppData, "AIM", "Logs");
+        Directory.CreateDirectory(logDirectory);
+        
+        var logFilePath = Path.Combine(logDirectory, "audit.log");
+
+        Log.Logger = new LoggerConfiguration()
+            .MinimumLevel.Information()
+            .WriteTo.File(
+                logFilePath,
+                rollingInterval: RollingInterval.Day,
+                retainedFileCountLimit: 30,
+                outputTemplate: "[{Timestamp:yyyy-MM-dd HH:mm:ss}] [{Level:u3}] {Message:lj}{NewLine}{Exception}")
+            .CreateLogger();
+
+        Log.Information("AIM Application started - Audit logging initialized");
     }
 
     public static Window? MainWindow { get; private set; }
@@ -67,6 +93,7 @@ public partial class App : Application
         services.AddSingleton<ISearchStateService, SearchStateService>();
         services.AddSingleton<IBrowseStateService, BrowseStateService>();
         services.AddSingleton<ILockService, LockService>();
+        services.AddSingleton<IAuditLoggingService, AuditLoggingService>();
 
 
         // ViewModels

@@ -20,6 +20,7 @@ public partial class SearchViewModel : ObservableObject
     private readonly MainViewModel _mainViewModel;
     private readonly IInfoBarService _infoBarService;
     private readonly ISearchStateService _searchStateService;  // NEW
+    private readonly IAuditLoggingService _auditLoggingService;
 
     [ObservableProperty]
     private string searchDirectory = string.Empty;
@@ -36,13 +37,14 @@ public partial class SearchViewModel : ObservableObject
     public ObservableCollection<FileItem> SearchResults { get; } = new();
 
     // UPDATED: Constructor now includes ISearchStateService
-    public SearchViewModel(ISearchService searchService, INavigationService navigationService, MainViewModel mainViewModel, IInfoBarService infoBarService, ISearchStateService searchStateService)
+    public SearchViewModel(ISearchService searchService, INavigationService navigationService, MainViewModel mainViewModel, IInfoBarService infoBarService, ISearchStateService searchStateService, IAuditLoggingService auditLoggingService)
     {
         _searchService = searchService;
         _navigationService = navigationService;
         _mainViewModel = mainViewModel;
         _infoBarService = infoBarService;
         _searchStateService = searchStateService;  // NEW
+        _auditLoggingService = auditLoggingService;
         SearchDirectory = _mainViewModel.SelectedRoot;
 
         // NEW: Load saved search state when ViewModel is created
@@ -192,10 +194,33 @@ public partial class SearchViewModel : ObservableObject
 
             SaveCurrentSearchState();  // NEW: Save state with results
             _infoBarService.Show("Success", $"Search complete. Found {SearchResults.Count} files.", InfoBarSeverity.Success);
+            
+            _auditLoggingService.LogAudit(
+                "SEARCH_PERFORMED",
+                rootPath,
+                $"Search completed: '{SearchQuery}' ({(IsContentSearch ? "content" : "filename")} search) - {SearchResults.Count} results",
+                new System.Collections.Generic.Dictionary<string, string>
+                {
+                    { "query", SearchQuery },
+                    { "searchType", IsContentSearch ? "content" : "filename" },
+                    { "resultCount", SearchResults.Count.ToString() }
+                }
+            );
         }
         catch (Exception ex)
         {
             _infoBarService.Show("Error", $"An error occurred during search: {ex.Message}", InfoBarSeverity.Error, 0);
+            
+            _auditLoggingService.LogAudit(
+                "SEARCH_FAILED",
+                SearchDirectory,
+                $"Search failed for '{SearchQuery}': {ex.Message}",
+                new System.Collections.Generic.Dictionary<string, string>
+                {
+                    { "query", SearchQuery },
+                    { "error", ex.Message }
+                }
+            );
         }
         finally
         {
