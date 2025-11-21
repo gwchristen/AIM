@@ -48,8 +48,19 @@ public class SettingsService : ISettingsService
         {
             return Path.Combine(ApplicationData.Current.LocalFolder.Path, "settings.json");
         }
-        catch
+        catch (UnauthorizedAccessException ex)
         {
+            System.Diagnostics.Debug.WriteLine($"[SettingsService] Cannot access WinUI ApplicationData: {ex.Message}");
+            return string.Empty;
+        }
+        catch (InvalidOperationException ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[SettingsService] ApplicationData.Current not available: {ex.Message}");
+            return string.Empty;
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[SettingsService] Unexpected error accessing legacy path: {ex.Message}");
             return string.Empty;
         }
     }

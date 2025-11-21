@@ -91,6 +91,9 @@ public class SecurityService
     private const int MaxFailedAttempts = 5;
     private static readonly TimeSpan LockoutDuration = TimeSpan.FromMinutes(15);
     private static readonly TimeSpan RefreshInterval = TimeSpan.FromSeconds(30);
+    
+    // Minimum length for a Base64-encoded SHA256 hash (44 characters for 256 bits)
+    private const int MinBase64HashLength = 40;
 
     // Masked constant - Base64-encoded UNC path for fallback
     private const string MaskedSharedSecurityPath = "XFxvaDFjYW0wMVxjbWxcSW50ZXJuYWxcTEFCIFNUT0NLXEltcG9ydGFudCBJbnZlbnRvcnkgUmVsYXRlZCBEb2N1bWVudHNcQUlNXEFJTV9TZWN1cml0eVxzZWN1cml0eS5jb25maWc=";
@@ -659,7 +662,7 @@ public class SecurityService
 
         // Check if the stored password is a hash (Base64-encoded, typically 44 characters for SHA256)
         // Database security stores hashes, file-based security may store plain text
-        if (!string.IsNullOrEmpty(_masterPassword) && _masterPassword.Length >= 40 && IsBase64String(_masterPassword))
+        if (!string.IsNullOrEmpty(_masterPassword) && _masterPassword.Length >= MinBase64HashLength && IsBase64String(_masterPassword))
         {
             // Stored password is a hash - hash the user input and compare
             var hashedInput = HashPassword(password);
@@ -714,6 +717,7 @@ public class SecurityService
 
     /// <summary>
     /// Checks if a string is a valid Base64-encoded string.
+    /// Used to detect if a stored password is a hash or plain text.
     /// </summary>
     private bool IsBase64String(string value)
     {
@@ -725,8 +729,14 @@ public class SecurityService
             Convert.FromBase64String(value);
             return true;
         }
-        catch
+        catch (FormatException)
         {
+            // Not a valid Base64 string
+            return false;
+        }
+        catch (ArgumentException)
+        {
+            // Invalid argument to FromBase64String
             return false;
         }
     }
