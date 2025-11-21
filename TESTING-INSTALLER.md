@@ -174,21 +174,21 @@ Test installation to a custom directory:
 - ✅ Shortcuts point to correct path
 - ✅ AIM launches from custom location
 
-### 9. Shared Security Configuration
+### 9. Database Security Configuration
 
-Test the optional shared security feature:
+Test the database-based security feature:
 
 1. Run installer
-2. Enable "shared security configuration"
-3. Select a network path (e.g., `\\server\shared\security`)
-4. Enter passphrase when prompted
-5. Complete installation
+2. Verify security database path is configured in settings.json
+3. Complete installation
+4. Launch AIM
+5. Verify database connection
 
 **Expected Results:**
-- ✅ Passphrase prompt appears
-- ✅ Deploy-AIM.ps1 executes with parameters
-- ✅ Directories created as specified
-- ✅ No PowerShell errors in log
+- ✅ SecurityDatabasePath configured in settings.json
+- ✅ Security database initialized
+- ✅ SuperAdmin account created
+- ✅ No errors in installation log
 
 ### 10. Installation Without Shortcuts
 

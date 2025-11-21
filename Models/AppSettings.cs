@@ -82,15 +82,6 @@ public class AppSettings
     public bool UseSharedConfig { get; set; } = true;
 
     /// <summary>
-    /// Gets or sets the obfuscated passphrase used to decrypt shared security configuration.
-    /// This passphrase is written by the installer and used to automatically decrypt
-    /// passphrase-encrypted shared security files without user interaction.
-    /// Note: This is obfuscation, not cryptographic protection. The passphrase can be
-    /// extracted by examining the settings file or application memory.
-    /// </summary>
-    public string Passphrase { get; set; } = string.Empty;
-
-    /// <summary>
     /// Gets or sets the path to the centralized SQLite security database.
     /// This database stores authorized users, security settings, and audit logs.
     /// All AIM instances read from this shared database for centralized user management.
