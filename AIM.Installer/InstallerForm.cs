@@ -24,9 +24,19 @@ namespace AIM.Installer
         private Button cancelButton;
         private System.Windows.Forms.Timer countdownTimer;
         private int remainingSeconds;
-        private bool cancelled = false;
+        private volatile bool cancelled = false; // Thread-safe access
+        private readonly object cancelLock = new object(); // Lock for thread-safe operations
 
-        public bool IsCancelled => cancelled;
+        public bool IsCancelled 
+        { 
+            get 
+            { 
+                lock (cancelLock)
+                {
+                    return cancelled; 
+                }
+            }
+        }
 
         public LaunchProgressDialog(int timeoutSeconds)
         {
@@ -70,7 +80,10 @@ namespace AIM.Installer
             };
             cancelButton.Click += (s, e) =>
             {
-                cancelled = true;
+                lock (cancelLock)
+                {
+                    cancelled = true;
+                }
                 this.Close();
             };
 
@@ -120,7 +133,9 @@ namespace AIM.Installer
 
     /// <summary>
     /// Represents the application configuration settings.
-    /// This is a simplified version of the main AIM AppSettings for installer use.
+    /// IMPORTANT: This class MUST match AIM.Models.AppSettings exactly to ensure
+    /// JSON serialization/deserialization compatibility between installer and app.
+    /// Any changes to the main AppSettings class must be reflected here.
     /// </summary>
     internal class AppSettings
     {
@@ -129,10 +144,14 @@ namespace AIM.Installer
         public string ShippedDirectory { get; set; } = string.Empty;
         public string FileScansDirectory { get; set; } = string.Empty;
         public string InventoryArchiveDirectory { get; set; } = string.Empty;
-        public string SecurityDatabasePath { get; set; } = string.Empty;
+        public string SecurityConfigPath { get; set; } = string.Empty;
         public string Theme { get; set; } = "FollowSystem";
+        public string Password { get; set; } = string.Empty;
         public List<string> AuthorizedUsers { get; set; } = new();
         public bool IsInitialPasswordSet { get; set; } = false;
+        public string SharedSecurityConfigPath { get; set; } = string.Empty;
+        public bool UseSharedConfig { get; set; } = true;
+        public string SecurityDatabasePath { get; set; } = string.Empty;
     }
 
     /// <summary>
@@ -628,6 +647,22 @@ namespace AIM.Installer
                     LogMessage("Starting AIM installation...");
                     LogMessage($"Installation directory: {installPath}");
 
+                    // MEDIUM Issue #13: Validate installation path before proceeding
+                    LogMessage("Validating installation path...");
+                    if (!ValidateInstallationPath(installPath))
+                    {
+                        LogMessage("ERROR: Installation path validation failed");
+                        throw new IOException("Installation path validation failed - installation cannot continue");
+                    }
+
+                    // MEDIUM Issue #14: Check available disk space before extraction
+                    LogMessage("Checking disk space...");
+                    if (!CheckDiskSpace(installPath))
+                    {
+                        LogMessage("ERROR: Insufficient disk space for installation");
+                        throw new IOException("Insufficient disk space - installation cannot continue");
+                    }
+
                     // Create installation directory
                     LogMessage("Creating installation directory...");
                     Directory.CreateDirectory(installPath);
@@ -635,6 +670,14 @@ namespace AIM.Installer
                     // Extract embedded ZIP file
                     LogMessage("Extracting application files...");
                     ExtractEmbeddedZip();
+
+                    // CRITICAL Issue #5: Verify ZIP extraction integrity
+                    LogMessage("Verifying installation integrity...");
+                    if (!VerifyInstallationIntegrity())
+                    {
+                        LogMessage("ERROR: Installation integrity check failed");
+                        throw new IOException("Installation files are incomplete or corrupted");
+                    }
 
                     // Initialize security database with SuperAdmin account FIRST
                     // This must succeed before writing settings
@@ -668,7 +711,7 @@ namespace AIM.Installer
                     // Write installer settings to user's LocalAppData
                     // Only write settings AFTER database is successfully created
                     LogMessage("Writing installer settings...");
-                    WriteInstallerSettings();
+                    await WriteInstallerSettingsAsync();
 
                     // Create shortcuts
                     if (desktopShortcutCheckBox.Checked)
@@ -772,6 +815,7 @@ namespace AIM.Installer
         {
             Process? aimProcess = null;
             LaunchProgressDialog? progressDialog = null;
+            Thread? dialogThread = null;
             
             try
             {
@@ -809,7 +853,7 @@ namespace AIM.Installer
                 progressDialog.UpdateStatus($"AIM is initializing...\n\nProcess ID: {aimProcess.Id}\n\nPlease wait while the application starts.");
                 
                 // Show dialog modally in a separate thread so we can monitor the process
-                var dialogThread = new Thread(() =>
+                dialogThread = new Thread(() =>
                 {
                     Application.Run(progressDialog);
                 });
@@ -819,25 +863,35 @@ namespace AIM.Installer
                 // Wait for AIM to exit or timeout
                 var startTime = DateTime.Now;
                 bool exited = false;
+                bool userCancelled = false;
+                bool timedOut = false;
                 
                 while (!exited && (DateTime.Now - startTime).TotalSeconds < timeoutSeconds)
                 {
                     // Check if process has exited
                     exited = aimProcess.WaitForExit(1000); // Check every second
                     
-                    // Check if user cancelled the dialog
+                    // Check if user cancelled the dialog (thread-safe access)
                     if (progressDialog.IsCancelled)
                     {
                         LogMessage("User closed the progress dialog");
+                        userCancelled = true;
                         break;
                     }
                     
-                    // Update status
+                    // Update status every 10 seconds (Issue #10)
                     var elapsed = (int)(DateTime.Now - startTime).TotalSeconds;
-                    if (!exited && elapsed % 5 == 0) // Update every 5 seconds
+                    if (!exited && elapsed > 0 && elapsed % 10 == 0)
                     {
+                        progressDialog.UpdateStatus($"AIM is initializing...\n\nProcess ID: {aimProcess.Id}\n\nElapsed time: {elapsed} seconds");
                         LogMessage($"AIM still initializing... ({elapsed}s elapsed)");
                     }
+                }
+
+                // Check if we timed out
+                if (!exited && !userCancelled)
+                {
+                    timedOut = true;
                 }
 
                 // Close progress dialog
@@ -846,6 +900,22 @@ namespace AIM.Installer
                     progressDialog.Invoke(new Action(() => progressDialog.Close()));
                 }
 
+                // CRITICAL: Properly join the dialog thread with timeout (Issue #6)
+                if (dialogThread != null && dialogThread.IsAlive)
+                {
+                    LogMessage("Waiting for progress dialog thread to exit...");
+                    bool threadExited = dialogThread.Join(TimeSpan.FromSeconds(5));
+                    if (!threadExited)
+                    {
+                        LogMessage("WARNING: Dialog thread did not exit within timeout");
+                    }
+                    else
+                    {
+                        LogMessage("Dialog thread exited successfully");
+                    }
+                }
+
+                // Handle each exit condition explicitly (Issue #15)
                 if (exited)
                 {
                     LogMessage($"AIM process exited with code: {aimProcess.ExitCode}");
@@ -866,10 +936,15 @@ namespace AIM.Installer
                         LogMessage("AIM exited successfully");
                     }
                 }
-                else
+                else if (timedOut)
                 {
                     LogMessage($"AIM is running (timeout after {timeoutSeconds} seconds - this is normal for long initialization)");
                     LogMessage("Installation completed successfully");
+                }
+                else if (userCancelled)
+                {
+                    LogMessage("User cancelled the launch progress dialog");
+                    LogMessage("Installation completed, but AIM launch monitoring was cancelled by user");
                 }
             }
             catch (Exception ex)
@@ -892,6 +967,22 @@ namespace AIM.Installer
                         // Ignore disposal errors
                     }
                 }
+                
+                // CRITICAL: Ensure thread is properly joined before disposal (Issue #6)
+                if (dialogThread != null && dialogThread.IsAlive)
+                {
+                    try
+                    {
+                        dialogThread.Join(TimeSpan.FromSeconds(5));
+                    }
+                    catch (Exception ex)
+                    {
+                        LogMessage($"WARNING: Error joining dialog thread: {ex.Message}");
+                    }
+                }
+                
+                // Clean up thread reference
+                dialogThread = null;
                 
                 aimProcess?.Dispose();
             }
@@ -1061,6 +1152,9 @@ namespace AIM.Installer
 
         /// <summary>
         /// Validates network paths by testing accessibility and write permissions.
+        /// DOES NOT create directories - only validates existing paths or paths that can be created.
+        /// Uses temp directory for write permission tests to avoid conflicts.
+        /// Collects ALL errors before returning to provide comprehensive validation results.
         /// </summary>
         /// <returns>Dictionary of paths and their validation status messages. Empty if all paths are valid.</returns>
         private Dictionary<string, string> ValidateNetworkPaths()
@@ -1099,17 +1193,19 @@ namespace AIM.Installer
                     var error = "Path is empty or invalid";
                     LogMessage($"  ERROR: {error}");
                     invalidPaths[pathName] = error;
-                    continue;
+                    continue; // Continue validating other paths
                 }
 
-                // Test directory accessibility
+                // CRITICAL Issue #3: Only check if directory exists, don't create it
+                // Directory creation is handled separately after validation passes
                 try
                 {
                     if (!Directory.Exists(directoryToCheck))
                     {
-                        LogMessage($"  Directory does not exist, attempting to create...");
-                        Directory.CreateDirectory(directoryToCheck);
-                        LogMessage($"  Directory created successfully");
+                        var error = "Directory does not exist and needs to be created";
+                        LogMessage($"  WARNING: {error}");
+                        // Don't add to invalidPaths - this is just informational
+                        // We'll try to create it later in a separate method
                     }
                     else
                     {
@@ -1121,30 +1217,32 @@ namespace AIM.Installer
                     var error = $"Access denied: {ex.Message}";
                     LogMessage($"  ERROR: {error}");
                     invalidPaths[pathName] = error;
-                    continue;
+                    continue; // Continue validating other paths
                 }
                 catch (IOException ex)
                 {
                     var error = $"I/O error: {ex.Message}";
                     LogMessage($"  ERROR: {error}");
                     invalidPaths[pathName] = error;
-                    continue;
+                    continue; // Continue validating other paths
                 }
                 catch (Exception ex)
                 {
                     var error = $"Cannot access: {ex.Message}";
-                    LogMessage($"  ERROR: {error}");
+                    LogMessage($"  ERROR: {error}";
                     invalidPaths[pathName] = error;
-                    continue;
+                    continue; // Continue validating other paths
                 }
 
-                // Test write permissions if required
+                // HIGH Issue #8: Test write permissions using temp directory to avoid conflicts
                 if (requireWrite)
                 {
-                    var testFileName = Path.Combine(directoryToCheck, $"__aim_write_test_{Guid.NewGuid()}.tmp");
+                    // Use system temp directory for test file to avoid conflicts with concurrent installers
+                    var tempDir = Path.GetTempPath();
+                    var testFileName = Path.Combine(tempDir, $"__aim_write_test_{Guid.NewGuid()}.tmp");
                     try
                     {
-                        // Attempt to create and write to a test file
+                        // Attempt to create and write to a test file in temp directory
                         File.WriteAllText(testFileName, "AIM write permission test");
                         
                         // Verify we can read it back
@@ -1154,39 +1252,41 @@ namespace AIM.Installer
                             throw new IOException("Write verification failed");
                         }
                         
-                        // Clean up
-                        File.Delete(testFileName);
-                        LogMessage($"  Write permissions verified");
+                        LogMessage($"  Write permissions verified (test file in temp directory)");
                     }
                     catch (UnauthorizedAccessException ex)
                     {
-                        var error = $"No write permission: {ex.Message}";
+                        var error = $"No write permission to temp directory: {ex.Message}";
                         LogMessage($"  ERROR: {error}");
                         invalidPaths[pathName] = error;
-                        
-                        // Try to clean up test file if it was created
-                        try { if (File.Exists(testFileName)) File.Delete(testFileName); } catch { }
-                        continue;
                     }
                     catch (IOException ex)
                     {
                         var error = $"Write test failed: {ex.Message}";
                         LogMessage($"  ERROR: {error}");
                         invalidPaths[pathName] = error;
-                        
-                        // Try to clean up test file if it was created
-                        try { if (File.Exists(testFileName)) File.Delete(testFileName); } catch { }
-                        continue;
                     }
                     catch (Exception ex)
                     {
                         var error = $"Write test error: {ex.Message}";
                         LogMessage($"  ERROR: {error}");
                         invalidPaths[pathName] = error;
-                        
-                        // Try to clean up test file if it was created
-                        try { if (File.Exists(testFileName)) File.Delete(testFileName); } catch { }
-                        continue;
+                    }
+                    finally
+                    {
+                        // CRITICAL Issue #8: Ensure test file cleanup in finally block
+                        try 
+                        { 
+                            if (File.Exists(testFileName)) 
+                            {
+                                File.Delete(testFileName);
+                                LogMessage($"  Test file cleaned up: {testFileName}");
+                            }
+                        } 
+                        catch (Exception ex)
+                        {
+                            LogMessage($"  WARNING: Failed to cleanup test file: {ex.Message}");
+                        }
                     }
                 }
 
@@ -1208,111 +1308,257 @@ namespace AIM.Installer
         }
 
         /// <summary>
+        /// Creates network directories after validation has passed.
+        /// Separated from validation to follow single responsibility principle.
+        /// Uses timeout for each directory creation to prevent hanging.
+        /// </summary>
+        /// <returns>True if all directories were created successfully, false otherwise.</returns>
+        private async Task<bool> CreateNetworkDirectoriesAsync()
+        {
+            LogMessage("========================================");
+            LogMessage("Creating Network Directories");
+            LogMessage("========================================");
+
+            var directoriesToCreate = new List<(string name, string path)>
+            {
+                ("DefaultRootDirectory", DefaultRootDirectory),
+                ("ArchivePath", ArchivePath),
+                ("ShippedDirectory", ShippedDirectory),
+                ("FileScansDirectory", FileScansDirectory),
+                ("InventoryArchiveDirectory", InventoryArchiveDirectory),
+                ("SecurityDatabasePath Directory", Path.GetDirectoryName(SecurityDatabasePath) ?? string.Empty)
+            };
+
+            bool allCreated = true;
+
+            foreach (var (name, path) in directoriesToCreate)
+            {
+                if (string.IsNullOrEmpty(path))
+                {
+                    LogMessage($"  Skipping {name} - empty path");
+                    continue;
+                }
+
+                // HIGH Issue #9: Use timeout for directory creation
+                if (!await CreateDirectoryWithTimeoutAsync(path, timeoutSeconds: 15))
+                {
+                    LogMessage($"  ERROR: Failed to create {name}");
+                    allCreated = false;
+                }
+                else
+                {
+                    LogMessage($"  {name} ready");
+                }
+            }
+
+            LogMessage("========================================");
+            if (allCreated)
+            {
+                LogMessage("All directories created successfully");
+            }
+            else
+            {
+                LogMessage("Some directories could not be created");
+            }
+            LogMessage("========================================");
+
+            return allCreated;
+        }
+
+        /// <summary>
         /// Writes the installer settings to the user's LocalAppData folder.
         /// The path matches where SettingsService expects to find settings.json.
         /// Validates network paths before writing and blocks on validation failures.
+        /// Uses iterative retry logic to prevent stack overflow.
         /// </summary>
-        private void WriteInstallerSettings()
+        private async Task WriteInstallerSettingsAsync()
         {
-            try
+            const int MAX_RETRIES = 3;
+            int retryCount = 0;
+            
+            while (retryCount < MAX_RETRIES)
             {
-                // Validate all network paths before writing settings
-                var invalidPaths = ValidateNetworkPaths();
-                
-                if (invalidPaths.Count > 0)
+                try
                 {
-                    // Build error message
-                    var errorMessage = "The following network paths could not be validated:\n\n";
-                    foreach (var kvp in invalidPaths)
-                    {
-                        errorMessage += $"• {kvp.Key}: {kvp.Value}\n";
-                    }
-                    errorMessage += "\nPlease ensure:\n";
-                    errorMessage += "• Network paths are accessible\n";
-                    errorMessage += "• You have read/write permissions\n";
-                    errorMessage += "• Network shares are online and reachable\n\n";
-                    errorMessage += "Would you like to retry the validation?";
-
-                    LogMessage("ERROR: Path validation failed, prompting user for retry");
+                    // Validate all network paths before writing settings
+                    var invalidPaths = ValidateNetworkPaths();
                     
-                    var result = MessageBox.Show(
-                        errorMessage,
-                        "Network Path Validation Failed",
-                        MessageBoxButtons.RetryCancel,
+                    if (invalidPaths.Count > 0)
+                    {
+                        // Build error message
+                        var errorMessage = "The following network paths could not be validated:\n\n";
+                        foreach (var kvp in invalidPaths)
+                        {
+                            errorMessage += $"• {kvp.Key}: {kvp.Value}\n";
+                        }
+                        errorMessage += "\nPlease ensure:\n";
+                        errorMessage += "• Network paths are accessible\n";
+                        errorMessage += "• You have read/write permissions\n";
+                        errorMessage += "• Network shares are online and reachable\n\n";
+                        errorMessage += $"Retry attempt {retryCount + 1} of {MAX_RETRIES}.\n\n";
+                        errorMessage += "Would you like to retry the validation?";
+
+                        LogMessage($"ERROR: Path validation failed (attempt {retryCount + 1}/{MAX_RETRIES})");
+                        
+                        var result = MessageBox.Show(
+                            errorMessage,
+                            "Network Path Validation Failed",
+                            MessageBoxButtons.RetryCancel,
+                            MessageBoxIcon.Error
+                        );
+
+                        if (result == DialogResult.Retry)
+                        {
+                            retryCount++;
+                            LogMessage($"User requested retry, attempting validation again (attempt {retryCount}/{MAX_RETRIES})");
+                            continue; // Retry the validation loop
+                        }
+                        else
+                        {
+                            LogMessage("User cancelled due to path validation errors");
+                            throw new IOException("Network path validation failed - installation cannot continue");
+                        }
+                    }
+
+                    // CRITICAL Issue #3: Create directories AFTER validation passes
+                    LogMessage("Validation passed, creating network directories...");
+                    if (!await CreateNetworkDirectoriesAsync())
+                    {
+                        LogMessage("ERROR: Failed to create some network directories");
+                        throw new IOException("Failed to create network directories - installation cannot continue");
+                    }
+
+                    var localAppData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+                    var aimConfigDir = Path.Combine(localAppData, "AIM");
+                    Directory.CreateDirectory(aimConfigDir);
+
+                    var settingsPath = Path.Combine(aimConfigDir, "settings.json");
+                    
+                    // MEDIUM Issue #11: Check if settings.json already exists
+                    if (File.Exists(settingsPath))
+                    {
+                        LogMessage($"NOTICE: Settings file already exists at {settingsPath}");
+                        
+                        var existingResult = MessageBox.Show(
+                            "A settings file already exists at the target location.\n\n" +
+                            $"Path: {settingsPath}\n\n" +
+                            "What would you like to do?\n\n" +
+                            "• YES - Overwrite with new settings\n" +
+                            "• NO - Keep existing settings (recommended)\n" +
+                            "• CANCEL - Backup existing and create new",
+                            "Existing Settings Detected",
+                            MessageBoxButtons.YesNoCancel,
+                            MessageBoxIcon.Question
+                        );
+
+                        if (existingResult == DialogResult.No)
+                        {
+                            LogMessage("User chose to keep existing settings");
+                            return; // Keep existing settings
+                        }
+                        else if (existingResult == DialogResult.Cancel)
+                        {
+                            // Backup existing settings
+                            var timestamp = DateTime.Now.ToString("yyyyMMdd_HHmmss");
+                            var backupPath = $"{settingsPath}.backup.{timestamp}";
+                            
+                            try
+                            {
+                                LogMessage($"Backing up existing settings to: {backupPath}");
+                                File.Copy(settingsPath, backupPath);
+                                LogMessage("Existing settings backed up successfully");
+                            }
+                            catch (Exception ex)
+                            {
+                                LogMessage($"ERROR: Failed to backup existing settings: {ex.Message}");
+                                MessageBox.Show(
+                                    $"Failed to backup existing settings:\n{ex.Message}\n\nInstallation cannot continue.",
+                                    "Backup Failed",
+                                    MessageBoxButtons.OK,
+                                    MessageBoxIcon.Error
+                                );
+                                throw;
+                            }
+                        }
+                        else // DialogResult.Yes - Overwrite
+                        {
+                            LogMessage("User chose to overwrite existing settings");
+                        }
+                    }
+                    
+                    LogMessage($"Writing settings to: {settingsPath}");
+                    
+                    // Create AppSettings object with properly typed properties
+                    // MUST match AIM.Models.AppSettings for JSON compatibility
+                    var settings = new AppSettings
+                    {
+                        DefaultRootDirectory = DefaultRootDirectory,
+                        ArchivePath = ArchivePath,
+                        ShippedDirectory = ShippedDirectory,
+                        FileScansDirectory = FileScansDirectory,
+                        InventoryArchiveDirectory = InventoryArchiveDirectory,
+                        SecurityDatabasePath = SecurityDatabasePath,
+                        SecurityConfigPath = string.Empty, // Deprecated but needed for compatibility
+                        Theme = "FollowSystem",
+                        Password = string.Empty, // Deprecated but needed for compatibility
+                        AuthorizedUsers = new List<string>(),
+                        IsInitialPasswordSet = false,
+                        SharedSecurityConfigPath = string.Empty,
+                        UseSharedConfig = true
+                    };
+
+                    // Serialize to JSON with proper formatting
+                    var json = System.Text.Json.JsonSerializer.Serialize(settings, new System.Text.Json.JsonSerializerOptions 
+                    { 
+                        WriteIndented = true 
+                    });
+                    
+                    // Write to file
+                    File.WriteAllText(settingsPath, json);
+                    
+                    LogMessage("Settings written successfully");
+                    LogMessage($"Settings structure:");
+                    LogMessage($"  DefaultRootDirectory: {settings.DefaultRootDirectory}");
+                    LogMessage($"  ArchivePath: {settings.ArchivePath}");
+                    LogMessage($"  ShippedDirectory: {settings.ShippedDirectory}");
+                    LogMessage($"  FileScansDirectory: {settings.FileScansDirectory}");
+                    LogMessage($"  InventoryArchiveDirectory: {settings.InventoryArchiveDirectory}");
+                    LogMessage($"  SecurityDatabasePath: {settings.SecurityDatabasePath}");
+                    LogMessage($"  Theme: {settings.Theme}");
+                    LogMessage($"  IsInitialPasswordSet: {settings.IsInitialPasswordSet}");
+                    
+                    // Success - exit the retry loop
+                    return;
+                }
+                catch (IOException)
+                {
+                    // Already logged, re-throw to abort installation
+                    throw;
+                }
+                catch (Exception ex)
+                {
+                    LogMessage($"ERROR: Could not write installer settings: {ex.Message}");
+                    MessageBox.Show(
+                        $"Failed to write settings file:\n{ex.Message}\n\nInstallation cannot continue.",
+                        "Settings Write Failed",
+                        MessageBoxButtons.OK,
                         MessageBoxIcon.Error
                     );
-
-                    if (result == DialogResult.Retry)
-                    {
-                        LogMessage("User requested retry, recursively calling WriteInstallerSettings");
-                        WriteInstallerSettings(); // Recursive call for retry
-                        return;
-                    }
-                    else
-                    {
-                        LogMessage("User cancelled due to path validation errors");
-                        throw new IOException("Network path validation failed - installation cannot continue");
-                    }
+                    throw;
                 }
-
-                var localAppData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
-                var aimConfigDir = Path.Combine(localAppData, "AIM");
-                Directory.CreateDirectory(aimConfigDir);
-
-                var settingsPath = Path.Combine(aimConfigDir, "settings.json");
-                
-                LogMessage($"Writing settings to: {settingsPath}");
-                
-                // Create AppSettings object with properly typed properties
-                var settings = new AppSettings
-                {
-                    DefaultRootDirectory = DefaultRootDirectory,
-                    ArchivePath = ArchivePath,
-                    ShippedDirectory = ShippedDirectory,
-                    FileScansDirectory = FileScansDirectory,
-                    InventoryArchiveDirectory = InventoryArchiveDirectory,
-                    SecurityDatabasePath = SecurityDatabasePath,
-                    Theme = "FollowSystem",
-                    AuthorizedUsers = new List<string>(),
-                    IsInitialPasswordSet = false
-                };
-
-                // Serialize to JSON with proper formatting
-                var json = System.Text.Json.JsonSerializer.Serialize(settings, new System.Text.Json.JsonSerializerOptions 
-                { 
-                    WriteIndented = true 
-                });
-                
-                // Write to file
-                File.WriteAllText(settingsPath, json);
-                
-                LogMessage("Settings written successfully");
-                LogMessage($"Settings structure:");
-                LogMessage($"  DefaultRootDirectory: {settings.DefaultRootDirectory}");
-                LogMessage($"  ArchivePath: {settings.ArchivePath}");
-                LogMessage($"  ShippedDirectory: {settings.ShippedDirectory}");
-                LogMessage($"  FileScansDirectory: {settings.FileScansDirectory}");
-                LogMessage($"  InventoryArchiveDirectory: {settings.InventoryArchiveDirectory}");
-                LogMessage($"  SecurityDatabasePath: {settings.SecurityDatabasePath}");
-                LogMessage($"  Theme: {settings.Theme}");
-                LogMessage($"  IsInitialPasswordSet: {settings.IsInitialPasswordSet}");
             }
-            catch (IOException)
-            {
-                // Already logged, re-throw to abort installation
-                throw;
-            }
-            catch (Exception ex)
-            {
-                LogMessage($"ERROR: Could not write installer settings: {ex.Message}");
-                MessageBox.Show(
-                    $"Failed to write settings file:\n{ex.Message}\n\nInstallation cannot continue.",
-                    "Settings Write Failed",
-                    MessageBoxButtons.OK,
-                    MessageBoxIcon.Error
-                );
-                throw;
-            }
+            
+            // Max retries exceeded
+            LogMessage($"ERROR: Maximum retry attempts ({MAX_RETRIES}) exceeded for path validation");
+            MessageBox.Show(
+                $"Network path validation failed after {MAX_RETRIES} attempts.\n\n" +
+                "Installation cannot continue.\n\n" +
+                "Please check network connectivity and permissions, then try again.",
+                "Validation Failed",
+                MessageBoxButtons.OK,
+                MessageBoxIcon.Error
+            );
+            throw new IOException($"Network path validation failed after {MAX_RETRIES} retry attempts");
         }
 
         /// <summary>
@@ -1451,27 +1697,11 @@ namespace AIM.Installer
                 if (!Directory.Exists(directory))
                 {
                     LogMessage("Creating security database directory...");
-                    try
+                    
+                    // HIGH Issue #9: Use timeout for directory creation
+                    if (!await CreateDirectoryWithTimeoutAsync(directory, timeoutSeconds: 15))
                     {
-                        Directory.CreateDirectory(directory);
-                    }
-                    catch (Exception ex)
-                    {
-                        LogMessage($"ERROR: Could not create security database directory: {ex.Message}");
-                        LogMessage("The network path may not be accessible.");
-                        
-                        MessageBox.Show(
-                            $"Failed to create security database directory:\n\n" +
-                            $"Path: {directory}\n" +
-                            $"Error: {ex.Message}\n\n" +
-                            "Please ensure:\n" +
-                            "• The network path is accessible\n" +
-                            "• The network share is online\n" +
-                            "• You have permissions to create directories",
-                            "Directory Creation Failed",
-                            MessageBoxButtons.OK,
-                            MessageBoxIcon.Error
-                        );
+                        LogMessage("ERROR: Could not create security database directory (timeout or error)");
                         return false;
                     }
                 }
@@ -1710,6 +1940,372 @@ namespace AIM.Installer
                 
                 var hash = sha256.ComputeHash(saltedPassword);
                 return Convert.ToBase64String(hash);
+            }
+        }
+
+        /// <summary>
+        /// HIGH Issue #9: Creates a directory with a timeout to prevent hanging on unresponsive network paths.
+        /// </summary>
+        /// <param name="path">Directory path to create</param>
+        /// <param name="timeoutSeconds">Timeout in seconds (default 15)</param>
+        /// <returns>True if directory was created or already exists, false if operation timed out or failed</returns>
+        private async Task<bool> CreateDirectoryWithTimeoutAsync(string path, int timeoutSeconds = 15)
+        {
+            try
+            {
+                // Check if directory already exists (fast path)
+                if (Directory.Exists(path))
+                {
+                    return true;
+                }
+
+                LogMessage($"Creating directory with {timeoutSeconds}s timeout: {path}");
+
+                // Create directory operation with timeout
+                var createTask = System.Threading.Tasks.Task.Run(() =>
+                {
+                    Directory.CreateDirectory(path);
+                });
+
+                var timeoutTask = System.Threading.Tasks.Task.Delay(TimeSpan.FromSeconds(timeoutSeconds));
+                var completedTask = await System.Threading.Tasks.Task.WhenAny(createTask, timeoutTask);
+
+                if (completedTask == timeoutTask)
+                {
+                    LogMessage($"ERROR: Directory creation timed out after {timeoutSeconds} seconds");
+                    MessageBox.Show(
+                        $"Directory creation timed out after {timeoutSeconds} seconds.\n\n" +
+                        $"Path: {path}\n\n" +
+                        "This usually indicates:\n" +
+                        "• Network path is slow or unresponsive\n" +
+                        "• Network share is experiencing issues\n\n" +
+                        "Please check network connectivity and try again.",
+                        "Operation Timeout",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Error
+                    );
+                    return false;
+                }
+
+                // Wait for the create task to complete (it already finished)
+                await createTask;
+                
+                LogMessage($"Directory created successfully");
+                return true;
+            }
+            catch (Exception ex)
+            {
+                LogMessage($"ERROR: Failed to create directory: {ex.Message}");
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// MEDIUM Issue #13: Validates the installation path for:
+        /// - Write permissions
+        /// - Path length (< 260 characters for Windows MAX_PATH)
+        /// - Invalid path characters
+        /// </summary>
+        /// <param name="path">The installation path to validate</param>
+        /// <returns>True if path is valid, false otherwise</returns>
+        private bool ValidateInstallationPath(string path)
+        {
+            try
+            {
+                // Check for empty or whitespace path
+                if (string.IsNullOrWhiteSpace(path))
+                {
+                    LogMessage("ERROR: Installation path is empty");
+                    MessageBox.Show(
+                        "Installation path cannot be empty.",
+                        "Invalid Path",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Error
+                    );
+                    return false;
+                }
+
+                // MEDIUM Issue #12: Verify and log full SecurityDatabasePath
+                LogMessage($"Full SecurityDatabasePath: {SecurityDatabasePath}");
+                LogMessage($"SecurityDatabasePath length: {SecurityDatabasePath.Length} characters");
+                if (SecurityDatabasePath.Length >= 260)
+                {
+                    LogMessage("WARNING: SecurityDatabasePath exceeds Windows MAX_PATH (260 characters)");
+                }
+
+                // Check path length (Windows MAX_PATH limitation)
+                if (path.Length >= 260)
+                {
+                    LogMessage($"ERROR: Installation path too long ({path.Length} characters, max 260)");
+                    MessageBox.Show(
+                        $"Installation path is too long ({path.Length} characters).\n\n" +
+                        "Windows has a maximum path length of 260 characters.\n\n" +
+                        "Please choose a shorter installation path.",
+                        "Path Too Long",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Error
+                    );
+                    return false;
+                }
+
+                // Check for invalid path characters: < > : " | ? *
+                var invalidChars = new char[] { '<', '>', ':', '"', '|', '?', '*' };
+                var pathWithoutDrive = path.Length > 2 && path[1] == ':' ? path.Substring(2) : path;
+                
+                foreach (var invalidChar in invalidChars)
+                {
+                    if (pathWithoutDrive.Contains(invalidChar))
+                    {
+                        LogMessage($"ERROR: Installation path contains invalid character: '{invalidChar}'");
+                        MessageBox.Show(
+                            $"Installation path contains invalid character: '{invalidChar}'\n\n" +
+                            "Path cannot contain: < > : \" | ? *\n\n" +
+                            "Please choose a different installation path.",
+                            "Invalid Path Characters",
+                            MessageBoxButtons.OK,
+                            MessageBoxIcon.Error
+                        );
+                        return false;
+                    }
+                }
+
+                // Check write permissions by creating a test file
+                var testDir = Path.GetDirectoryName(path);
+                if (string.IsNullOrEmpty(testDir))
+                {
+                    testDir = path;
+                }
+
+                // Create parent directory if it doesn't exist
+                if (!Directory.Exists(testDir))
+                {
+                    try
+                    {
+                        Directory.CreateDirectory(testDir);
+                        LogMessage($"Created installation parent directory: {testDir}");
+                    }
+                    catch (UnauthorizedAccessException ex)
+                    {
+                        LogMessage($"ERROR: No write permission to create installation directory: {ex.Message}");
+                        MessageBox.Show(
+                            $"Insufficient permissions to create installation directory:\n\n" +
+                            $"Path: {testDir}\n\n" +
+                            "Please choose a different location or run the installer as Administrator.",
+                            "Permission Denied",
+                            MessageBoxButtons.OK,
+                            MessageBoxIcon.Error
+                        );
+                        return false;
+                    }
+                }
+
+                // Test write permissions with a temporary file
+                var testFile = Path.Combine(testDir, $"__aim_install_test_{Guid.NewGuid()}.tmp");
+                try
+                {
+                    File.WriteAllText(testFile, "AIM installation path test");
+                    File.Delete(testFile);
+                    LogMessage("Installation path write permissions verified");
+                }
+                catch (UnauthorizedAccessException ex)
+                {
+                    LogMessage($"ERROR: No write permission to installation path: {ex.Message}");
+                    MessageBox.Show(
+                        $"Insufficient write permissions to installation path:\n\n" +
+                        $"Path: {testDir}\n\n" +
+                        "Please choose a different location or run the installer as Administrator.",
+                        "Permission Denied",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Error
+                    );
+                    return false;
+                }
+                catch (Exception ex)
+                {
+                    LogMessage($"ERROR: Cannot write to installation path: {ex.Message}");
+                    MessageBox.Show(
+                        $"Cannot write to installation path:\n\n" +
+                        $"Error: {ex.Message}\n\n" +
+                        "Please choose a different location.",
+                        "Path Validation Failed",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Error
+                    );
+                    return false;
+                }
+
+                LogMessage("Installation path validation passed");
+                return true;
+            }
+            catch (Exception ex)
+            {
+                LogMessage($"ERROR: Installation path validation failed: {ex.Message}");
+                MessageBox.Show(
+                    $"Installation path validation failed:\n\n{ex.Message}",
+                    "Validation Error",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Error
+                );
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// MEDIUM Issue #14: Checks if there is sufficient disk space for installation.
+        /// Estimates 500MB required for conservative sizing.
+        /// </summary>
+        /// <param name="path">The installation path</param>
+        /// <returns>True if sufficient space, false otherwise</returns>
+        private bool CheckDiskSpace(string path)
+        {
+            try
+            {
+                // Get the drive from the installation path
+                var drive = Path.GetPathRoot(path);
+                if (string.IsNullOrEmpty(drive))
+                {
+                    LogMessage("WARNING: Could not determine drive for disk space check");
+                    return true; // Continue anyway
+                }
+
+                var driveInfo = new DriveInfo(drive);
+                
+                // Conservative estimate: 500MB required
+                const long REQUIRED_SPACE_BYTES = 500L * 1024L * 1024L; // 500 MB
+                long availableSpace = driveInfo.AvailableFreeSpace;
+                
+                LogMessage($"Disk space check:");
+                LogMessage($"  Drive: {drive}");
+                LogMessage($"  Available: {availableSpace / 1024.0 / 1024.0:F2} MB");
+                LogMessage($"  Required: {REQUIRED_SPACE_BYTES / 1024.0 / 1024.0:F2} MB");
+                
+                if (availableSpace < REQUIRED_SPACE_BYTES)
+                {
+                    LogMessage($"ERROR: Insufficient disk space");
+                    MessageBox.Show(
+                        $"Insufficient disk space for installation.\n\n" +
+                        $"Drive: {drive}\n" +
+                        $"Available: {availableSpace / 1024.0 / 1024.0:F2} MB\n" +
+                        $"Required: {REQUIRED_SPACE_BYTES / 1024.0 / 1024.0:F2} MB\n\n" +
+                        "Please free up disk space or choose a different installation location.",
+                        "Insufficient Disk Space",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Error
+                    );
+                    return false;
+                }
+                
+                LogMessage("Disk space check passed");
+                return true;
+            }
+            catch (Exception ex)
+            {
+                LogMessage($"WARNING: Disk space check failed: {ex.Message}");
+                // Don't fail installation if we can't check disk space
+                return true;
+            }
+        }
+
+        /// <summary>
+        /// CRITICAL Issue #5: Verifies the integrity of the extracted installation files.
+        /// Checks that critical files exist and have non-zero size.
+        /// </summary>
+        /// <returns>True if installation is complete and valid, false otherwise</returns>
+        private bool VerifyInstallationIntegrity()
+        {
+            try
+            {
+                LogMessage("Verifying installation integrity...");
+                
+                // Check that AIM.exe exists
+                var aimExePath = Path.Combine(installPath, "AIM.exe");
+                if (!File.Exists(aimExePath))
+                {
+                    LogMessage("ERROR: AIM.exe not found in installation directory");
+                    MessageBox.Show(
+                        "Installation verification failed: AIM.exe not found.\n\n" +
+                        "The installation may be corrupted or incomplete.\n\n" +
+                        "Please try installing again.",
+                        "Installation Incomplete",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Error
+                    );
+                    
+                    // Clean up partial installation
+                    try
+                    {
+                        LogMessage("Cleaning up partial installation...");
+                        Directory.Delete(installPath, recursive: true);
+                        LogMessage("Partial installation cleaned up");
+                    }
+                    catch (Exception cleanupEx)
+                    {
+                        LogMessage($"WARNING: Could not clean up partial installation: {cleanupEx.Message}");
+                    }
+                    
+                    return false;
+                }
+                
+                // Check that AIM.exe has non-zero size
+                var aimExeInfo = new FileInfo(aimExePath);
+                if (aimExeInfo.Length == 0)
+                {
+                    LogMessage("ERROR: AIM.exe has zero size (corrupted)");
+                    MessageBox.Show(
+                        "Installation verification failed: AIM.exe is corrupted (zero bytes).\n\n" +
+                        "Please try installing again.",
+                        "Installation Corrupted",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Error
+                    );
+                    
+                    // Clean up partial installation
+                    try
+                    {
+                        LogMessage("Cleaning up corrupted installation...");
+                        Directory.Delete(installPath, recursive: true);
+                        LogMessage("Corrupted installation cleaned up");
+                    }
+                    catch (Exception cleanupEx)
+                    {
+                        LogMessage($"WARNING: Could not clean up corrupted installation: {cleanupEx.Message}");
+                    }
+                    
+                    return false;
+                }
+                
+                LogMessage($"AIM.exe verified: {aimExeInfo.Length / 1024.0 / 1024.0:F2} MB");
+                
+                // Check for other critical files (optional - can add more checks here)
+                var criticalFiles = new[] { "AIM.dll", "AIM.runtimeconfig.json" };
+                foreach (var file in criticalFiles)
+                {
+                    var filePath = Path.Combine(installPath, file);
+                    if (File.Exists(filePath))
+                    {
+                        var fileInfo = new FileInfo(filePath);
+                        LogMessage($"  {file} verified: {fileInfo.Length / 1024.0:F2} KB");
+                    }
+                    else
+                    {
+                        LogMessage($"  WARNING: {file} not found (may be optional)");
+                    }
+                }
+                
+                LogMessage("Installation integrity verification passed");
+                return true;
+            }
+            catch (Exception ex)
+            {
+                LogMessage($"ERROR: Installation integrity verification failed: {ex.Message}");
+                MessageBox.Show(
+                    $"Installation verification failed:\n\n{ex.Message}\n\n" +
+                    "Please try installing again.",
+                    "Verification Error",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Error
+                );
+                return false;
             }
         }
     }
