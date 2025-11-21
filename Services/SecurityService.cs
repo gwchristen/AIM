@@ -997,7 +997,7 @@ public class SecurityService : IDisposable
         try
         {
             // Attempt to create a test file
-            File.WriteAllText(testFileName, "AIM write permission test");
+            File.WriteAllText(testFileName, "test");
             Debug.WriteLine($"[Security] Successfully verified write permissions for: {directoryPath}");
             return true;
         }
@@ -1024,12 +1024,11 @@ public class SecurityService : IDisposable
                 if (File.Exists(testFileName))
                 {
                     File.Delete(testFileName);
-                    Debug.WriteLine($"[Security] Cleaned up test file: {testFileName}");
                 }
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"[Security] Warning: Could not delete test file {testFileName}: {ex.Message}");
+                Debug.WriteLine($"[Security] Warning: Could not delete test file: {ex.Message}");
                 // Not critical if cleanup fails
             }
         }
@@ -1194,7 +1193,7 @@ public class SecurityService : IDisposable
             
             if (dispatcherQueue == null)
             {
-                Debug.WriteLine("[Security] DispatcherQueue not available, falling back to synchronous dialog attempt");
+                Debug.WriteLine("[Security] DispatcherQueue not available - cannot show dialog");
                 // Graceful fallback: if dispatcher is unavailable, exit to avoid blocking
                 return NetworkErrorDialogResult.Exit;
             }
