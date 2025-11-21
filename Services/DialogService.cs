@@ -109,4 +109,31 @@ public class DialogService : IDialogService
         var result = await dialog.ShowAsync();
         return (result, inputTextBox.Text);
     }
+
+    public async Task<string?> ShowPinEntryDialogAsync(string title, string message)
+    {
+        var passwordBox = new PasswordBox { MaxLength = 4, Width = 200 };
+        var contentPanel = new StackPanel();
+        if (!string.IsNullOrEmpty(message))
+        {
+            contentPanel.Children.Add(new TextBlock { Text = message, TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 0, 0, 12) });
+        }
+        contentPanel.Children.Add(passwordBox);
+
+        var dialog = new ContentDialog
+        {
+            Title = title,
+            Content = contentPanel,
+            PrimaryButtonText = "OK",
+            CloseButtonText = "Cancel",
+            XamlRoot = GetXamlRoot()
+        };
+
+        var result = await dialog.ShowAsync();
+        if (result == ContentDialogResult.Primary)
+        {
+            return passwordBox.Password;
+        }
+        return null;
+    }
 }

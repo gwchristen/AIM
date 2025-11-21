@@ -1,9 +1,11 @@
 ﻿using AIM.Models;
 using AIM.Services;
 using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
+using System.Threading.Tasks;
 
 namespace AIM.ViewModels;
 
@@ -15,6 +17,14 @@ public partial class MainViewModel : ObservableObject
 {
     private readonly ISettingsService _settingsService;
     private readonly IFileService _fileService;
+    private readonly ILockService _lockService;
+    private readonly IDialogService _dialogService;
+
+    /// <summary>
+    /// Gets whether the application is currently locked.
+    /// </summary>
+    [ObservableProperty]
+    private bool isLocked;
 
     /// <summary>
     /// Gets or sets the currently selected root directory path.
@@ -41,18 +51,62 @@ public partial class MainViewModel : ObservableObject
     /// </summary>
     /// <param name="settingsService">Service for loading and saving application settings.</param>
     /// <param name="fileService">Service for file and directory operations.</param>
-    public MainViewModel(ISettingsService settingsService, IFileService fileService)
+    /// <param name="lockService">Service for managing application lock state.</param>
+    /// <param name="dialogService">Service for showing dialogs.</param>
+    public MainViewModel(ISettingsService settingsService, IFileService fileService, ILockService lockService, IDialogService dialogService)
     {
         _settingsService = settingsService;
         _fileService = fileService;
+        _lockService = lockService;
+        _dialogService = dialogService;
 
         Debug.WriteLine($"[MainViewModel] Constructor starting");
+
+        // Subscribe to lock state changes
+        _lockService.LockStateChanged += OnLockStateChanged;
+        IsLocked = _lockService.IsLocked;
 
         // Load the selected root from settings
         var appSettings = _settingsService.LoadSettings();
         SelectedRoot = appSettings.DefaultRootDirectory;
 
         Debug.WriteLine($"[MainViewModel] MainViewModel initialized");
+    }
+
+    private void OnLockStateChanged(object? sender, bool isLocked)
+    {
+        IsLocked = isLocked;
+        Debug.WriteLine($"[MainViewModel] Lock state changed: {isLocked}");
+    }
+
+    /// <summary>
+    /// Toggles the lock state of the application.
+    /// </summary>
+    [RelayCommand]
+    private async Task ToggleLockAsync()
+    {
+        if (_lockService.IsLocked)
+        {
+            // Show PIN entry dialog to unlock
+            var pin = await _dialogService.ShowPinEntryDialogAsync("Unlock Application", "Enter PIN to unlock:");
+            if (!string.IsNullOrEmpty(pin))
+            {
+                if (_lockService.Unlock(pin))
+                {
+                    await _dialogService.ShowSuccessDialog("Unlocked", "Application unlocked successfully.");
+                }
+                else
+                {
+                    await _dialogService.ShowErrorDialogAsync("Invalid PIN", "The PIN you entered is incorrect.");
+                }
+            }
+        }
+        else
+        {
+            // Lock the application
+            _lockService.Lock();
+            await _dialogService.ShowSuccessDialog("Locked", "Application locked successfully.");
+        }
     }
 
     /// <summary>

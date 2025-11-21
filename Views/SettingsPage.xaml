@@ -34,8 +34,8 @@
                                 <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="Auto"/>
                             </Grid.ColumnDefinitions>
-                            <TextBox Grid.Column="0" Text="{Binding DefaultRootDirectory, Mode=TwoWay}" />
-                            <Button Grid.Column="1" Content="Browse" Command="{Binding SelectDefaultRootDirectoryCommand}"/>
+                            <TextBox Grid.Column="0" Text="{Binding DefaultRootDirectory, Mode=TwoWay}" IsEnabled="{Binding AreDirectoryControlsEnabled}" />
+                            <Button Grid.Column="1" Content="Browse" Command="{Binding SelectDefaultRootDirectoryCommand}" IsEnabled="{Binding AreDirectoryControlsEnabled}" />
                         </Grid>
                     </StackPanel>
 
@@ -47,8 +47,8 @@
                                 <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="Auto"/>
                             </Grid.ColumnDefinitions>
-                            <TextBox Grid.Column="0" Text="{Binding ArchivePath, Mode=TwoWay}" />
-                            <Button Grid.Column="1" Content="Browse" Command="{Binding SelectArchivePathCommand}"/>
+                            <TextBox Grid.Column="0" Text="{Binding ArchivePath, Mode=TwoWay}" IsEnabled="{Binding AreDirectoryControlsEnabled}" />
+                            <Button Grid.Column="1" Content="Browse" Command="{Binding SelectArchivePathCommand}" IsEnabled="{Binding AreDirectoryControlsEnabled}" />
                         </Grid>
                     </StackPanel>
 
@@ -60,8 +60,8 @@
                                 <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="Auto"/>
                             </Grid.ColumnDefinitions>
-                            <TextBox Grid.Column="0" Text="{Binding ShippedDirectory, Mode=TwoWay}" />
-                            <Button Grid.Column="1" Content="Browse" Command="{Binding SelectShippedDirectoryCommand}"/>
+                            <TextBox Grid.Column="0" Text="{Binding ShippedDirectory, Mode=TwoWay}" IsEnabled="{Binding AreDirectoryControlsEnabled}" />
+                            <Button Grid.Column="1" Content="Browse" Command="{Binding SelectShippedDirectoryCommand}" IsEnabled="{Binding AreDirectoryControlsEnabled}" />
                         </Grid>
                     </StackPanel>
 
@@ -73,8 +73,8 @@
                                 <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="Auto"/>
                             </Grid.ColumnDefinitions>
-                            <TextBox Grid.Column="0" Text="{Binding FileScansDirectory, Mode=TwoWay}" />
-                            <Button Grid.Column="1" Content="Browse" Command="{Binding SelectFileScansDirectoryCommand}"/>
+                            <TextBox Grid.Column="0" Text="{Binding FileScansDirectory, Mode=TwoWay}" IsEnabled="{Binding AreDirectoryControlsEnabled}" />
+                            <Button Grid.Column="1" Content="Browse" Command="{Binding SelectFileScansDirectoryCommand}" IsEnabled="{Binding AreDirectoryControlsEnabled}" />
                         </Grid>
                     </StackPanel>
 
@@ -86,8 +86,8 @@
                                 <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="Auto"/>
                             </Grid.ColumnDefinitions>
-                            <TextBox Grid.Column="0" Text="{Binding InventoryArchiveDirectory, Mode=TwoWay}" />
-                            <Button Grid.Column="1" Content="Browse" Command="{Binding SelectInventoryArchiveDirectoryCommand}"/>
+                            <TextBox Grid.Column="0" Text="{Binding InventoryArchiveDirectory, Mode=TwoWay}" IsEnabled="{Binding AreDirectoryControlsEnabled}" />
+                            <Button Grid.Column="1" Content="Browse" Command="{Binding SelectInventoryArchiveDirectoryCommand}" IsEnabled="{Binding AreDirectoryControlsEnabled}" />
                         </Grid>
                     </StackPanel>
                 </StackPanel>

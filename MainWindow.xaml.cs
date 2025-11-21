@@ -45,6 +45,9 @@ public sealed partial class MainWindow : Window
             rootElement.DataContext = _mainViewModel;
         }
 
+        // Update lock button based on initial state
+        UpdateLockButton();
+
         Debug.WriteLine($"[MainWindow] Constructor complete.");
     }
 
@@ -110,6 +113,24 @@ public sealed partial class MainWindow : Window
     private void MainViewModel_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
     {
         // Handle property changes if needed
+        if (e.PropertyName == nameof(MainViewModel.IsLocked))
+        {
+            UpdateLockButton();
+        }
+    }
+
+    private void UpdateLockButton()
+    {
+        if (_mainViewModel.IsLocked)
+        {
+            LockMenuItem.Content = "🔒 Unlock";
+            LockIcon.Glyph = "\uE72E"; // Lock icon
+        }
+        else
+        {
+            LockMenuItem.Content = "🔓 Lock";
+            LockIcon.Glyph = "\uE785"; // Unlock icon
+        }
     }
 
     private void NavView_ItemInvoked(NavigationView sender, NavigationViewItemInvokedEventArgs args)
@@ -121,7 +142,12 @@ public sealed partial class MainWindow : Window
         }
         else if (args.InvokedItemContainer?.Tag is string navItemTag && !string.IsNullOrEmpty(navItemTag))
         {
-            if (navItemTag == "RefreshTree")
+            if (navItemTag == "LockToggle")
+            {
+                // Toggle lock state
+                _mainViewModel.ToggleLockCommand.Execute(null);
+            }
+            else if (navItemTag == "RefreshTree")
             {
                 // Refresh the root directory tree
                 if (!string.IsNullOrEmpty(_mainViewModel.SelectedRoot) && Directory.Exists(_mainViewModel.SelectedRoot))

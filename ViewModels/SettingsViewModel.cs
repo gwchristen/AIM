@@ -5,6 +5,7 @@ using CommunityToolkit.Mvvm.Input;
 using Microsoft.UI.Xaml;
 using System;
 using System.Diagnostics;
+using System.Threading.Tasks;
 
 namespace AIM.ViewModels;
 
@@ -16,6 +17,7 @@ public partial class SettingsViewModel : ObservableObject
     private readonly ISettingsService _settingsService;
     private readonly IDialogService _dialogService;
     private readonly IThemeService _themeService;
+    private readonly ILockService _lockService;
     private AppSettings _appSettings;
 
     // Directory Settings Properties
@@ -59,18 +61,36 @@ public partial class SettingsViewModel : ObservableObject
     private string selectedTheme;
 
     /// <summary>
+    /// Gets whether directory controls are enabled (not locked).
+    /// </summary>
+    [ObservableProperty]
+    private bool areDirectoryControlsEnabled;
+
+    /// <summary>
     /// Initializes a new instance of the <see cref="SettingsViewModel"/> class.
     /// </summary>
     public SettingsViewModel(
         ISettingsService settingsService,
         IDialogService dialogService,
-        IThemeService themeService)
+        IThemeService themeService,
+        ILockService lockService)
     {
         _settingsService = settingsService;
         _dialogService = dialogService;
         _themeService = themeService;
+        _lockService = lockService;
+
+        // Subscribe to lock state changes
+        _lockService.LockStateChanged += OnLockStateChanged;
+        AreDirectoryControlsEnabled = !_lockService.IsLocked;
 
         LoadSettings();
+    }
+
+    private void OnLockStateChanged(object? sender, bool isLocked)
+    {
+        AreDirectoryControlsEnabled = !isLocked;
+        Debug.WriteLine($"[SettingsViewModel] Directory controls enabled: {AreDirectoryControlsEnabled}");
     }
 
     /// <summary>

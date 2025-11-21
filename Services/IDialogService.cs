@@ -14,4 +14,7 @@ public interface IDialogService
     Task ShowInfoDialog(string title, string message);
     Task ShowSuccessDialog(string title, string message);
     Task<(ContentDialogResult, string)> ShowTextInputDialog(string title, string message, string defaultText = "");
+    
+    // PIN entry dialog
+    Task<string?> ShowPinEntryDialogAsync(string title, string message);
 }

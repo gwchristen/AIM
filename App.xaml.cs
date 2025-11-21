@@ -66,6 +66,7 @@ public partial class App : Application
         services.AddSingleton<IThemeService, ThemeService>();
         services.AddSingleton<ISearchStateService, SearchStateService>();
         services.AddSingleton<IBrowseStateService, BrowseStateService>();
+        services.AddSingleton<ILockService, LockService>();
 
 
         // ViewModels
