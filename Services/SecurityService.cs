@@ -394,13 +394,29 @@ public class SecurityService : IDisposable
                 // Check if database file exists
                 if (!File.Exists(appSettings.SecurityDatabasePath))
                 {
-                    Debug.WriteLine($"[Security] Database file not found at: {appSettings.SecurityDatabasePath}");
-                    Debug.WriteLine("[Security] Granting Basic privileges - no database available");
+                    // FIX: Add comprehensive logging and event tracking when database file is missing
+                    // This happens when the installer failed or database wasn't properly initialized
+                    Debug.WriteLine($"[Security] DATABASE NOT FOUND at: {appSettings.SecurityDatabasePath}");
+                    Debug.WriteLine("[Security] This may indicate the installer did not complete successfully.");
+                    Debug.WriteLine("[Security] Suggestions:");
+                    Debug.WriteLine("[Security]   • Run the AIM installer to initialize the security database");
+                    Debug.WriteLine("[Security]   • Contact your system administrator for assistance");
+                    Debug.WriteLine("[Security]   • Check that the network path is accessible and writable");
+                    Debug.WriteLine("[Security] Granting Basic privileges to allow app usage");
+                    
+                    // Log security event for audit trail
+                    LogSecurityEvent("DATABASE_NOT_FOUND", 
+                        $"Security database file not found at: {appSettings.SecurityDatabasePath}. " +
+                        $"User granted Basic privileges. Installer may not have completed successfully.");
                     
                     // Grant Basic privileges to allow app usage
                     IsFirstTimeSetup = false;
                     _userAccessLevels[CurrentUserId] = 1; // Basic access
-                    LogSecurityEvent("SECURITY_INITIALIZED", $"Security initialized with Basic privileges (no database)");
+                    
+                    // Final audit log showing initialization with Basic privileges due to missing database
+                    LogSecurityEvent("SECURITY_INITIALIZED", 
+                        $"Security initialized with Basic privileges (database file missing at {appSettings.SecurityDatabasePath})");
+                    
                     return;
                 }
                 else
@@ -969,8 +985,60 @@ public class SecurityService : IDisposable
     }
 
     /// <summary>
+    /// Verifies write permissions for a directory by attempting to create, write, and delete a test file.
+    /// This ensures the current user has full write capability, not just read access.
+    /// </summary>
+    /// <param name="directoryPath">The directory path to verify write permissions for.</param>
+    /// <returns>True if write permissions are available, false otherwise.</returns>
+    private bool VerifyWritePermissions(string directoryPath)
+    {
+        var testFileName = Path.Combine(directoryPath, $".aim_write_test_{Guid.NewGuid()}.tmp");
+        
+        try
+        {
+            // Attempt to create a test file
+            File.WriteAllText(testFileName, "AIM write permission test");
+            Debug.WriteLine($"[Security] Successfully verified write permissions for: {directoryPath}");
+            return true;
+        }
+        catch (UnauthorizedAccessException ex)
+        {
+            Debug.WriteLine($"[Security] Write permission denied for {directoryPath}: {ex.Message}");
+            return false;
+        }
+        catch (IOException ex)
+        {
+            Debug.WriteLine($"[Security] I/O error verifying write permissions for {directoryPath}: {ex.Message}");
+            return false;
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"[Security] Error verifying write permissions for {directoryPath}: {ex.Message}");
+            return false;
+        }
+        finally
+        {
+            // Always try to clean up the test file
+            try
+            {
+                if (File.Exists(testFileName))
+                {
+                    File.Delete(testFileName);
+                    Debug.WriteLine($"[Security] Cleaned up test file: {testFileName}");
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"[Security] Warning: Could not delete test file {testFileName}: {ex.Message}");
+                // Not critical if cleanup fails
+            }
+        }
+    }
+
+    /// <summary>
     /// Probes network paths (database and shared directories) with retry logic to verify accessibility.
     /// Implements exponential backoff (1s, 2s, 4s) for 3 total attempts.
+    /// FIX: Now also verifies write permissions for database directory to catch permission issues early.
     /// </summary>
     /// <param name="appSettings">Application settings containing paths to probe.</param>
     /// <returns>Tuple indicating accessibility status and error message if inaccessible.</returns>
@@ -1030,7 +1098,26 @@ public class SecurityService : IDisposable
                     if (accessible)
                     {
                         Debug.WriteLine($"[Security] {pathName} is accessible");
-                        break; // Success, exit retry loop
+                        
+                        // FIX: For SecurityDatabase, also verify write permissions to catch permission issues early
+                        if (pathName == "SecurityDatabase")
+                        {
+                            Debug.WriteLine($"[Security] Verifying write permissions for database directory: {directoryToCheck}");
+                            if (!VerifyWritePermissions(directoryToCheck))
+                            {
+                                accessible = false;
+                                Debug.WriteLine($"[Security] Write permission verification failed for {pathName}");
+                            }
+                            else
+                            {
+                                Debug.WriteLine($"[Security] Write permission verified for {pathName}");
+                            }
+                        }
+                        
+                        if (accessible)
+                        {
+                            break; // Success, exit retry loop
+                        }
                     }
                     else
                     {
@@ -1061,7 +1148,22 @@ public class SecurityService : IDisposable
 
             if (!accessible)
             {
-                unreachablePaths.Add($"{pathName}: {directoryToCheck}");
+                // FIX: Provide detailed error message with troubleshooting guidance
+                string errorDetail = $"{pathName}: {directoryToCheck}";
+                
+                // Add specific guidance for database write permission failures
+                if (pathName == "SecurityDatabase")
+                {
+                    var currentUser = $"{Environment.UserDomainName}\\{Environment.UserName}";
+                    errorDetail += $"\n  Current User: {currentUser}";
+                    errorDetail += "\n  Troubleshooting:";
+                    errorDetail += "\n  • Check NTFS permissions on the database directory";
+                    errorDetail += "\n  • Verify network share access rights";
+                    errorDetail += "\n  • Try running the installer as administrator";
+                    errorDetail += "\n  • Contact your network administrator for assistance";
+                }
+                
+                unreachablePaths.Add(errorDetail);
             }
         }
 
@@ -1086,64 +1188,79 @@ public class SecurityService : IDisposable
     {
         try
         {
-            // Need to invoke on UI thread for WinUI
+            // Need to invoke on UI thread for WinUI 3
+            // FIX: Use modern DispatcherQueue pattern instead of deprecated CoreApplication.MainView.CoreWindow.Dispatcher
+            var dispatcherQueue = App.MainWindow?.DispatcherQueue;
+            
+            if (dispatcherQueue == null)
+            {
+                Debug.WriteLine("[Security] DispatcherQueue not available, falling back to synchronous dialog attempt");
+                // Graceful fallback: if dispatcher is unavailable, exit to avoid blocking
+                return NetworkErrorDialogResult.Exit;
+            }
+            
             var tcs = new TaskCompletionSource<NetworkErrorDialogResult>();
             
-            await Windows.ApplicationModel.Core.CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(
-                Windows.UI.Core.CoreDispatcherPriority.Normal,
-                async () =>
+            // Use modern DispatcherQueue.TryEnqueue for WinUI 3
+            bool enqueued = dispatcherQueue.TryEnqueue(async () =>
+            {
+                try
                 {
-                    try
+                    var dialog = new Microsoft.UI.Xaml.Controls.ContentDialog
                     {
-                        var dialog = new Microsoft.UI.Xaml.Controls.ContentDialog
-                        {
-                            Title = "Network Connectivity Issue",
-                            Content = $"The following network paths are not accessible:\n\n" +
-                                     $"{unreachablePaths}\n\n" +
-                                     $"This may prevent the application from accessing the security database " +
-                                     $"and shared directories.\n\n" +
-                                     $"Troubleshooting steps:\n" +
-                                     $"• Verify network connection is active\n" +
-                                     $"• Check if network shares are online\n" +
-                                     $"• Ensure you have access permissions\n" +
-                                     $"• Contact your network administrator if issues persist\n\n" +
-                                     $"You can:\n" +
-                                     $"• Retry - Check network paths again\n" +
-                                     $"• Continue - Use the app with Basic privileges (limited features)\n" +
-                                     $"• Exit - Close the application and resolve network issues",
-                            PrimaryButtonText = "Retry",
-                            SecondaryButtonText = "Continue with Basic Privileges",
-                            CloseButtonText = "Exit Application",
-                            XamlRoot = App.MainWindow?.Content?.XamlRoot
-                        };
+                        Title = "Network Connectivity Issue",
+                        Content = $"The following network paths are not accessible:\n\n" +
+                                 $"{unreachablePaths}\n\n" +
+                                 $"This may prevent the application from accessing the security database " +
+                                 $"and shared directories.\n\n" +
+                                 $"Troubleshooting steps:\n" +
+                                 $"• Verify network connection is active\n" +
+                                 $"• Check if network shares are online\n" +
+                                 $"• Ensure you have access permissions\n" +
+                                 $"• Contact your network administrator if issues persist\n\n" +
+                                 $"You can:\n" +
+                                 $"• Retry - Check network paths again\n" +
+                                 $"• Continue - Use the app with Basic privileges (limited features)\n" +
+                                 $"• Exit - Close the application and resolve network issues",
+                        PrimaryButtonText = "Retry",
+                        SecondaryButtonText = "Continue with Basic Privileges",
+                        CloseButtonText = "Exit Application",
+                        XamlRoot = App.MainWindow?.Content?.XamlRoot
+                    };
 
-                        var result = await dialog.ShowAsync();
-                        
-                        if (result == Microsoft.UI.Xaml.Controls.ContentDialogResult.Primary)
-                        {
-                            // Retry
-                            Debug.WriteLine("[Security] User chose to retry network connectivity check");
-                            tcs.SetResult(NetworkErrorDialogResult.Retry);
-                        }
-                        else if (result == Microsoft.UI.Xaml.Controls.ContentDialogResult.Secondary)
-                        {
-                            // Continue with Basic privileges - explicit user choice
-                            Debug.WriteLine("[Security] User explicitly chose to continue with Basic privileges");
-                            tcs.SetResult(NetworkErrorDialogResult.ContinueWithBasic);
-                        }
-                        else
-                        {
-                            // Exit application
-                            Debug.WriteLine("[Security] User chose to exit application");
-                            tcs.SetResult(NetworkErrorDialogResult.Exit);
-                        }
-                    }
-                    catch (Exception ex)
+                    var result = await dialog.ShowAsync();
+                    
+                    if (result == Microsoft.UI.Xaml.Controls.ContentDialogResult.Primary)
                     {
-                        Debug.WriteLine($"[Security] Error showing network error dialog: {ex.Message}");
-                        tcs.SetResult(NetworkErrorDialogResult.Exit); // Default to exit on error
+                        // Retry
+                        Debug.WriteLine("[Security] User chose to retry network connectivity check");
+                        tcs.SetResult(NetworkErrorDialogResult.Retry);
                     }
-                });
+                    else if (result == Microsoft.UI.Xaml.Controls.ContentDialogResult.Secondary)
+                    {
+                        // Continue with Basic privileges - explicit user choice
+                        Debug.WriteLine("[Security] User explicitly chose to continue with Basic privileges");
+                        tcs.SetResult(NetworkErrorDialogResult.ContinueWithBasic);
+                    }
+                    else
+                    {
+                        // Exit application
+                        Debug.WriteLine("[Security] User chose to exit application");
+                        tcs.SetResult(NetworkErrorDialogResult.Exit);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"[Security] Error showing network error dialog: {ex.Message}");
+                    tcs.SetResult(NetworkErrorDialogResult.Exit); // Default to exit on error
+                }
+            });
+
+            if (!enqueued)
+            {
+                Debug.WriteLine("[Security] Failed to enqueue dialog on DispatcherQueue");
+                return NetworkErrorDialogResult.Exit; // Default to exit if enqueue fails
+            }
 
             return await tcs.Task;
         }
