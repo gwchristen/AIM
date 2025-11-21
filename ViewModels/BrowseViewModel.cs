@@ -24,7 +24,6 @@ public partial class BrowseViewModel : ObservableObject
     private readonly IDialogService _dialogService;
     private readonly INavigationService _navigationService;
     private readonly AppSettings _appSettings;
-    private readonly AuditLoggingService _auditLoggingService;
     private readonly IBrowseStateService _browseStateService;
     private Stack<UndoAction> _undoStack = new();
     private string _rootPath = string.Empty;
@@ -47,12 +46,11 @@ public partial class BrowseViewModel : ObservableObject
     [ObservableProperty] private string _rootName = string.Empty;
     #endregion
 
-    public BrowseViewModel(MainViewModel mainViewModel, IFileService fileService, ISettingsService settingsService, IDialogService dialogService, INavigationService navigationService, AuditLoggingService auditLoggingService, IBrowseStateService browseStateService)
+    public BrowseViewModel(MainViewModel mainViewModel, IFileService fileService, ISettingsService settingsService, IDialogService dialogService, INavigationService navigationService, IBrowseStateService browseStateService)
     {
         _mainViewModel = mainViewModel;
         _dialogService = dialogService;
         _navigationService = navigationService;
-        _auditLoggingService = auditLoggingService;
         _appSettings = settingsService.LoadSettings();
         _browseStateService = browseStateService;
 
@@ -85,7 +83,6 @@ public partial class BrowseViewModel : ObservableObject
             SelectedLeftDirectory = value;
         }
 
-        _auditLoggingService.LogDirectoryOperation(
             AuditActionTypes.DIR_ACCESS,
             value?.FullPath,
             $"Browsed to directory: {value?.Name}"
@@ -315,7 +312,6 @@ public partial class BrowseViewModel : ObservableObject
             File.Move(oldPath, newPath);
 
             // Log rename operation with detailed info
-            _auditLoggingService.LogRenameOperation(oldPath, fileToRename.Name, newName);
 
             _undoStack.Push(new UndoAction("Rename", new List<FileOp> { new(newPath, oldPath) }));
             UndoCommand.NotifyCanExecuteChanged();
@@ -326,7 +322,6 @@ public partial class BrowseViewModel : ObservableObject
             await _dialogService.ShowErrorDialogAsync("Rename Failed", ex.Message);
 
             // Log failed rename
-            _auditLoggingService.LogFileOperation(
                 "FILE_RENAME_FAILED",
                 oldPath,
                 $"Failed to rename '{fileToRename.Name}' to '{newName}': {ex.Message}",
@@ -357,7 +352,6 @@ public partial class BrowseViewModel : ObservableObject
                 File.Move(file.FullPath, destPath);
 
                 // Log archive operation with detailed info
-                _auditLoggingService.LogMoveOperation(file.FullPath, destPath, file.Name);
 
                 ops.Add(new FileOp(destPath, file.FullPath));
             }
@@ -366,7 +360,6 @@ public partial class BrowseViewModel : ObservableObject
                 await _dialogService.ShowErrorDialogAsync("Archive Failed", $"Could not archive '{file.Name}': {ex.Message}");
 
                 // Log failed archive
-                _auditLoggingService.LogFileOperation(
                     "FILE_ARCHIVE_FAILED",
                     file.FullPath,
                     $"Failed to archive '{file.Name}': {ex.Message}",
@@ -398,7 +391,6 @@ public partial class BrowseViewModel : ObservableObject
                 File.Move(file.FullPath, destPath);
 
                 // Log ship operation with detailed info
-                _auditLoggingService.LogMoveOperation(file.FullPath, destPath, file.Name);
 
                 ops.Add(new FileOp(destPath, file.FullPath));
             }
@@ -407,7 +399,6 @@ public partial class BrowseViewModel : ObservableObject
                 await _dialogService.ShowErrorDialogAsync("Ship Failed", $"Could not ship '{file.Name}': {ex.Message}");
 
                 // Log failed ship
-                _auditLoggingService.LogFileOperation(
                     "FILE_SHIP_FAILED",
                     file.FullPath,
                     $"Failed to ship '{file.Name}': {ex.Message}",
@@ -435,7 +426,6 @@ public partial class BrowseViewModel : ObservableObject
                 File.Move(file.FullPath, destPath);
 
                 // Log move operation with detailed info
-                _auditLoggingService.LogMoveOperation(file.FullPath, destPath, file.Name);
 
                 ops.Add(new FileOp(destPath, file.FullPath));
             }
@@ -444,7 +434,6 @@ public partial class BrowseViewModel : ObservableObject
                 await _dialogService.ShowErrorDialogAsync("Move Failed", $"Could not move '{file.Name}': {ex.Message}");
 
                 // Log failed move
-                _auditLoggingService.LogFileOperation(
                     "FILE_MOVE_FAILED",
                     file.FullPath,
                     $"Failed to move '{file.Name}': {ex.Message}",
@@ -470,14 +459,12 @@ public partial class BrowseViewModel : ObservableObject
                 File.Copy(file.FullPath, destPath, true);
 
                 // Log copy operation with detailed info
-                _auditLoggingService.LogCopyOperation(file.FullPath, destPath, file.Name);
             }
             catch (Exception ex)
             {
                 await _dialogService.ShowErrorDialogAsync("Copy Failed", $"Could not copy '{file.Name}'.\nError: {ex.Message}");
 
                 // Log failed copy
-                _auditLoggingService.LogFileOperation(
                     "FILE_COPY_FAILED",
                     file.FullPath,
                     $"Failed to copy '{file.Name}' from Scans: {ex.Message}",
@@ -504,7 +491,6 @@ public partial class BrowseViewModel : ObservableObject
                 File.Move(op.FromPath, op.ToPath);
 
                 // Log undo operation
-                _auditLoggingService.LogAction(new AuditLogEntry
                 {
                     ActionType = "ACTION_UNDONE",
                     Description = $"Undid {lastAction.Type} operation",
@@ -518,7 +504,6 @@ public partial class BrowseViewModel : ObservableObject
                 await _dialogService.ShowErrorDialogAsync("Undo Failed", $"Could not move '{Path.GetFileName(op.ToPath)}' back.");
 
                 // Log failed undo
-                _auditLoggingService.LogFileOperation(
                     "UNDO_FAILED",
                     op.FromPath,
                     $"Failed to undo {lastAction.Type} operation: {ex.Message}",
@@ -541,7 +526,6 @@ public partial class BrowseViewModel : ObservableObject
         var fileItem = new FileItem { Name = fileToPreview.Name, FullPath = fileToPreview.FullPath, Type = GetFileType(fileToPreview.FullPath) };
 
         // Log preview navigation
-        _auditLoggingService.LogPreviewOperation(fileToPreview.FullPath, fileToPreview.Name);
 
         _navigationService.NavigateTo(typeof(PreviewPage), fileItem, "Preview");
     }
@@ -589,14 +573,12 @@ public partial class BrowseViewModel : ObservableObject
                     File.Move(sourcePath, destPath, true);
 
                     // Log drag-drop move operation
-                    _auditLoggingService.LogMoveOperation(sourcePath, destPath, fileName);
 
                     ops.Add(new FileOp(destPath, sourcePath));
                 }
                 catch (Exception ex)
                 {
                     // Log failed drag-drop move
-                    _auditLoggingService.LogFileOperation(
                         "FILE_MOVE_FAILED",
                         sourcePath,
                         $"Failed to move '{fileName}' via drag-drop: {ex.Message}",

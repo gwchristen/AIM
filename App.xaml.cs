@@ -22,121 +22,31 @@ public partial class App : Application
     public static Window? MainWindow { get; private set; }
     public IServiceProvider Services { get; private set; }
 
-    protected override async void OnLaunched(LaunchActivatedEventArgs args)
+    protected override void OnLaunched(LaunchActivatedEventArgs args)
     {
         Services = ConfigureServices();
         Ioc.Default.ConfigureServices(Services);
 
         MainWindow = new MainWindow();
 
-        // Load and validate settings before initializing services
+        // Load settings
         var settingsService = Ioc.Default.GetRequiredService<ISettingsService>();
         try
         {
             var settings = settingsService.LoadSettings();
             System.Diagnostics.Debug.WriteLine("[App] Settings loaded successfully");
         }
-        catch (SettingsNotFoundException ex)
-        {
-            System.Diagnostics.Debug.WriteLine($"[App] FATAL: Settings not found - {ex.Message}");
-            await ShowSettingsErrorDialog(
-                "Settings Not Found",
-                "AIM has not been properly installed or the settings file is missing.\n\n" +
-                "Please run the AIM installer to initialize the application.\n\n" +
-                $"Technical details: {ex.Message}",
-                allowContinue: false
-            );
-            Environment.Exit(1);
-            return;
-        }
-        catch (SettingsCorruptedException ex)
-        {
-            System.Diagnostics.Debug.WriteLine($"[App] FATAL: Settings corrupted - {ex.Message}");
-            await ShowSettingsErrorDialog(
-                "Settings Corrupted",
-                "The AIM settings file is corrupted or invalid.\n\n" +
-                "Options:\n" +
-                "1. Reinstall AIM to reset settings\n" +
-                "2. Restore settings.json from backup\n" +
-                "3. Contact support for assistance\n\n" +
-                $"Settings path: {SettingsService.GetCanonicalSettingsPath()}\n\n" +
-                $"Technical details: {ex.Message}",
-                allowContinue: false
-            );
-            Environment.Exit(1);
-            return;
-        }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine($"[App] FATAL: Unexpected error loading settings - {ex.Message}");
-            await ShowSettingsErrorDialog(
-                "Unexpected Error",
-                "An unexpected error occurred while loading settings.\n\n" +
-                $"Technical details: {ex.Message}\n\n" +
-                "Please reinstall AIM or contact support.",
-                allowContinue: false
-            );
-            Environment.Exit(1);
-            return;
+            System.Diagnostics.Debug.WriteLine($"[App] Error loading settings: {ex.Message}");
+            // Continue anyway - settings will be created with defaults
         }
-
-        // Initialize SecurityService before showing the main window
-        var securityService = Ioc.Default.GetRequiredService<SecurityService>();
-        await securityService.InitializeAsync();
 
         var themeService = Ioc.Default.GetRequiredService<IThemeService>();
         themeService.InitializeTheme();
 
         MainWindow.Activate();
-
     }
-
-    /// <summary>
-    /// Shows a blocking error dialog for settings-related errors.
-    /// </summary>
-    private async Task ShowSettingsErrorDialog(string title, string message, bool allowContinue)
-    {
-        try
-        {
-            // Ensure main window is created for dialog context
-            if (MainWindow == null)
-            {
-                MainWindow = new MainWindow();
-            }
-
-            var dialog = new Microsoft.UI.Xaml.Controls.ContentDialog
-            {
-                Title = title,
-                Content = message,
-                CloseButtonText = allowContinue ? "Continue Anyway" : "Exit",
-                PrimaryButtonText = "Open Settings Folder",
-                XamlRoot = MainWindow.Content.XamlRoot
-            };
-
-            var result = await dialog.ShowAsync();
-            
-            if (result == Microsoft.UI.Xaml.Controls.ContentDialogResult.Primary)
-            {
-                // Open settings folder in explorer
-                var settingsPath = SettingsService.GetCanonicalSettingsPath();
-                var settingsDir = Path.GetDirectoryName(settingsPath);
-                if (!string.IsNullOrEmpty(settingsDir) && Directory.Exists(settingsDir))
-                {
-                    System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
-                    {
-                        FileName = settingsDir,
-                        UseShellExecute = true
-                    });
-                }
-            }
-        }
-        catch (Exception ex)
-        {
-            System.Diagnostics.Debug.WriteLine($"[App] Error showing settings error dialog: {ex.Message}");
-            // Fall through to exit
-        }
-    }
-
 
     private static IServiceProvider ConfigureServices()
     {
@@ -153,10 +63,6 @@ public partial class App : Application
         services.AddSingleton<IMessenger>(WeakReferenceMessenger.Default);
         services.AddSingleton<IPrintService, PrintService>();
         services.AddSingleton<FormTemplateFactory>();
-        services.AddSingleton<SecurityService>();
-        services.AddSingleton<EncryptionService>();
-        services.AddSingleton<AuditLoggingService>();
-        services.AddSingleton<IEncryptedSettingsService, EncryptedSettingsService>();
         services.AddSingleton<IThemeService, ThemeService>();
         services.AddSingleton<ISearchStateService, SearchStateService>();
         services.AddSingleton<IBrowseStateService, BrowseStateService>();

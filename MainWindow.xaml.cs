@@ -19,7 +19,6 @@ public sealed partial class MainWindow : Window
 {
     private readonly INavigationService _navigationService;
     private MainViewModel _mainViewModel;
-    private SecurityService _securityService;
 
     public MainWindow()
     {
@@ -36,12 +35,9 @@ public sealed partial class MainWindow : Window
         // Get MainViewModel
         _mainViewModel = Ioc.Default.GetRequiredService<MainViewModel>();
 
-        // Get SecurityService
-        _securityService = Ioc.Default.GetRequiredService<SecurityService>();
+        Debug.WriteLine($"[MainWindow] MainViewModel obtained.");
 
-        Debug.WriteLine($"[MainWindow] MainViewModel obtained. IsInventoryTabVisible: {_mainViewModel.IsInventoryTabVisible}");
-
-        // Subscribe to property changes IMMEDIATELY - before NavView_Loaded
+        // Subscribe to property changes
         _mainViewModel.PropertyChanged += MainViewModel_PropertyChanged;
 
         if (this.Content is FrameworkElement rootElement)
@@ -49,7 +45,7 @@ public sealed partial class MainWindow : Window
             rootElement.DataContext = _mainViewModel;
         }
 
-        Debug.WriteLine($"[MainWindow] Constructor complete. Property subscription added.");
+        Debug.WriteLine($"[MainWindow] Constructor complete.");
     }
 
     private void OnNavigationRequested(string navigationTag)
@@ -94,8 +90,6 @@ public sealed partial class MainWindow : Window
     {
         Debug.WriteLine($"[MainWindow] NavView_Loaded called");
 
-        UpdateInventoryItemVisibility();
-
         // Force rebuild of the directory tree to ensure it's populated
         if (!string.IsNullOrEmpty(_mainViewModel.SelectedRoot) && Directory.Exists(_mainViewModel.SelectedRoot))
         {
@@ -113,29 +107,9 @@ public sealed partial class MainWindow : Window
         }
     }
 
-
-
     private void MainViewModel_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
     {
-        if (e.PropertyName == nameof(MainViewModel.IsInventoryTabVisible))
-        {
-            UpdateInventoryItemVisibility();
-        }
-    }
-
-    private void UpdateInventoryItemVisibility()
-    {
-        var inventoryItem = NavView.MenuItems.OfType<NavigationViewItem>()
-            .FirstOrDefault(i => i.Content?.ToString() == "Inventory");
-
-        if (inventoryItem != null)
-        {
-            bool shouldBeVisible = _mainViewModel.IsInventoryTabVisible;
-            Visibility newVisibility = shouldBeVisible ? Visibility.Visible : Visibility.Collapsed;
-            inventoryItem.Visibility = newVisibility;
-
-            Debug.WriteLine($"[MainWindow] Inventory item visibility set to: {newVisibility} (IsInventoryTabVisible: {shouldBeVisible})");
-        }
+        // Handle property changes if needed
     }
 
     private void NavView_ItemInvoked(NavigationView sender, NavigationViewItemInvokedEventArgs args)
@@ -224,17 +198,5 @@ public sealed partial class MainWindow : Window
             }
         }
         return null;
-    }
-
-    public void UpdateInventoryTabVisibility(bool shouldBeVisible)
-    {
-        var inventoryItem = NavView.MenuItems.OfType<NavigationViewItem>()
-            .FirstOrDefault(i => i.Content?.ToString() == "Inventory");
-
-        if (inventoryItem != null)
-        {
-            Visibility newVisibility = shouldBeVisible ? Visibility.Visible : Visibility.Collapsed;
-            inventoryItem.Visibility = newVisibility;
-        }
     }
 }
