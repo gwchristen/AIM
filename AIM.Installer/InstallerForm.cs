@@ -136,6 +136,11 @@ namespace AIM.Installer
     /// IMPORTANT: This class MUST match AIM.Models.AppSettings exactly to ensure
     /// JSON serialization/deserialization compatibility between installer and app.
     /// Any changes to the main AppSettings class must be reflected here.
+    /// 
+    /// MAINTENANCE NOTE: Some properties below are marked as deprecated in the main app
+    /// but are kept here for backward compatibility with existing settings.json files.
+    /// The installer writes empty/default values for these deprecated properties to ensure
+    /// the settings file can be read by both old and new versions of the application.
     /// </summary>
     internal class AppSettings
     {
@@ -144,13 +149,32 @@ namespace AIM.Installer
         public string ShippedDirectory { get; set; } = string.Empty;
         public string FileScansDirectory { get; set; } = string.Empty;
         public string InventoryArchiveDirectory { get; set; } = string.Empty;
+        
+        /// <summary>
+        /// DEPRECATED in main app - use SecurityDatabasePath instead.
+        /// Kept for backward compatibility with old settings.json files.
+        /// Installer writes empty string.
+        /// </summary>
         public string SecurityConfigPath { get; set; } = string.Empty;
+        
         public string Theme { get; set; } = "FollowSystem";
+        
+        /// <summary>
+        /// DEPRECATED in main app - passwords stored in SecurityDatabase instead.
+        /// Kept for backward compatibility with old settings.json files.
+        /// Installer writes empty string.
+        /// </summary>
         public string Password { get; set; } = string.Empty;
+        
         public List<string> AuthorizedUsers { get; set; } = new();
         public bool IsInitialPasswordSet { get; set; } = false;
         public string SharedSecurityConfigPath { get; set; } = string.Empty;
         public bool UseSharedConfig { get; set; } = true;
+        
+        /// <summary>
+        /// Path to the centralized SQLite security database.
+        /// This is the ACTIVE property used by the application.
+        /// </summary>
         public string SecurityDatabasePath { get; set; } = string.Empty;
     }
 
@@ -1229,12 +1253,13 @@ namespace AIM.Installer
                 catch (Exception ex)
                 {
                     var error = $"Cannot access: {ex.Message}";
-                    LogMessage($"  ERROR: {error}";
+                    LogMessage($"  ERROR: {error}");
                     invalidPaths[pathName] = error;
                     continue; // Continue validating other paths
                 }
 
                 // HIGH Issue #8: Test write permissions using temp directory to avoid conflicts
+                // NOTE: This tests general write capability, not specific network path permissions
                 if (requireWrite)
                 {
                     // Use system temp directory for test file to avoid conflicts with concurrent installers
@@ -1252,7 +1277,7 @@ namespace AIM.Installer
                             throw new IOException("Write verification failed");
                         }
                         
-                        LogMessage($"  Write permissions verified (test file in temp directory)");
+                        LogMessage($"  Basic write capability verified (temp directory test - network path permissions checked during directory creation)");
                     }
                     catch (UnauthorizedAccessException ex)
                     {
