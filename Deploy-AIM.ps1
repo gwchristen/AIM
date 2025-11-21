@@ -1,18 +1,11 @@
 <#
 .SYNOPSIS
-    Deployment script for AIM configuration.
+    Directory provisioning utility for AIM.
 .DESCRIPTION
-    This script configures directory paths and shared security configurations
-    for the AIM application. It validates paths, creates directories as needed,
-    and displays a summary of the configuration settings.
-.PARAMETER AIMInstallPath
-    The installation path for the AIM application.
-.PARAMETER SharedSecurityPath
-    The path that contains shared security configurations.
-.PARAMETER Passphrase
-    Optional passphrase for encrypting shared security configuration.
-    If provided, creates a passphrase-encrypted config that can be shared across users.
-    If not provided, uses DPAPI encryption (user/machine specific).
+    This optional utility script validates and creates network directories needed for AIM operation.
+    It accepts directory path parameters, validates that each path is accessible or creatable,
+    creates the directories if they don't exist, and displays a summary of created/validated directories.
+    This script is designed for pre-provisioning network directories before AIM installation.
 .PARAMETER DefaultRootDirectory
     The default root directory for AIM data.
 .PARAMETER ArchivePath
@@ -24,21 +17,12 @@
 .PARAMETER InventoryArchiveDirectory
     The directory for archived inventory data.
 .EXAMPLE
-    .\Deploy-AIM.ps1 -AIMInstallPath 'C:\AIM' -SharedSecurityPath 'C:\SharedSecurity' -DefaultRootDirectory 'C:\AIM\Data' -ArchivePath 'C:\AIM\Archive' -ShippedDirectory 'C:\AIM\Shipped' -FileScansDirectory 'C:\AIM\FileScans' -InventoryArchiveDirectory 'C:\AIM\InventoryArchive'
+    .\Deploy-AIM.ps1 -DefaultRootDirectory 'C:\AIM\Data' -ArchivePath 'C:\AIM\Archive' -ShippedDirectory 'C:\AIM\Shipped' -FileScansDirectory 'C:\AIM\FileScans' -InventoryArchiveDirectory 'C:\AIM\InventoryArchive'
 .EXAMPLE
-    .\Deploy-AIM.ps1 -AIMInstallPath 'C:\AIM' -SharedSecurityPath '\\server\share\AIM_Security' -Passphrase 'MySecurePassphrase123!' -DefaultRootDirectory 'C:\AIM\Data' -ArchivePath 'C:\AIM\Archive' -ShippedDirectory 'C:\AIM\Shipped' -FileScansDirectory 'C:\AIM\FileScans' -InventoryArchiveDirectory 'C:\AIM\InventoryArchive'
+    .\Deploy-AIM.ps1 -DefaultRootDirectory '\\server\share\LAB_STOCK' -ArchivePath '\\server\share\Archive' -ShippedDirectory '\\server\share\Shipped' -FileScansDirectory 'C:\Tfile' -InventoryArchiveDirectory '\\server\share\Inventory_Archive'
 #>
 
 param (
-    [Parameter(Mandatory = $true)]
-    [string]$AIMInstallPath = "C:\Program Files\AIM",
-
-    [Parameter(Mandatory = $false)]
-    [string]$SharedSecurityPath = "\\oh1cam01\cml\Internal\LAB STOCK\Important Inventory Related Documents\AIM\AIM_Security",
-
-    [Parameter(Mandatory = $false)]
-    [string]$Passphrase = "",
-
     [Parameter(Mandatory = $true)]
     [string]$DefaultRootDirectory = "\\oh1cam01\cml\Internal\LAB STOCK\LAB STOCK",
 
@@ -70,7 +54,6 @@ function Validate-And-Create-Directory {
 
 # Validate and create necessary directories
 $directories = @(
-    $AIMInstallPath,
     $DefaultRootDirectory,
     $ArchivePath,
     $ShippedDirectory,
@@ -78,32 +61,20 @@ $directories = @(
     $InventoryArchiveDirectory
 )
 
-# Add SharedSecurityPath only if provided
-if (-not [string]::IsNullOrWhiteSpace($SharedSecurityPath)) {
-    $directories += $SharedSecurityPath
-}
-
 foreach ($dir in $directories) {
     Validate-And-Create-Directory -path $dir
 }
 
-# Summary of the configuration
-Write-Host "Configuration Summary:" 
-Write-Host "AIM Install Path: $AIMInstallPath" 
-if (-not [string]::IsNullOrWhiteSpace($SharedSecurityPath)) {
-    Write-Host "Shared Security Path: $SharedSecurityPath" 
-    if ($Passphrase) {
-        Write-Host "Passphrase: ********** (provided - will use passphrase-based encryption)"
-    } else {
-        Write-Host "Passphrase: (not provided - will use DPAPI encryption)"
-    }
-} else {
-    Write-Host "Shared Security Path: (not configured - using local security)"
-}
+# Summary of validated/created directories
+Write-Host ""
+Write-Host "==================================="
+Write-Host "Directory Provisioning Summary"
+Write-Host "==================================="
 Write-Host "Default Root Directory: $DefaultRootDirectory" 
 Write-Host "Archive Path: $ArchivePath" 
 Write-Host "Shipped Directory: $ShippedDirectory" 
 Write-Host "File Scans Directory: $FileScansDirectory" 
 Write-Host "Inventory Archive Directory: $InventoryArchiveDirectory" 
-
-Write-Host "Deployment script executed successfully."
+Write-Host "==================================="
+Write-Host ""
+Write-Host "Directory provisioning completed successfully."
