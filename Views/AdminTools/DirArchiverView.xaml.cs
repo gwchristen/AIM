@@ -2,26 +2,27 @@ using AIM.ViewModels;
 using CommunityToolkit.Mvvm.DependencyInjection;
 using Microsoft.UI.Xaml.Controls;
 
-namespace AIM.Views.AdminTools;
-
-public sealed partial class DirArchiverView : UserControl
+namespace AIM.Views.AdminTools
 {
-    public InventoryArchiveViewModel ViewModel { get; }
-
-    public DirArchiverView()
+    public sealed partial class DirArchiverView : UserControl
     {
-        this.InitializeComponent();
-        ViewModel = Ioc.Default.GetRequiredService<InventoryArchiveViewModel>();
-        this.DataContext = ViewModel;
-        // The Loaded event ensures that the list is populated when the view is shown.
-        this.Loaded += (s, e) => ViewModel.LoadArchivedDirectoriesCommand.Execute(null);
-    }
+        public InventoryArchiveViewModel ViewModel { get; }
 
-    private void ListView_ItemClick(object sender, ItemClickEventArgs e)
-    {
-        if (e.ClickedItem is string folderName)
+        public DirArchiverView()
         {
-            ViewModel.ViewArchivedFolderCommand.Execute(folderName);
+            this.InitializeComponent();
+            ViewModel = Ioc.Default.GetRequiredService<InventoryArchiveViewModel>();
+            this.DataContext = ViewModel;
+            // The Loaded event ensures that the list is populated when the view is shown.
+            this.Loaded += (s, e) => ViewModel.LoadArchivedDirectoriesCommand.Execute(null);
+        }
+
+        private void ListView_ItemClick(object sender, ItemClickEventArgs e)
+        {
+            if (e.ClickedItem is string folderName)
+            {
+                ViewModel.ViewArchivedFolderCommand.Execute(folderName);
+            }
         }
     }
 }

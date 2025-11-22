@@ -2,15 +2,16 @@ using AIM.ViewModels;
 using CommunityToolkit.Mvvm.DependencyInjection;
 using Microsoft.UI.Xaml.Controls;
 
-namespace AIM.Views;
-
-public sealed partial class InvArchivesPage : Page
+namespace AIM.Views
 {
-    public InventoryViewModel ViewModel { get; }
-
-    public InvArchivesPage()
+    public sealed partial class InvArchivesPage : Page
     {
-        this.InitializeComponent();
-        ViewModel = Ioc.Default.GetRequiredService<InventoryViewModel>();
+        public InventoryViewModel ViewModel { get; }
+
+        public InvArchivesPage()
+        {
+            this.InitializeComponent();
+            ViewModel = Ioc.Default.GetRequiredService<InventoryViewModel>();
+        }
     }
 }

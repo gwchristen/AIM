@@ -16,10 +16,10 @@
 	
 <ItemGroup>
   <None Remove="Views\AdminTools\BatchRenamerView.xaml" />
-  <None Remove="Views\AdminTools\DirAnalysisPage.xaml" />
+  <None Remove="Views\DirAnalysisPage.xaml" />
   <None Remove="Views\AdminTools\DirArchiverView.xaml" />
   <None Remove="Views\AdminTools\DirClonerView.xaml" />
-  <None Remove="Views\AdminTools\InventoryAdminToolsPage.xaml" />
+  <None Remove="Views\InventoryAdminToolsPage.xaml" />
   <None Remove="Views\BrowsePage.xaml" />
   <None Remove="Views\FormGeneratorPage.xaml" />
   <None Remove="Views\InventoryAdminPage.xaml" />
@@ -34,8 +34,11 @@
   <None Remove="Views\StatsPage.xaml" />
 </ItemGroup>
 
-<!-- Ensure MainWindow.xaml is compiled as a Page -->
+<!-- Ensure App.xaml and MainWindow.xaml are compiled as a Page -->
 <ItemGroup>
+  <Page Update="App.xaml">
+    <Generator>MSBuild:Compile</Generator>
+  </Page>
   <Page Update="MainWindow.xaml">
     <Generator>MSBuild:Compile</Generator>
   </Page>
@@ -89,7 +92,7 @@
     </Page>
   </ItemGroup>
   <ItemGroup>
-    <Page Update="Views\AdminTools\DirAnalysisPage.xaml">
+    <Page Update="Views\DirAnalysisPage.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>
   </ItemGroup>
@@ -109,7 +112,7 @@
     </Page>
   </ItemGroup>
   <ItemGroup>
-    <Page Update="Views\AdminTools\InventoryAdminToolsPage.xaml">
+    <Page Update="Views\InventoryAdminToolsPage.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>
   </ItemGroup>
@@ -165,6 +168,11 @@
   </ItemGroup>
   <ItemGroup>
     <Page Update="Views\BrowsePage.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <Page Update="Views\LogViewerPage.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>
   </ItemGroup>

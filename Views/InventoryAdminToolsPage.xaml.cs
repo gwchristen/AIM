@@ -1,11 +1,12 @@
 using Microsoft.UI.Xaml.Controls;
 
-namespace AIM.Views;
-
-public sealed partial class InventoryAdminToolsPage : Page
+namespace AIM.Views
 {
-    public InventoryAdminToolsPage()
+    public sealed partial class InventoryAdminToolsPage : Page
     {
-        this.InitializeComponent();
+        public InventoryAdminToolsPage()
+        {
+            this.InitializeComponent();
+        }
     }
 }

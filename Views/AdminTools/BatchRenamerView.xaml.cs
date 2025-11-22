@@ -2,16 +2,17 @@ using AIM.ViewModels;
 using CommunityToolkit.Mvvm.DependencyInjection;
 using Microsoft.UI.Xaml.Controls;
 
-namespace AIM.Views.AdminTools;
-
-public sealed partial class BatchRenamerView : UserControl
+namespace AIM.Views.AdminTools
 {
-    public BatchRenamerViewModel ViewModel { get; }
-
-    public BatchRenamerView()
+    public sealed partial class BatchRenamerView : UserControl
     {
-        this.InitializeComponent();
-        ViewModel = Ioc.Default.GetRequiredService<BatchRenamerViewModel>();
-        this.DataContext = ViewModel;
+        public BatchRenamerViewModel ViewModel { get; }
+
+        public BatchRenamerView()
+        {
+            this.InitializeComponent();
+            ViewModel = Ioc.Default.GetRequiredService<BatchRenamerViewModel>();
+            this.DataContext = ViewModel;
+        }
     }
 }

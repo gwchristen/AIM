@@ -2,16 +2,17 @@ using AIM.ViewModels;
 using CommunityToolkit.Mvvm.DependencyInjection;
 using Microsoft.UI.Xaml.Controls;
 
-namespace AIM.Views;
-
-public sealed partial class DirAnalysisPage : Page
+namespace AIM.Views
 {
-    public DirAnalysisViewModel ViewModel { get; }
-
-    public DirAnalysisPage()
+    public sealed partial class DirAnalysisPage : Page
     {
-        this.InitializeComponent();
-        ViewModel = Ioc.Default.GetRequiredService<DirAnalysisViewModel>();
-        this.DataContext = ViewModel;
+        public DirAnalysisViewModel ViewModel { get; }
+
+        public DirAnalysisPage()
+        {
+            this.InitializeComponent();
+            ViewModel = Ioc.Default.GetRequiredService<DirAnalysisViewModel>();
+            this.DataContext = ViewModel;
+        }
     }
 }
