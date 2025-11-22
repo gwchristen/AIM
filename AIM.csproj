@@ -13,32 +13,33 @@
     <Nullable>enable</Nullable>
 	<WindowsAppSDKSelfContained>true</WindowsAppSDKSelfContained>
   </PropertyGroup>
-
-	<ItemGroup>
-		<Compile Remove="AIM.Installer\**" />
-		<EmbeddedResource Remove="AIM>>Installer\**" />
-	</ItemGroup>
 	
-  <ItemGroup>
-    <None Remove="MainWindow.xaml" />
-    <None Remove="Views\AdminTools\BatchRenamerView.xaml" />
-    <None Remove="Views\AdminTools\DirAnalysisPage.xaml" />
-    <None Remove="Views\AdminTools\DirArchiverView.xaml" />
-    <None Remove="Views\AdminTools\DirClonerView.xaml" />
-    <None Remove="Views\AdminTools\InventoryAdminToolsPage.xaml" />
-    <None Remove="Views\BrowsePage.xaml" />
-    <None Remove="Views\FormGeneratorPage.xaml" />
-    <None Remove="Views\InventoryAdminPage.xaml" />
-    <None Remove="Views\InventoryArchivePage.xaml" />
-    <None Remove="Views\InventoryViewerPage.xaml" />
-    <None Remove="Views\LogViewerPage.xaml" />
-    <None Remove="Views\PreviewPage.xaml" />
-    <None Remove="Views\PrintableFormPage.xaml" />
-    <None Remove="Views\ScansPage.xaml" />
-    <None Remove="Views\SearchPage.xaml" />
-    <None Remove="Views\SettingsPage.xaml" />
-    <None Remove="Views\StatsPage.xaml" />
-  </ItemGroup>
+<ItemGroup>
+  <None Remove="Views\AdminTools\BatchRenamerView.xaml" />
+  <None Remove="Views\AdminTools\DirAnalysisPage.xaml" />
+  <None Remove="Views\AdminTools\DirArchiverView.xaml" />
+  <None Remove="Views\AdminTools\DirClonerView.xaml" />
+  <None Remove="Views\AdminTools\InventoryAdminToolsPage.xaml" />
+  <None Remove="Views\BrowsePage.xaml" />
+  <None Remove="Views\FormGeneratorPage.xaml" />
+  <None Remove="Views\InventoryAdminPage.xaml" />
+  <None Remove="Views\InventoryArchivePage.xaml" />
+  <None Remove="Views\InventoryViewerPage.xaml" />
+  <None Remove="Views\LogViewerPage.xaml" />
+  <None Remove="Views\PreviewPage.xaml" />
+  <None Remove="Views\PrintableFormPage.xaml" />
+  <None Remove="Views\ScansPage.xaml" />
+  <None Remove="Views\SearchPage.xaml" />
+  <None Remove="Views\SettingsPage.xaml" />
+  <None Remove="Views\StatsPage.xaml" />
+</ItemGroup>
+
+<!-- Ensure MainWindow.xaml is compiled as a Page -->
+<ItemGroup>
+  <Page Update="MainWindow.xaml">
+    <Generator>MSBuild:Compile</Generator>
+  </Page>
+</ItemGroup>
 
   <ItemGroup>
     <Content Include="Assets\SplashScreen.scale-200.png" />
@@ -184,4 +185,5 @@
     <PublishTrimmed Condition="'$(Configuration)' == 'Debug'">False</PublishTrimmed>
     <PublishTrimmed Condition="'$(Configuration)' != 'Debug'">True</PublishTrimmed>
   </PropertyGroup>
+
 </Project>
