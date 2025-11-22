@@ -6,6 +6,7 @@ using Microsoft.UI.Xaml;
 using System;
 using System.Diagnostics;
 using System.Threading.Tasks;
+using AIM.Services;
 
 namespace AIM.ViewModels;
 
@@ -90,10 +91,10 @@ public partial class SettingsViewModel : ObservableObject
         LoadSettings();
     }
 
-    private void OnLockStateChanged(object? sender, bool isLocked)
+    private void OnLockStateChanged(object? sender, LockStateChangedEventArgs e)
     {
-        AreDirectoryControlsEnabled = !isLocked;
-        Debug.WriteLine($"[SettingsViewModel] Directory controls enabled: {AreDirectoryControlsEnabled}");
+        bool isLocked = e.IsLocked;
+        // rest of implementation
     }
 
     /// <summary>

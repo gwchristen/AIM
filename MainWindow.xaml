@@ -8,11 +8,11 @@
     mc:Ignorable="d"
     Title="AIM">
 
-    <Window.Resources>
-        <converters:InverseBoolToVisibilityConverter x:Key="InverseBoolToVisibilityConverter" />
-    </Window.Resources>
-
     <Grid>
+        <Grid.Resources>
+            <converters:InverseBoolToVisibilityConverter x:Key="InverseBoolToVisibilityConverter" />
+        </Grid.Resources>
+
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>

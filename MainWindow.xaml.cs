@@ -17,6 +17,7 @@ namespace AIM
 {
     public sealed partial class MainWindow : Window
     {
+
         private readonly INavigationService _navigationService;
         private MainViewModel _mainViewModel;
 

@@ -2,6 +2,8 @@
 using Microsoft.UI.Xaml.Controls;
 using System;
 using System.Threading.Tasks;
+using Windows.Storage.Pickers;
+using WinRT.Interop;
 
 namespace AIM.Services;
 
@@ -135,5 +137,29 @@ public class DialogService : IDialogService
             return passwordBox.Password;
         }
         return null;
+    }
+
+    public async Task ShowMessageAsync(string title, string message)
+    {
+        var dialog = new ContentDialog
+        {
+            Title = title,
+            Content = message,
+            CloseButtonText = "OK",
+            XamlRoot = App.MainWindow.Content.XamlRoot
+        };
+        await dialog.ShowAsync();
+    }
+
+    public async Task<string?> PickFolderAsync()
+    {
+        var folderPicker = new FolderPicker();
+        folderPicker.FileTypeFilter.Add("*");
+
+        var hwnd = WinRT.Interop.WindowNative.GetWindowHandle(App.MainWindow);
+        WinRT.Interop.InitializeWithWindow.Initialize(folderPicker, hwnd);
+
+        var folder = await folderPicker.PickSingleFolderAsync();
+        return folder?.Path;
     }
 }

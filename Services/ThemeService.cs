@@ -306,6 +306,25 @@ public class ThemeService : IThemeService
             _ => "Unknown"
         };
     }
+
+    public void SetTheme(string themeName)
+    {
+        if (App.MainWindow?.Content is FrameworkElement root)
+        {
+            if (themeName.Equals("Dark", StringComparison.OrdinalIgnoreCase))
+            {
+                root.RequestedTheme = ElementTheme.Dark;
+            }
+            else if (themeName.Equals("Light", StringComparison.OrdinalIgnoreCase))
+            {
+                root.RequestedTheme = ElementTheme.Light;
+            }
+            else
+            {
+                root.RequestedTheme = ElementTheme.Default;
+            }
+        }
+    }
 }
 
 /// <summary>
