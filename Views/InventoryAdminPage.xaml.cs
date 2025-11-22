@@ -4,7 +4,6 @@ using Microsoft.UI.Xaml.Controls;
 
 namespace AIM.Views
 {
-
     public sealed partial class InventoryAdminPage : Page
     {
         public InventoryAdminViewModel ViewModel { get; }

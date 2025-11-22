@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 
 namespace AIM.Views
 {
-
     public sealed partial class InventoryViewerPage : Page
     {
         public InventoryViewerViewModel ViewModel { get; }

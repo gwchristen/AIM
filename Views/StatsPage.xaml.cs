@@ -10,7 +10,6 @@ using Windows.UI;
 
 namespace AIM.Views
 {
-
     /// <summary>
     /// Page displaying statistical analysis of inventory files and OpCo data.
     /// </summary>

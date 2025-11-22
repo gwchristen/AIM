@@ -14,7 +14,6 @@ using Windows.ApplicationModel.DataTransfer;
 
 namespace AIM.Views
 {
-
     public sealed partial class BrowsePage : Page
     {
         private readonly BrowseViewModel ViewModel;

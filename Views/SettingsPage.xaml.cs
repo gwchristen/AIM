@@ -5,7 +5,6 @@ using Microsoft.UI.Xaml.Navigation;
 
 namespace AIM.Views
 {
-
     /// <summary>
     /// Settings page for configuring application preferences.
     /// </summary>

@@ -12,7 +12,6 @@ using WinRT;
 
 namespace AIM.Views
 {
-
     public sealed partial class PrintableFormPage : Page
     {
         private PrintManager? _printManager;

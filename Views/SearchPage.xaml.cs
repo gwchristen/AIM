@@ -8,7 +8,6 @@ using Microsoft.UI.Xaml.Input;
 
 namespace AIM.Views
 {
-
     public sealed partial class SearchPage : Page
     {
         public SearchViewModel ViewModel { get; }

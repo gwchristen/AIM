@@ -4,7 +4,6 @@ using Microsoft.UI.Xaml.Controls;
 
 namespace AIM.Views.AdminTools
 {
-
     public sealed partial class BatchRenamerView : UserControl
     {
         public BatchRenamerViewModel ViewModel { get; }

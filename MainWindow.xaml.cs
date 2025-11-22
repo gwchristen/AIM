@@ -15,7 +15,6 @@ using System.Threading.Tasks;
 
 namespace AIM
 {
-
     public sealed partial class MainWindow : Window
     {
         private readonly INavigationService _navigationService;

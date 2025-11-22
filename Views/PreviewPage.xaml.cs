@@ -5,7 +5,6 @@ using Microsoft.UI.Xaml.Navigation;
 
 namespace AIM.Views
 {
-
     public sealed partial class PreviewPage : Page
     {
         public PreviewViewModel ViewModel { get; }

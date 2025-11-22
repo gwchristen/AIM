@@ -13,7 +13,6 @@ using System.Threading.Tasks;
 
 namespace AIM
 {
-
     public partial class App : Application
     {
         public App()

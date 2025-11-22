@@ -5,7 +5,6 @@ using Microsoft.UI.Xaml.Navigation;
 
 namespace AIM.Views
 {
-
     public sealed partial class InventoryArchivePage : Page
     {
         public InventoryArchiveViewModel ViewModel { get; }

@@ -11,7 +11,6 @@ using System.Linq;
 
 namespace AIM.Views
 {
-
     public sealed partial class ScansPage : Page
     {
         public ScansViewModel ViewModel { get; }
