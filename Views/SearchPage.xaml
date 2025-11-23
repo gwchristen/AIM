@@ -6,6 +6,12 @@
     xmlns:interactivity="using:Microsoft.Xaml.Interactivity"
     xmlns:core="using:Microsoft.Xaml.Interactions.Core">
     <Grid Margin="24">
+        <Grid.Background>
+            <LinearGradientBrush StartPoint="0,0" EndPoint="1,1" Opacity="0.05">
+                <GradientStop Color="#0099BC" Offset="0"/>
+                <GradientStop Color="#00B7C3" Offset="1"/>
+            </LinearGradientBrush>
+        </Grid.Background>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
@@ -13,29 +19,52 @@
         </Grid.RowDefinitions>
 
         <StackPanel Grid.Row="0" Spacing="16">
-            <TextBlock Text="Search" Style="{ThemeResource TitleTextBlockStyle}"/>
+            <Border Background="{StaticResource InfoBrush}" 
+                    CornerRadius="8" 
+                    Padding="16,12">
+                <TextBlock Text="Search" 
+                           Style="{ThemeResource TitleTextBlockStyle}"
+                           Foreground="White"
+                           FontWeight="Bold"/>
+            </Border>
 
             <StackPanel Orientation="Horizontal" Spacing="8">
-                <TextBox Text="{x:Bind ViewModel.SearchDirectory, Mode=TwoWay}" PlaceholderText="Search Directory" Width="400"/>
-                <Button Command="{x:Bind ViewModel.BrowseCommand}">
+                <TextBox Text="{x:Bind ViewModel.SearchDirectory, Mode=TwoWay}" 
+                         PlaceholderText="Search Directory" 
+                         Width="400"
+                         CornerRadius="6"
+                         BorderBrush="{StaticResource InfoBrush}"
+                         BorderThickness="2"/>
+                <Button Command="{x:Bind ViewModel.BrowseCommand}" CornerRadius="6">
                     <StackPanel Orientation="Horizontal" Spacing="8">
-                        <FontIcon Glyph="&#xE8DA;" FontSize="16"/>
+                        <FontIcon Glyph="&#xE8DA;" FontSize="16" Foreground="{StaticResource InfoBrush}"/>
                         <TextBlock Text="Browse"/>
                     </StackPanel>
                 </Button>
             </StackPanel>
 
             <StackPanel Orientation="Horizontal" Spacing="8">
-                <TextBox x:Name="SearchTextBox" Text="{x:Bind ViewModel.SearchQuery, Mode=TwoWay}" Width="400" PlaceholderText="Enter search query"/>
-                <Button Command="{x:Bind ViewModel.SearchCommand}" Style="{ThemeResource AccentButtonStyle}">
+                <TextBox x:Name="SearchTextBox" 
+                         Text="{x:Bind ViewModel.SearchQuery, Mode=TwoWay}" 
+                         Width="400" 
+                         PlaceholderText="Enter search query"
+                         CornerRadius="6"
+                         BorderBrush="{StaticResource InfoBrush}"
+                         BorderThickness="2"/>
+                <Button Command="{x:Bind ViewModel.SearchCommand}" 
+                        Style="{ThemeResource AccentButtonStyle}"
+                        CornerRadius="8"
+                        Background="{StaticResource InfoBrush}"
+                        BorderThickness="0">
                     <StackPanel Orientation="Horizontal" Spacing="8">
                         <FontIcon Glyph="&#xE721;" FontSize="16"/>
-                        <TextBlock Text="Search"/>
+                        <TextBlock Text="Search" FontWeight="SemiBold"/>
                     </StackPanel>
                 </Button>
             </StackPanel>
 
-            <ToggleSwitch Header="Search in file contents" IsOn="{x:Bind ViewModel.IsContentSearch, Mode=TwoWay}"/>
+            <ToggleSwitch Header="Search in file contents" 
+                          IsOn="{x:Bind ViewModel.IsContentSearch, Mode=TwoWay}"/>
 
             <!-- THIS IS THE FIX: The old TextBlock for status messages has been completely removed. -->
 

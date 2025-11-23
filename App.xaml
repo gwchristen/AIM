@@ -97,6 +97,100 @@
             <converters:ProgressColorConverter x:Key="ProgressColorConverter"/>
             <local:DateTimeConverter x:Key="DateTimeConverter"/>
 
+            <!-- Enhanced Button Styles with Vibrant Colors -->
+            <!-- Success Button Style -->
+            <Style x:Key="SuccessButtonStyle" TargetType="Button">
+                <Setter Property="Background" Value="{StaticResource SuccessBrush}"/>
+                <Setter Property="Foreground" Value="White"/>
+                <Setter Property="BorderBrush" Value="{StaticResource SuccessLightBrush}"/>
+                <Setter Property="BorderThickness" Value="2"/>
+                <Setter Property="Padding" Value="16,8"/>
+                <Setter Property="CornerRadius" Value="6"/>
+                <Setter Property="FontWeight" Value="SemiBold"/>
+            </Style>
+
+            <!-- Warning Button Style -->
+            <Style x:Key="WarningButtonStyle" TargetType="Button">
+                <Setter Property="Background" Value="{StaticResource WarningBrush}"/>
+                <Setter Property="Foreground" Value="White"/>
+                <Setter Property="BorderBrush" Value="{StaticResource WarningLightBrush}"/>
+                <Setter Property="BorderThickness" Value="2"/>
+                <Setter Property="Padding" Value="16,8"/>
+                <Setter Property="CornerRadius" Value="6"/>
+                <Setter Property="FontWeight" Value="SemiBold"/>
+            </Style>
+
+            <!-- Error Button Style -->
+            <Style x:Key="ErrorButtonStyle" TargetType="Button">
+                <Setter Property="Background" Value="{StaticResource ErrorBrush}"/>
+                <Setter Property="Foreground" Value="White"/>
+                <Setter Property="BorderBrush" Value="{StaticResource ErrorLightBrush}"/>
+                <Setter Property="BorderThickness" Value="2"/>
+                <Setter Property="Padding" Value="16,8"/>
+                <Setter Property="CornerRadius" Value="6"/>
+                <Setter Property="FontWeight" Value="SemiBold"/>
+            </Style>
+
+            <!-- Info Button Style -->
+            <Style x:Key="InfoButtonStyle" TargetType="Button">
+                <Setter Property="Background" Value="{StaticResource InfoBrush}"/>
+                <Setter Property="Foreground" Value="White"/>
+                <Setter Property="BorderBrush" Value="{StaticResource InfoLightBrush}"/>
+                <Setter Property="BorderThickness" Value="2"/>
+                <Setter Property="Padding" Value="16,8"/>
+                <Setter Property="CornerRadius" Value="6"/>
+                <Setter Property="FontWeight" Value="SemiBold"/>
+            </Style>
+
+            <!-- Primary Gradient Button Style -->
+            <Style x:Key="PrimaryGradientButtonStyle" TargetType="Button">
+                <Setter Property="Background" Value="{StaticResource PrimaryGradientBrush}"/>
+                <Setter Property="Foreground" Value="White"/>
+                <Setter Property="BorderThickness" Value="0"/>
+                <Setter Property="Padding" Value="20,10"/>
+                <Setter Property="CornerRadius" Value="8"/>
+                <Setter Property="FontWeight" Value="SemiBold"/>
+            </Style>
+
+            <!-- Accent Gradient Button Style -->
+            <Style x:Key="AccentGradientButtonStyle" TargetType="Button">
+                <Setter Property="Background" Value="{StaticResource AccentGradientBrush}"/>
+                <Setter Property="Foreground" Value="White"/>
+                <Setter Property="BorderThickness" Value="0"/>
+                <Setter Property="Padding" Value="20,10"/>
+                <Setter Property="CornerRadius" Value="8"/>
+                <Setter Property="FontWeight" Value="SemiBold"/>
+            </Style>
+
+            <!-- Enhanced Card Border Style -->
+            <Style x:Key="ColoredCardStyle" TargetType="Border">
+                <Setter Property="Background" Value="{ThemeResource CardBackgroundFillColorDefaultBrush}"/>
+                <Setter Property="BorderBrush" Value="{StaticResource PrimaryBrush}"/>
+                <Setter Property="BorderThickness" Value="2"/>
+                <Setter Property="CornerRadius" Value="8"/>
+                <Setter Property="Padding" Value="16"/>
+            </Style>
+
+            <!-- Success Card Style -->
+            <Style x:Key="SuccessCardStyle" TargetType="Border" BasedOn="{StaticResource ColoredCardStyle}">
+                <Setter Property="BorderBrush" Value="{StaticResource SuccessBrush}"/>
+            </Style>
+
+            <!-- Warning Card Style -->
+            <Style x:Key="WarningCardStyle" TargetType="Border" BasedOn="{StaticResource ColoredCardStyle}">
+                <Setter Property="BorderBrush" Value="{StaticResource WarningBrush}"/>
+            </Style>
+
+            <!-- Error Card Style -->
+            <Style x:Key="ErrorCardStyle" TargetType="Border" BasedOn="{StaticResource ColoredCardStyle}">
+                <Setter Property="BorderBrush" Value="{StaticResource ErrorBrush}"/>
+            </Style>
+
+            <!-- Info Card Style -->
+            <Style x:Key="InfoCardStyle" TargetType="Border" BasedOn="{StaticResource ColoredCardStyle}">
+                <Setter Property="BorderBrush" Value="{StaticResource InfoBrush}"/>
+            </Style>
+
             <!-- Enhanced TileRadioButton Style with Vibrant Colors and Animations -->
             <Style TargetType="RadioButton" x:Key="TileRadioButton">
                 <Setter Property="Background" Value="{ThemeResource CardBackgroundFillColorDefaultBrush}"/>
