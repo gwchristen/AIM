@@ -1,78 +1,108 @@
+using AIM.Models;
 using AIM.ViewModels;
+using CommunityToolkit.Mvvm.DependencyInjection;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
-using System.Linq;
+using Microsoft.UI.Xaml.Controls.Primitives;
+using Microsoft.UI.Xaml.Input;
+using System; // Required for Tuple
 
 namespace AIM.Views;
 
 public sealed partial class ScansPage : Page
 {
     public ScansViewModel ViewModel { get; }
-    private bool isUpdatingSelection = false;
+    private ScanTreeItem _contextMenuItem;
 
     public ScansPage()
     {
         this.InitializeComponent();
-        ViewModel = new ScansViewModel();
-        ViewModel.SelectedDirectoryChanged += OnSelectedDirectoryChanged;
-        ViewModel.SortingDone += UpdateSelection;
-        DataContext = ViewModel;
+        ViewModel = Ioc.Default.GetRequiredService<ScansViewModel>();
     }
 
-    private void OnSelectedDirectoryChanged()
+    private void ItemGrid_RightTapped(object sender, RightTappedRoutedEventArgs e)
     {
-        UpdateSelection();
+        if (sender is not FrameworkElement tappedGrid) return;
+        _contextMenuItem = tappedGrid.DataContext as ScanTreeItem;
+        if (_contextMenuItem == null) return;
+
+        var flyout = FlyoutBase.GetAttachedFlyout(tappedGrid);
+        flyout.ShowAt(tappedGrid, new FlyoutShowOptions { Position = e.GetPosition(tappedGrid) });
     }
 
-    private void UpdateSelection()
+    private void MenuOpen_Click(object sender, RoutedEventArgs e)
     {
-        isUpdatingSelection = true;
-        FilesListView.SelectedItems.Clear();
-        foreach (var file in ViewModel.Files)
+        if (_contextMenuItem != null && _contextMenuItem.IsFolder) { ViewModel.OpenFolderCommand.Execute(_contextMenuItem); }
+    }
+
+    private void MenuPreview_Click(object sender, RoutedEventArgs e)
+    {
+        if (_contextMenuItem != null && !_contextMenuItem.IsFolder) { ViewModel.OpenFileCommand.Execute(_contextMenuItem); }
+    }
+
+    private void MenuCopyPath_Click(object sender, RoutedEventArgs e)
+    {
+        if (_contextMenuItem != null) { ViewModel.CopyPathCommand.Execute(_contextMenuItem); }
+    }
+
+    private async void MenuDelete_Click(object sender, RoutedEventArgs e)
+    {
+        if (_contextMenuItem == null) return;
+        var item = _contextMenuItem;
+        var dialog = new ContentDialog
         {
-            if (MainWindow.Instance.ViewModel.SelectedScanFiles.Any(sf => sf.FullPath == file.FullPath))
-            {
-                FilesListView.SelectedItems.Add(file);
-            }
-        }
-        isUpdatingSelection = false;
+            Title = $"Delete {(item.IsFolder ? "Folder" : "File")}",
+            Content = $"Are you sure you want to permanently delete '{item.Name}'?\nThis action cannot be undone.",
+            PrimaryButtonText = "Delete",
+            CloseButtonText = "Cancel",
+            DefaultButton = ContentDialogButton.Close,
+            XamlRoot = this.Content.XamlRoot,
+            RequestedTheme = this.ActualTheme
+        };
+        dialog.PrimaryButtonStyle = (Style)Application.Current.Resources["AccentButtonStyle"];
+        var result = await dialog.ShowAsync();
+        if (result == ContentDialogResult.Primary) { ViewModel.DeleteCommand.Execute(item); }
     }
 
-    private void FilesListView_DoubleTapped(object sender, Microsoft.UI.Xaml.Input.DoubleTappedRoutedEventArgs e)
+    private void MenuRename_Click(object sender, RoutedEventArgs e)
     {
-        if (sender is ListView listView && listView.SelectedItem is Models.FileItem file)
+        if (_contextMenuItem != null)
         {
-            ViewModel.OpenFile(file);
-        }
-    }
-
-    private void FilesListView_SelectionChanged(object sender, SelectionChangedEventArgs e)
-    {
-        if (isUpdatingSelection) return;
-
-        if (sender is ListView listView)
-        {
-            var currentSelected = listView.SelectedItems.Cast<Models.FileItem>().ToList();
-            var currentFiles = ViewModel.Files;
-
-            // Remove from global those in currentFiles that are not selected
-            foreach (var file in currentFiles)
-            {
-                if (!currentSelected.Contains(file))
-                {
-                    var toRemove = MainWindow.Instance.ViewModel.SelectedScanFiles.FirstOrDefault(sf => sf.FullPath == file.FullPath);
-                    if (toRemove != null) MainWindow.Instance.ViewModel.SelectedScanFiles.Remove(toRemove);
-                }
-            }
-
-            // Add selected
-            foreach (var file in currentSelected)
-            {
-                if (!MainWindow.Instance.ViewModel.SelectedScanFiles.Any(sf => sf.FullPath == file.FullPath))
-                {
-                    MainWindow.Instance.ViewModel.SelectedScanFiles.Add(file);
-                }
-            }
+            _contextMenuItem.IsRenaming = true;
         }
     }
+
+    private void RenameTextBox_Loaded(object sender, RoutedEventArgs e)
+    {
+        if (sender is TextBox textBox)
+        {
+            textBox.Focus(FocusState.Programmatic);
+            textBox.SelectAll();
+        }
+    }
+
+    private void RenameTextBox_KeyDown(object sender, KeyRoutedEventArgs e)
+    {
+        if (sender is not TextBox textBox || textBox.DataContext is not ScanTreeItem item) return;
+        if (e.Key == Windows.System.VirtualKey.Enter)
+        {
+            ViewModel.RenameCommand.Execute(new Tuple<ScanTreeItem, string>(item, textBox.Text));
+        }
+        else if (e.Key == Windows.System.VirtualKey.Escape)
+        {
+            item.IsRenaming = false;
+        }
+    }
+
+    private void RenameTextBox_LostFocus(object sender, RoutedEventArgs e)
+    {
+        if (sender is TextBox textBox && textBox.DataContext is ScanTreeItem item && item.IsRenaming)
+        {
+            ViewModel.RenameCommand.Execute(new Tuple<ScanTreeItem, string>(item, textBox.Text));
+        }
+    }
+
+    private void BreadcrumbButton_Click(object sender, RoutedEventArgs e) { if ((sender as FrameworkElement)?.DataContext is BreadcrumbItem b) ViewModel.NavigateBreadcrumbCommand.Execute(b); }
+    private void ItemsListView_ItemClick(object sender, ItemClickEventArgs e) { ViewModel.NavigateToFolderCommand.Execute(e.ClickedItem); }
+    private void ItemsListView_DoubleTapped(object sender, DoubleTappedRoutedEventArgs e) { if (ItemsListView.SelectedItem is ScanTreeItem i) ViewModel.OpenFileCommand.Execute(i); }
 }

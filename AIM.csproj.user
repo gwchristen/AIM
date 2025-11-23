@@ -4,22 +4,55 @@
     <DebuggerFlavor>ProjectDebugger</DebuggerFlavor>
   </PropertyGroup>
   <PropertyGroup>
-    <ActiveDebugProfile>AIM (Unpackaged)</ActiveDebugProfile>
+    <ActiveDebugProfile>AIM (Package)</ActiveDebugProfile>
   </PropertyGroup>
   <ItemGroup>
     <None Update="App.xaml">
       <SubType>Designer</SubType>
     </None>
-    <None Update="MainWindow.xaml">
+    <ApplicationDefinition Update="MainWindow.xaml">
       <SubType>Designer</SubType>
-    </None>
+    </ApplicationDefinition>
+    <ApplicationDefinition Update="MainWindow.xaml">
+      <SubType>Designer</SubType>
+    </ApplicationDefinition>
     <None Update="Package.appxmanifest">
       <SubType>Designer</SubType>
     </None>
+    <Page Update="Views\LogViewerPage.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="Views\PasswordInputControl.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="Views\FormGeneratorPage.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="Views\AdminTools\BatchRenamerView.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="Views\AdminTools\DirClonerView.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="Views\AdminTools\DirArchiverView.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="Views\PrintableFormPage.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="Views\InventoryAdminPage.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="Views\InventoryViewerPage.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="Views\InventoryArchivePage.xaml">
+      <SubType>Designer</SubType>
+    </Page>
     <Page Update="Views\StatsPage.xaml">
       <SubType>Designer</SubType>
     </Page>
-    <Page Update="Views\InvArchivesPage.xaml">
+    <Page Update="Views\InventoryPage.xaml">
       <SubType>Designer</SubType>
     </Page>
     <Page Update="Views\ScansPage.xaml">

@@ -1,0 +1,37 @@
+<UserControl
+    x:Class="AIM.Views.AdminTools.DirArchiverView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:converters="using:AIM.Converters"
+    mc:Ignorable="d">
+    <!-- The DataContext is now set in the code-behind -->
+    <UserControl.Resources>
+        <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
+    </UserControl.Resources>
+
+    <StackPanel Spacing="12">
+        <TextBlock Text="Directory Archiver" Style="{StaticResource TitleTextBlockStyle}"/>
+        <TextBlock Text="Select a folder to move it into the designated inventory archive directory. Archived folders can be explored using the 'Arch Viewer'." TextWrapping="Wrap"/>
+
+        <StackPanel Orientation="Horizontal" Spacing="8">
+            <TextBox Text="{Binding SelectedFolderToArchive, Mode=OneWay}" IsReadOnly="True" PlaceholderText="Select a folder to archive..." MinWidth="300"/>
+            <Button Content="Browse..." Command="{Binding SelectFolderCommand}"/>
+        </StackPanel>
+
+        <Button Content="Archive Selected Folder" Command="{Binding ArchiveFolderCommand}" HorizontalAlignment="Left" Style="{StaticResource AccentButtonStyle}" IsEnabled="{Binding IsFolderSelected}"/>
+
+        <Border BorderThickness="0,1,0,0" BorderBrush="{ThemeResource SystemControlForegroundBaseLowBrush}" Margin="0,20,0,10"/>
+
+        <TextBlock Text="Existing Archives" Style="{StaticResource SubtitleTextBlockStyle}"/>
+        <Button Content="Refresh List" Command="{Binding LoadArchivedDirectoriesCommand}" HorizontalAlignment="Left"/>
+        <ListView ItemsSource="{Binding ArchivedDirectories}" IsItemClickEnabled="True" ItemClick="ListView_ItemClick" Margin="0,10,0,0">
+            <ListView.ItemTemplate>
+                <DataTemplate>
+                    <TextBlock Text="{Binding}" Style="{StaticResource BodyTextBlockStyle}" Margin="5"/>
+                </DataTemplate>
+            </ListView.ItemTemplate>
+        </ListView>
+    </StackPanel>
+</UserControl>

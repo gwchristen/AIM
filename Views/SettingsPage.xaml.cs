@@ -1,18 +1,21 @@
 using AIM.ViewModels;
+using CommunityToolkit.Mvvm.DependencyInjection;
+using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using System;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Windows.Storage.Pickers;
+using WinRT.Interop;
 
 namespace AIM.Views;
 
 public sealed partial class SettingsPage : Page, INotifyPropertyChanged
 {
-    public MainViewModel ViewModel { get; }
+    public SettingsViewModel ViewModel { get; }
 
-    private bool _isLocked = false;
+    private bool _isLocked = true;
 
     public bool IsLocked
     {
@@ -37,40 +40,48 @@ public sealed partial class SettingsPage : Page, INotifyPropertyChanged
     public SettingsPage()
     {
         InitializeComponent();
-        ViewModel = MainWindow.Instance.ViewModel;
+        ViewModel = Ioc.Default.GetRequiredService<SettingsViewModel>();
+        DataContext = ViewModel;
     }
 
-    private async void BrowseRootDirectory_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
+    // Directory Browse Handlers
+    private async void BrowseRootDirectory_Click(object sender, RoutedEventArgs e)
     {
         await BrowseFolderAsync(path => ViewModel.DefaultRootDirectory = path);
     }
 
-    private async void BrowseArchivePath_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
+    private async void BrowseArchivePath_Click(object sender, RoutedEventArgs e)
     {
         await BrowseFolderAsync(path => ViewModel.ArchivePath = path);
     }
 
-    private async void BrowseShippedDirectory_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
+    private async void BrowseShippedDirectory_Click(object sender, RoutedEventArgs e)
     {
         await BrowseFolderAsync(path => ViewModel.ShippedDirectory = path);
     }
 
-    private async void BrowseFileScansDirectory_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
+    private async void BrowseFileScansDirectory_Click(object sender, RoutedEventArgs e)
     {
         await BrowseFolderAsync(path => ViewModel.FileScansDirectory = path);
     }
 
-    private async void BrowseInventoryArchiveDirectory_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
+    private async void BrowseInventoryArchiveDirectory_Click(object sender, RoutedEventArgs e)
     {
         await BrowseFolderAsync(path => ViewModel.InventoryArchiveDirectory = path);
     }
 
+    private async void BrowseSecurityConfigPath_Click(object sender, RoutedEventArgs e)
+    {
+        await BrowseFolderAsync(path => ViewModel.SecurityConfigPath = path);
+    }
+
+    // Generic Folder Browser
     private async Task BrowseFolderAsync(Action<string> setPath)
     {
         var folderPicker = new FolderPicker();
         folderPicker.SuggestedStartLocation = PickerLocationId.Desktop;
-        var hwnd = WinRT.Interop.WindowNative.GetWindowHandle(MainWindow.Instance);
-        WinRT.Interop.InitializeWithWindow.Initialize(folderPicker, hwnd);
+        var hwnd = WindowNative.GetWindowHandle(App.MainWindow);
+        InitializeWithWindow.Initialize(folderPicker, hwnd);
         var folder = await folderPicker.PickSingleFolderAsync();
         if (folder != null)
         {
@@ -78,7 +89,13 @@ public sealed partial class SettingsPage : Page, INotifyPropertyChanged
         }
     }
 
-    private async void LockButton_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
+    // Button Click Handlers
+    private void SaveButton_Click(object sender, RoutedEventArgs e)
+    {
+        ViewModel.SaveSettingsCommand.Execute(null);
+    }
+
+    private void LockButton_Click(object sender, RoutedEventArgs e)
     {
         if (!IsLocked)
         {
@@ -86,7 +103,7 @@ public sealed partial class SettingsPage : Page, INotifyPropertyChanged
         }
     }
 
-    private async void UnlockButton_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
+    private async void UnlockButton_Click(object sender, RoutedEventArgs e)
     {
         if (IsLocked)
         {
@@ -110,8 +127,12 @@ public sealed partial class SettingsPage : Page, INotifyPropertyChanged
         }
     }
 
-    private void SaveButton_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
+    //Theme Selection Changed Handler
+    private void ThemeComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
-        // Settings are saved automatically via bindings
+        if (e.AddedItems.Count > 0 && e.AddedItems[0] is string selectedTheme)
+        {
+            ViewModel.ChangeThemeCommand.Execute(selectedTheme);
+        }
     }
 }

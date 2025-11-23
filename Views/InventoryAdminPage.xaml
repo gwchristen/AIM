@@ -1,0 +1,165 @@
+<Page
+    x:Class="AIM.Views.InventoryAdminPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:models="using:AIM.Models"
+    mc:Ignorable="d"
+    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+
+    <ScrollViewer>
+        <StackPanel Spacing="12" Margin="24">
+            <TextBlock Text="Inventory Administration" Style="{ThemeResource TitleTextBlockStyle}"/>
+
+            <!-- Feature 1: Copy Directory Structure -->
+            <Expander IsExpanded="True">
+                <Expander.Header>
+                    <TextBlock Text="Copy Directory Structure" Style="{ThemeResource SubtitleTextBlockStyle}"/>
+                </Expander.Header>
+                <StackPanel Spacing="12" Margin="0,12,0,0">
+                    <TextBlock Text="1. Select the source directory whose folder structure you want to copy."/>
+                    <StackPanel Orientation="Horizontal" Spacing="12">
+                        <Button Content="Select Source..." Command="{Binding SelectSourceCommand}"/>
+                        <TextBlock Text="{Binding SourceDirectory, Mode=OneWay, FallbackValue='No source selected'}" VerticalAlignment="Center"/>
+                    </StackPanel>
+
+                    <TextBlock Text="2. Select the destination where the new folder will be created."/>
+                    <StackPanel Orientation="Horizontal" Spacing="12">
+                        <Button Content="Select Destination..." Command="{Binding SelectDestinationCommand}"/>
+                        <TextBlock Text="{Binding DestinationDirectory, Mode=OneWay, FallbackValue='No destination selected'}" VerticalAlignment="Center"/>
+                    </StackPanel>
+
+                    <Button Content="3. Create New Structure" 
+                            Command="{Binding CreateStructureCommand}"
+                            Style="{ThemeResource AccentButtonStyle}"
+                            HorizontalAlignment="Left"/>
+                </StackPanel>
+            </Expander>
+
+            <!-- Feature 2: Generate Printable Form -->
+            <Expander IsExpanded="True" Margin="0,12,0,0">
+                <Expander.Header>
+                    <TextBlock Text="Generate Printable Form" Style="{ThemeResource SubtitleTextBlockStyle}"/>
+                </Expander.Header>
+                <StackPanel Spacing="12" Margin="0,12,0,0">
+                    <TextBlock Text="1. Select the OpCo directory (e.g., I&amp;M, Ohio) to generate a form for." TextWrapping="Wrap"/>
+                    <StackPanel Orientation="Horizontal" Spacing="12">
+                        <Button Content="Select OpCo Folder..." Command="{Binding SelectFormDirectoryCommand}"/>
+                        <TextBlock Text="{Binding FormDirectory, Mode=OneWay, FallbackValue='No directory selected'}" VerticalAlignment="Center"/>
+                    </StackPanel>
+
+                    <Button Content="2. Generate Form" 
+                            Command="{Binding GenerateFormCommand}"
+                            Style="{ThemeResource AccentButtonStyle}"
+                            HorizontalAlignment="Left"/>
+                </StackPanel>
+            </Expander>
+
+            <!-- Feature 3: Sequential File Renaming -->
+            <Expander IsExpanded="True" Margin="0,12,0,0">
+                <Expander.Header>
+                    <TextBlock Text="Sequential File Renaming" Style="{ThemeResource SubtitleTextBlockStyle}"/>
+                </Expander.Header>
+                <StackPanel Spacing="12" Margin="0,12,0,0">
+                    <TextBlock Text="1. Select the root directory (e.g., Lab Stock) to rename files within." TextWrapping="Wrap"/>
+                    <StackPanel Orientation="Horizontal" Spacing="12">
+                        <Button Content="Select Root Directory..." Command="{Binding SelectRenameDirectoryCommand}"/>
+                        <TextBlock Text="{Binding RenameDirectory, Mode=OneWay, FallbackValue='No directory selected'}" VerticalAlignment="Center"/>
+                    </StackPanel>
+
+                    <TextBlock Text="Files will be renamed to the format: [OpCo]_[####].ext" Style="{ThemeResource CaptionTextBlockStyle}"/>
+
+                    <Button Content="2. Start Renaming" 
+                            Command="{Binding RenameFilesCommand}"
+                            Style="{ThemeResource AccentButtonStyle}"
+                            HorizontalAlignment="Left"/>
+                </StackPanel>
+            </Expander>
+
+            <!-- Feature 4: Directory Stats -->
+            <Expander IsExpanded="True" Margin="0,12,0,0">
+                <Expander.Header>
+                    <TextBlock Text="Directory Stats" Style="{ThemeResource SubtitleTextBlockStyle}"/>
+                </Expander.Header>
+                <StackPanel Spacing="12" Margin="0,12,0,0">
+                    <TextBlock Text="Select the root directory to calculate stats for." TextWrapping="Wrap"/>
+                    <StackPanel Orientation="Horizontal" Spacing="12">
+                        <Button Content="Select Root Directory..." Command="{Binding SelectStatsDirectoryCommand}"/>
+                        <TextBlock Text="{Binding StatsDirectory, Mode=OneWay, FallbackValue='No directory selected'}" VerticalAlignment="Center"/>
+                    </StackPanel>
+
+                    <ListView ItemsSource="{Binding OpCoStats}" Margin="0,12,0,0" IsItemClickEnabled="False">
+                        <ListView.HeaderTemplate>
+                            <DataTemplate>
+                                <Grid Padding="6" BorderBrush="{ThemeResource SystemControlForegroundBaseMediumLowBrush}" BorderThickness="0,0,0,1">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="2*"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="Operating Company" Style="{ThemeResource CaptionTextBlockStyle}"/>
+                                    <TextBlock Grid.Column="1" Text="Total Files" Style="{ThemeResource CaptionTextBlockStyle}"/>
+                                    <TextBlock Grid.Column="2" Text="Total Devices" Style="{ThemeResource CaptionTextBlockStyle}"/>
+                                </Grid>
+                            </DataTemplate>
+                        </ListView.HeaderTemplate>
+                        <ListView.ItemTemplate>
+                            <DataTemplate x:DataType="models:OpCoStatItem">
+                                <Grid Padding="6">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="2*"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="{Binding OpCoName}" Style="{ThemeResource BodyStrongTextBlockStyle}"/>
+                                    <TextBlock Grid.Column="1" Text="{Binding FileCount}"/>
+                                    <TextBlock Grid.Column="2" Text="{Binding DeviceCount}"/>
+                                </Grid>
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+                    </ListView>
+                </StackPanel>
+            </Expander>
+
+            <!-- Feature 5: File Anomaly Detection -->
+            <Expander IsExpanded="True" Margin="0,12,0,0">
+                <Expander.Header>
+                    <TextBlock Text="File Anomaly Detection" Style="{ThemeResource SubtitleTextBlockStyle}"/>
+                </Expander.Header>
+                <StackPanel Spacing="12" Margin="0,12,0,0">
+                    <TextBlock Text="Select the root directory to scan for file naming and location errors." TextWrapping="Wrap"/>
+                    <StackPanel Orientation="Horizontal" Spacing="12">
+                        <Button Content="Select Root Directory..." Command="{Binding SelectAnomalyDirectoryCommand}"/>
+                        <TextBlock Text="{Binding AnomalyDirectory, Mode=OneWay, FallbackValue='No directory selected'}" VerticalAlignment="Center"/>
+                    </StackPanel>
+
+                    <Grid Margin="0,12,0,0" ColumnSpacing="12">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <StackPanel Grid.Column="0">
+                            <TextBlock Text="Misplaced 'OH' Files" Style="{ThemeResource BodyStrongTextBlockStyle}"/>
+                            <ListView ItemsSource="{Binding MisplacedOhFiles}" MaxHeight="300"/>
+                        </StackPanel>
+
+                        <StackPanel Grid.Column="1">
+                            <!-- THE FIX: Replaced & with &amp; -->
+                            <TextBlock Text="Misplaced 'I&amp;M' Files" Style="{ThemeResource BodyStrongTextBlockStyle}"/>
+                            <ListView ItemsSource="{Binding MisplacedImFiles}" MaxHeight="300"/>
+                        </StackPanel>
+
+                        <StackPanel Grid.Column="2">
+                            <TextBlock Text="Unidentified Files" Style="{ThemeResource BodyStrongTextBlockStyle}"/>
+                            <ListView ItemsSource="{Binding UnidentifiedFiles}" MaxHeight="300"/>
+                        </StackPanel>
+                    </Grid>
+                </StackPanel>
+            </Expander>
+
+        </StackPanel>
+    </ScrollViewer>
+</Page>
