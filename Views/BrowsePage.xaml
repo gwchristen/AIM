@@ -17,6 +17,12 @@
     </Page.Resources>
 
     <Grid Margin="8" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+        <Grid.Background>
+            <LinearGradientBrush StartPoint="0,0" EndPoint="1,1" Opacity="0.05">
+                <GradientStop Color="#667EEA" Offset="0"/>
+                <GradientStop Color="#764BA2" Offset="1"/>
+            </LinearGradientBrush>
+        </Grid.Background>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"/>
             <ColumnDefinition Width="Auto"/>
@@ -98,41 +104,56 @@
 
         <!-- Middle Column -->
         <StackPanel Grid.Column="1" Orientation="Vertical" VerticalAlignment="Center" Spacing="8" Margin="16">
-            <Button Command="{Binding RenameFileCommand}" MinWidth="120">
+            <Border Background="{StaticResource PrimaryGradientBrush}" 
+                    CornerRadius="8" 
+                    Padding="12,8" 
+                    Margin="0,0,0,12">
+                <TextBlock Text="Actions" 
+                           Foreground="White" 
+                           FontWeight="Bold" 
+                           HorizontalAlignment="Center"/>
+            </Border>
+            
+            <Button Command="{Binding RenameFileCommand}" MinWidth="120" CornerRadius="6">
                 <StackPanel Orientation="Horizontal" Spacing="8">
-                    <FontIcon Glyph="&#xE8AC;"/>
+                    <FontIcon Glyph="&#xE8AC;" Foreground="{StaticResource PrimaryBrush}"/>
                     <TextBlock Text="Rename"/>
                 </StackPanel>
             </Button>
-            <Button Command="{Binding ArchiveFileCommand}" MinWidth="120">
+            <Button Command="{Binding ArchiveFileCommand}" MinWidth="120" CornerRadius="6">
                 <StackPanel Orientation="Horizontal" Spacing="8">
-                    <FontIcon Glyph="&#xE7B8;"/>
+                    <FontIcon Glyph="&#xE7B8;" Foreground="{StaticResource SecondaryBrush}"/>
                     <TextBlock Text="Archive"/>
                 </StackPanel>
             </Button>
-            <Button Command="{Binding ShipFileCommand}" MinWidth="120">
+            <Button Command="{Binding ShipFileCommand}" MinWidth="120" CornerRadius="6">
                 <StackPanel Orientation="Horizontal" Spacing="8">
-                    <FontIcon Glyph="&#xE8E1;"/>
+                    <FontIcon Glyph="&#xE8E1;" Foreground="{StaticResource SuccessBrush}"/>
                     <TextBlock Text="Shipped"/>
                 </StackPanel>
             </Button>
-            <Button Command="{Binding MoveFileCommand}" MinWidth="120">
+            <Button Command="{Binding MoveFileCommand}" MinWidth="120" CornerRadius="6">
                 <StackPanel Orientation="Horizontal" Spacing="8">
-                    <FontIcon Glyph="&#xE8DE;"/>
+                    <FontIcon Glyph="&#xE8DE;" Foreground="{StaticResource AccentBrush}"/>
                     <TextBlock Text="Move →"/>
                 </StackPanel>
             </Button>
-            <Button Command="{Binding UndoCommand}" MinWidth="120">
+            <Button Command="{Binding UndoCommand}" MinWidth="120" CornerRadius="6">
                 <StackPanel Orientation="Horizontal" Spacing="8">
-                    <FontIcon Glyph="&#xE7A7;"/>
+                    <FontIcon Glyph="&#xE7A7;" Foreground="{StaticResource WarningBrush}"/>
                     <TextBlock Text="Undo"/>
                 </StackPanel>
             </Button>
             <Rectangle Height="24"/>
-            <Button Command="{Binding CopyFromScansCommand}" Style="{ThemeResource AccentButtonStyle}" MinWidth="120">
+            <Button Command="{Binding CopyFromScansCommand}" 
+                    Style="{ThemeResource AccentButtonStyle}" 
+                    MinWidth="120"
+                    CornerRadius="8"
+                    Background="{StaticResource AccentGradientBrush}"
+                    BorderThickness="0">
                 <StackPanel Orientation="Horizontal" Spacing="8">
                     <FontIcon Glyph="&#xE8C8;"/>
-                    <TextBlock Text="Copy from Scans"/>
+                    <TextBlock Text="Copy from Scans" FontWeight="SemiBold"/>
                 </StackPanel>
             </Button>
         </StackPanel>

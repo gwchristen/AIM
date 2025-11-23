@@ -9,6 +9,77 @@
             <ResourceDictionary.MergedDictionaries>
                 <XamlControlsResources xmlns="using:Microsoft.UI.Xaml.Controls"/>
             </ResourceDictionary.MergedDictionaries>
+            
+            <!-- Modern Color Palette -->
+            <!-- Primary Colors -->
+            <Color x:Key="PrimaryColor">#0078D4</Color>
+            <Color x:Key="PrimaryLightColor">#2B88D8</Color>
+            <Color x:Key="PrimaryDarkColor">#005A9E</Color>
+            
+            <!-- Secondary Colors -->
+            <Color x:Key="SecondaryColor">#8E8CD8</Color>
+            <Color x:Key="SecondaryLightColor">#A8A6E3</Color>
+            <Color x:Key="SecondaryDarkColor">#6B69B0</Color>
+            
+            <!-- Accent Colors -->
+            <Color x:Key="AccentColor">#FF6B35</Color>
+            <Color x:Key="AccentLightColor">#FF8555</Color>
+            <Color x:Key="AccentDarkColor">#D94F1E</Color>
+            
+            <!-- State Colors -->
+            <Color x:Key="SuccessColor">#107C10</Color>
+            <Color x:Key="SuccessLightColor">#27AE27</Color>
+            <Color x:Key="WarningColor">#FFA500</Color>
+            <Color x:Key="WarningLightColor">#FFB732</Color>
+            <Color x:Key="ErrorColor">#D13438</Color>
+            <Color x:Key="ErrorLightColor">#E35053</Color>
+            <Color x:Key="InfoColor">#0099BC</Color>
+            <Color x:Key="InfoLightColor">#00B7C3</Color>
+            
+            <!-- Gradient Colors -->
+            <Color x:Key="GradientStart">#667EEA</Color>
+            <Color x:Key="GradientEnd">#764BA2</Color>
+            <Color x:Key="GradientAccentStart">#F093FB</Color>
+            <Color x:Key="GradientAccentEnd">#F5576C</Color>
+            
+            <!-- Brushes -->
+            <SolidColorBrush x:Key="PrimaryBrush" Color="{StaticResource PrimaryColor}"/>
+            <SolidColorBrush x:Key="PrimaryLightBrush" Color="{StaticResource PrimaryLightColor}"/>
+            <SolidColorBrush x:Key="PrimaryDarkBrush" Color="{StaticResource PrimaryDarkColor}"/>
+            
+            <SolidColorBrush x:Key="SecondaryBrush" Color="{StaticResource SecondaryColor}"/>
+            <SolidColorBrush x:Key="SecondaryLightBrush" Color="{StaticResource SecondaryLightColor}"/>
+            <SolidColorBrush x:Key="SecondaryDarkBrush" Color="{StaticResource SecondaryDarkColor}"/>
+            
+            <SolidColorBrush x:Key="AccentBrush" Color="{StaticResource AccentColor}"/>
+            <SolidColorBrush x:Key="AccentLightBrush" Color="{StaticResource AccentLightColor}"/>
+            <SolidColorBrush x:Key="AccentDarkBrush" Color="{StaticResource AccentDarkColor}"/>
+            
+            <SolidColorBrush x:Key="SuccessBrush" Color="{StaticResource SuccessColor}"/>
+            <SolidColorBrush x:Key="SuccessLightBrush" Color="{StaticResource SuccessLightColor}"/>
+            <SolidColorBrush x:Key="WarningBrush" Color="{StaticResource WarningColor}"/>
+            <SolidColorBrush x:Key="WarningLightBrush" Color="{StaticResource WarningLightColor}"/>
+            <SolidColorBrush x:Key="ErrorBrush" Color="{StaticResource ErrorColor}"/>
+            <SolidColorBrush x:Key="ErrorLightBrush" Color="{StaticResource ErrorLightColor}"/>
+            <SolidColorBrush x:Key="InfoBrush" Color="{StaticResource InfoColor}"/>
+            <SolidColorBrush x:Key="InfoLightBrush" Color="{StaticResource InfoLightColor}"/>
+            
+            <!-- Gradient Brushes -->
+            <LinearGradientBrush x:Key="PrimaryGradientBrush" StartPoint="0,0" EndPoint="1,1">
+                <GradientStop Color="{StaticResource GradientStart}" Offset="0"/>
+                <GradientStop Color="{StaticResource GradientEnd}" Offset="1"/>
+            </LinearGradientBrush>
+            
+            <LinearGradientBrush x:Key="AccentGradientBrush" StartPoint="0,0" EndPoint="1,1">
+                <GradientStop Color="{StaticResource GradientAccentStart}" Offset="0"/>
+                <GradientStop Color="{StaticResource GradientAccentEnd}" Offset="1"/>
+            </LinearGradientBrush>
+            
+            <LinearGradientBrush x:Key="SubtleGradientBrush" StartPoint="0,0" EndPoint="0,1">
+                <GradientStop Color="#10667EEA" Offset="0"/>
+                <GradientStop Color="#05764BA2" Offset="1"/>
+            </LinearGradientBrush>
+            
             <SolidColorBrush x:Key="TabViewButtonBackground" Color="Transparent"/>
             <StaticResource x:Key="TabViewButtonForeground" ResourceKey="TextFillColorPrimaryBrush"/>
             
@@ -26,11 +97,105 @@
             <converters:ProgressColorConverter x:Key="ProgressColorConverter"/>
             <local:DateTimeConverter x:Key="DateTimeConverter"/>
 
-            <Style TargetType="RadioButton" x:Key="TileRadioButton">
-                <Setter Property="Background" Value="Transparent"/>
-                <Setter Property="BorderBrush" Value="#FFCCCCCC"/>
-                <Setter Property="BorderThickness" Value="1"/>
+            <!-- Enhanced Button Styles with Vibrant Colors -->
+            <!-- Success Button Style -->
+            <Style x:Key="SuccessButtonStyle" TargetType="Button">
+                <Setter Property="Background" Value="{StaticResource SuccessBrush}"/>
+                <Setter Property="Foreground" Value="White"/>
+                <Setter Property="BorderBrush" Value="{StaticResource SuccessLightBrush}"/>
+                <Setter Property="BorderThickness" Value="2"/>
+                <Setter Property="Padding" Value="16,8"/>
+                <Setter Property="CornerRadius" Value="6"/>
+                <Setter Property="FontWeight" Value="SemiBold"/>
+            </Style>
 
+            <!-- Warning Button Style -->
+            <Style x:Key="WarningButtonStyle" TargetType="Button">
+                <Setter Property="Background" Value="{StaticResource WarningBrush}"/>
+                <Setter Property="Foreground" Value="White"/>
+                <Setter Property="BorderBrush" Value="{StaticResource WarningLightBrush}"/>
+                <Setter Property="BorderThickness" Value="2"/>
+                <Setter Property="Padding" Value="16,8"/>
+                <Setter Property="CornerRadius" Value="6"/>
+                <Setter Property="FontWeight" Value="SemiBold"/>
+            </Style>
+
+            <!-- Error Button Style -->
+            <Style x:Key="ErrorButtonStyle" TargetType="Button">
+                <Setter Property="Background" Value="{StaticResource ErrorBrush}"/>
+                <Setter Property="Foreground" Value="White"/>
+                <Setter Property="BorderBrush" Value="{StaticResource ErrorLightBrush}"/>
+                <Setter Property="BorderThickness" Value="2"/>
+                <Setter Property="Padding" Value="16,8"/>
+                <Setter Property="CornerRadius" Value="6"/>
+                <Setter Property="FontWeight" Value="SemiBold"/>
+            </Style>
+
+            <!-- Info Button Style -->
+            <Style x:Key="InfoButtonStyle" TargetType="Button">
+                <Setter Property="Background" Value="{StaticResource InfoBrush}"/>
+                <Setter Property="Foreground" Value="White"/>
+                <Setter Property="BorderBrush" Value="{StaticResource InfoLightBrush}"/>
+                <Setter Property="BorderThickness" Value="2"/>
+                <Setter Property="Padding" Value="16,8"/>
+                <Setter Property="CornerRadius" Value="6"/>
+                <Setter Property="FontWeight" Value="SemiBold"/>
+            </Style>
+
+            <!-- Primary Gradient Button Style -->
+            <Style x:Key="PrimaryGradientButtonStyle" TargetType="Button">
+                <Setter Property="Background" Value="{StaticResource PrimaryGradientBrush}"/>
+                <Setter Property="Foreground" Value="White"/>
+                <Setter Property="BorderThickness" Value="0"/>
+                <Setter Property="Padding" Value="20,10"/>
+                <Setter Property="CornerRadius" Value="8"/>
+                <Setter Property="FontWeight" Value="SemiBold"/>
+            </Style>
+
+            <!-- Accent Gradient Button Style -->
+            <Style x:Key="AccentGradientButtonStyle" TargetType="Button">
+                <Setter Property="Background" Value="{StaticResource AccentGradientBrush}"/>
+                <Setter Property="Foreground" Value="White"/>
+                <Setter Property="BorderThickness" Value="0"/>
+                <Setter Property="Padding" Value="20,10"/>
+                <Setter Property="CornerRadius" Value="8"/>
+                <Setter Property="FontWeight" Value="SemiBold"/>
+            </Style>
+
+            <!-- Enhanced Card Border Style -->
+            <Style x:Key="ColoredCardStyle" TargetType="Border">
+                <Setter Property="Background" Value="{ThemeResource CardBackgroundFillColorDefaultBrush}"/>
+                <Setter Property="BorderBrush" Value="{StaticResource PrimaryBrush}"/>
+                <Setter Property="BorderThickness" Value="2"/>
+                <Setter Property="CornerRadius" Value="8"/>
+                <Setter Property="Padding" Value="16"/>
+            </Style>
+
+            <!-- Success Card Style -->
+            <Style x:Key="SuccessCardStyle" TargetType="Border" BasedOn="{StaticResource ColoredCardStyle}">
+                <Setter Property="BorderBrush" Value="{StaticResource SuccessBrush}"/>
+            </Style>
+
+            <!-- Warning Card Style -->
+            <Style x:Key="WarningCardStyle" TargetType="Border" BasedOn="{StaticResource ColoredCardStyle}">
+                <Setter Property="BorderBrush" Value="{StaticResource WarningBrush}"/>
+            </Style>
+
+            <!-- Error Card Style -->
+            <Style x:Key="ErrorCardStyle" TargetType="Border" BasedOn="{StaticResource ColoredCardStyle}">
+                <Setter Property="BorderBrush" Value="{StaticResource ErrorBrush}"/>
+            </Style>
+
+            <!-- Info Card Style -->
+            <Style x:Key="InfoCardStyle" TargetType="Border" BasedOn="{StaticResource ColoredCardStyle}">
+                <Setter Property="BorderBrush" Value="{StaticResource InfoBrush}"/>
+            </Style>
+
+            <!-- Enhanced TileRadioButton Style with Vibrant Colors and Animations -->
+            <Style TargetType="RadioButton" x:Key="TileRadioButton">
+                <Setter Property="Background" Value="{ThemeResource CardBackgroundFillColorDefaultBrush}"/>
+                <Setter Property="BorderBrush" Value="{StaticResource PrimaryBrush}"/>
+                <Setter Property="BorderThickness" Value="2"/>
                 <Setter Property="Padding" Value="20,10"/>
                 <Setter Property="Height" Value="50"/>
                 <Setter Property="HorizontalAlignment" Value="Stretch"/>
@@ -38,21 +203,96 @@
                 <Setter Property="Template">
                     <Setter.Value>
                         <ControlTemplate TargetType="RadioButton">
-                            <Border x:Name="RootBorder" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="4">
-                                <VisualStateManager.VisualStateGroups>
-                                    <VisualStateGroup x:Name="CheckStates">
-                                        <VisualState x:Name="Checked">
-                                            <Storyboard>
-                                                <ObjectAnimationUsingKeyFrames Storyboard.TargetName="RootBorder" Storyboard.TargetProperty="Background">
-                                                    <DiscreteObjectKeyFrame KeyTime="0" Value="Gray"/>
-                                                </ObjectAnimationUsingKeyFrames>
-                                            </Storyboard>
-                                        </VisualState>
-                                        <VisualState x:Name="Unchecked"/>
-                                    </VisualStateGroup>
-                                </VisualStateManager.VisualStateGroups>
-                                <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}" Content="{TemplateBinding Content}" Margin="{TemplateBinding Padding}"/>
-                            </Border>
+                            <Grid>
+                                <Border x:Name="RootBorder" 
+                                        Background="{TemplateBinding Background}" 
+                                        BorderBrush="{TemplateBinding BorderBrush}" 
+                                        BorderThickness="{TemplateBinding BorderThickness}" 
+                                        CornerRadius="8">
+                                    <Border.Shadow>
+                                        <ThemeShadow/>
+                                    </Border.Shadow>
+                                    <VisualStateManager.VisualStateGroups>
+                                        <VisualStateGroup x:Name="CheckStates">
+                                            <VisualState x:Name="Checked">
+                                                <Storyboard>
+                                                    <ColorAnimation Storyboard.TargetName="BackgroundBrush" 
+                                                                    Storyboard.TargetProperty="Color" 
+                                                                    To="#0078D4" 
+                                                                    Duration="0:0:0.3">
+                                                        <ColorAnimation.EasingFunction>
+                                                            <CubicEase EasingMode="EaseOut"/>
+                                                        </ColorAnimation.EasingFunction>
+                                                    </ColorAnimation>
+                                                    <ColorAnimation Storyboard.TargetName="BorderBrush" 
+                                                                    Storyboard.TargetProperty="Color" 
+                                                                    To="#005A9E" 
+                                                                    Duration="0:0:0.3">
+                                                        <ColorAnimation.EasingFunction>
+                                                            <CubicEase EasingMode="EaseOut"/>
+                                                        </ColorAnimation.EasingFunction>
+                                                    </ColorAnimation>
+                                                </Storyboard>
+                                            </VisualState>
+                                            <VisualState x:Name="Unchecked">
+                                                <Storyboard>
+                                                    <ColorAnimation Storyboard.TargetName="BackgroundBrush" 
+                                                                    Storyboard.TargetProperty="Color" 
+                                                                    To="Transparent" 
+                                                                    Duration="0:0:0.3">
+                                                        <ColorAnimation.EasingFunction>
+                                                            <CubicEase EasingMode="EaseOut"/>
+                                                        </ColorAnimation.EasingFunction>
+                                                    </ColorAnimation>
+                                                    <ColorAnimation Storyboard.TargetName="BorderBrush" 
+                                                                    Storyboard.TargetProperty="Color" 
+                                                                    To="#0078D4" 
+                                                                    Duration="0:0:0.3">
+                                                        <ColorAnimation.EasingFunction>
+                                                            <CubicEase EasingMode="EaseOut"/>
+                                                        </ColorAnimation.EasingFunction>
+                                                    </ColorAnimation>
+                                                </Storyboard>
+                                            </VisualState>
+                                        </VisualStateGroup>
+                                        <VisualStateGroup x:Name="CommonStates">
+                                            <VisualState x:Name="Normal"/>
+                                            <VisualState x:Name="PointerOver">
+                                                <Storyboard>
+                                                    <DoubleAnimation Storyboard.TargetName="HoverGlow"
+                                                                     Storyboard.TargetProperty="Opacity"
+                                                                     To="0.6"
+                                                                     Duration="0:0:0.2"/>
+                                                </Storyboard>
+                                            </VisualState>
+                                            <VisualState x:Name="Pressed">
+                                                <Storyboard>
+                                                    <DoubleAnimation Storyboard.TargetName="RootBorder"
+                                                                     Storyboard.TargetProperty="Opacity"
+                                                                     To="0.8"
+                                                                     Duration="0:0:0.1"/>
+                                                </Storyboard>
+                                            </VisualState>
+                                        </VisualStateGroup>
+                                    </VisualStateManager.VisualStateGroups>
+                                    <Border.Background>
+                                        <SolidColorBrush x:Name="BackgroundBrush" Color="Transparent"/>
+                                    </Border.Background>
+                                    <Border.BorderBrush>
+                                        <SolidColorBrush x:Name="BorderBrush" Color="#0078D4"/>
+                                    </Border.BorderBrush>
+                                    <Grid>
+                                        <Border x:Name="HoverGlow" 
+                                                Background="{StaticResource PrimaryGradientBrush}"
+                                                Opacity="0"
+                                                CornerRadius="8"/>
+                                        <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" 
+                                                          VerticalAlignment="{TemplateBinding VerticalContentAlignment}" 
+                                                          Content="{TemplateBinding Content}" 
+                                                          Margin="{TemplateBinding Padding}"/>
+                                    </Grid>
+                                </Border>
+                            </Grid>
                         </ControlTemplate>
                     </Setter.Value>
                 </Setter>
