@@ -11,23 +11,11 @@
             </ResourceDictionary.MergedDictionaries>
             <SolidColorBrush x:Key="TabViewButtonBackground" Color="Transparent"/>
             <StaticResource x:Key="TabViewButtonForeground" ResourceKey="TextFillColorPrimaryBrush"/>
-            
-            <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
-            <converters:InverseBoolToVisibilityConverter x:Key="InverseBoolToVisibilityConverter" />
-            <converters:StringToVisibilityConverter x:Key="StringToVisibilityConverter" />
-            <converters:InverseBoolConverter x:Key="InverseBoolConverter" />
-            <converters:BoolToFontWeightConverter x:Key="BoolToFontWeightConverter" />
-            <converters:PercentageConverter x:Key="PercentageConverter" />
-            <converters:BoolToTextWrappingConverter x:Key="BoolToTextWrappingConverter" />
-            <converters:BoolToSymbolConverter x:Key="BoolToSymbolConverter" />
-            <converters:BoolNegationConverter x:Key="BoolNegationConverter" />
-            <converters:CollectionToVisibilityConverter x:Key="CollectionToVisibilityConverter" />
-            <converters:NullToVisibilityConverter x:Key="NullToVisibilityConverter" />
-            <converters:ProgressColorConverter x:Key="ProgressColorConverter"/>
-            <converters:AccessLevelColorConverter x:Key="AccessLevelColorConverter"/>
-            <local:DateTimeConverter x:Key="DateTimeConverter"/>
-            <converters:CountToMessageConverter x:Key="CountToMessageConverter" />
-
+            <converters:BoolToSymbolConverter x:Key="BoolToSymbolConverter"/>
+            <converters:BoolNegationConverter x:Key="BoolNegationConverter"/>
+            <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
+            <converters:BoolToFontWeightConverter x:Key="BoolToFontWeightConverter"/>
+            <converters:StringToVisibilityConverter x:Key="StringToVisibilityConverter"/>
             <Style TargetType="RadioButton" x:Key="TileRadioButton">
                 <Setter Property="Background" Value="Transparent"/>
                 <Setter Property="BorderBrush" Value="#FFCCCCCC"/>

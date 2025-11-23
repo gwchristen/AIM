@@ -1,12 +1,9 @@
 ﻿using AIM.Models;
-using AIM.Services;
 using AIM.Views;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using LiveChartsCore;
-using LiveChartsCore.SkiaSharpView;
+using Microsoft.UI.Xaml;
 using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
@@ -16,107 +13,145 @@ namespace AIM.ViewModels;
 
 public partial class StatsViewModel : ObservableObject
 {
-    private readonly ISettingsService _settingsService;
-    private readonly INavigationService _navigationService;
-    private readonly IInfoBarService _infoBarService;
+    private readonly MainViewModel _mainViewModel;
 
     [ObservableProperty]
-    private int _totalFileCount;
+    private string totalTextFilesText;
 
     [ObservableProperty]
-    private long _totalDeviceCount;
+    private string totalLinesText;
 
     [ObservableProperty]
-    private int _problematicFileCount;
+    private string ohioFilesText;
 
-    public ObservableCollection<ISeries> OpCoFileSeries { get; set; } = new();
-    public ObservableCollection<ISeries> OpCoDeviceSeries { get; set; } = new();
-    public ObservableCollection<ProblematicFile> ProblematicFiles { get; set; } = new();
+    [ObservableProperty]
+    private string ohioLinesText;
 
-    public StatsViewModel(ISettingsService settingsService, INavigationService navigationService, IInfoBarService infoBarService)
+    [ObservableProperty]
+    private string imFilesText;
+
+    [ObservableProperty]
+    private string imLinesText;
+
+    [ObservableProperty]
+    private ObservableCollection<ProblematicFile> problematicFiles = new();
+
+    public StatsViewModel(MainViewModel mainViewModel)
     {
-        _settingsService = settingsService;
-        _navigationService = navigationService;
-        _infoBarService = infoBarService;
+        _mainViewModel = mainViewModel;
+        LoadStats();
     }
 
-    [RelayCommand]
     private async Task LoadStats()
     {
-        var settings = _settingsService.LoadSettings();
-        var rootPath = settings.DefaultRootDirectory;
-        if (string.IsNullOrEmpty(rootPath) || !Directory.Exists(rootPath))
-        {
-            _infoBarService.Show("Error", "Root directory not set or not found. Please configure it in Settings.", Microsoft.UI.Xaml.Controls.InfoBarSeverity.Error);
-            return;
-        }
-
-        OpCoFileSeries.Clear();
-        OpCoDeviceSeries.Clear();
-        ProblematicFiles.Clear();
-
         await Task.Run(() =>
         {
-            try
+            string totalTextFiles = "Total Text Files: 0";
+            string totalLines = "Total Non-Blank Lines: 0";
+            string ohioFiles = "Ohio Files: 0";
+            string ohioLines = "Ohio Lines: 0";
+            string imFiles = "I&M Files: 0";
+            string imLines = "I&M Lines: 0";
+            var probFiles = new ObservableCollection<ProblematicFile>();
+
+            if (!Directory.Exists(_mainViewModel.SelectedRoot))
             {
-                var opCoDirs = Directory.GetDirectories(rootPath);
-                var allStats = new List<OpCoStatItem>();
+                // Use defaults
+            }
+            else
+            {
+                // Get all text files in root
+                var textFiles = Directory.EnumerateFiles(_mainViewModel.SelectedRoot, "*.txt", SearchOption.AllDirectories).ToList();
+                var totalFiles = textFiles.Count;
+                totalTextFiles = $"Total Text Files: {totalFiles}";
 
-                foreach (var dirPath in opCoDirs)
+                // Subdirs
+                var ohioDir = Path.Combine(_mainViewModel.SelectedRoot, "Ohio");
+                var imDir = Path.Combine(_mainViewModel.SelectedRoot, "I&M");
+                var ohioFileCount = Directory.Exists(ohioDir) ? Directory.EnumerateFiles(ohioDir, "*.txt", SearchOption.AllDirectories).Count() : 0;
+                var imFileCount = Directory.Exists(imDir) ? Directory.EnumerateFiles(imDir, "*.txt", SearchOption.AllDirectories).Count() : 0;
+                ohioFiles = $"Ohio Files: {ohioFileCount}";
+                imFiles = $"I&M Files: {imFileCount}";
+
+                // Total lines (non-blank)
+                var totalLineCount = textFiles.Sum(f => File.ReadAllLines(f).Count(l => !string.IsNullOrWhiteSpace(l)));
+                totalLines = $"Total Devices: {totalLineCount}";
+
+                // Lines per subdir
+                var ohioLineCount = Directory.Exists(ohioDir) ? Directory.EnumerateFiles(ohioDir, "*.txt", SearchOption.AllDirectories).Sum(f => File.ReadAllLines(f).Count(l => !string.IsNullOrWhiteSpace(l))) : 0;
+                var imLineCount = Directory.Exists(imDir) ? Directory.EnumerateFiles(imDir, "*.txt", SearchOption.AllDirectories).Sum(f => File.ReadAllLines(f).Count(l => !string.IsNullOrWhiteSpace(l))) : 0;
+                ohioLines = $"Ohio Devices: {ohioLineCount}";
+                imLines = $"I&M Devices: {imLineCount}";
+
+                // Problematic files (lines not equal to 17 chars)
+                foreach (var file in textFiles)
                 {
-                    var dirInfo = new DirectoryInfo(dirPath);
-                    var files = dirInfo.GetFiles("*.*", SearchOption.AllDirectories);
-
-                    // Count total lines across all files (actual device count)
-                    long totalDevices = 0;
-                    foreach (var file in files)
+                    var lines = File.ReadAllLines(file);
+                    if (lines.Any(l => !string.IsNullOrWhiteSpace(l) && l.Length != 17))
                     {
-                        try
-                        {
-                            var lines = File.ReadAllLines(file.FullName);
-                            totalDevices += lines.Length;
-                        }
-                        catch { /* skip unreadable files */ }
+                        probFiles.Add(new ProblematicFile { Path = file });
                     }
-
-                    allStats.Add(new OpCoStatItem
-                    {
-                        OpCoName = dirInfo.Name,
-                        FileCount = files.Length,
-                        DeviceCount = totalDevices  // ✅ Now counts actual devices/lines
-                    });
                 }
-
-                App.MainWindow.DispatcherQueue.TryEnqueue(() =>
-                {
-                    TotalFileCount = allStats.Sum(s => s.FileCount);
-                    TotalDeviceCount = allStats.Sum(s => s.DeviceCount);
-                    ProblematicFileCount = ProblematicFiles.Count;
-
-                    var fileSeries = allStats.Select(s => new PieSeries<int> { Name = s.OpCoName, Values = new int[] { s.FileCount } });
-                    var deviceSeries = allStats.Select(s => new PieSeries<long> { Name = s.OpCoName, Values = new long[] { s.DeviceCount } });
-
-                    foreach (var series in fileSeries) OpCoFileSeries.Add(series);
-                    foreach (var series in deviceSeries) OpCoDeviceSeries.Add(series);
-                });
             }
-            catch (Exception ex)
+
+            // Update UI on main thread
+            MainWindow.Instance.DispatcherQueue.TryEnqueue(() =>
             {
-                _infoBarService.Show("Error loading stats", ex.Message, Microsoft.UI.Xaml.Controls.InfoBarSeverity.Error);
-            }
+                TotalTextFilesText = totalTextFiles;
+                TotalLinesText = totalLines;
+                OhioFilesText = ohioFiles;
+                OhioLinesText = ohioLines;
+                ImFilesText = imFiles;
+                ImLinesText = imLines;
+                ProblematicFiles = probFiles;
+            });
         });
     }
 
-    /// <summary>
-    /// Opens a file in the preview page for detailed inspection.
-    /// Command is public to allow binding from XAML.
-    /// </summary>
-    /// <param name="file">The problematic file to open.</param>
     [RelayCommand]
-    public void OpenFile(ProblematicFile file)
+    public async Task OpenFile(ProblematicFile file)
     {
-        if (file == null) return;
-        var fileItem = new FileItem { Name = Path.GetFileName(file.Path), FullPath = file.Path };
-        _navigationService.NavigateTo(typeof(PreviewPage), fileItem, "Preview");
+        // Navigate to Preview tab and load file
+        if (MainWindow.Instance != null)
+        {
+            MainWindow.Instance.MainFrame.Navigate(typeof(PreviewPage));
+            // Set the selected tab
+            MainWindow.Instance.IsPreviewSelected = true;
+            MainWindow.Instance.IsBrowseSelected = false;
+            MainWindow.Instance.IsSearchSelected = false;
+            MainWindow.Instance.IsScansSelected = false;
+            MainWindow.Instance.IsInvArchivesSelected = false;
+            MainWindow.Instance.IsStatsSelected = false;
+            MainWindow.Instance.IsSettingsSelected = false;
+
+            // Load the file in Preview
+            if (MainWindow.Instance.MainFrame.Content is PreviewPage previewPage)
+            {
+                var fileItem = new FileItem
+                {
+                    FullPath = file.Path,
+                    Name = Path.GetFileName(file.Path),
+                    Type = GetFileType(file.Path)
+                };
+                await previewPage.ViewModel.LoadFileContent(fileItem);
+            }
+        }
     }
+
+    private FileType GetFileType(string path)
+    {
+        var ext = Path.GetExtension(path).ToLower();
+        return ext switch
+        {
+            ".txt" => FileType.Text,
+            ".csv" => FileType.Csv,
+            ".log" => FileType.Log,
+            _ => FileType.Other
+        };
+    }
+}
+
+public class ProblematicFile
+{
+    public string Path { get; set; } = string.Empty;
 }

@@ -1,26 +1,18 @@
 ﻿using AIM.Models;
-using AIM.Services;
-using AIM.Views;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using System;
 using System.Collections.ObjectModel;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
-using Windows.ApplicationModel.DataTransfer;
 using Windows.Storage.Pickers;
-using Microsoft.UI.Xaml.Controls;
 
 namespace AIM.ViewModels;
 
 public partial class SearchViewModel : ObservableObject
 {
-    private readonly ISearchService _searchService;
-    private readonly INavigationService _navigationService;
     private readonly MainViewModel _mainViewModel;
-    private readonly IInfoBarService _infoBarService;
-    private readonly ISearchStateService _searchStateService;  // NEW
-    private readonly IAuditLoggingService _auditLoggingService;
 
     [ObservableProperty]
     private string searchDirectory = string.Empty;
@@ -32,119 +24,19 @@ public partial class SearchViewModel : ObservableObject
     private bool isSearching = false;
 
     [ObservableProperty]
+    private string statusMessage = "Ready to search.";
+
+    [ObservableProperty]
     private bool isContentSearch = true;
 
     public ObservableCollection<FileItem> SearchResults { get; } = new();
 
-    // UPDATED: Constructor now includes ISearchStateService
-    public SearchViewModel(ISearchService searchService, INavigationService navigationService, MainViewModel mainViewModel, IInfoBarService infoBarService, ISearchStateService searchStateService, IAuditLoggingService auditLoggingService)
+    public MainViewModel MainViewModel => _mainViewModel;
+
+    public SearchViewModel()
     {
-        _searchService = searchService;
-        _navigationService = navigationService;
-        _mainViewModel = mainViewModel;
-        _infoBarService = infoBarService;
-        _searchStateService = searchStateService;  // NEW
-        _auditLoggingService = auditLoggingService;
+        _mainViewModel = MainWindow.Instance?.ViewModel ?? throw new InvalidOperationException("MainViewModel not available");
         SearchDirectory = _mainViewModel.SelectedRoot;
-
-        // NEW: Load saved search state when ViewModel is created
-        LoadPreviousSearchState();
-    }
-
-    // NEW: Load previous search state AND RESULTS
-    private void LoadPreviousSearchState()
-    {
-        var savedState = _searchStateService.LoadSearchState();
-        if (savedState != null)
-        {
-            SearchQuery = savedState.SearchQuery;
-            SearchDirectory = savedState.SearchDirectory;
-            IsContentSearch = savedState.IsContentSearch;
-
-            // NEW: Restore search results
-            SearchResults.Clear();
-            foreach (var result in savedState.SearchResults)
-            {
-                SearchResults.Add(result);
-            }
-
-            System.Diagnostics.Debug.WriteLine($"[SearchViewModel] Previous search state restored: {SearchQuery} ({SearchResults.Count} results)");
-        }
-    }
-
-    // UPDATED: Save search state with results
-    private void SaveCurrentSearchState()
-    {
-        _searchStateService.SaveSearchState(SearchQuery, SearchDirectory, IsContentSearch, SearchResults);
-    }
-
-    [RelayCommand]
-    public void Preview(FileItem? fileItem)
-    {
-        if (fileItem == null) return;
-        SaveCurrentSearchState();  // NEW: Save state before navigating
-        _navigationService.NavigateTo(typeof(PreviewPage), fileItem, "Preview");
-    }
-
-    [RelayCommand]
-    private void OpenInBrowse(FileItem fileItem)
-    {
-        if (fileItem == null) return;
-
-        try
-        {
-            var directoryPath = Path.GetDirectoryName(fileItem.FullPath);
-            if (string.IsNullOrEmpty(directoryPath) || !Directory.Exists(directoryPath))
-            {
-                _infoBarService.Show("Error", "Directory not found.", InfoBarSeverity.Error);
-                return;
-            }
-
-            SaveCurrentSearchState();  // NEW: Save state before navigating
-            _navigationService.NavigateTo(typeof(BrowsePage), directoryPath, "Browse");
-            _infoBarService.Show("Success", $"Opened in Browse: {directoryPath}", InfoBarSeverity.Success, 2000);
-        }
-        catch (Exception ex)
-        {
-            _infoBarService.Show("Error", $"Could not open in browse: {ex.Message}", InfoBarSeverity.Error);
-        }
-    }
-
-    [RelayCommand]
-    private void CopyFilePath(FileItem fileItem)
-    {
-        if (fileItem == null) return;
-
-        try
-        {
-            var directoryPath = Path.GetDirectoryName(fileItem.FullPath);
-
-            if (string.IsNullOrEmpty(directoryPath))
-            {
-                _infoBarService.Show("Error", "Could not determine directory path.", InfoBarSeverity.Error);
-                return;
-            }
-
-            var dataPackage = new DataPackage();
-            dataPackage.SetText(directoryPath);
-            Clipboard.SetContent(dataPackage);
-
-            _infoBarService.Show("Success", "Directory path copied to clipboard.", InfoBarSeverity.Success, 2000);
-        }
-        catch (Exception ex)
-        {
-            _infoBarService.Show("Error", $"Could not copy directory path: {ex.Message}", InfoBarSeverity.Error);
-        }
-    }
-
-    [RelayCommand]
-    private void HandleItemDoubleClick(object selectedItem)
-    {
-        if (selectedItem is FileItem fileItem)
-        {
-            SaveCurrentSearchState();  // NEW: Save state before navigating
-            _navigationService.NavigateTo(typeof(PreviewPage), fileItem, "Preview");
-        }
     }
 
     [RelayCommand]
@@ -152,7 +44,7 @@ public partial class SearchViewModel : ObservableObject
     {
         var folderPicker = new FolderPicker();
         folderPicker.SuggestedStartLocation = PickerLocationId.DocumentsLibrary;
-        var hwnd = WinRT.Interop.WindowNative.GetWindowHandle(App.MainWindow);
+        var hwnd = WinRT.Interop.WindowNative.GetWindowHandle(MainWindow.Instance);
         WinRT.Interop.InitializeWithWindow.Initialize(folderPicker, hwnd);
         var folder = await folderPicker.PickSingleFolderAsync();
         if (folder != null)
@@ -162,13 +54,13 @@ public partial class SearchViewModel : ObservableObject
     }
 
     [RelayCommand]
-    private async Task Search()
+    private async void Search()
     {
         if (string.IsNullOrWhiteSpace(SearchQuery)) return;
 
         IsSearching = true;
+        StatusMessage = "Searching...";
         SearchResults.Clear();
-        _infoBarService.Show("Searching...", $"Searching for '{SearchQuery}'.", InfoBarSeverity.Informational, 3000);
 
         try
         {
@@ -179,48 +71,66 @@ public partial class SearchViewModel : ObservableObject
             }
             if (string.IsNullOrEmpty(rootPath))
             {
-                _infoBarService.Show("Warning", "No search directory selected. Please set the Root Directory in Settings.", InfoBarSeverity.Warning, 0);
+                StatusMessage = "No search directory selected. Please set the Root Directory in Settings.";
                 return;
             }
 
-            var results = IsContentSearch
-                ? await _searchService.SearchContentAsync(SearchQuery, rootPath)
-                : await _searchService.SearchFilesAsync(SearchQuery, rootPath);
+            var allFiles = Directory.GetFiles(rootPath, "*.*", SearchOption.AllDirectories).ToList();
+            var totalFiles = allFiles.Count;
 
-            foreach (var item in results)
-            {
-                SearchResults.Add(item);
-            }
-
-            SaveCurrentSearchState();  // NEW: Save state with results
-            _infoBarService.Show("Success", $"Search complete. Found {SearchResults.Count} files.", InfoBarSeverity.Success);
-            
-            _auditLoggingService.LogAudit(
-                "SEARCH_PERFORMED",
-                rootPath,
-                $"Search completed: '{SearchQuery}' ({(IsContentSearch ? "content" : "filename")} search) - {SearchResults.Count} results",
-                new System.Collections.Generic.Dictionary<string, string>
+            var files = allFiles
+                .Where(f => Path.GetExtension(f).ToLower() is ".txt" or ".csv" or ".log")
+                .Where(f =>
                 {
-                    { "query", SearchQuery },
-                    { "searchType", IsContentSearch ? "content" : "filename" },
-                    { "resultCount", SearchResults.Count.ToString() }
+                    if (IsContentSearch)
+                    {
+                        try
+                        {
+                            return Path.GetFileName(f).Contains(SearchQuery, StringComparison.OrdinalIgnoreCase) ||
+                                   File.ReadAllText(f).Contains(SearchQuery, StringComparison.OrdinalIgnoreCase);
+                        }
+                        catch
+                        {
+                            return false;
+                        }
+                    }
+                    else
+                    {
+                        return Path.GetFileName(f).Contains(SearchQuery, StringComparison.OrdinalIgnoreCase);
+                    }
+                })
+                .Take(100); // Limit results
+
+            foreach (var file in files)
+            {
+                var info = new FileInfo(file);
+                var owner = "N/A";
+                try
+                {
+                    var acl = info.GetAccessControl();
+                    owner = acl.GetOwner(typeof(System.Security.Principal.NTAccount)).Value;
                 }
-            );
+                catch { }
+                var sizeKb = info.Length / 1024.0;
+                SearchResults.Add(new FileItem
+                {
+                    Name = Path.GetFileName(file),
+                    FullPath = file,
+                    Type = GetFileType(file),
+                    Size = info.Length,
+                    SizeString = $"{sizeKb:F2} KB",
+                    CreatedDate = info.CreationTime,
+                    ModifiedDate = info.LastWriteTime,
+                    CreatedDateString = info.CreationTime.ToString("d"),
+                    ModifiedDateString = info.LastWriteTime.ToString("d"),
+                    Owner = owner
+                });
+            }
+            StatusMessage = $"Searched {totalFiles} files. Files found: {SearchResults.Count}";
         }
         catch (Exception ex)
         {
-            _infoBarService.Show("Error", $"An error occurred during search: {ex.Message}", InfoBarSeverity.Error, 0);
-            
-            _auditLoggingService.LogAudit(
-                "SEARCH_FAILED",
-                SearchDirectory,
-                $"Search failed for '{SearchQuery}': {ex.Message}",
-                new System.Collections.Generic.Dictionary<string, string>
-                {
-                    { "query", SearchQuery },
-                    { "error", ex.Message }
-                }
-            );
+            StatusMessage = $"Error: {ex.Message}";
         }
         finally
         {
@@ -228,12 +138,15 @@ public partial class SearchViewModel : ObservableObject
         }
     }
 
-    [RelayCommand]
-    private void Clear()
+    private FileType GetFileType(string path)
     {
-        SearchQuery = string.Empty;
-        SearchResults.Clear();
-        _searchStateService.ClearSearchState();
-        _infoBarService.Show("Cleared", "Search terms and results have been cleared.", InfoBarSeverity.Success, 2000);
+        var ext = Path.GetExtension(path).ToLower();
+        return ext switch
+        {
+            ".txt" => FileType.Text,
+            ".csv" => FileType.Csv,
+            ".log" => FileType.Log,
+            _ => FileType.Other
+        };
     }
 }

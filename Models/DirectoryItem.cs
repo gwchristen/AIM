@@ -1,25 +1,12 @@
-﻿using System.Collections.ObjectModel;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
+using System.Collections.ObjectModel;
 
 namespace AIM.Models;
 
-/// <summary>
-/// Represents a directory node in the file tree structure.
-/// Contains the directory name, full path, and its subdirectories.
-/// </summary>
-public class DirectoryItem
+public partial class DirectoryItem : ObservableObject
 {
-    /// <summary>
-    /// Gets or sets the directory name.
-    /// </summary>
-    public string Name { get; set; }
-    
-    /// <summary>
-    /// Gets or sets the full path to the directory.
-    /// </summary>
-    public string FullPath { get; set; }
-    
-    /// <summary>
-    /// Gets or sets the collection of subdirectories.
-    /// </summary>
-    public ObservableCollection<DirectoryItem> SubDirectories { get; set; } = new();
+    public string Name { get; set; } = string.Empty;
+    public string FullPath { get; set; } = string.Empty;
+    public bool IsExpanded { get; set; } = false;
+    public ObservableCollection<DirectoryItem> SubDirectories { get; } = new();
 }

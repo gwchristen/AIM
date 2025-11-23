@@ -1,146 +1,251 @@
 using AIM.Models;
 using AIM.ViewModels;
-using CommunityToolkit.Mvvm.DependencyInjection;
-using CommunityToolkit.WinUI.UI.Controls;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Navigation;
 using System;
 using System.IO;
-using System.Collections.Generic;
 using System.Linq;
-using Windows.ApplicationModel.DataTransfer;
 
-namespace AIM.Views
+namespace AIM.Views;
+
+public sealed partial class BrowsePage : Page
 {
-    public sealed partial class BrowsePage : Page
+    public BrowseViewModel ViewModel { get; set; }
+
+    public BrowsePage()
     {
-        private readonly BrowseViewModel ViewModel;
+        InitializeComponent();
+        ViewModel = new BrowseViewModel();
+        ViewModel.RenameRequested += OnRenameRequested;
+        ViewModel.DeleteRequested += OnDeleteRequested;
+        ViewModel.ShipRequested += OnShipRequested;
+    }
 
-        public BrowsePage()
+    protected override void OnNavigatedTo(NavigationEventArgs e)
+    {
+        if (e.Parameter is DirectoryItem item)
         {
-            this.InitializeComponent();
-            ViewModel = Ioc.Default.GetRequiredService<BrowseViewModel>();
-            this.DataContext = ViewModel;
+            ViewModel.UpdateLeftSelectedDirectory(item);
         }
+    }
 
-        protected override void OnNavigatedFrom(NavigationEventArgs e)
+    private async void OnRenameRequested(string fullPath, string currentName)
+    {
+        var dialog = new ContentDialog
         {
-            base.OnNavigatedFrom(e);
-            // Save state when navigating away from Browse tab
-            ViewModel.SaveCurrentBrowseState();
-            System.Diagnostics.Debug.WriteLine("[BrowsePage] Navigated away - state saved");
+            Title = "Rename File",
+            PrimaryButtonText = "Rename",
+            CloseButtonText = "Cancel",
+            Content = new TextBox { Text = currentName },
+            XamlRoot = this.XamlRoot
+        };
+        var result = await dialog.ShowAsync();
+        if (result == ContentDialogResult.Primary)
+        {
+            var newName = ((TextBox)dialog.Content).Text;
+            ViewModel.CompleteRename(newName);
         }
+    }
 
-        private void LeftBreadcrumbButton_Click(object sender, RoutedEventArgs e) { if ((sender as FrameworkElement)?.DataContext is BreadcrumbItem b) ViewModel.NavigateLeftBreadcrumbCommand.Execute(b); }
-        private void RightBreadcrumbButton_Click(object sender, RoutedEventArgs e) { if ((sender as FrameworkElement)?.DataContext is BreadcrumbItem b) ViewModel.NavigateRightBreadcrumbCommand.Execute(b); }
-
-        private void LeftDataGrid_Sorting(object sender, DataGridColumnEventArgs e)
+    private async void OnDeleteRequested(FileItem file)
+    {
+        var dialog = new ContentDialog
         {
-            if (e.Column.Tag is string sortPath)
+            Title = "Delete File",
+            Content = "Move to archive?",
+            PrimaryButtonText = "Yes",
+            CloseButtonText = "No",
+            XamlRoot = this.XamlRoot
+        };
+        var result = await dialog.ShowAsync();
+        if (result == ContentDialogResult.Primary)
+        {
+            ViewModel.CompleteDelete();
+        }
+    }
+
+    private async void OnShipRequested(FileItem file)
+    {
+        var dialog = new ContentDialog
+        {
+            Title = "Ship File",
+            Content = "Move to shipped folder?",
+            PrimaryButtonText = "Yes",
+            CloseButtonText = "No",
+            XamlRoot = this.XamlRoot
+        };
+        var result = await dialog.ShowAsync();
+        if (result == ContentDialogResult.Primary)
+        {
+            ViewModel.CompleteShip();
+        }
+    }
+
+    private void FilesDataGrid_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        // Selection is bound
+    }
+
+    private void LeftLevel1_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        ViewModel.LeftLevel2.Clear();
+        ViewModel.LeftLevel3.Clear();
+        if (ViewModel.SelectedLeftLevel1 != null)
+        {
+            foreach (var sub in ViewModel.SelectedLeftLevel1.SubDirectories.Where(s => ViewModel.HasContents(s)))
             {
-                ViewModel.SortCommand.Execute(sortPath);
+                ViewModel.LeftLevel2.Add(sub);
             }
         }
+        ViewModel.SelectedLeftLevel2 = null;
+        ViewModel.SelectedLeftLevel3 = null;
+        ViewModel.UpdateLeftSelectedDirectory();
+    }
 
-        private void LeftDataGrid_DragStarting(UIElement sender, DragStartingEventArgs e)
+    private void LeftLevel2_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        ViewModel.LeftLevel3.Clear();
+        if (ViewModel.SelectedLeftLevel2 != null)
         {
-            var filesToDrag = ViewModel.SelectedLeftItems.Cast<ContentItem>().Where(i => !i.IsFolder).ToList();
-            if (!filesToDrag.Any())
+            foreach (var sub in ViewModel.SelectedLeftLevel2.SubDirectories.Where(s => ViewModel.HasContents(s)))
             {
-                e.Cancel = true;
-                return;
+                ViewModel.LeftLevel3.Add(sub);
             }
-
-            e.Data.SetText(string.Join("|", filesToDrag.Select(i => i.FullPath)));
-            e.Data.RequestedOperation = DataPackageOperation.Move;
-
-            var dragVisual = new ItemsStackPanel();
-            dragVisual.Children.Add(new TextBlock { Text = $"{filesToDrag.Count} file(s)" });
-            e.DragUI.SetContentFromDataPackage();
         }
+        ViewModel.SelectedLeftLevel3 = null;
+        ViewModel.UpdateLeftSelectedDirectory();
+    }
 
-        private void LeftDataGrid_PointerPressed(object sender, PointerRoutedEventArgs e)
+    private void LeftLevel3_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        ViewModel.UpdateLeftSelectedDirectory();
+    }
+
+    private void ClearLeftLevel1_Click(object sender, RoutedEventArgs e)
+    {
+        ViewModel.SelectedLeftLevel1 = null;
+        ViewModel.LeftLevel2.Clear();
+        ViewModel.LeftLevel3.Clear();
+        ViewModel.UpdateLeftSelectedDirectory();
+    }
+
+    private void ClearLeftLevel2_Click(object sender, RoutedEventArgs e)
+    {
+        ViewModel.SelectedLeftLevel2 = null;
+        ViewModel.LeftLevel3.Clear();
+        ViewModel.UpdateLeftSelectedDirectory();
+    }
+
+    private void ClearLeftLevel3_Click(object sender, RoutedEventArgs e)
+    {
+        ViewModel.SelectedLeftLevel3 = null;
+        ViewModel.UpdateLeftSelectedDirectory();
+    }
+
+    private void RightLevel1_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        ViewModel.RightLevel2.Clear();
+        ViewModel.RightLevel3.Clear();
+        if (ViewModel.SelectedRightLevel1 != null)
         {
-            if (e.GetCurrentPoint(sender as UIElement).Properties.IsLeftButtonPressed)
+            foreach (var sub in ViewModel.SelectedRightLevel1.SubDirectories)
             {
-                if ((e.OriginalSource as FrameworkElement)?.DataContext is ContentItem item && item.IsFolder)
+                ViewModel.RightLevel2.Add(sub);
+            }
+        }
+        ViewModel.SelectedRightLevel2 = null;
+        ViewModel.SelectedRightLevel3 = null;
+        ViewModel.UpdateRightSelectedDirectory();
+    }
+
+    private void RightLevel2_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        ViewModel.RightLevel3.Clear();
+        if (ViewModel.SelectedRightLevel2 != null)
+        {
+            foreach (var sub in ViewModel.SelectedRightLevel2.SubDirectories)
+            {
+                ViewModel.RightLevel3.Add(sub);
+            }
+        }
+        ViewModel.SelectedRightLevel3 = null;
+        ViewModel.UpdateRightSelectedDirectory();
+    }
+
+    private void RightLevel3_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        ViewModel.UpdateRightSelectedDirectory();
+    }
+
+    private void ClearRightLevel1_Click(object sender, RoutedEventArgs e)
+    {
+        ViewModel.SelectedRightLevel1 = null;
+        ViewModel.RightLevel2.Clear();
+        ViewModel.RightLevel3.Clear();
+        ViewModel.UpdateRightSelectedDirectory();
+    }
+
+    private void ClearRightLevel2_Click(object sender, RoutedEventArgs e)
+    {
+        ViewModel.SelectedRightLevel2 = null;
+        ViewModel.RightLevel3.Clear();
+        ViewModel.UpdateRightSelectedDirectory();
+    }
+
+    private void ClearRightLevel3_Click(object sender, RoutedEventArgs e)
+    {
+        ViewModel.SelectedRightLevel3 = null;
+        ViewModel.UpdateRightSelectedDirectory();
+    }
+
+    private void FilteredContents_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        if (ViewModel.SelectedContent?.IsFolder == true)
+        {
+            var item = new DirectoryItem { Name = ViewModel.SelectedContent.Name, FullPath = ViewModel.SelectedContent.FullPath };
+            try
+            {
+                var subs = Directory.GetDirectories(item.FullPath).Select(d => new DirectoryItem { Name = Path.GetFileName(d), FullPath = d });
+                foreach (var sub in subs)
                 {
-                    ViewModel.SelectedLeftDirectory = new DirectoryItem { FullPath = item.FullPath, Name = item.Name };
+                    item.SubDirectories.Add(sub);
                 }
             }
+            catch { }
+            ViewModel.UpdateRightSelectedDirectory(item);
         }
+    }
 
-        private void LeftDataGrid_DoubleTapped(object sender, DoubleTappedRoutedEventArgs e)
+    private void FilesDataGrid_DoubleTapped(object sender, DoubleTappedRoutedEventArgs e)
+    {
+        var selectedFile = ViewModel.SelectedFile;
+        if (selectedFile != null)
         {
-            if ((e.OriginalSource as FrameworkElement)?.DataContext is ContentItem item && !item.IsFolder)
+            var mainWindow = MainWindow.Instance;
+            if (mainWindow != null)
             {
-                if (ViewModel.NavigateToPreviewCommand.CanExecute(null))
+                mainWindow.MainFrame.Navigate(typeof(PreviewPage), selectedFile);
+            }
+        }
+    }
+
+    private void RightFilteredContents_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        if (ViewModel.SelectedRightContent?.IsFolder == true)
+        {
+            var item = new DirectoryItem { Name = ViewModel.SelectedRightContent.Name, FullPath = ViewModel.SelectedRightContent.FullPath };
+            try
+            {
+                var subs = Directory.GetDirectories(item.FullPath).Select(d => new DirectoryItem { Name = Path.GetFileName(d), FullPath = d });
+                foreach (var sub in subs)
                 {
-                    ViewModel.NavigateToPreviewCommand.Execute(null);
+                    item.SubDirectories.Add(sub);
                 }
             }
-        }
-
-        private void LeftDataGrid_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            ViewModel.SelectedLeftItems.Clear();
-            foreach (var item in (sender as DataGrid).SelectedItems)
-            {
-                ViewModel.SelectedLeftItems.Add(item);
-            }
-        }
-
-        private void RightListView_DragOver(object sender, DragEventArgs e)
-        {
-            e.AcceptedOperation = DataPackageOperation.None;
-
-            if ((e.OriginalSource as FrameworkElement)?.DataContext is ContentItem targetItem && targetItem.IsFolder)
-            {
-                e.AcceptedOperation = DataPackageOperation.Move;
-                e.DragUIOverride.Caption = $"Move to {targetItem.Name}";
-            }
-            else if (ViewModel.SelectedRightDirectory != null)
-            {
-                e.AcceptedOperation = DataPackageOperation.Move;
-                e.DragUIOverride.Caption = $"Move to {ViewModel.SelectedRightDirectory.Name}";
-            }
-
-            e.DragUIOverride.IsCaptionVisible = true;
-        }
-
-        private async void RightListView_Drop(object sender, DragEventArgs e)
-        {
-            if (e.DataView.Contains(StandardDataFormats.Text))
-            {
-                var text = await e.DataView.GetTextAsync();
-                var filePaths = text.Split('|');
-
-                string destinationPath = null;
-
-                if ((e.OriginalSource as FrameworkElement)?.DataContext is ContentItem targetItem && targetItem.IsFolder)
-                {
-                    destinationPath = targetItem.FullPath;
-                }
-                else if (ViewModel.SelectedRightDirectory != null)
-                {
-                    destinationPath = ViewModel.SelectedRightDirectory.FullPath;
-                }
-
-                if (destinationPath != null)
-                {
-                    ViewModel.MoveFilesCommand.Execute(new Tuple<IEnumerable<string>, string>(filePaths, destinationPath));
-                }
-            }
-        }
-
-        private void RightListView_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            if ((sender as ListView)?.SelectedItem is ContentItem item && item.IsFolder)
-            {
-                ViewModel.SelectedRightDirectory = new DirectoryItem { FullPath = item.FullPath, Name = item.Name };
-            }
+            catch { }
+            ViewModel.NavigateToRightDirectory(item);
         }
     }
 }
