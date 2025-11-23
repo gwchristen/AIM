@@ -2,275 +2,222 @@ using AIM.Models;
 using AIM.Services;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using Microsoft.UI.Xaml;
 using System;
+using System.Collections.ObjectModel;
 using System.Diagnostics;
+using System.Security.AccessControl;
 using System.Threading.Tasks;
-using AIM.Services;
 
-namespace AIM.ViewModels;
-
-/// <summary>
-/// ViewModel for the Settings page, managing application configuration.
-/// </summary>
-public partial class SettingsViewModel : ObservableObject
+namespace AIM.ViewModels
 {
-    private readonly ISettingsService _settingsService;
-    private readonly IDialogService _dialogService;
-    private readonly IThemeService _themeService;
-    private readonly ILockService _lockService;
-    private readonly IAuditLoggingService _auditLoggingService;
-    private AppSettings _appSettings;
-
-    // Directory Settings Properties
-    
-    /// <summary>
-    /// Gets or sets the default root directory for file browsing operations.
-    /// </summary>
-    [ObservableProperty]
-    private string defaultRootDirectory;
-
-    /// <summary>
-    /// Gets or sets the path where archived files are stored.
-    /// </summary>
-    [ObservableProperty]
-    private string archivePath;
-
-    /// <summary>
-    /// Gets or sets the directory path for shipped items.
-    /// </summary>
-    [ObservableProperty]
-    private string shippedDirectory;
-
-    /// <summary>
-    /// Gets or sets the directory where file scan results are stored.
-    /// </summary>
-    [ObservableProperty]
-    private string fileScansDirectory;
-
-    /// <summary>
-    /// Gets or sets the directory where inventory archives are stored.
-    /// </summary>
-    [ObservableProperty]
-    private string inventoryArchiveDirectory;
-
-    // Theme Properties
-
-    /// <summary>
-    /// Gets or sets the selected theme.
-    /// </summary>
-    [ObservableProperty]
-    private string selectedTheme;
-
-    /// <summary>
-    /// Gets whether directory controls are enabled (not locked).
-    /// </summary>
-    [ObservableProperty]
-    private bool areDirectoryControlsEnabled;
-
-    /// <summary>
-    /// Initializes a new instance of the <see cref="SettingsViewModel"/> class.
-    /// </summary>
-    public SettingsViewModel(
-        ISettingsService settingsService,
-        IDialogService dialogService,
-        IThemeService themeService,
-        ILockService lockService,
-        IAuditLoggingService auditLoggingService)
+    public partial class SettingsViewModel : ObservableObject
     {
-        _settingsService = settingsService;
-        _dialogService = dialogService;
-        _themeService = themeService;
-        _lockService = lockService;
-        _auditLoggingService = auditLoggingService;
+        private readonly ISettingsService _settingsService;
+        private readonly IDialogService _dialogService;
+        private readonly IThemeService _themeService;
+        private readonly ILockService _lockService;
+        private readonly IAuditLoggingService _auditLoggingService;
+        private AppSettings _appSettings;
 
-        // Subscribe to lock state changes
-        _lockService.LockStateChanged += OnLockStateChanged;
-        AreDirectoryControlsEnabled = !_lockService.IsLocked;
+        // Directory Properties
+        [ObservableProperty]
+        private string defaultRootDirectory;
 
-        LoadSettings();
-    }
+        [ObservableProperty]
+        private string archivePath;
 
-    private void OnLockStateChanged(object? sender, LockStateChangedEventArgs e)
-    {
-        bool isLocked = e.IsLocked;
-        // rest of implementation
-    }
+        [ObservableProperty]
+        private string shippedDirectory;
 
-    /// <summary>
-    /// Loads application settings.
-    /// </summary>
-    private void LoadSettings()
-    {
-        try
+        [ObservableProperty]
+        private string fileScansDirectory;
+
+        [ObservableProperty]
+        private string inventoryArchiveDirectory;
+
+        // Theme Properties
+        [ObservableProperty]
+        private string selectedTheme;
+
+        // Control Enabled Properties
+        [ObservableProperty]
+        private bool areDirectoryControlsEnabled;
+
+        // Audit Log Properties
+        [ObservableProperty]
+        private ObservableCollection<LogEntry> auditLogs = new();
+
+        [ObservableProperty]
+        private int logEntryCount;
+
+        public SettingsViewModel(
+            ISettingsService settingsService,
+            IDialogService dialogService,
+            IThemeService themeService,
+            ILockService lockService,
+            IAuditLoggingService auditLoggingService)
         {
-            _appSettings = _settingsService.LoadSettings();
+            _settingsService = settingsService;
+            _dialogService = dialogService;
+            _themeService = themeService;
+            _lockService = lockService;
+            _auditLoggingService = auditLoggingService;
 
-            DefaultRootDirectory = _appSettings.DefaultRootDirectory;
-            ArchivePath = _appSettings.ArchivePath;
-            ShippedDirectory = _appSettings.ShippedDirectory;
-            FileScansDirectory = _appSettings.FileScansDirectory;
-            InventoryArchiveDirectory = _appSettings.InventoryArchiveDirectory;
-            SelectedTheme = _appSettings.Theme;
+            // Subscribe to lock state changes
+            _lockService.LockStateChanged += OnLockStateChanged;
+            AreDirectoryControlsEnabled = !_lockService.IsLocked;
 
-            Debug.WriteLine("[SettingsViewModel] Settings loaded successfully");
+            LoadSettings();
         }
-        catch (Exception ex)
+
+        private void OnLockStateChanged(object? sender, LockStateChangedEventArgs e)
         {
-            Debug.WriteLine($"[SettingsViewModel] Error loading settings: {ex.Message}");
+            AreDirectoryControlsEnabled = !e.IsLocked;
+            Debug.WriteLine($"[SettingsViewModel] Directory controls enabled: {AreDirectoryControlsEnabled}");
         }
-    }
 
-    /// <summary>
-    /// Saves the current settings.
-    /// </summary>
-    [RelayCommand]
-    private async Task SaveSettingsAsync()
-    {
-        try
+        private void LoadSettings()
         {
-            var oldSettings = new 
+            try
             {
-                DefaultRootDirectory = _appSettings.DefaultRootDirectory,
-                ArchivePath = _appSettings.ArchivePath,
-                ShippedDirectory = _appSettings.ShippedDirectory,
-                FileScansDirectory = _appSettings.FileScansDirectory,
-                InventoryArchiveDirectory = _appSettings.InventoryArchiveDirectory,
-                Theme = _appSettings.Theme
-            };
+                _appSettings = _settingsService.LoadSettings();
 
-            _appSettings.DefaultRootDirectory = DefaultRootDirectory;
-            _appSettings.ArchivePath = ArchivePath;
-            _appSettings.ShippedDirectory = ShippedDirectory;
-            _appSettings.FileScansDirectory = FileScansDirectory;
-            _appSettings.InventoryArchiveDirectory = InventoryArchiveDirectory;
-            _appSettings.Theme = SelectedTheme;
+                DefaultRootDirectory = _appSettings.DefaultRootDirectory;
+                ArchivePath = _appSettings.ArchivePath;
+                ShippedDirectory = _appSettings.ShippedDirectory;
+                FileScansDirectory = _appSettings.FileScansDirectory;
+                InventoryArchiveDirectory = _appSettings.InventoryArchiveDirectory;
+                SelectedTheme = _appSettings.Theme;
 
-            _settingsService.SaveSettings(_appSettings);
-
-            Debug.WriteLine("[SettingsViewModel] Settings saved successfully");
-
-            // Log settings changes
-            var changes = new System.Collections.Generic.Dictionary<string, string>();
-            if (oldSettings.DefaultRootDirectory != DefaultRootDirectory)
-                changes["DefaultRootDirectory"] = $"{oldSettings.DefaultRootDirectory} → {DefaultRootDirectory}";
-            if (oldSettings.ArchivePath != ArchivePath)
-                changes["ArchivePath"] = $"{oldSettings.ArchivePath} → {ArchivePath}";
-            if (oldSettings.ShippedDirectory != ShippedDirectory)
-                changes["ShippedDirectory"] = $"{oldSettings.ShippedDirectory} → {ShippedDirectory}";
-            if (oldSettings.FileScansDirectory != FileScansDirectory)
-                changes["FileScansDirectory"] = $"{oldSettings.FileScansDirectory} → {FileScansDirectory}";
-            if (oldSettings.InventoryArchiveDirectory != InventoryArchiveDirectory)
-                changes["InventoryArchiveDirectory"] = $"{oldSettings.InventoryArchiveDirectory} → {InventoryArchiveDirectory}";
-            if (oldSettings.Theme != SelectedTheme)
-                changes["Theme"] = $"{oldSettings.Theme} → {SelectedTheme}";
-
-            if (changes.Count > 0)
+                Debug.WriteLine("[SettingsViewModel] Settings loaded successfully");
+            }
+            catch (Exception ex)
             {
-                _auditLoggingService.LogAudit(
-                    "SETTINGS_CHANGED",
-                    null,
-                    $"User modified {changes.Count} setting(s)",
-                    changes
-                );
+                Debug.WriteLine($"[SettingsViewModel] Error loading settings: {ex.Message}");
             }
 
-            await _dialogService.ShowMessageAsync("Success", "Settings saved successfully.");
+            // Load audit logs
+            _ = LoadAuditLogsAsync();
         }
-        catch (Exception ex)
+
+        [RelayCommand]
+        private async Task SaveSettingsAsync()
         {
-            Debug.WriteLine($"[SettingsViewModel] Error saving settings: {ex.Message}");
-            await _dialogService.ShowMessageAsync("Error", $"Failed to save settings: {ex.Message}");
-            
+            try
+            {
+                _appSettings.DefaultRootDirectory = DefaultRootDirectory;
+                _appSettings.ArchivePath = ArchivePath;
+                _appSettings.ShippedDirectory = ShippedDirectory;
+                _appSettings.FileScansDirectory = FileScansDirectory;
+                _appSettings.InventoryArchiveDirectory = InventoryArchiveDirectory;
+                _appSettings.Theme = SelectedTheme;
+
+                _settingsService.SaveSettings(_appSettings);
+
+                _auditLoggingService.LogAudit(
+                    "SETTINGS_SAVED",
+                    null,
+                    "Application settings saved"
+                );
+
+                await _dialogService.ShowSuccessDialog("Success", "Settings saved successfully.");
+
+                Debug.WriteLine("[SettingsViewModel] Settings saved successfully");
+            }
+            catch (Exception ex)
+            {
+                await _dialogService.ShowErrorDialogAsync("Error", $"Failed to save settings: {ex.Message}");
+                Debug.WriteLine($"[SettingsViewModel] Error saving settings: {ex.Message}");
+            }
+        }
+
+        [RelayCommand]
+        private async Task SelectDefaultRootDirectoryAsync()
+        {
+            var path = await _dialogService.PickFolderAsync();
+            if (!string.IsNullOrEmpty(path))
+            {
+                DefaultRootDirectory = path;
+            }
+        }
+
+        [RelayCommand]
+        private async Task SelectArchivePathAsync()
+        {
+            var path = await _dialogService.PickFolderAsync();
+            if (!string.IsNullOrEmpty(path))
+            {
+                ArchivePath = path;
+            }
+        }
+
+        [RelayCommand]
+        private async Task SelectShippedDirectoryAsync()
+        {
+            var path = await _dialogService.PickFolderAsync();
+            if (!string.IsNullOrEmpty(path))
+            {
+                ShippedDirectory = path;
+            }
+        }
+
+        [RelayCommand]
+        private async Task SelectFileScansDirectoryAsync()
+        {
+            var path = await _dialogService.PickFolderAsync();
+            if (!string.IsNullOrEmpty(path))
+            {
+                FileScansDirectory = path;
+            }
+        }
+
+        [RelayCommand]
+        private async Task SelectInventoryArchiveDirectoryAsync()
+        {
+            var path = await _dialogService.PickFolderAsync();
+            if (!string.IsNullOrEmpty(path))
+            {
+                InventoryArchiveDirectory = path;
+            }
+        }
+
+        [RelayCommand]
+        private async Task RefreshLogsAsync()
+        {
+            await LoadAuditLogsAsync();
+        }
+
+        [RelayCommand]
+        private void ClearLogs()
+        {
+            AuditLogs.Clear();
+            LogEntryCount = 0;
+
             _auditLoggingService.LogAudit(
-                "SETTINGS_SAVE_FAILED",
+                "AUDIT_LOGS_CLEARED",
                 null,
-                $"Failed to save settings: {ex.Message}",
-                new System.Collections.Generic.Dictionary<string, string> { { "error", ex.Message } }
+                "Audit logs cleared by user from Settings page"
             );
         }
-    }
 
-    /// <summary>
-    /// Handles changes to the selected theme.
-    /// </summary>
-    partial void OnSelectedThemeChanged(string value)
-    {
-        if (_themeService != null && !string.IsNullOrEmpty(value) && value != _appSettings.Theme)
+        private async Task LoadAuditLogsAsync()
         {
-            _themeService.SetTheme(value);
-            Debug.WriteLine($"[SettingsViewModel] Theme changed to: {value}");
-            
-            _auditLoggingService.LogAudit(
-                "THEME_CHANGED",
-                null,
-                $"Theme changed from '{_appSettings.Theme}' to '{value}'"
-            );
-        }
-    }
+            try
+            {
+                var logs = await _auditLoggingService.ReadAuditLogsAsync(1000);
+                AuditLogs.Clear();
+                foreach (var log in logs)
+                {
+                    AuditLogs.Add(log);
+                }
+                LogEntryCount = AuditLogs.Count;
 
-    /// <summary>
-    /// Selects a directory for the default root directory.
-    /// </summary>
-    [RelayCommand]
-    private async Task SelectDefaultRootDirectoryAsync()
-    {
-        var selectedPath = await _dialogService.PickFolderAsync();
-        if (!string.IsNullOrEmpty(selectedPath))
-        {
-            DefaultRootDirectory = selectedPath;
-        }
-    }
-
-    /// <summary>
-    /// Selects a directory for the archive path.
-    /// </summary>
-    [RelayCommand]
-    private async Task SelectArchivePathAsync()
-    {
-        var selectedPath = await _dialogService.PickFolderAsync();
-        if (!string.IsNullOrEmpty(selectedPath))
-        {
-            ArchivePath = selectedPath;
-        }
-    }
-
-    /// <summary>
-    /// Selects a directory for the shipped directory.
-    /// </summary>
-    [RelayCommand]
-    private async Task SelectShippedDirectoryAsync()
-    {
-        var selectedPath = await _dialogService.PickFolderAsync();
-        if (!string.IsNullOrEmpty(selectedPath))
-        {
-            ShippedDirectory = selectedPath;
-        }
-    }
-
-    /// <summary>
-    /// Selects a directory for the file scans directory.
-    /// </summary>
-    [RelayCommand]
-    private async Task SelectFileScansDirectoryAsync()
-    {
-        var selectedPath = await _dialogService.PickFolderAsync();
-        if (!string.IsNullOrEmpty(selectedPath))
-        {
-            FileScansDirectory = selectedPath;
-        }
-    }
-
-    /// <summary>
-    /// Selects a directory for the inventory archive directory.
-    /// </summary>
-    [RelayCommand]
-    private async Task SelectInventoryArchiveDirectoryAsync()
-    {
-        var selectedPath = await _dialogService.PickFolderAsync();
-        if (!string.IsNullOrEmpty(selectedPath))
-        {
-            InventoryArchiveDirectory = selectedPath;
+                Debug.WriteLine($"[SettingsViewModel] Loaded {AuditLogs.Count} audit log entries");
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"[SettingsViewModel] Error loading audit logs: {ex.Message}");
+            }
         }
     }
 }

@@ -26,6 +26,7 @@
             <converters:ProgressColorConverter x:Key="ProgressColorConverter"/>
             <converters:AccessLevelColorConverter x:Key="AccessLevelColorConverter"/>
             <local:DateTimeConverter x:Key="DateTimeConverter"/>
+            <converters:CountToMessageConverter x:Key="CountToMessageConverter" />
 
             <Style TargetType="RadioButton" x:Key="TileRadioButton">
                 <Setter Property="Background" Value="Transparent"/>

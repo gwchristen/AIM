@@ -81,10 +81,10 @@ public partial class MainViewModel : ObservableObject
         );
     }
 
-    private void OnLockStateChanged(object? sender, bool isLocked)
+    private void OnLockStateChanged(object? sender, LockStateChangedEventArgs e)
     {
-        IsLocked = isLocked;
-        Debug.WriteLine($"[MainViewModel] Lock state changed: {isLocked}");
+        IsLocked = e.IsLocked;
+        Debug.WriteLine($"[MainViewModel] Lock state changed: {e.IsLocked}");
     }
 
     /// <summary>

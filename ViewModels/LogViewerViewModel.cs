@@ -6,6 +6,7 @@ using System;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
+using AIM.Services;
 
 namespace AIM.ViewModels;
 
@@ -72,9 +73,9 @@ public partial class LogViewerViewModel : ObservableObject
         }
     }
 
-    private void OnLockStateChanged(object? sender, bool isLocked)
+    private void OnLockStateChanged(object? sender, LockStateChangedEventArgs e)
     {
-        IsClearLogsEnabled = !isLocked;
+        IsClearLogsEnabled = !e.IsLocked;
     }
 
     /// <summary>
