@@ -1,230 +1,166 @@
-using AIM.Services;
+using AIM.Models;
 using AIM.ViewModels;
 using AIM.Views;
-using CommunityToolkit.Mvvm.DependencyInjection;
-using Microsoft.UI.Text;
+using CommunityToolkit.Mvvm.ComponentModel;
+using Microsoft.UI.Composition.SystemBackdrops;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Navigation;
+using Microsoft.UI.Xaml.Media;
 using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
-using System.Linq;
 using System.Threading.Tasks;
+using Windows.Storage.Pickers;
+using WinRT;
 
-namespace AIM
+namespace AIM;
+
+[ObservableObject]
+public sealed partial class MainWindow : Window
 {
-    public sealed partial class MainWindow : Window
+    public static MainWindow? Instance { get; private set; }
+
+    public MainViewModel ViewModel { get; }
+
+    [ObservableProperty]
+    private bool isBrowseSelected = true;
+
+    [ObservableProperty]
+    private bool isPreviewSelected;
+
+    [ObservableProperty]
+    private bool isSearchSelected;
+
+    [ObservableProperty]
+    private bool isScansSelected;
+
+    [ObservableProperty]
+    private bool isInvArchivesSelected;
+
+    [ObservableProperty]
+    private bool isStatsSelected;
+
+    [ObservableProperty]
+    private bool isSettingsSelected;
+
+    public MainWindow()
     {
+        Instance = this;
+        ViewModel = new MainViewModel();
+        InitializeComponent();
+        
+        // Apply Mica backdrop
+        SystemBackdrop = new MicaBackdrop() { Kind = MicaKind.Base };
+        
+        MainFrame.Navigate(typeof(BrowsePage));
+    }
 
-        private readonly INavigationService _navigationService;
-        private MainViewModel _mainViewModel;
-
-        public MainWindow()
+    private void NavView_SelectionChanged(NavigationView sender, NavigationViewSelectionChangedEventArgs args)
+    {
+        if (args.IsSettingsSelected)
         {
-            this.InitializeComponent();
-            _navigationService = Ioc.Default.GetRequiredService<INavigationService>();
-            _navigationService.Initialize(ContentFrame);
-
-            // Subscribe to navigation requests to highlight the correct tab
-            _navigationService.NavigationRequested += OnNavigationRequested;
-
-            // Subscribe to frame navigation to update tab selection on back button
-            ContentFrame.Navigated += ContentFrame_Navigated;
-
-            // Get MainViewModel
-            _mainViewModel = Ioc.Default.GetRequiredService<MainViewModel>();
-
-            Debug.WriteLine($"[MainWindow] MainViewModel obtained.");
-
-            // Subscribe to property changes
-            _mainViewModel.PropertyChanged += MainViewModel_PropertyChanged;
-
-            if (this.Content is FrameworkElement rootElement)
-            {
-                rootElement.DataContext = _mainViewModel;
-            }
-
-            // Update lock button based on initial state
-            UpdateLockButton();
-
-            Debug.WriteLine($"[MainWindow] Constructor complete.");
+            MainFrame.Navigate(typeof(SettingsPage));
+            return;
         }
 
-        private void OnNavigationRequested(string navigationTag)
+        var selectedItem = args.SelectedItem as NavigationViewItem;
+        if (selectedItem != null)
         {
-            Debug.WriteLine($"[MainWindow] Navigation requested for tag: {navigationTag}");
-            SelectNavigationItem(navigationTag);
-        }
-
-        private void ContentFrame_Navigated(object sender, NavigationEventArgs e)
-        {
-            // Update the selected navigation item based on the current page type
-            var currentPageType = ContentFrame.CurrentSourcePageType;
-            var navigationTag = GetNavigationTagForPageType(currentPageType);
-
-            if (!string.IsNullOrEmpty(navigationTag))
+            var tag = selectedItem.Tag?.ToString();
+            switch (tag)
             {
-                Debug.WriteLine($"[MainWindow] Frame navigated to: {currentPageType.Name}, selecting tag: {navigationTag}");
-                SelectNavigationItem(navigationTag);
-            }
-        }
-
-        private string? GetNavigationTagForPageType(Type pageType)
-        {
-            return pageType switch
-            {
-                _ when pageType == typeof(BrowsePage) => "Browse",
-                _ when pageType == typeof(PreviewPage) => "Preview",
-                _ when pageType == typeof(SearchPage) => "Search",
-                _ when pageType == typeof(ScansPage) => "Scans",
-                _ when pageType == typeof(InventoryAdminToolsPage) => "InventoryAdminTools",
-                _ when pageType == typeof(InventoryViewerPage) => "InventoryViewer",
-                _ when pageType == typeof(DirAnalysisPage) => "DirAnalysis",
-                _ when pageType == typeof(FormGeneratorPage) => "PaperworkForms",
-                _ when pageType == typeof(StatsPage) => "Stats",
-                _ when pageType == typeof(LogViewerPage) => "LogViewer",
-                _ when pageType == typeof(SettingsPage) => "Settings",
-                _ => null
-            };
-        }
-
-        private void NavView_Loaded(object sender, RoutedEventArgs e)
-        {
-            Debug.WriteLine($"[MainWindow] NavView_Loaded called");
-
-            // Force rebuild of the directory tree to ensure it's populated
-            if (!string.IsNullOrEmpty(_mainViewModel.SelectedRoot) && Directory.Exists(_mainViewModel.SelectedRoot))
-            {
-                Debug.WriteLine($"[MainWindow] Rebuilding tree for: {_mainViewModel.SelectedRoot}");
-                // Trigger a re-initialization by setting SelectedRoot to itself
-                var currentRoot = _mainViewModel.SelectedRoot;
-                _mainViewModel.SelectedRoot = currentRoot;
-            }
-
-            var browseItem = NavView.MenuItems.OfType<NavigationViewItem>().FirstOrDefault(i => i.Tag?.ToString() == "Browse");
-            if (browseItem != null)
-            {
-                NavView.SelectedItem = browseItem;
-                _navigationService.NavigateTo(typeof(BrowsePage));
-            }
-        }
-
-        private void MainViewModel_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
-        {
-            // Handle property changes if needed
-            if (e.PropertyName == nameof(MainViewModel.IsLocked))
-            {
-                UpdateLockButton();
-            }
-        }
-
-        private void UpdateLockButton()
-        {
-            if (_mainViewModel.IsLocked)
-            {
-                LockMenuItem.Content = "🔒 Unlock";
-                LockIcon.Glyph = "\uE72E"; // Lock icon
-            }
-            else
-            {
-                LockMenuItem.Content = "🔓 Lock";
-                LockIcon.Glyph = "\uE785"; // Unlock icon
-            }
-        }
-
-        private void NavView_ItemInvoked(NavigationView sender, NavigationViewItemInvokedEventArgs args)
-        {
-            if (args.IsSettingsInvoked)
-            {
-                SelectNavigationItem("Settings");
-                _navigationService.NavigateTo(typeof(SettingsPage));
-            }
-            else if (args.InvokedItemContainer?.Tag is string navItemTag && !string.IsNullOrEmpty(navItemTag))
-            {
-                if (navItemTag == "LockToggle")
-                {
-                    // Toggle lock state
-                    _mainViewModel.ToggleLockCommand.Execute(null);
-                }
-                else if (navItemTag == "RefreshTree")
-                {
-                    // Refresh the root directory tree
-                    if (!string.IsNullOrEmpty(_mainViewModel.SelectedRoot) && Directory.Exists(_mainViewModel.SelectedRoot))
-                    {
-                        Debug.WriteLine($"[MainWindow] Refreshing directory tree for: {_mainViewModel.SelectedRoot}");
-                        var currentRoot = _mainViewModel.SelectedRoot;
-                        _mainViewModel.SelectedRoot = currentRoot;
-                    }
-                }
-                else
-                {
-                    NavigateToPage(navItemTag);
-                }
+                case "SelectRoot":
+                    SelectCustomRoot();
+                    // Don't navigate, keep current page
+                    break;
+                case "RefreshTree":
+                    ViewModel.RefreshTreeCommand.Execute(null);
+                    // Don't navigate, keep current page
+                    break;
+                case "Browse":
+                    MainFrame.Navigate(typeof(BrowsePage));
+                    IsBrowseSelected = true;
+                    IsPreviewSelected = false;
+                    IsSearchSelected = false;
+                    IsScansSelected = false;
+                    IsInvArchivesSelected = false;
+                    IsStatsSelected = false;
+                    IsSettingsSelected = false;
+                    break;
+                case "Preview":
+                    MainFrame.Navigate(typeof(PreviewPage));
+                    IsBrowseSelected = false;
+                    IsPreviewSelected = true;
+                    IsSearchSelected = false;
+                    IsScansSelected = false;
+                    IsInvArchivesSelected = false;
+                    IsStatsSelected = false;
+                    IsSettingsSelected = false;
+                    break;
+                case "Search":
+                    MainFrame.Navigate(typeof(SearchPage));
+                    IsBrowseSelected = false;
+                    IsPreviewSelected = false;
+                    IsSearchSelected = true;
+                    IsScansSelected = false;
+                    IsInvArchivesSelected = false;
+                    IsStatsSelected = false;
+                    IsSettingsSelected = false;
+                    break;
+                case "Scans":
+                    MainFrame.Navigate(typeof(ScansPage));
+                    IsBrowseSelected = false;
+                    IsPreviewSelected = false;
+                    IsSearchSelected = false;
+                    IsScansSelected = true;
+                    IsInvArchivesSelected = false;
+                    IsStatsSelected = false;
+                    IsSettingsSelected = false;
+                    break;
+                case "InvArchives":
+                    MainFrame.Navigate(typeof(InvArchivesPage));
+                    IsBrowseSelected = false;
+                    IsPreviewSelected = false;
+                    IsSearchSelected = false;
+                    IsScansSelected = false;
+                    IsInvArchivesSelected = true;
+                    IsStatsSelected = false;
+                    IsSettingsSelected = false;
+                    break;
+                case "Stats":
+                    MainFrame.Navigate(typeof(StatsPage));
+                    IsBrowseSelected = false;
+                    IsPreviewSelected = false;
+                    IsSearchSelected = false;
+                    IsScansSelected = false;
+                    IsInvArchivesSelected = false;
+                    IsStatsSelected = true;
+                    IsSettingsSelected = false;
+                    break;
+                case "Settings":
+                    MainFrame.Navigate(typeof(SettingsPage));
+                    IsBrowseSelected = false;
+                    IsPreviewSelected = false;
+                    IsSearchSelected = false;
+                    IsScansSelected = false;
+                    IsInvArchivesSelected = false;
+                    IsStatsSelected = false;
+                    IsSettingsSelected = true;
+                    break;
             }
         }
+    }
 
-        private void NavigateToPage(string navItemTag)
+    private void SelectCustomRoot()
+    {
+        var folderPicker = new FolderPicker();
+        folderPicker.SuggestedStartLocation = PickerLocationId.Desktop;
+        var hwnd = WinRT.Interop.WindowNative.GetWindowHandle(this);
+        WinRT.Interop.InitializeWithWindow.Initialize(folderPicker, hwnd);
+        folderPicker.PickSingleFolderAsync().AsTask().ContinueWith(t =>
         {
-            Type? pageType = navItemTag switch
+            if (t.Result != null)
             {
-                "RefreshTree" => null,
-                "Browse" => typeof(BrowsePage),
-                "Preview" => typeof(PreviewPage),
-                "Search" => typeof(SearchPage),
-                "Scans" => typeof(ScansPage),
-                "InventoryAdminTools" => typeof(InventoryAdminToolsPage),
-                "InventoryViewer" => typeof(InventoryViewerPage),
-                "DirAnalysis" => typeof(DirAnalysisPage),
-                "PaperworkForms" => typeof(FormGeneratorPage),
-                "Stats" => typeof(StatsPage),
-                "LogViewer" => typeof(LogViewerPage),
-                _ => null
-            };
-
-            if (pageType != null && ContentFrame.CurrentSourcePageType != pageType)
-            {
-                SelectNavigationItem(navItemTag);
-                _navigationService.NavigateTo(pageType);
+                ViewModel.SelectedRoot = t.Result.Path;
             }
-        }
-
-        private void SelectNavigationItem(string tag)
-        {
-            var item = FindNavigationItemByTag(NavView.MenuItems, tag);
-            if (item != null)
-            {
-                NavView.SelectedItem = item;
-                Debug.WriteLine($"[MainWindow] Selected navigation item: {tag}");
-            }
-            else if (tag == "Settings")
-            {
-                NavView.SelectedItem = NavView.SettingsItem;
-                Debug.WriteLine($"[MainWindow] Selected settings item");
-            }
-        }
-
-        private NavigationViewItem? FindNavigationItemByTag(IEnumerable<object> items, string tag)
-        {
-            foreach (var item in items)
-            {
-                if (item is NavigationViewItem navItem)
-                {
-                    if (navItem.Tag?.ToString() == tag)
-                    {
-                        return navItem;
-                    }
-
-                    // Check sub-items (for nested menu items like Inventory)
-                    if (navItem.MenuItems.Count > 0)
-                    {
-                        var found = FindNavigationItemByTag(navItem.MenuItems, tag);
-                        if (found != null) return found;
-                    }
-                }
-            }
-            return null;
-        }
+        }, TaskScheduler.FromCurrentSynchronizationContext());
     }
 }

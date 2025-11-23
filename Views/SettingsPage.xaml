@@ -1,228 +1,81 @@
-<?xml version="1.0" encoding="utf-8"?>
 <Page
     x:Class="AIM.Views.SettingsPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:AIM"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:controls="using:CommunityToolkit.WinUI.UI.Controls"
     mc:Ignorable="d">
 
-    <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
-            <RowDefinition Height="Auto"/>
-        </Grid.RowDefinitions>
-
-        <!-- Page Title -->
-        <StackPanel Grid.Row="0" Margin="24,24,24,0" Spacing="8">
-            <TextBlock Text="⚙️ Settings" Style="{ThemeResource TitleTextBlockStyle}"/>
-            <TextBlock Text="Manage application configuration and view audit logs" Foreground="{ThemeResource TextFillColorSecondaryBrush}" Style="{ThemeResource BodyTextBlockStyle}"/>
-        </StackPanel>
-
-        <!-- TabView for Settings Sections -->
-        <TabView Grid.Row="1" Margin="24,16,24,16">
-            <!-- Tab 1: Directory Settings -->
-            <TabViewItem Header="📁 Directories">
-                <ScrollViewer VerticalScrollBarVisibility="Auto">
-                    <StackPanel Spacing="24" Padding="16,16,16,16">
-                        <TextBlock Text="Configure Directory Paths" Style="{ThemeResource SubtitleTextBlockStyle}"/>
-
-                        <Border BorderBrush="{ThemeResource CardStrokeColorDefault}" BorderThickness="1" CornerRadius="8" Background="{ThemeResource CardBackgroundFillColorDefault}" Padding="16">
-                            <StackPanel Spacing="8">
-                                <StackPanel Orientation="Horizontal" Spacing="8">
-                                    <TextBlock Text="📂" FontSize="20" VerticalAlignment="Center"/>
-                                    <TextBlock Text="Default Root Directory" FontWeight="SemiBold" VerticalAlignment="Center"/>
-                                </StackPanel>
-                                <TextBlock Text="The main directory where all file operations begin" Foreground="{ThemeResource TextFillColorSecondaryBrush}" Style="{ThemeResource CaptionTextBlockStyle}" TextWrapping="Wrap"/>
-                                <Grid ColumnSpacing="8" Margin="0,8,0,0">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="Auto"/>
-                                    </Grid.ColumnDefinitions>
-                                    <TextBox Grid.Column="0" Text="{Binding DefaultRootDirectory, Mode=TwoWay}" IsEnabled="{Binding AreDirectoryControlsEnabled}" PlaceholderText="Enter directory path..."/>
-                                    <Button Grid.Column="1" Content="Browse" Command="{Binding SelectDefaultRootDirectoryCommand}" IsEnabled="{Binding AreDirectoryControlsEnabled}" Padding="24,8"/>
-                                </Grid>
-                            </StackPanel>
-                        </Border>
-
-                        <Border BorderBrush="{ThemeResource CardStrokeColorDefault}" BorderThickness="1" CornerRadius="8" Background="{ThemeResource CardBackgroundFillColorDefault}" Padding="16">
-                            <StackPanel Spacing="8">
-                                <StackPanel Orientation="Horizontal" Spacing="8">
-                                    <TextBlock Text="📦" FontSize="20" VerticalAlignment="Center"/>
-                                    <TextBlock Text="Archive Path" FontWeight="SemiBold" VerticalAlignment="Center"/>
-                                </StackPanel>
-                                <TextBlock Text="Location where archived files are stored" Foreground="{ThemeResource TextFillColorSecondaryBrush}" Style="{ThemeResource CaptionTextBlockStyle}" TextWrapping="Wrap"/>
-                                <Grid ColumnSpacing="8" Margin="0,8,0,0">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="Auto"/>
-                                    </Grid.ColumnDefinitions>
-                                    <TextBox Grid.Column="0" Text="{Binding ArchivePath, Mode=TwoWay}" IsEnabled="{Binding AreDirectoryControlsEnabled}" PlaceholderText="Enter directory path..."/>
-                                    <Button Grid.Column="1" Content="Browse" Command="{Binding SelectArchivePathCommand}" IsEnabled="{Binding AreDirectoryControlsEnabled}" Padding="24,8"/>
-                                </Grid>
-                            </StackPanel>
-                        </Border>
-
-                        <Border BorderBrush="{ThemeResource CardStrokeColorDefault}" BorderThickness="1" CornerRadius="8" Background="{ThemeResource CardBackgroundFillColorDefault}" Padding="16">
-                            <StackPanel Spacing="8">
-                                <StackPanel Orientation="Horizontal" Spacing="8">
-                                    <TextBlock Text="🚚" FontSize="20" VerticalAlignment="Center"/>
-                                    <TextBlock Text="Shipped Directory" FontWeight="SemiBold" VerticalAlignment="Center"/>
-                                </StackPanel>
-                                <TextBlock Text="Location for shipped items" Foreground="{ThemeResource TextFillColorSecondaryBrush}" Style="{ThemeResource CaptionTextBlockStyle}" TextWrapping="Wrap"/>
-                                <Grid ColumnSpacing="8" Margin="0,8,0,0">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="Auto"/>
-                                    </Grid.ColumnDefinitions>
-                                    <TextBox Grid.Column="0" Text="{Binding ShippedDirectory, Mode=TwoWay}" IsEnabled="{Binding AreDirectoryControlsEnabled}" PlaceholderText="Enter directory path..."/>
-                                    <Button Grid.Column="1" Content="Browse" Command="{Binding SelectShippedDirectoryCommand}" IsEnabled="{Binding AreDirectoryControlsEnabled}" Padding="24,8"/>
-                                </Grid>
-                            </StackPanel>
-                        </Border>
-
-                        <Border BorderBrush="{ThemeResource CardStrokeColorDefault}" BorderThickness="1" CornerRadius="8" Background="{ThemeResource CardBackgroundFillColorDefault}" Padding="16">
-                            <StackPanel Spacing="8">
-                                <StackPanel Orientation="Horizontal" Spacing="8">
-                                    <TextBlock Text="🔍" FontSize="20" VerticalAlignment="Center"/>
-                                    <TextBlock Text="File Scans Directory" FontWeight="SemiBold" VerticalAlignment="Center"/>
-                                </StackPanel>
-                                <TextBlock Text="Location for scan results" Foreground="{ThemeResource TextFillColorSecondaryBrush}" Style="{ThemeResource CaptionTextBlockStyle}" TextWrapping="Wrap"/>
-                                <Grid ColumnSpacing="8" Margin="0,8,0,0">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="Auto"/>
-                                    </Grid.ColumnDefinitions>
-                                    <TextBox Grid.Column="0" Text="{Binding FileScansDirectory, Mode=TwoWay}" IsEnabled="{Binding AreDirectoryControlsEnabled}" PlaceholderText="Enter directory path..."/>
-                                    <Button Grid.Column="1" Content="Browse" Command="{Binding SelectFileScansDirectoryCommand}" IsEnabled="{Binding AreDirectoryControlsEnabled}" Padding="24,8"/>
-                                </Grid>
-                            </StackPanel>
-                        </Border>
-
-                        <Border BorderBrush="{ThemeResource CardStrokeColorDefault}" BorderThickness="1" CornerRadius="8" Background="{ThemeResource CardBackgroundFillColorDefault}" Padding="16">
-                            <StackPanel Spacing="8">
-                                <StackPanel Orientation="Horizontal" Spacing="8">
-                                    <TextBlock Text="📋" FontSize="20" VerticalAlignment="Center"/>
-                                    <TextBlock Text="Inventory Archive Directory" FontWeight="SemiBold" VerticalAlignment="Center"/>
-                                </StackPanel>
-                                <TextBlock Text="Location for archived inventory records" Foreground="{ThemeResource TextFillColorSecondaryBrush}" Style="{ThemeResource CaptionTextBlockStyle}" TextWrapping="Wrap"/>
-                                <Grid ColumnSpacing="8" Margin="0,8,0,0">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="Auto"/>
-                                    </Grid.ColumnDefinitions>
-                                    <TextBox Grid.Column="0" Text="{Binding InventoryArchiveDirectory, Mode=TwoWay}" IsEnabled="{Binding AreDirectoryControlsEnabled}" PlaceholderText="Enter directory path..."/>
-                                    <Button Grid.Column="1" Content="Browse" Command="{Binding SelectInventoryArchiveDirectoryCommand}" IsEnabled="{Binding AreDirectoryControlsEnabled}" Padding="24,8"/>
-                                </Grid>
-                            </StackPanel>
-                        </Border>
-                    </StackPanel>
-                </ScrollViewer>
-            </TabViewItem>
-
-            <!-- Tab 2: Theme Settings -->
-            <TabViewItem Header="🎨 Theme">
-                <ScrollViewer VerticalScrollBarVisibility="Auto">
-                    <StackPanel Spacing="24" Padding="16,16,16,16">
-                        <TextBlock Text="Customize Application Appearance" Style="{ThemeResource SubtitleTextBlockStyle}"/>
-
-                        <Border BorderBrush="{ThemeResource CardStrokeColorDefault}" BorderThickness="1" CornerRadius="8" Background="{ThemeResource CardBackgroundFillColorDefault}" Padding="16">
-                            <StackPanel Spacing="12">
-                                <TextBlock Text="🎨 Application Theme" FontWeight="SemiBold" FontSize="16"/>
-                                <TextBlock Text="Choose how the application looks" Foreground="{ThemeResource TextFillColorSecondaryBrush}" Style="{ThemeResource CaptionTextBlockStyle}"/>
-                                <ComboBox 
-                                    SelectedItem="{Binding SelectedTheme, Mode=TwoWay}"
-                                    Width="300"
-                                    HorizontalAlignment="Left"
-                                    Margin="0,8,0,0">
-                                    <x:String>FollowSystem</x:String>
-                                    <x:String>Light</x:String>
-                                    <x:String>Dark</x:String>
-                                    <x:String>HighContrast</x:String>
-                                </ComboBox>
-                            </StackPanel>
-                        </Border>
-
-                        <InfoBar 
-                            Title="Theme Settings"
-                            Message="Select 'FollowSystem' to automatically match your Windows theme preference. Changes take effect immediately."
-                            Severity="Informational"
-                            IsOpen="True" 
-                            Margin="0"/>
-                    </StackPanel>
-                </ScrollViewer>
-            </TabViewItem>
-
-            <!-- Tab 3: Audit Logs -->
-            <TabViewItem Header="📋 Audit Logs">
-                <Grid Padding="16">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="*"/>
-                        <RowDefinition Height="Auto"/>
-                    </Grid.RowDefinitions>
-
-                    <TextBlock Grid.Row="0" Text="Application Activity Logs" Style="{ThemeResource SubtitleTextBlockStyle}" Margin="0,0,0,12"/>
-
-                    <StackPanel Grid.Row="1" Orientation="Horizontal" Spacing="8" Margin="0,0,0,16" Padding="0">
-                        <Button Content="🔄 Refresh Logs" Command="{Binding RefreshLogsCommand}"/>
-                        <Button Content="🗑️ Clear Logs" Command="{Binding ClearLogsCommand}" Background="{ThemeResource SystemFillColorCautionBrush}"/>
-                        <TextBlock VerticalAlignment="Center" Margin="16,0,0,0" Foreground="{ThemeResource TextFillColorSecondaryBrush}">
-                            <TextBlock.Inlines>
-                                <Run Text="Showing "/>
-                                <Run Text="{Binding LogEntryCount}"/>
-                                <Run Text=" log entries"/>
-                            </TextBlock.Inlines>
-                        </TextBlock>
-                    </StackPanel>
-
-                    <Border Grid.Row="2" BorderBrush="{ThemeResource CardStrokeColorDefault}" BorderThickness="1" CornerRadius="8" Background="{ThemeResource CardBackgroundFillColorDefault}">
-                        <controls:DataGrid 
-                            ItemsSource="{Binding AuditLogs}"
-                            AutoGenerateColumns="False"
-                            IsReadOnly="True"
-                            SelectionMode="Single"
-                            CanUserSortColumns="True"
-                            CanUserReorderColumns="True"
-                            Padding="0">
-                            <controls:DataGrid.Columns>
-                                <controls:DataGridTextColumn Header="Timestamp" Binding="{Binding Timestamp}" Width="*" MinWidth="180"/>
-                                <controls:DataGridTextColumn Header="User" Binding="{Binding User}" Width="120"/>
-                                <controls:DataGridTextColumn Header="Action" Binding="{Binding ActionType}" Width="150"/>
-                                <controls:DataGridTextColumn Header="Target" Binding="{Binding TargetPath}" Width="200" MaxWidth="400"/>
-                                <controls:DataGridTextColumn Header="Details" Binding="{Binding Description}" Width="*" MinWidth="200"/>
-                            </controls:DataGrid.Columns>
-                        </controls:DataGrid>
-                    </Border>
-
-                    <TextBlock 
-                        Grid.Row="3"
-                        Margin="0,12,0,0"
-                        Text="Logs stored in: %LOCALAPPDATA%\AIM\Logs\audit.log"
-                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                        Style="{ThemeResource CaptionTextBlockStyle}"
-                        TextWrapping="Wrap"/>
-                </Grid>
-            </TabViewItem>
-        </TabView>
-
-        <!-- Footer: Save Settings Button (Outside TabView) -->
-        <Border Grid.Row="2" BorderBrush="{ThemeResource CardStrokeColorDefault}" BorderThickness="1,1,1,0" Background="{ThemeResource CardBackgroundFillColorDefault}" Padding="24,16">
-            <StackPanel Orientation="Horizontal" Spacing="16">
-                <Button 
-                    Content="💾 Save All Settings" 
-                    Command="{Binding SaveSettingsCommand}"
-                    Style="{ThemeResource AccentButtonStyle}"
-                    Padding="32,8"/>
-                <TextBlock 
-                    VerticalAlignment="Center"
-                    Text="Changes to directories and theme will be saved"
-                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                    Style="{ThemeResource CaptionTextBlockStyle}"/>
+    <ScrollViewer>
+        <StackPanel Margin="24" Spacing="16">
+            <TextBlock Text="Settings" Style="{ThemeResource TitleTextBlockStyle}"/>
+            
+            <StackPanel Spacing="8">
+                <TextBlock Text="Security" Style="{ThemeResource SubtitleTextBlockStyle}"/>
+                <StackPanel Orientation="Horizontal" Spacing="10">
+                    <TextBox Header="Password" Text="{x:Bind ViewModel.Password, Mode=TwoWay}" Width="200"/>
+                    <Button Content="Lock" Click="LockButton_Click" VerticalAlignment="Bottom"/>
+                    <Button Content="Unlock" Click="UnlockButton_Click" VerticalAlignment="Bottom"/>
+                    <Button Click="SaveButton_Click" Style="{ThemeResource AccentButtonStyle}" VerticalAlignment="Bottom">
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <FontIcon Glyph="&#xE74E;" FontSize="16"/>
+                            <TextBlock Text="Save"/>
+                        </StackPanel>
+                    </Button>
+                </StackPanel>
             </StackPanel>
-        </Border>
-    </Grid>
+            
+            <StackPanel Spacing="12">
+                <TextBlock Text="Directories" Style="{ThemeResource SubtitleTextBlockStyle}"/>
+                <StackPanel Spacing="8">
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <TextBox Header="Root Directory" Text="{x:Bind ViewModel.DefaultRootDirectory, Mode=TwoWay}" Width="400" IsEnabled="{x:Bind IsLocked, Mode=OneWay, Converter={StaticResource BoolNegationConverter}}"/>
+                        <Button Click="BrowseRootDirectory_Click" VerticalAlignment="Bottom">
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <FontIcon Glyph="&#xE8DA;" FontSize="16"/>
+                                <TextBlock Text="Browse"/>
+                            </StackPanel>
+                        </Button>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <TextBox Header="Archive Path" Text="{x:Bind ViewModel.ArchivePath, Mode=TwoWay}" Width="400" IsEnabled="{x:Bind IsLocked, Mode=OneWay, Converter={StaticResource BoolNegationConverter}}"/>
+                        <Button Click="BrowseArchivePath_Click" VerticalAlignment="Bottom">
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <FontIcon Glyph="&#xE8DA;" FontSize="16"/>
+                                <TextBlock Text="Browse"/>
+                            </StackPanel>
+                        </Button>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <TextBox Header="Shipped Directory" Text="{x:Bind ViewModel.ShippedDirectory, Mode=TwoWay}" Width="400" IsEnabled="{x:Bind IsLocked, Mode=OneWay, Converter={StaticResource BoolNegationConverter}}"/>
+                        <Button Click="BrowseShippedDirectory_Click" VerticalAlignment="Bottom">
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <FontIcon Glyph="&#xE8DA;" FontSize="16"/>
+                                <TextBlock Text="Browse"/>
+                            </StackPanel>
+                        </Button>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <TextBox Header="File Scans Directory" Text="{x:Bind ViewModel.FileScansDirectory, Mode=TwoWay}" Width="400"/>
+                        <Button Click="BrowseFileScansDirectory_Click" VerticalAlignment="Bottom">
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <FontIcon Glyph="&#xE8DA;" FontSize="16"/>
+                                <TextBlock Text="Browse"/>
+                            </StackPanel>
+                        </Button>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <TextBox Header="Inventory Archive Directory" Text="{x:Bind ViewModel.InventoryArchiveDirectory, Mode=TwoWay}" Width="400" IsEnabled="{x:Bind IsLocked, Mode=OneWay, Converter={StaticResource BoolNegationConverter}}"/>
+                        <Button Click="BrowseInventoryArchiveDirectory_Click" VerticalAlignment="Bottom">
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <FontIcon Glyph="&#xE8DA;" FontSize="16"/>
+                                <TextBlock Text="Browse"/>
+                            </StackPanel>
+                        </Button>
+                    </StackPanel>
+                </StackPanel>
+            </StackPanel>
+        </StackPanel>
+    </ScrollViewer>
 </Page>

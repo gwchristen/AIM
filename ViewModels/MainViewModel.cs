@@ -1,180 +1,331 @@
-﻿using AIM.Models;
-using AIM.Services;
+﻿#pragma warning disable MVVMTK0045
+using AIM.Models;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Microsoft.UI.Xaml;
+using System;
 using System.Collections.ObjectModel;
-using System.Diagnostics;
+using System.ComponentModel;
 using System.IO;
+using System.Linq;
+using System.Runtime.CompilerServices;
+using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace AIM.ViewModels;
 
-/// <summary>
-/// Main application view model that manages the primary application state.
-/// Handles directory tree navigation and file selection.
-/// </summary>
+public class AppSettings
+{
+    public string ArchivePath { get; set; } = @"C:\Temp\AIM\Archive";
+    public string ShippedDirectory { get; set; } = @"C:\Temp\AIM\Shipped";
+    public string Password { get; set; } = string.Empty;
+    public string DefaultRootDirectory { get; set; } = @"C:\Temp\AIM";
+    public string FileScansDirectory { get; set; } = @"C:\Temp\AIM\FileScans";
+    public string InventoryArchiveDirectory { get; set; } = @"C:\Temp\AIM\InventoryArchive";
+}
+
 public partial class MainViewModel : ObservableObject
 {
-    private readonly ISettingsService _settingsService;
-    private readonly IFileService _fileService;
-    private readonly ILockService _lockService;
-    private readonly IDialogService _dialogService;
-    private readonly IAuditLoggingService _auditLoggingService;
+    private readonly string settingsFilePath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "AIM", "settings.json");
 
-    /// <summary>
-    /// Gets whether the application is currently locked.
-    /// </summary>
+    private string _selectedRoot = @"C:\Temp\AIM";
+
     [ObservableProperty]
-    private bool isLocked;
+    private ObservableCollection<DirectoryItem> directoryItems = new();
 
-    /// <summary>
-    /// Gets or sets the currently selected root directory path.
-    /// When changed, triggers rebuilding of the directory tree.
-    /// </summary>
     [ObservableProperty]
-    private string selectedRoot;
+    private DirectoryItem selectedDirectory;
 
-    /// <summary>
-    /// Gets the collection of directory items for the left navigation tree.
-    /// Populated based on the selected root directory.
-    /// </summary>
-    public ObservableCollection<DirectoryItem> LeftTree { get; } = new();
-    
-    /// <summary>
-    /// Gets the collection of selected scan files.
-    /// Used for file operations and previews.
-    /// </summary>
-    public ObservableCollection<FileItem> SelectedScanFiles { get; } = new();
+    [ObservableProperty]
+    private DirectoryItem selectedLevel1;
 
-    /// <summary>
-    /// Initializes a new instance of the <see cref="MainViewModel"/> class.
-    /// Loads settings and sets up the initial application state.
-    /// </summary>
-    /// <param name="settingsService">Service for loading and saving application settings.</param>
-    /// <param name="fileService">Service for file and directory operations.</param>
-    /// <param name="lockService">Service for managing application lock state.</param>
-    /// <param name="dialogService">Service for showing dialogs.</param>
-    public MainViewModel(ISettingsService settingsService, IFileService fileService, ILockService lockService, IDialogService dialogService, IAuditLoggingService auditLoggingService)
+    [ObservableProperty]
+    private DirectoryItem selectedLevel2;
+
+    [ObservableProperty]
+    private DirectoryItem selectedLevel3;
+
+    [ObservableProperty]
+    private DirectoryItem selectedLevel4;
+
+    [ObservableProperty]
+    private string rootName = string.Empty;
+
+    private string _archivePath = @"C:\Temp\AIM\Archive";
+
+    private string _shippedDirectory = @"C:\Temp\AIM\Shipped";
+
+    private string _password = string.Empty;
+
+    private string _defaultRootDirectory = @"C:\Temp\AIM";
+
+    private string _fileScansDirectory = @"C:\Temp\AIM\FileScans";
+
+    private string _inventoryArchiveDirectory = @"C:\Temp\AIM\InventoryArchive";
+
+    [ObservableProperty]
+    private ObservableCollection<AIM.Models.FileItem> selectedScanFiles = new();
+
+    public string ArchivePath
     {
-        _settingsService = settingsService;
-        _fileService = fileService;
-        _lockService = lockService;
-        _dialogService = dialogService;
-        _auditLoggingService = auditLoggingService;
-
-        Debug.WriteLine($"[MainViewModel] Constructor starting");
-
-        // Subscribe to lock state changes
-        _lockService.LockStateChanged += OnLockStateChanged;
-        IsLocked = _lockService.IsLocked;
-
-        // Load the selected root from settings
-        var appSettings = _settingsService.LoadSettings();
-        SelectedRoot = appSettings.DefaultRootDirectory;
-
-        Debug.WriteLine($"[MainViewModel] MainViewModel initialized");
-        
-        _auditLoggingService.LogAudit(
-            "APP_INITIALIZED",
-            null,
-            "Application main view model initialized"
-        );
-    }
-
-    private void OnLockStateChanged(object? sender, LockStateChangedEventArgs e)
-    {
-        IsLocked = e.IsLocked;
-        Debug.WriteLine($"[MainViewModel] Lock state changed: {e.IsLocked}");
-    }
-
-    /// <summary>
-    /// Toggles the lock state of the application.
-    /// </summary>
-    [RelayCommand]
-    private async Task ToggleLockAsync()
-    {
-        if (_lockService.IsLocked)
+        get => _archivePath;
+        set
         {
-            // Show PIN entry dialog to unlock
-            var pin = await _dialogService.ShowPinEntryDialogAsync("Unlock Application", "Enter PIN to unlock:");
-            if (!string.IsNullOrEmpty(pin))
+            if (SetProperty(ref _archivePath, value))
             {
-                if (_lockService.Unlock(pin))
+                SaveSettings();
+            }
+        }
+    }
+
+    public string ShippedDirectory
+    {
+        get => _shippedDirectory;
+        set
+        {
+            if (SetProperty(ref _shippedDirectory, value))
+            {
+                SaveSettings();
+            }
+        }
+    }
+
+    public string Password
+    {
+        get => _password;
+        set
+        {
+            if (SetProperty(ref _password, value))
+            {
+                SaveSettings();
+            }
+        }
+    }
+
+    public string DefaultRootDirectory
+    {
+        get => _defaultRootDirectory;
+        set
+        {
+            if (SetProperty(ref _defaultRootDirectory, value))
+            {
+                SaveSettings();
+            }
+        }
+    }
+
+    public string FileScansDirectory
+    {
+        get => _fileScansDirectory;
+        set
+        {
+            if (SetProperty(ref _fileScansDirectory, value))
+            {
+                SaveSettings();
+            }
+        }
+    }
+
+    public string InventoryArchiveDirectory
+    {
+        get => _inventoryArchiveDirectory;
+        set
+        {
+            if (SetProperty(ref _inventoryArchiveDirectory, value))
+            {
+                SaveSettings();
+            }
+        }
+    }
+
+    public ObservableCollection<DirectoryItem> Level1 { get; } = new();
+    public ObservableCollection<DirectoryItem> Level2 { get; } = new();
+    public ObservableCollection<DirectoryItem> Level3 { get; } = new();
+    public ObservableCollection<DirectoryItem> Level4 { get; } = new();
+
+    private DispatcherTimer _refreshTimer;
+
+    public string SelectedRoot
+    {
+        get => _selectedRoot;
+        set
+        {
+            if (SetProperty(ref _selectedRoot, value))
+            {
+                OnSelectedRootChanged();
+            }
+        }
+    }
+
+    public MainViewModel()
+    {
+        LoadSettings();
+        OnSelectedRootChanged();
+        _refreshTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(30) };
+        _refreshTimer.Tick += (s, e) => RefreshTree();
+        _refreshTimer.Start();
+    }
+
+    private void LoadSettings()
+    {
+        try
+        {
+            if (File.Exists(settingsFilePath))
+            {
+                var json = File.ReadAllText(settingsFilePath);
+                var settings = JsonSerializer.Deserialize<AppSettings>(json);
+                if (settings != null)
                 {
-                    await _dialogService.ShowSuccessDialog("Unlocked", "Application unlocked successfully.");
-                    
-                    _auditLoggingService.LogAudit(
-                        "APP_UNLOCKED",
-                        null,
-                        "Application unlocked successfully"
-                    );
+                    _archivePath = settings.ArchivePath ?? _archivePath;
+                    _shippedDirectory = settings.ShippedDirectory ?? _shippedDirectory;
+                    _password = settings.Password ?? _password;
+                    _defaultRootDirectory = settings.DefaultRootDirectory ?? _defaultRootDirectory;
+                    _fileScansDirectory = settings.FileScansDirectory ?? _fileScansDirectory;
+                    _inventoryArchiveDirectory = settings.InventoryArchiveDirectory ?? _inventoryArchiveDirectory;
                 }
-                else
-                {
-                    await _dialogService.ShowErrorDialogAsync("Invalid PIN", "The PIN you entered is incorrect.");
-                    
-                    _auditLoggingService.LogAudit(
-                        "UNLOCK_FAILED",
-                        null,
-                        "Failed unlock attempt - invalid PIN"
-                    );
-                }
+            }
+        }
+        catch { }
+    }
+
+    private void SaveSettings()
+    {
+        try
+        {
+            var settings = new AppSettings
+            {
+                ArchivePath = _archivePath,
+                ShippedDirectory = _shippedDirectory,
+                Password = _password,
+                DefaultRootDirectory = _defaultRootDirectory,
+                FileScansDirectory = _fileScansDirectory,
+                InventoryArchiveDirectory = _inventoryArchiveDirectory
+            };
+            var json = JsonSerializer.Serialize(settings);
+            Directory.CreateDirectory(Path.GetDirectoryName(settingsFilePath));
+            File.WriteAllText(settingsFilePath, json);
+        }
+        catch { }
+    }
+
+    private void OnSelectedRootChanged()
+    {
+        // Save selected paths before clearing
+        var sel1Path = SelectedLevel1?.FullPath;
+        var sel2Path = SelectedLevel2?.FullPath;
+        var sel3Path = SelectedLevel3?.FullPath;
+        var sel4Path = SelectedLevel4?.FullPath;
+
+        DirectoryItems.Clear();
+        Level1.Clear();
+        Level2.Clear();
+        Level3.Clear();
+        Level4.Clear();
+
+        if (Directory.Exists(SelectedRoot))
+        {
+            var root = new DirectoryItem
+            {
+                Name = Path.GetFileName(SelectedRoot),
+                FullPath = SelectedRoot
+            };
+            PopulateSubDirectories(root);
+            DirectoryItems.Add(root);
+            RootName = root.Name;
+            foreach (var sub in root.SubDirectories.Where(s => HasContents(s)))
+            {
+                Level1.Add(sub);
             }
         }
         else
         {
-            // Lock the application
-            _lockService.Lock();
-            await _dialogService.ShowSuccessDialog("Locked", "Application locked successfully.");
-            
-            _auditLoggingService.LogAudit(
-                "APP_LOCKED",
-                null,
-                "Application locked by user"
-            );
+            // Create the directory and some test subdirectories
+            Directory.CreateDirectory(SelectedRoot);
+            Directory.CreateDirectory(Path.Combine(SelectedRoot, "SubDir1"));
+            Directory.CreateDirectory(Path.Combine(SelectedRoot, "SubDir2"));
+            File.WriteAllText(Path.Combine(SelectedRoot, "test.txt"), "Test content");
+            File.WriteAllText(Path.Combine(SelectedRoot, "SubDir1", "file1.txt"), "Content 1");
+            File.WriteAllText(Path.Combine(SelectedRoot, "SubDir2", "file2.csv"), "Col1,Col2\nVal1,Val2");
+
+            var root = new DirectoryItem
+            {
+                Name = Path.GetFileName(SelectedRoot),
+                FullPath = SelectedRoot
+            };
+            PopulateSubDirectories(root);
+            DirectoryItems.Add(root);
+            RootName = root.Name;
+            foreach (var sub in root.SubDirectories.Where(s => HasContents(s)))
+            {
+                Level1.Add(sub);
+            }
+        }
+
+        // Restore selections
+        SelectedLevel1 = Level1.FirstOrDefault(d => d.FullPath == sel1Path);
+        if (SelectedLevel1 != null)
+        {
+            PopulateSubDirectories(SelectedLevel1);
+            SelectedLevel2 = SelectedLevel1.SubDirectories.FirstOrDefault(d => d.FullPath == sel2Path);
+            if (SelectedLevel2 != null)
+            {
+                PopulateSubDirectories(SelectedLevel2);
+                SelectedLevel3 = SelectedLevel2.SubDirectories.FirstOrDefault(d => d.FullPath == sel3Path);
+                if (SelectedLevel3 != null)
+                {
+                    PopulateSubDirectories(SelectedLevel3);
+                    SelectedLevel4 = SelectedLevel3.SubDirectories.FirstOrDefault(d => d.FullPath == sel4Path);
+                }
+            }
+        }
+
+        UpdateSelectedDirectory();
+    }
+
+    private bool HasContents(DirectoryItem item)
+    {
+        try
+        {
+            return item.SubDirectories.Any() || Directory.GetFiles(item.FullPath).Any();
+        }
+        catch
+        {
+            return false;
         }
     }
 
-    /// <summary>
-    /// Partial method invoked when the selected root directory changes.
-    /// Saves the new root to settings and rebuilds the directory tree.
-    /// </summary>
-    /// <param name="value">The new selected root directory path.</param>
-    partial void OnSelectedRootChanged(string value)
+    private void PopulateSubDirectories(DirectoryItem item)
     {
-        var appSettings = _settingsService.LoadSettings();
-        var oldRoot = appSettings.DefaultRootDirectory;
-        appSettings.DefaultRootDirectory = value;
-        _settingsService.SaveSettings(appSettings);
+        try
+        {
+            var subDirs = Directory.GetDirectories(item.FullPath)
+                .Select(d => new DirectoryItem
+                {
+                    Name = Path.GetFileName(d),
+                    FullPath = d
+                })
+                .ToList();
 
-        _auditLoggingService.LogAudit(
-            "ROOT_DIRECTORY_CHANGED",
-            value,
-            $"Root directory changed from '{oldRoot}' to '{value}'"
-        );
-
-        BuildTree();
+            foreach (var sub in subDirs)
+            {
+                PopulateSubDirectories(sub);
+                item.SubDirectories.Add(sub);
+            }
+        }
+        catch
+        {
+            // Ignore access denied etc.
+        }
     }
 
-    /// <summary>
-    /// Builds the directory tree from the currently selected root directory.
-    /// Clears existing tree and populates subdirectories recursively.
-    /// </summary>
-    private void BuildTree()
+    [RelayCommand]
+    private void RefreshTree()
     {
-        LeftTree.Clear();
-        if (string.IsNullOrEmpty(SelectedRoot) || !Directory.Exists(SelectedRoot))
-        {
-            return;
-        }
+        OnSelectedRootChanged();
+    }
 
-        var rootNode = new DirectoryItem
-        {
-            Name = Path.GetFileName(SelectedRoot),
-            FullPath = SelectedRoot
-        };
-
-        _fileService.PopulateSubDirectories(rootNode);
-        LeftTree.Add(rootNode);
+    public void UpdateSelectedDirectory()
+    {
+        SelectedDirectory = SelectedLevel4 ?? SelectedLevel3 ?? SelectedLevel2 ?? SelectedLevel1 ?? DirectoryItems[0];
     }
 }

@@ -1,89 +1,49 @@
 using AIM.Models;
 using AIM.ViewModels;
-using CommunityToolkit.Mvvm.DependencyInjection;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Controls.Primitives;
-using Microsoft.UI.Xaml.Input;
 
-namespace AIM.Views
+namespace AIM.Views;
+
+public sealed partial class SearchPage : Page
 {
-    public sealed partial class SearchPage : Page
+    public SearchViewModel ViewModel { get; }
+
+    public SearchPage()
     {
-        public SearchViewModel ViewModel { get; }
-        private FileItem? _contextMenuItem;
+        this.InitializeComponent();
+        ViewModel = new SearchViewModel();
+        DataContext = ViewModel;
+    }
 
-        public SearchPage()
+    private void ResultsListView_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        if (sender is ListView listView && listView.SelectedItem is Models.FileItem file)
         {
-            this.InitializeComponent();
-            ViewModel = Ioc.Default.GetRequiredService<SearchViewModel>();
-        }
-
-        private void ResultsListView_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            // No need to manage button state since they're in template now
-        }
-
-        private void PreviewButton_Click(object sender, RoutedEventArgs e)
-        {
-            if ((sender as Button)?.DataContext is FileItem fileItem)
+            // Navigate to Preview tab
+            if (MainWindow.Instance != null)
             {
-                ViewModel.PreviewCommand.Execute(fileItem);
-            }
-        }
+                MainWindow.Instance.MainFrame.Navigate(typeof(PreviewPage));
+                // Set the selected tab
+                MainWindow.Instance.IsPreviewSelected = true;
+                MainWindow.Instance.IsBrowseSelected = false;
+                MainWindow.Instance.IsSearchSelected = false;
+                MainWindow.Instance.IsScansSelected = false;
+                MainWindow.Instance.IsInvArchivesSelected = false;
+                MainWindow.Instance.IsStatsSelected = false;
+                MainWindow.Instance.IsSettingsSelected = false;
 
-        private void OpenInBrowseButton_Click(object sender, RoutedEventArgs e)
-        {
-            if ((sender as Button)?.DataContext is FileItem fileItem)
-            {
-                ViewModel.OpenInBrowseCommand.Execute(fileItem);
-            }
-        }
-
-        private void CopyPathButton_Click(object sender, RoutedEventArgs e)
-        {
-            if ((sender as Button)?.DataContext is FileItem fileItem)
-            {
-                ViewModel.CopyFilePathCommand.Execute(fileItem);
-            }
-        }
-
-        private void ResultsListView_RightTapped(object sender, RightTappedRoutedEventArgs e)
-        {
-            if ((e.OriginalSource as FrameworkElement)?.DataContext is FileItem fileItem)
-            {
-                _contextMenuItem = fileItem;
-                ResultsListView.SelectedItem = fileItem;
-                var listView = sender as ListView;
-                var flyout = FlyoutBase.GetAttachedFlyout(listView);
-                if (flyout != null)
+                // Load the file in Preview
+                if (MainWindow.Instance.MainFrame.Content is PreviewPage previewPage)
                 {
-                    flyout.ShowAt(listView, new FlyoutShowOptions { Position = e.GetPosition(listView) });
+                    var fileItem = new FileItem
+                    {
+                        FullPath = file.FullPath,
+                        Name = file.Name,
+                        Type = file.Type
+                    };
+                    _ = previewPage.ViewModel.LoadFileContent(fileItem);
                 }
-            }
-        }
-
-        private void MenuPreview_Click(object sender, RoutedEventArgs e)
-        {
-            if (_contextMenuItem != null)
-            {
-                ViewModel.PreviewCommand.Execute(_contextMenuItem);
-            }
-        }
-
-        private void MenuOpenInBrowse_Click(object sender, RoutedEventArgs e)
-        {
-            if (_contextMenuItem != null)
-            {
-                ViewModel.OpenInBrowseCommand.Execute(_contextMenuItem);
-            }
-        }
-
-        private void MenuCopyPath_Click(object sender, RoutedEventArgs e)
-        {
-            if (_contextMenuItem != null)
-            {
-                ViewModel.CopyFilePathCommand.Execute(_contextMenuItem);
             }
         }
     }

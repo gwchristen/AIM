@@ -1,120 +1,70 @@
-﻿<Window
+<Window
     x:Class="AIM.MainWindow"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:AIM"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:converters="using:AIM.Converters"
     mc:Ignorable="d"
     Title="AIM">
-
-    <Grid>
-        <Grid.Resources>
-            <converters:InverseBoolToVisibilityConverter x:Key="InverseBoolToVisibilityConverter" />
-        </Grid.Resources>
-
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
-        </Grid.RowDefinitions>
-
-        <InfoBar
-            x:Name="AppInfoBar"
-            Grid.Row="0"
-            IsOpen="False"
-            HorizontalAlignment="Stretch"
-            Margin="4,4,4,0"/>
-
-        <NavigationView 
-            x:Name="NavView"
-            Grid.Row="1"
-            Loaded="NavView_Loaded"
-            ItemInvoked="NavView_ItemInvoked"
-            IsBackButtonVisible="Collapsed"
-            OpenPaneLength="200">
-
-            <NavigationView.MenuItems>
-                <NavigationViewItem Content="🔄 Refresh Tree" Tag="RefreshTree">
-                    <NavigationViewItem.Icon>
-                        <FontIcon Glyph="&#xE72C;" Foreground="#6C63FF"/>
-                    </NavigationViewItem.Icon>
-                </NavigationViewItem>
-
-                <NavigationViewItemSeparator/>
-
-                <NavigationViewItem Content="📁 Browse" Tag="Browse" IsSelected="True">
-                    <NavigationViewItem.Icon>
-                        <FontIcon Glyph="&#xE8F1;" Foreground="#FF6B6B"/>
-                    </NavigationViewItem.Icon>
-                </NavigationViewItem>
-
-                <NavigationViewItem Content="👁️ Preview" Tag="Preview">
-                    <NavigationViewItem.Icon>
-                        <FontIcon Glyph="&#xE8FF;" Foreground="#4ECDC4"/>
-                    </NavigationViewItem.Icon>
-                </NavigationViewItem>
-
-                <NavigationViewItem Content="🔍 Search" Tag="Search">
-                    <NavigationViewItem.Icon>
-                        <FontIcon Glyph="&#xE721;" Foreground="#FFD93D"/>
-                    </NavigationViewItem.Icon>
-                </NavigationViewItem>
-
-                <NavigationViewItem Content="📋 Scans" Tag="Scans">
-                    <NavigationViewItem.Icon>
-                        <FontIcon Glyph="&#xE7C1;" Foreground="#95E1D3"/>
-                    </NavigationViewItem.Icon>
-                </NavigationViewItem>
-
-                <!-- INVENTORY ITEM - Visibility controlled by lock state -->
-                <NavigationViewItem x:Name="InventoryMenuItem" Content="📦 Inventory" Visibility="{Binding IsLocked, Converter={StaticResource InverseBoolToVisibilityConverter}}">
-                    <NavigationViewItem.Icon>
-                        <FontIcon Glyph="&#xE8B7;" Foreground="#F38181"/>
-                    </NavigationViewItem.Icon>
-                    <NavigationViewItem.MenuItems>
-                        <NavigationViewItem Content="⚙️ Admin Tools" Tag="InventoryAdminTools">
-                            <NavigationViewItem.Icon>
-                                <FontIcon Glyph="&#xE90F;" Foreground="#AA96DA"/>
-                            </NavigationViewItem.Icon>
-                        </NavigationViewItem>
-                        <NavigationViewItem Content="📂 Arch Viewer" Tag="InventoryViewer">
-                            <NavigationViewItem.Icon>
-                                <FontIcon Glyph="&#xE773;" Foreground="#FCBAD3"/>
-                            </NavigationViewItem.Icon>
-                        </NavigationViewItem>
-                        <NavigationViewItem Content="📊 Dir Analysis" Tag="DirAnalysis">
-                            <NavigationViewItem.Icon>
-                                <FontIcon Glyph="&#xEBE8;" Foreground="#A8D8EA"/>
-                            </NavigationViewItem.Icon>
-                        </NavigationViewItem>
-                    </NavigationViewItem.MenuItems>
-                </NavigationViewItem>
-
-                <NavigationViewItem Content="📝 Paperwork Forms" Tag="PaperworkForms">
-                    <NavigationViewItem.Icon>
-                        <FontIcon Glyph="&#xE737;" Foreground="#AA96DA"/>
-                    </NavigationViewItem.Icon>
-                </NavigationViewItem>
-
-                <NavigationViewItem Content="📈 Stats" Tag="Stats">
-                    <NavigationViewItem.Icon>
-                        <FontIcon Glyph="&#xE9D9;" Foreground="#FFD93D"/>
-                    </NavigationViewItem.Icon>
-                </NavigationViewItem>
-
-            </NavigationView.MenuItems>
-
-            <NavigationView.FooterMenuItems>
-                <!-- Lock/Unlock Button -->
-                <NavigationViewItem x:Name="LockMenuItem" Tag="LockToggle">
-                    <NavigationViewItem.Icon>
-                        <FontIcon x:Name="LockIcon" Glyph="&#xE72E;" Foreground="#FF6B6B"/>
-                    </NavigationViewItem.Icon>
-                </NavigationViewItem>
-            </NavigationView.FooterMenuItems>
-
-            <Frame x:Name="ContentFrame"/>
-
-        </NavigationView>
-    </Grid>
+    
+    <NavigationView x:Name="NavView"
+                    IsBackButtonVisible="Collapsed"
+                    IsSettingsVisible="False"
+                    SelectionChanged="NavView_SelectionChanged"
+                    Header="AIM">
+        <NavigationView.MenuItems>
+            <NavigationViewItem Content="Select Root" Tag="SelectRoot">
+                <NavigationViewItem.Icon>
+                    <FontIcon Glyph="&#xE8DA;"/>
+                </NavigationViewItem.Icon>
+            </NavigationViewItem>
+            <NavigationViewItem Content="Refresh Tree" Tag="RefreshTree">
+                <NavigationViewItem.Icon>
+                    <FontIcon Glyph="&#xE72C;"/>
+                </NavigationViewItem.Icon>
+            </NavigationViewItem>
+            <NavigationViewItemSeparator/>
+            <NavigationViewItem Content="Browse" Tag="Browse" IsSelected="True">
+                <NavigationViewItem.Icon>
+                    <FontIcon Glyph="&#xE8F1;"/>
+                </NavigationViewItem.Icon>
+            </NavigationViewItem>
+            <NavigationViewItem Content="Preview" Tag="Preview">
+                <NavigationViewItem.Icon>
+                    <FontIcon Glyph="&#xE8FF;"/>
+                </NavigationViewItem.Icon>
+            </NavigationViewItem>
+            <NavigationViewItem Content="Search" Tag="Search">
+                <NavigationViewItem.Icon>
+                    <FontIcon Glyph="&#xE721;"/>
+                </NavigationViewItem.Icon>
+            </NavigationViewItem>
+            <NavigationViewItem Content="Scans" Tag="Scans">
+                <NavigationViewItem.Icon>
+                    <FontIcon Glyph="&#xE7C1;"/>
+                </NavigationViewItem.Icon>
+            </NavigationViewItem>
+            <NavigationViewItem Content="Inv Archives" Tag="InvArchives">
+                <NavigationViewItem.Icon>
+                    <FontIcon Glyph="&#xE8B7;"/>
+                </NavigationViewItem.Icon>
+            </NavigationViewItem>
+            <NavigationViewItem Content="Stats" Tag="Stats">
+                <NavigationViewItem.Icon>
+                    <FontIcon Glyph="&#xE9D9;"/>
+                </NavigationViewItem.Icon>
+            </NavigationViewItem>
+        </NavigationView.MenuItems>
+        
+        <NavigationView.FooterMenuItems>
+            <NavigationViewItem Content="Settings" Tag="Settings">
+                <NavigationViewItem.Icon>
+                    <FontIcon Glyph="&#xE713;"/>
+                </NavigationViewItem.Icon>
+            </NavigationViewItem>
+        </NavigationView.FooterMenuItems>
+        
+        <Frame x:Name="MainFrame" x:FieldModifier="public"/>
+    </NavigationView>
 </Window>

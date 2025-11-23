@@ -1,685 +1,582 @@
-﻿using AIM.Models;
+﻿#pragma warning disable MVVMTK0045
+using AIM.Models;
 using AIM.Services;
-using AIM.Views;
 using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.DependencyInjection;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.UI.Xaml.Controls;
 using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
+using System.Security.AccessControl;
+using System.Security.Principal;
 using System.Threading.Tasks;
 
 namespace AIM.ViewModels;
 
-public record FileOp(string FromPath, string ToPath);
-public record UndoAction(string Type, List<FileOp> Ops);
-
-
 public partial class BrowseViewModel : ObservableObject
 {
-    #region Services and Private Fields
+    private readonly IFileService _fileService;
     private readonly MainViewModel _mainViewModel;
-    private readonly IDialogService _dialogService;
-    private readonly INavigationService _navigationService;
-    private readonly AppSettings _appSettings;
-    private readonly IBrowseStateService _browseStateService;
-    private readonly IAuditLoggingService _auditLoggingService;
-    private Stack<UndoAction> _undoStack = new();
-    private string _rootPath = string.Empty;
-    private string _currentSortColumn = "Name";
-    private bool _isSortAscending = true;
-    #endregion
 
-    #region Observable Collections
-    public ObservableCollection<BreadcrumbItem> LeftBreadcrumbs { get; } = new();
-    public ObservableCollection<BreadcrumbItem> RightBreadcrumbs { get; } = new();
-    public ObservableCollection<ContentItem> LeftFilteredContents { get; } = new();
+    private string? _savedLeft1Path;
+    private string? _savedLeft2Path;
+    private string? _savedLeft3Path;
+    private string? _savedRight1Path;
+    private string? _savedRight2Path;
+    private string? _savedRight3Path;
+
+    [ObservableProperty]
+    private FileItem selectedFile;
+
+    [ObservableProperty]
+    private DirectoryItem selectedDirectory;
+
+    [ObservableProperty]
+    private DirectoryItem selectedLevel0;
+
+    [ObservableProperty]
+    private DirectoryItem selectedLevel1;
+
+    [ObservableProperty]
+    private DirectoryItem selectedLevel2;
+
+    [ObservableProperty]
+    private DirectoryItem selectedLevel3;
+
+    [ObservableProperty]
+    private ContentItem selectedContent;
+
+    [ObservableProperty]
+    private DirectoryItem selectedLeftDirectory;
+
+    [ObservableProperty]
+    private DirectoryItem selectedRightDirectory;
+
+    [ObservableProperty]
+    private DirectoryItem selectedLeftLevel1;
+
+    [ObservableProperty]
+    private DirectoryItem selectedLeftLevel2;
+
+    [ObservableProperty]
+    private DirectoryItem selectedLeftLevel3;
+
+    [ObservableProperty]
+    private DirectoryItem selectedRightLevel1;
+
+    [ObservableProperty]
+    private DirectoryItem selectedRightLevel2;
+
+    [ObservableProperty]
+    private DirectoryItem selectedRightLevel3;
+
+    [ObservableProperty]
+    private string rootName = string.Empty;
+
+    [ObservableProperty]
+    private ContentItem selectedRightContent;
+
+    public event Action<string, string> RenameRequested;
+    public event Action<FileItem> DeleteRequested;
+    public event Action<FileItem> ShipRequested;
+
+    public ObservableCollection<FileItem> Files { get; } = new();
+    public ObservableCollection<DirectoryItem> DirectoryTree => _mainViewModel.DirectoryItems;
+
+    public ObservableCollection<DirectoryItem> Level1 { get; } = new();
+    public ObservableCollection<DirectoryItem> Level2 { get; } = new();
+    public ObservableCollection<DirectoryItem> Level3 { get; } = new();
+
+    public ObservableCollection<DirectoryItem> LeftLevel1 { get; } = new();
+    public ObservableCollection<DirectoryItem> LeftLevel2 { get; } = new();
+    public ObservableCollection<DirectoryItem> LeftLevel3 { get; } = new();
+
+    public ObservableCollection<DirectoryItem> RightLevel1 { get; } = new();
+    public ObservableCollection<DirectoryItem> RightLevel2 { get; } = new();
+    public ObservableCollection<DirectoryItem> RightLevel3 { get; } = new();
+
+    public ObservableCollection<ContentItem> FilteredContents { get; } = new();
     public ObservableCollection<ContentItem> RightFilteredContents { get; } = new();
-    [ObservableProperty] private ObservableCollection<object> _selectedLeftItems = new();
-    #endregion
 
-    #region Observable Properties
-    [ObservableProperty] private ContentItem _selectedRightContent;
-    [ObservableProperty] private DirectoryItem _selectedLeftDirectory;
-    [ObservableProperty] private DirectoryItem _selectedRightDirectory;
-    [ObservableProperty] private string _rootName = string.Empty;
-    #endregion
-
-    public BrowseViewModel(MainViewModel mainViewModel, IFileService fileService, ISettingsService settingsService, IDialogService dialogService, INavigationService navigationService, IBrowseStateService browseStateService, IAuditLoggingService auditLoggingService)
+    public BrowseViewModel()
     {
-        _mainViewModel = mainViewModel;
-        _dialogService = dialogService;
-        _navigationService = navigationService;
-        _appSettings = settingsService.LoadSettings();
-        _browseStateService = browseStateService;
-        _auditLoggingService = auditLoggingService;
-
-        _mainViewModel.LeftTree.CollectionChanged += (s, e) => InitializePaths();
-        _mainViewModel.SelectedScanFiles.CollectionChanged += (s, e) => CopyFromScansCommand.NotifyCanExecuteChanged();
-        SelectedLeftItems.CollectionChanged += (s, e) => UpdateButtonStates();
-
-        InitializePaths();
-        System.Diagnostics.Debug.WriteLine("[BrowseViewModel] Constructor complete, browse state will load in InitializePaths");
-    }
-
-    #region Property Changed Handlers
-    partial void OnSelectedRightDirectoryChanged(DirectoryItem value)
-    {
-        if (value != null)
-        {
-            SelectedRightDirectory = value;
-            UpdateRightFilteredContents();
-        }
-        SaveCurrentBrowseState();
-
-        MoveFileCommand.NotifyCanExecuteChanged();
-        CopyFromScansCommand.NotifyCanExecuteChanged();
-    }
-
-    partial void OnSelectedLeftDirectoryChanged(DirectoryItem value)
-    {
-        if (value != null)
-        {
-            SelectedLeftDirectory = value;
-            
-            _auditLoggingService.LogAudit(
-                "DIR_ACCESS",
-                value.FullPath,
-                $"Browsed to directory: {value.Name}"
-            );
-        }
-
-        UpdateLeftBreadcrumbs(value?.FullPath);
-        UpdateAndSortLeftFilteredContents();
-        SaveCurrentBrowseState();
-    }
-
-    partial void OnSelectedRightContentChanged(ContentItem value)
-    {
-        if (value?.IsFolder == true)
-        {
-            SelectedRightDirectory = new DirectoryItem { FullPath = value.FullPath, Name = value.Name };
-            UpdateRightFilteredContents();
-        }
-    }
-    #endregion
-
-    #region Directory Loading Logic
-    private void InitializePaths()
-    {
-        if (_mainViewModel.LeftTree.Count == 0) return;
-        var root = _mainViewModel.LeftTree[0];
-        _rootPath = root.FullPath;
-        RootName = root.Name;
-        SelectedLeftDirectory = root;
-        SelectedRightDirectory = root;
+        _fileService = Ioc.Default.GetService<IFileService>();
+        _mainViewModel = MainWindow.Instance?.ViewModel ?? throw new InvalidOperationException("MainViewModel not available");
+        PopulateLevels();
+        UpdateFilteredContents();
         UpdateRightFilteredContents();
 
-        // Load saved browse state AFTER root is initialized
-        LoadPreviousBrowseState();
-    }
-
-    private void UpdateLeftBreadcrumbs(string currentPath) => UpdateBreadcrumbs(currentPath, LeftBreadcrumbs, GoUpLeftCommand, RootName, _rootPath);
-    private void UpdateRightBreadcrumbs(string currentPath) => UpdateBreadcrumbs(currentPath, RightBreadcrumbs, GoUpRightCommand, RootName, _rootPath);
-
-    private void UpdateBreadcrumbs(string currentPath, ObservableCollection<BreadcrumbItem> breadcrumbs, IRelayCommand goUpCommand, string rootName, string rootPath)
-    {
-        breadcrumbs.Clear();
-        if (string.IsNullOrEmpty(rootPath) || string.IsNullOrEmpty(currentPath) || !currentPath.StartsWith(rootPath, StringComparison.OrdinalIgnoreCase)) return;
-        var pathSegments = new List<BreadcrumbItem> { new() { Name = rootName, FullPath = rootPath } };
-        if (!currentPath.Equals(rootPath, StringComparison.OrdinalIgnoreCase))
+        // Add handler to refresh levels when directory tree changes (e.g., root update)
+        _mainViewModel.DirectoryItems.CollectionChanged += (s, e) =>
         {
-            var relativePath = Path.GetRelativePath(rootPath, currentPath);
-            var currentFullPath = rootPath;
-            foreach (var part in relativePath.Split(Path.DirectorySeparatorChar)) { currentFullPath = Path.Combine(currentFullPath, part); pathSegments.Add(new BreadcrumbItem { Name = part, FullPath = currentFullPath }); }
-        }
-        if (pathSegments.Any()) pathSegments.Last().IsLast = true;
-        foreach (var segment in pathSegments) breadcrumbs.Add(segment);
-        goUpCommand.NotifyCanExecuteChanged();
+            PopulateLevels();
+            UpdateRightSelectedDirectory();
+        };
     }
 
-    private bool DoesContainRelevantFiles(string path)
+    private void PopulateLevels()
+    {
+        if (DirectoryTree.Count == 0)
+        {
+            _savedLeft1Path = SelectedLeftLevel1?.FullPath;
+            _savedLeft2Path = SelectedLeftLevel2?.FullPath;
+            _savedLeft3Path = SelectedLeftLevel3?.FullPath;
+            _savedRight1Path = SelectedRightLevel1?.FullPath;
+            _savedRight2Path = SelectedRightLevel2?.FullPath;
+            _savedRight3Path = SelectedRightLevel3?.FullPath;
+            return;
+        }
+
+        Level1.Clear();
+        Level2.Clear();
+        Level3.Clear();
+        LeftLevel1.Clear();
+        LeftLevel2.Clear();
+        LeftLevel3.Clear();
+        RightLevel1.Clear();
+        RightLevel2.Clear();
+        RightLevel3.Clear();
+        if (DirectoryTree.Count > 0)
+        {
+            var root = DirectoryTree[0];
+            RootName = root.Name;
+            foreach (var sub in root.SubDirectories)
+            {
+                Level1.Add(sub);
+                if (HasContents(sub))
+                {
+                    LeftLevel1.Add(sub);
+                }
+                RightLevel1.Add(sub);
+            }
+        }
+
+        // Restore left selections
+        SelectedLeftLevel1 = LeftLevel1.FirstOrDefault(d => d.FullPath == _savedLeft1Path);
+        if (SelectedLeftLevel1 != null)
+        {
+            LeftLevel2.Clear();
+            foreach (var sub in SelectedLeftLevel1.SubDirectories.Where(s => HasContents(s)))
+            {
+                LeftLevel2.Add(sub);
+            }
+            SelectedLeftLevel2 = LeftLevel2.FirstOrDefault(d => d.FullPath == _savedLeft2Path);
+            if (SelectedLeftLevel2 != null)
+            {
+                LeftLevel3.Clear();
+                foreach (var sub in SelectedLeftLevel2.SubDirectories.Where(s => HasContents(s)))
+                {
+                    LeftLevel3.Add(sub);
+                }
+                SelectedLeftLevel3 = LeftLevel3.FirstOrDefault(d => d.FullPath == _savedLeft3Path);
+            }
+        }
+
+        // Restore right selections
+        SelectedRightLevel1 = RightLevel1.FirstOrDefault(d => d.FullPath == _savedRight1Path);
+        if (SelectedRightLevel1 != null)
+        {
+            RightLevel2.Clear();
+            foreach (var sub in SelectedRightLevel1.SubDirectories)
+            {
+                RightLevel2.Add(sub);
+            }
+            SelectedRightLevel2 = RightLevel2.FirstOrDefault(d => d.FullPath == _savedRight2Path);
+            if (SelectedRightLevel2 != null)
+            {
+                RightLevel3.Clear();
+                foreach (var sub in SelectedRightLevel2.SubDirectories)
+                {
+                    RightLevel3.Add(sub);
+                }
+                SelectedRightLevel3 = RightLevel3.FirstOrDefault(d => d.FullPath == _savedRight3Path);
+            }
+        }
+
+        // Clear saved paths
+        _savedLeft1Path = null;
+        _savedLeft2Path = null;
+        _savedLeft3Path = null;
+        _savedRight1Path = null;
+        _savedRight2Path = null;
+        _savedRight3Path = null;
+
+        UpdateLeftSelectedDirectory();
+        UpdateRightSelectedDirectory();
+    }
+
+    public bool HasContents(DirectoryItem item)
     {
         try
         {
-            var relevantExtensions = new HashSet<string> { ".txt", ".csv" };
-            if (Directory.EnumerateFiles(path).Any(f => relevantExtensions.Contains(Path.GetExtension(f).ToLowerInvariant()))) return true;
-            return Directory.EnumerateDirectories(path).Any(DoesContainRelevantFiles);
+            return item.SubDirectories.Any() || Directory.GetFiles(item.FullPath).Any();
         }
-        catch { return false; }
-    }
-
-    private FileType GetFileType(string path) => Path.GetExtension(path).ToLowerInvariant() switch { ".txt" => FileType.Text, ".csv" => FileType.Csv, _ => FileType.Other };
-
-    private void UpdateAndSortLeftFilteredContents()
-    {
-        var dir = SelectedLeftDirectory;
-        if (dir == null) return;
-        var tempItems = new List<ContentItem>();
-        try
+        catch
         {
-            var subDirs = Directory.GetDirectories(dir.FullPath).Where(DoesContainRelevantFiles).Select(d => new ContentItem { Name = Path.GetFileName(d), FullPath = d, IsFolder = true, ModifiedDate = new DirectoryInfo(d).LastWriteTime });
-            tempItems.AddRange(subDirs);
-            var relevantExtensions = new HashSet<string> { ".txt", ".csv" };
-            var files = Directory.GetFiles(dir.FullPath).Where(f => relevantExtensions.Contains(Path.GetExtension(f).ToLowerInvariant()))
-                .Select(f => { var info = new FileInfo(f); return new ContentItem { Name = info.Name, FullPath = info.FullName, IsFolder = false, Size = info.Length, ModifiedDate = info.LastWriteTime }; });
-            tempItems.AddRange(files);
+            return false;
         }
-        catch (Exception) { /* Handle errors */ }
-        Func<ContentItem, object> keySelector = _currentSortColumn switch { "Date" => i => i.ModifiedDate, "Size" => i => i.Size, _ => i => i.Name, };
-        var sortedItems = _isSortAscending ? tempItems.OrderBy(i => !i.IsFolder).ThenBy(keySelector) : tempItems.OrderBy(i => !i.IsFolder).ThenByDescending(keySelector);
-        LeftFilteredContents.Clear();
-        foreach (var item in sortedItems) LeftFilteredContents.Add(item);
     }
 
-    private void UpdateRightFilteredContents()
+    public void UpdateFilteredContents()
+    {
+        FilteredContents.Clear();
+        var currentDirectory = SelectedDirectory ?? (DirectoryTree.Count > 0 ? DirectoryTree[0] : null);
+        if (currentDirectory != null)
+        {
+            foreach (var sub in currentDirectory.SubDirectories)
+            {
+                FilteredContents.Add(new ContentItem { Name = sub.Name, IsFolder = true, FullPath = sub.FullPath });
+            }
+            try
+            {
+                var files = Directory.GetFiles(currentDirectory.FullPath)
+                    .Select(f => new ContentItem { Name = Path.GetFileName(f), IsFolder = false, FullPath = f });
+                foreach (var file in files)
+                {
+                    FilteredContents.Add(file);
+                }
+            }
+            catch { }
+        }
+    }
+
+    public void UpdateRightFilteredContents()
     {
         RightFilteredContents.Clear();
-        var dir = SelectedRightDirectory;
-        if (dir == null) return;
-        UpdateRightBreadcrumbs(dir.FullPath);
+        var currentDirectory = SelectedRightDirectory ?? (DirectoryTree.Count > 0 ? DirectoryTree[0] : null);
+        if (currentDirectory != null)
+        {
+            foreach (var sub in currentDirectory.SubDirectories)
+            {
+                RightFilteredContents.Add(new ContentItem { Name = sub.Name, IsFolder = true, FullPath = sub.FullPath });
+            }
+            try
+            {
+                var files = Directory.GetFiles(currentDirectory.FullPath)
+                    .Select(f => new ContentItem { Name = Path.GetFileName(f), IsFolder = false, FullPath = f });
+                foreach (var file in files)
+                {
+                    RightFilteredContents.Add(file);
+                }
+            }
+            catch { }
+        }
+    }
+
+    public async Task LoadFilesAsync(DirectoryItem item)
+    {
+        if (item == null) return;
+        Files.Clear();
         try
         {
-            foreach (var subDirPath in Directory.GetDirectories(dir.FullPath)) RightFilteredContents.Add(new ContentItem { Name = Path.GetFileName(subDirPath), IsFolder = true, FullPath = subDirPath });
-            foreach (var file in Directory.GetFiles(dir.FullPath)) RightFilteredContents.Add(new ContentItem { Name = Path.GetFileName(file), IsFolder = false, FullPath = file });
-        }
-        catch (Exception) { /* Handle errors */ }
-    }
-
-    /// <summary>
-    /// Load previously saved browse state if available
-    /// </summary>
-    private void LoadPreviousBrowseState()
-    {
-        var savedState = _browseStateService.LoadBrowseState();
-        if (savedState != null)
-        {
-            System.Diagnostics.Debug.WriteLine($"[BrowseViewModel] Attempting to load previous browse state");
-
-            // Check if saved left directory exists and is under the root
-            if (!string.IsNullOrEmpty(savedState.LeftDirectory)
-                && Directory.Exists(savedState.LeftDirectory)
-                && savedState.LeftDirectory.StartsWith(_rootPath, StringComparison.OrdinalIgnoreCase))
-            {
-                SelectedLeftDirectory = new DirectoryItem
+            var files = Directory.GetFiles(item.FullPath)
+                .Select(f =>
                 {
-                    Name = Path.GetFileName(savedState.LeftDirectory),
-                    FullPath = savedState.LeftDirectory
-                };
-                System.Diagnostics.Debug.WriteLine($"[BrowseViewModel] ✓ Restored left directory: {savedState.LeftDirectory}");
-            }
-            else
+                    var info = new FileInfo(f);
+                    var owner = "N/A";
+                    try
+                    {
+                        var acl = info.GetAccessControl();
+                        owner = acl.GetOwner(typeof(NTAccount)).Value;
+                    }
+                    catch { }
+                    var type = GetFileType(f);
+                    var sizeKb = info.Length / 1024.0;
+                    return new FileItem
+                    {
+                        Name = Path.GetFileName(f),
+                        FullPath = f,
+                        Type = type,
+                        Size = info.Length,
+                        SizeString = $"{sizeKb:F2} KB",
+                        CreatedDate = info.CreationTime,
+                        ModifiedDate = info.LastWriteTime,
+                        CreatedDateString = info.CreationTime.ToString("d"),
+                        ModifiedDateString = info.LastWriteTime.ToString("d"),
+                        Owner = owner
+                    };
+                });
+            foreach (var file in files)
             {
-                System.Diagnostics.Debug.WriteLine($"[BrowseViewModel] ✗ Left directory not found or invalid: {savedState.LeftDirectory}");
-            }
-
-            // Check if saved right directory exists and is under the root
-            if (!string.IsNullOrEmpty(savedState.RightDirectory)
-                && Directory.Exists(savedState.RightDirectory)
-                && savedState.RightDirectory.StartsWith(_rootPath, StringComparison.OrdinalIgnoreCase))
-            {
-                SelectedRightDirectory = new DirectoryItem
-                {
-                    Name = Path.GetFileName(savedState.RightDirectory),
-                    FullPath = savedState.RightDirectory
-                };
-                UpdateRightFilteredContents();
-                System.Diagnostics.Debug.WriteLine($"[BrowseViewModel] ✓ Restored right directory: {savedState.RightDirectory}");
-            }
-            else
-            {
-                System.Diagnostics.Debug.WriteLine($"[BrowseViewModel] ✗ Right directory not found or invalid: {savedState.RightDirectory}");
+                Files.Add(file);
             }
         }
-        else
-        {
-            System.Diagnostics.Debug.WriteLine($"[BrowseViewModel] No saved browse state found");
-        }
+        catch { }
     }
 
-    /// <summary>
-    /// Save current browse state to persistent storage (PUBLIC for explicit calls)
-    /// </summary>
-    public void SaveCurrentBrowseState()
+    public async Task LoadFilesAsync(string path)
     {
-        var leftDir = SelectedLeftDirectory?.FullPath ?? string.Empty;
-        var rightDir = SelectedRightDirectory?.FullPath ?? string.Empty;
-        _browseStateService.SaveBrowseState(leftDir, rightDir);
-        System.Diagnostics.Debug.WriteLine($"[BrowseViewModel] Browse state saved - Left: {leftDir}, Right: {rightDir}");
-    }
-
-    #endregion
-
-    #region CanExecute Predicates & Commands
-    private bool CanPerformMultiFileAction() => SelectedLeftItems.Cast<ContentItem>().Any(item => !item.IsFolder);
-    private bool CanPerformSingleFileAction() => SelectedLeftItems.Count == 1 && !SelectedLeftItems.Cast<ContentItem>().First().IsFolder;
-    private bool CanMoveFile() => CanPerformMultiFileAction() && SelectedRightDirectory != null;
-    private bool CanCopyFromScans() => SelectedRightDirectory != null && _mainViewModel.SelectedScanFiles.Any();
-    private bool CanUndo() => _undoStack.Any();
-    private bool CanGoUpLeft() => LeftBreadcrumbs.Count > 1;
-    private bool CanGoUpRight() => RightBreadcrumbs.Count > 1;
-
-    private void UpdateButtonStates()
-    {
-        RenameFileCommand.NotifyCanExecuteChanged();
-        ArchiveFileCommand.NotifyCanExecuteChanged();
-        ShipFileCommand.NotifyCanExecuteChanged();
-        MoveFileCommand.NotifyCanExecuteChanged();
-        NavigateToPreviewCommand.NotifyCanExecuteChanged();
+        var item = new DirectoryItem { FullPath = path, Name = Path.GetFileName(path) };
+        await LoadFilesAsync(item);
     }
 
     [RelayCommand]
-    private void Sort(string newSortColumn)
+    private void RenameItem()
     {
-        if (string.IsNullOrEmpty(newSortColumn)) return;
-        if (_currentSortColumn == newSortColumn) _isSortAscending = !_isSortAscending;
-        else { _currentSortColumn = newSortColumn; _isSortAscending = true; }
-        UpdateAndSortLeftFilteredContents();
+        if (SelectedFile == null) return;
+        RenameRequested?.Invoke(SelectedFile.FullPath, SelectedFile.Name);
     }
 
-    [RelayCommand(CanExecute = nameof(CanGoUpLeft))]
-    private void GoUpLeft()
+    [RelayCommand]
+    private void DeleteToArchive()
     {
-        var parent = LeftBreadcrumbs.ElementAtOrDefault(LeftBreadcrumbs.Count - 2);
-        if (parent != null)
+        if (SelectedFile == null) return;
+        var originalPath = SelectedFile.FullPath;
+        var archivePath = Path.Combine(_mainViewModel.ArchivePath, SelectedFile.Name);
+        File.Move(SelectedFile.FullPath, archivePath);
+        _lastAction = new UndoAction { Type = "Archive", FromPath = originalPath, ToPath = archivePath };
+        Files.Remove(SelectedFile);
+        SelectedFile = null;
+
+        // Refresh left content list to remove the deleted item
+        UpdateFilteredContents();
+    }
+
+    [RelayCommand]
+    private void ShipItems()
+    {
+        if (SelectedFile == null) return;
+        var originalPath = SelectedFile.FullPath;
+        var shippedPath = Path.Combine(_mainViewModel.ShippedDirectory, SelectedFile.Name);
+        File.Move(SelectedFile.FullPath, shippedPath);
+        _lastAction = new UndoAction { Type = "Ship", FromPath = originalPath, ToPath = shippedPath };
+        ShipRequested?.Invoke(SelectedFile);
+        Files.Remove(SelectedFile);
+        SelectedFile = null;
+
+        // Refresh left content list to remove shipped items
+        UpdateFilteredContents();
+    }
+
+    [RelayCommand]
+    private void MoveFile()
+    {
+        if (SelectedFile == null || SelectedRightDirectory == null) return;
+        var newPath = Path.Combine(SelectedRightDirectory.FullPath, SelectedFile.Name);
+        File.Move(SelectedFile.FullPath, newPath);
+        _lastAction = new UndoAction { Type = "Move", FromPath = SelectedFile.FullPath, ToPath = newPath };
+        Files.Remove(SelectedFile);
+        SelectedFile = null;
+
+        // Refresh right content list to show the moved file
+        UpdateRightFilteredContents();
+    }
+
+    public void UpdateSelectedDirectory()
+    {
+        SelectedDirectory = SelectedLevel3 ?? SelectedLevel2 ?? SelectedLevel1 ?? (DirectoryTree.Count > 0 ? DirectoryTree[0] : null);
+        UpdateFilteredContents();
+    }
+
+    public void UpdateLeftSelectedDirectory()
+    {
+        SelectedLeftDirectory = SelectedLeftLevel3 ?? SelectedLeftLevel2 ?? SelectedLeftLevel1 ?? (DirectoryTree.Count > 0 ? DirectoryTree[0] : null);
+        _ = LoadFilesAsync(SelectedLeftDirectory);
+    }
+
+    public void UpdateLeftSelectedDirectory(DirectoryItem item)
+    {
+        SelectedLeftDirectory = item;
+        _ = LoadFilesAsync(SelectedLeftDirectory);
+    }
+
+    public void UpdateRightSelectedDirectory()
+    {
+        SelectedRightDirectory = SelectedRightLevel3 ?? SelectedRightLevel2 ?? SelectedRightLevel1 ?? (DirectoryTree.Count > 0 ? DirectoryTree[0] : null);
+        UpdateRightFilteredContents();
+    }
+
+    public void UpdateRightSelectedDirectory(DirectoryItem item)
+    {
+        SelectedRightDirectory = item;
+        UpdateRightFilteredContents();
+    }
+
+    public void CompleteRename(string newName)
+    {
+        if (SelectedFile == null) return;
+        var oldPath = SelectedFile.FullPath;
+        var newPath = Path.Combine(Path.GetDirectoryName(SelectedFile.FullPath), newName);
+        File.Move(SelectedFile.FullPath, newPath);
+        _lastAction = new UndoAction { Type = "Rename", FromPath = oldPath, ToPath = newPath, NewName = SelectedFile.Name };
+        SelectedFile.Name = newName;
+        SelectedFile.FullPath = newPath;
+
+        // Refresh left content list to reflect the rename
+        UpdateFilteredContents();
+    }
+
+    public void CompleteDelete()
+    {
+        if (SelectedFile == null) return;
+        var archiveDir = _mainViewModel.ArchivePath;
+        Directory.CreateDirectory(archiveDir);
+        var archivePath = Path.Combine(archiveDir, SelectedFile.Name);
+        File.Move(SelectedFile.FullPath, archivePath);
+        Files.Remove(SelectedFile);
+        SelectedFile = null;
+    }
+
+    public void CompleteShip()
+    {
+        if (SelectedFile == null) return;
+        var shippedDir = _mainViewModel.ShippedDirectory;
+        if (string.IsNullOrEmpty(shippedDir))
         {
-            SelectedLeftDirectory = new DirectoryItem { FullPath = parent.FullPath, Name = parent.Name };
-            SaveCurrentBrowseState();
+            return;
+        }
+        Directory.CreateDirectory(shippedDir);
+        var shippedPath = Path.Combine(shippedDir, SelectedFile.Name);
+        File.Move(SelectedFile.FullPath, shippedPath);
+        Files.Remove(SelectedFile);
+        SelectedFile = null;
+
+        // Refresh left content list to remove the shipped item
+        UpdateFilteredContents();
+    }
+
+    private FileType GetFileType(string path)
+    {
+        var ext = Path.GetExtension(path).ToLower();
+        return ext switch
+        {
+            ".txt" => FileType.Text,
+            ".csv" => FileType.Csv,
+            ".log" => FileType.Log,
+            _ => FileType.Other
+        };
+    }
+
+    [RelayCommand]
+    private void CopyFromScans()
+    {
+        if (SelectedRightDirectory == null || _mainViewModel.SelectedScanFiles.Count == 0) return;
+
+        foreach (var file in _mainViewModel.SelectedScanFiles)
+        {
+            var dest = Path.Combine(SelectedRightDirectory.FullPath, file.Name);
+            try
+            {
+                File.Copy(file.FullPath, dest, true); // Overwrite if exists
+            }
+            catch (Exception ex)
+            {
+                // Optionally log or show error
+            }
+        }
+
+        // Refresh the file list
+        _ = LoadFilesAsync(SelectedRightDirectory);
+    }
+
+    public void NavigateToRightDirectory(DirectoryItem item)
+    {
+        SelectedRightDirectory = item;
+        UpdateRightFilteredContents();
+
+        // Update combo boxes to reflect the path
+        var root = DirectoryTree.Count > 0 ? DirectoryTree[0] : null;
+        if (root != null && item.FullPath.StartsWith(root.FullPath))
+        {
+            var relative = item.FullPath.Substring(root.FullPath.Length).TrimStart(Path.DirectorySeparatorChar);
+            var parts = relative.Split(Path.DirectorySeparatorChar);
+            if (parts.Length > 0 && !string.IsNullOrEmpty(parts[0]))
+            {
+                SelectedRightLevel1 = RightLevel1.FirstOrDefault(d => d.Name == parts[0]);
+                if (SelectedRightLevel1 != null && parts.Length > 1 && !string.IsNullOrEmpty(parts[1]))
+                {
+                    // Populate and set Level2
+                    RightLevel2.Clear();
+                    foreach (var sub in SelectedRightLevel1.SubDirectories)
+                    {
+                        RightLevel2.Add(sub);
+                    }
+                    SelectedRightLevel2 = RightLevel2.FirstOrDefault(d => d.Name == parts[1]);
+                    if (SelectedRightLevel2 != null && parts.Length > 2 && !string.IsNullOrEmpty(parts[2]))
+                    {
+                        // Populate and set Level3
+                        RightLevel3.Clear();
+                        foreach (var sub in SelectedRightLevel2.SubDirectories)
+                        {
+                            RightLevel3.Add(sub);
+                        }
+                        SelectedRightLevel3 = RightLevel3.FirstOrDefault(d => d.Name == parts[2]);
+                    }
+                    else
+                    {
+                        SelectedRightLevel3 = null;
+                        RightLevel3.Clear();
+                    }
+                }
+                else
+                {
+                    SelectedRightLevel2 = null;
+                    SelectedRightLevel3 = null;
+                    RightLevel2.Clear();
+                    RightLevel3.Clear();
+                }
+            }
+            else
+            {
+                SelectedRightLevel1 = null;
+                SelectedRightLevel2 = null;
+                SelectedRightLevel3 = null;
+                RightLevel2.Clear();
+                RightLevel3.Clear();
+            }
         }
     }
 
-    [RelayCommand(CanExecute = nameof(CanGoUpRight))]
-    private void GoUpRight()
+    private class UndoAction
     {
-        var parent = RightBreadcrumbs.ElementAtOrDefault(RightBreadcrumbs.Count - 2);
-        if (parent != null)
-        {
-            SelectedRightDirectory = new DirectoryItem { FullPath = parent.FullPath, Name = parent.Name };
-            UpdateRightFilteredContents();
-            SaveCurrentBrowseState();
-        }
+        public string Type { get; set; } = string.Empty;
+        public string FromPath { get; set; } = string.Empty;
+        public string ToPath { get; set; } = string.Empty;
+        public string NewName { get; set; } = string.Empty;
     }
 
-    [RelayCommand(CanExecute = nameof(CanPerformSingleFileAction))]
-    private async Task RenameFile()
+    private UndoAction? _lastAction;
+
+    [RelayCommand]
+    private async Task Undo()
     {
-        var fileToRename = SelectedLeftItems.Cast<ContentItem>().First();
-        var newName = await _dialogService.ShowRenameDialogAsync(fileToRename.Name);
-        if (string.IsNullOrWhiteSpace(newName) || newName == fileToRename.Name) return;
-        var oldPath = fileToRename.FullPath;
-        var newPath = Path.Combine(Path.GetDirectoryName(oldPath), newName);
+        if (_lastAction == null) return;
+
         try
         {
-            File.Move(oldPath, newPath);
+            switch (_lastAction.Type)
+            {
+                case "Move":
+                    File.Move(_lastAction.ToPath, _lastAction.FromPath);
+                    break;
+                case "Rename":
+                    // Rename back: from new path to original
+                    var originalPath = Path.Combine(Path.GetDirectoryName(_lastAction.ToPath)!, _lastAction.NewName);
+                    File.Move(_lastAction.ToPath, originalPath);
+                    break;
+                case "Archive":
+                    // Move back from archive
+                    var archivePath = Path.Combine(_mainViewModel.ArchivePath, Path.GetFileName(_lastAction.FromPath));
+                    File.Move(archivePath, _lastAction.FromPath);
+                    break;
+                case "Ship":
+                    // Move back from shipped
+                    var shippedPath = Path.Combine(_mainViewModel.ShippedDirectory, Path.GetFileName(_lastAction.FromPath));
+                    File.Move(shippedPath, _lastAction.FromPath);
+                    break;
+            }
+            _lastAction = null;
 
-            // Log rename operation with detailed info
-            _auditLoggingService.LogAudit(
-                "FILE_RENAME",
-                newPath,
-                $"Renamed '{fileToRename.Name}' to '{newName}'",
-                new Dictionary<string, string>
-                {
-                    { "oldPath", oldPath },
-                    { "newPath", newPath }
-                }
-            );
-
-            _undoStack.Push(new UndoAction("Rename", new List<FileOp> { new(newPath, oldPath) }));
-            UndoCommand.NotifyCanExecuteChanged();
-            UpdateAndSortLeftFilteredContents();
+            // Refresh UI immediately
+            await LoadFilesAsync(SelectedLeftDirectory);
+            UpdateFilteredContents();
+            UpdateRightFilteredContents();
         }
         catch (Exception ex)
         {
-            await _dialogService.ShowErrorDialogAsync("Rename Failed", ex.Message);
-
-            // Log failed rename
-            _auditLoggingService.LogAudit(
-                "FILE_RENAME_FAILED",
-                oldPath,
-                $"Failed to rename '{fileToRename.Name}' to '{newName}': {ex.Message}",
-                new Dictionary<string, string>
-                {
-                    { "oldName", fileToRename.Name },
-                    { "newName", newName },
-                    { "error", ex.Message }
-                }
-            );
+            // Optionally log or show error
         }
     }
-
-    [RelayCommand(CanExecute = nameof(CanPerformMultiFileAction))]
-    private async Task ArchiveFile()
-    {
-        var filesToMove = SelectedLeftItems.Cast<ContentItem>().Where(i => !i.IsFolder).ToList();
-        if (!await _dialogService.ShowConfirmationDialogAsync("Archive Files", $"Move {filesToMove.Count} item(s) to archive?")) return;
-        var archivePath = _appSettings.ArchivePath;
-        if (string.IsNullOrEmpty(archivePath)) { await _dialogService.ShowErrorDialogAsync("Error", "Archive path is not configured."); return; }
-        Directory.CreateDirectory(archivePath);
-        var ops = new List<FileOp>();
-        foreach (var file in filesToMove)
-        {
-            var destPath = Path.Combine(archivePath, file.Name);
-            try
-            {
-                File.Move(file.FullPath, destPath);
-
-                // Log archive operation with detailed info
-                _auditLoggingService.LogAudit(
-                    "FILE_ARCHIVE",
-                    destPath,
-                    $"Archived '{file.Name}' to archive folder",
-                    new Dictionary<string, string>
-                    {
-                        { "sourcePath", file.FullPath },
-                        { "destinationPath", destPath }
-                    }
-                );
-
-                ops.Add(new FileOp(destPath, file.FullPath));
-            }
-            catch (Exception ex)
-            {
-                await _dialogService.ShowErrorDialogAsync("Archive Failed", $"Could not archive '{file.Name}': {ex.Message}");
-
-                // Log failed archive
-                _auditLoggingService.LogAudit(
-                    "FILE_ARCHIVE_FAILED",
-                    file.FullPath,
-                    $"Failed to archive '{file.Name}': {ex.Message}",
-                    new Dictionary<string, string>
-                    {
-                        { "destination", destPath },
-                        { "error", ex.Message }
-                    }
-                );
-            }
-        }
-        if (ops.Any()) { _undoStack.Push(new UndoAction("Archive", ops)); UndoCommand.NotifyCanExecuteChanged(); UpdateAndSortLeftFilteredContents(); }
-    }
-
-    [RelayCommand(CanExecute = nameof(CanPerformMultiFileAction))]
-    private async Task ShipFile()
-    {
-        var filesToMove = SelectedLeftItems.Cast<ContentItem>().Where(i => !i.IsFolder).ToList();
-        if (!await _dialogService.ShowConfirmationDialogAsync("Ship Files", $"Move {filesToMove.Count} item(s) to shipped folder?")) return;
-        var shippedPath = _appSettings.ShippedDirectory;
-        if (string.IsNullOrEmpty(shippedPath)) { await _dialogService.ShowErrorDialogAsync("Error", "Shipped path is not configured."); return; }
-        Directory.CreateDirectory(shippedPath);
-        var ops = new List<FileOp>();
-        foreach (var file in filesToMove)
-        {
-            var destPath = Path.Combine(shippedPath, file.Name);
-            try
-            {
-                File.Move(file.FullPath, destPath);
-
-                // Log ship operation with detailed info
-                _auditLoggingService.LogAudit(
-                    "FILE_SHIP",
-                    destPath,
-                    $"Shipped '{file.Name}' to shipped folder",
-                    new Dictionary<string, string>
-                    {
-                        { "sourcePath", file.FullPath },
-                        { "destinationPath", destPath }
-                    }
-                );
-
-                ops.Add(new FileOp(destPath, file.FullPath));
-            }
-            catch (Exception ex)
-            {
-                await _dialogService.ShowErrorDialogAsync("Ship Failed", $"Could not ship '{file.Name}': {ex.Message}");
-
-                // Log failed ship
-                _auditLoggingService.LogAudit(
-                    "FILE_SHIP_FAILED",
-                    file.FullPath,
-                    $"Failed to ship '{file.Name}': {ex.Message}",
-                    new Dictionary<string, string>
-                    {
-                        { "destination", destPath },
-                        { "error", ex.Message }
-                    }
-                );
-            }
-        }
-        if (ops.Any()) { _undoStack.Push(new UndoAction("Ship", ops)); UndoCommand.NotifyCanExecuteChanged(); UpdateAndSortLeftFilteredContents(); }
-    }
-
-    [RelayCommand(CanExecute = nameof(CanMoveFile))]
-    private async Task MoveFile()
-    {
-        var filesToMove = SelectedLeftItems.Cast<ContentItem>().Where(i => !i.IsFolder).ToList();
-        var ops = new List<FileOp>();
-        foreach (var file in filesToMove)
-        {
-            var destPath = Path.Combine(SelectedRightDirectory.FullPath, file.Name);
-            try
-            {
-                File.Move(file.FullPath, destPath);
-
-                // Log move operation with detailed info
-                _auditLoggingService.LogAudit(
-                    "FILE_MOVE",
-                    destPath,
-                    $"Moved '{file.Name}' to {SelectedRightDirectory.FullPath}",
-                    new Dictionary<string, string>
-                    {
-                        { "sourcePath", file.FullPath },
-                        { "destinationPath", destPath }
-                    }
-                );
-
-                ops.Add(new FileOp(destPath, file.FullPath));
-            }
-            catch (Exception ex)
-            {
-                await _dialogService.ShowErrorDialogAsync("Move Failed", $"Could not move '{file.Name}': {ex.Message}");
-
-                // Log failed move
-                _auditLoggingService.LogAudit(
-                    "FILE_MOVE_FAILED",
-                    file.FullPath,
-                    $"Failed to move '{file.Name}': {ex.Message}",
-                    new Dictionary<string, string>
-                    {
-                        { "destination", destPath },
-                        { "error", ex.Message }
-                    }
-                );
-            }
-        }
-        if (ops.Any()) { _undoStack.Push(new UndoAction("Move", ops)); UndoCommand.NotifyCanExecuteChanged(); UpdateAndSortLeftFilteredContents(); UpdateRightFilteredContents(); }
-    }
-
-    [RelayCommand(CanExecute = nameof(CanCopyFromScans))]
-    private async Task CopyFromScans()
-    {
-        foreach (var file in _mainViewModel.SelectedScanFiles)
-        {
-            try
-            {
-                var destPath = Path.Combine(SelectedRightDirectory.FullPath, file.Name);
-                File.Copy(file.FullPath, destPath, true);
-
-                // Log copy operation with detailed info
-                _auditLoggingService.LogAudit(
-                    "FILE_COPY",
-                    destPath,
-                    $"Copied '{file.Name}' from Scans to {SelectedRightDirectory.FullPath}",
-                    new Dictionary<string, string>
-                    {
-                        { "sourcePath", file.FullPath },
-                        { "destinationPath", destPath }
-                    }
-                );
-            }
-            catch (Exception ex)
-            {
-                await _dialogService.ShowErrorDialogAsync("Copy Failed", $"Could not copy '{file.Name}'.\nError: {ex.Message}");
-
-                // Log failed copy
-                _auditLoggingService.LogAudit(
-                    "FILE_COPY_FAILED",
-                    file.FullPath,
-                    $"Failed to copy '{file.Name}' from Scans: {ex.Message}",
-                    new Dictionary<string, string>
-                    {
-                        { "destination", Path.Combine(SelectedRightDirectory.FullPath, file.Name) },
-                        { "error", ex.Message }
-                    }
-                );
-            }
-        }
-        UpdateRightFilteredContents();
-    }
-
-    [RelayCommand(CanExecute = nameof(CanUndo))]
-    private async Task Undo()
-    {
-        var lastAction = _undoStack.Pop();
-        UndoCommand.NotifyCanExecuteChanged();
-        foreach (var op in lastAction.Ops)
-        {
-            try
-            {
-                File.Move(op.FromPath, op.ToPath);
-
-                // Log undo operation
-                _auditLoggingService.LogAudit(
-                    "ACTION_UNDONE",
-                    op.ToPath,
-                    $"Undid {lastAction.Type} operation",
-                    new Dictionary<string, string>
-                    {
-                        { "actionType", lastAction.Type },
-                        { "fromPath", op.FromPath },
-                        { "toPath", op.ToPath }
-                    }
-                );
-            }
-            catch (Exception ex)
-            {
-                await _dialogService.ShowErrorDialogAsync("Undo Failed", $"Could not move '{Path.GetFileName(op.ToPath)}' back.");
-
-                // Log failed undo
-                _auditLoggingService.LogAudit(
-                    "UNDO_FAILED",
-                    op.FromPath,
-                    $"Failed to undo {lastAction.Type} operation: {ex.Message}",
-                    new Dictionary<string, string>
-                    {
-                        { "originalPath", op.ToPath },
-                        { "error", ex.Message }
-                    }
-                );
-            }
-        }
-        UpdateAndSortLeftFilteredContents();
-        UpdateRightFilteredContents();
-    }
-
-    [RelayCommand(CanExecute = nameof(CanPerformSingleFileAction))]
-    private void NavigateToPreview()
-    {
-        var fileToPreview = SelectedLeftItems.Cast<ContentItem>().First();
-        var fileItem = new FileItem { Name = fileToPreview.Name, FullPath = fileToPreview.FullPath, Type = GetFileType(fileToPreview.FullPath) };
-
-        // Log preview navigation
-        _auditLoggingService.LogAudit(
-            "PREVIEW_NAVIGATION",
-            fileToPreview.FullPath,
-            $"Navigated to preview for '{fileToPreview.Name}'"
-        );
-
-        _navigationService.NavigateTo(typeof(PreviewPage), fileItem, "Preview");
-    }
-
-    [RelayCommand]
-    private void NavigateLeftBreadcrumb(BreadcrumbItem item)
-    {
-        if (item != null)
-        {
-            SelectedLeftDirectory = new DirectoryItem { FullPath = item.FullPath, Name = item.Name };
-            SaveCurrentBrowseState();
-        }
-    }
-
-    [RelayCommand]
-    private void NavigateRightBreadcrumb(BreadcrumbItem item)
-    {
-        if (item != null)
-        {
-            SelectedRightDirectory = new DirectoryItem { FullPath = item.FullPath, Name = item.Name };
-            UpdateRightFilteredContents();
-            SaveCurrentBrowseState();
-        }
-    }
-
-    [RelayCommand]
-    private async Task MoveFiles(Tuple<IEnumerable<string>, string> dropData)
-    {
-        if (dropData == null) return;
-
-        var sourceFilePaths = dropData.Item1;
-        var destinationFolderPath = dropData.Item2;
-
-        List<FileOp> completedOps = null;
-
-        await Task.Run(async () =>
-        {
-            var ops = new List<FileOp>();
-            foreach (var sourcePath in sourceFilePaths)
-            {
-                var fileName = Path.GetFileName(sourcePath);
-                var destPath = Path.Combine(destinationFolderPath, fileName);
-                try
-                {
-                    File.Move(sourcePath, destPath, true);
-
-                    // Log drag-drop move operation
-                    _auditLoggingService.LogAudit(
-                        "FILE_MOVE",
-                        destPath,
-                        $"Moved '{fileName}' via drag-drop to {destinationFolderPath}",
-                        new Dictionary<string, string>
-                        {
-                            { "sourcePath", sourcePath },
-                            { "destinationPath", destPath },
-                            { "method", "drag-drop" }
-                        }
-                    );
-
-                    ops.Add(new FileOp(destPath, sourcePath));
-                }
-                catch (Exception ex)
-                {
-                    // Log failed drag-drop move
-                    _auditLoggingService.LogAudit(
-                        "FILE_MOVE_FAILED",
-                        sourcePath,
-                        $"Failed to move '{fileName}' via drag-drop: {ex.Message}",
-                        new Dictionary<string, string>
-                        {
-                            { "destination", destPath },
-                            { "error", ex.Message }
-                        }
-                    );
-                }
-            }
-            completedOps = ops;
-        });
-
-        if (completedOps != null && completedOps.Any())
-        {
-            _undoStack.Push(new UndoAction("Move", completedOps));
-            UndoCommand.NotifyCanExecuteChanged();
-            UpdateAndSortLeftFilteredContents();
-            UpdateRightFilteredContents();
-        }
-    }
-    #endregion
 }

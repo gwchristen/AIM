@@ -1,152 +1,78 @@
-using AIM.Models;
 using AIM.ViewModels;
-using CommunityToolkit.Mvvm.DependencyInjection;
-using CommunityToolkit.WinUI.UI.Controls;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Controls.Primitives;
-using Microsoft.UI.Xaml.Input;
-using System; // Required for Tuple
 using System.Linq;
 
-namespace AIM.Views
+namespace AIM.Views;
+
+public sealed partial class ScansPage : Page
 {
-    public sealed partial class ScansPage : Page
+    public ScansViewModel ViewModel { get; }
+    private bool isUpdatingSelection = false;
+
+    public ScansPage()
     {
-        public ScansViewModel ViewModel { get; }
-        private ScanTreeItem _contextMenuItem;
+        this.InitializeComponent();
+        ViewModel = new ScansViewModel();
+        ViewModel.SelectedDirectoryChanged += OnSelectedDirectoryChanged;
+        ViewModel.SortingDone += UpdateSelection;
+        DataContext = ViewModel;
+    }
 
-        public ScansPage()
-        {
-            this.InitializeComponent();
-            ViewModel = Ioc.Default.GetRequiredService<ScansViewModel>();
-            this.Loaded += (s, e) => ViewModel.PageLoadedCommand.Execute(null);
-        }
+    private void OnSelectedDirectoryChanged()
+    {
+        UpdateSelection();
+    }
 
-        private void ScansDataGrid_Sorting(object sender, DataGridColumnEventArgs e)
+    private void UpdateSelection()
+    {
+        isUpdatingSelection = true;
+        FilesListView.SelectedItems.Clear();
+        foreach (var file in ViewModel.Files)
         {
-            if (e.Column.Tag is string sortColumn)
+            if (MainWindow.Instance.ViewModel.SelectedScanFiles.Any(sf => sf.FullPath == file.FullPath))
             {
-                ViewModel.SortCommand.Execute(sortColumn);
+                FilesListView.SelectedItems.Add(file);
             }
         }
+        isUpdatingSelection = false;
+    }
 
-        private void ScansDataGrid_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    private void FilesListView_DoubleTapped(object sender, Microsoft.UI.Xaml.Input.DoubleTappedRoutedEventArgs e)
+    {
+        if (sender is ListView listView && listView.SelectedItem is Models.FileItem file)
         {
-            if (sender is DataGrid dataGrid && dataGrid.SelectedItems != null)
-            {
-                // Convert DataGridSelectedItemsCollection to IList<object>
-                var selectedItems = dataGrid.SelectedItems.Cast<object>().ToList();
-                System.Diagnostics.Debug.WriteLine($"[ScansPage] SelectionChanged: {selectedItems.Count} items selected");
-                ViewModel.SelectionChangedCommand.Execute(selectedItems);
-            }
+            ViewModel.OpenFile(file);
         }
+    }
 
-        private void ScansDataGrid_DoubleTapped(object sender, DoubleTappedRoutedEventArgs e)
-        {
-            if ((e.OriginalSource as FrameworkElement)?.DataContext is ScanTreeItem item)
-            {
-                if (item.IsFolder)
-                {
-                    ViewModel.NavigateToFolderCommand.Execute(item);
-                }
-                else
-                {
-                    ViewModel.OpenFileCommand.Execute(item);
-                }
-            }
-        }
+    private void FilesListView_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        if (isUpdatingSelection) return;
 
-        private void ScansDataGrid_RightTapped(object sender, RightTappedRoutedEventArgs e)
+        if (sender is ListView listView)
         {
-            if ((e.OriginalSource as FrameworkElement)?.DataContext is ScanTreeItem item)
+            var currentSelected = listView.SelectedItems.Cast<Models.FileItem>().ToList();
+            var currentFiles = ViewModel.Files;
+
+            // Remove from global those in currentFiles that are not selected
+            foreach (var file in currentFiles)
             {
-                _contextMenuItem = item;
-                var dataGrid = sender as DataGrid;
-                var flyout = FlyoutBase.GetAttachedFlyout(dataGrid);
-                if (flyout != null)
+                if (!currentSelected.Contains(file))
                 {
-                    flyout.ShowAt(dataGrid, new FlyoutShowOptions { Position = e.GetPosition(dataGrid) });
+                    var toRemove = MainWindow.Instance.ViewModel.SelectedScanFiles.FirstOrDefault(sf => sf.FullPath == file.FullPath);
+                    if (toRemove != null) MainWindow.Instance.ViewModel.SelectedScanFiles.Remove(toRemove);
                 }
             }
-        }
 
-        private void MenuOpen_Click(object sender, RoutedEventArgs e)
-        {
-            if (_contextMenuItem != null && _contextMenuItem.IsFolder) { ViewModel.OpenFolderCommand.Execute(_contextMenuItem); }
-        }
-
-        private void MenuPreview_Click(object sender, RoutedEventArgs e)
-        {
-            if (_contextMenuItem != null && !_contextMenuItem.IsFolder) { ViewModel.OpenFileCommand.Execute(_contextMenuItem); }
-        }
-
-        private void MenuCopyPath_Click(object sender, RoutedEventArgs e)
-        {
-            if (_contextMenuItem != null) { ViewModel.CopyPathCommand.Execute(_contextMenuItem); }
-        }
-
-        private async void MenuDelete_Click(object sender, RoutedEventArgs e)
-        {
-            if (_contextMenuItem == null) return;
-            var item = _contextMenuItem;
-            var dialog = new ContentDialog
+            // Add selected
+            foreach (var file in currentSelected)
             {
-                Title = $"Delete {(item.IsFolder ? "Folder" : "File")}",
-                Content = $"Are you sure you want to permanently delete '{item.Name}'?\nThis action cannot be undone.",
-                PrimaryButtonText = "Delete",
-                CloseButtonText = "Cancel",
-                DefaultButton = ContentDialogButton.Close,
-                XamlRoot = this.Content.XamlRoot,
-                RequestedTheme = this.ActualTheme
-            };
-            dialog.PrimaryButtonStyle = (Style)Application.Current.Resources["AccentButtonStyle"];
-            var result = await dialog.ShowAsync();
-            if (result == ContentDialogResult.Primary) { ViewModel.DeleteCommand.Execute(item); }
-        }
-
-        private void MenuRename_Click(object sender, RoutedEventArgs e)
-        {
-            if (_contextMenuItem != null)
-            {
-                _contextMenuItem.IsRenaming = true;
+                if (!MainWindow.Instance.ViewModel.SelectedScanFiles.Any(sf => sf.FullPath == file.FullPath))
+                {
+                    MainWindow.Instance.ViewModel.SelectedScanFiles.Add(file);
+                }
             }
-        }
-
-        private void RenameTextBox_Loaded(object sender, RoutedEventArgs e)
-        {
-            if (sender is TextBox textBox)
-            {
-                textBox.Focus(FocusState.Programmatic);
-                textBox.SelectAll();
-            }
-        }
-
-        private void RenameTextBox_KeyDown(object sender, KeyRoutedEventArgs e)
-        {
-            if (sender is not TextBox textBox || textBox.DataContext is not ScanTreeItem item) return;
-            if (e.Key == Windows.System.VirtualKey.Enter)
-            {
-                ViewModel.RenameCommand.Execute(new Tuple<ScanTreeItem, string>(item, textBox.Text));
-            }
-            else if (e.Key == Windows.System.VirtualKey.Escape)
-            {
-                item.IsRenaming = false;
-            }
-        }
-
-        private void RenameTextBox_LostFocus(object sender, RoutedEventArgs e)
-        {
-            if (sender is TextBox textBox && textBox.DataContext is ScanTreeItem item && item.IsRenaming)
-            {
-                ViewModel.RenameCommand.Execute(new Tuple<ScanTreeItem, string>(item, textBox.Text));
-            }
-        }
-
-        private void BreadcrumbButton_Click(object sender, RoutedEventArgs e)
-        {
-            if ((sender as FrameworkElement)?.DataContext is BreadcrumbItem b)
-                ViewModel.NavigateBreadcrumbCommand.Execute(b);
         }
     }
 }
