@@ -1,70 +1,103 @@
-<Window
+﻿<Window
     x:Class="AIM.MainWindow"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:local="using:AIM"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
     Title="AIM">
-    
-    <NavigationView x:Name="NavView"
-                    IsBackButtonVisible="Collapsed"
-                    IsSettingsVisible="False"
-                    SelectionChanged="NavView_SelectionChanged"
-                    Header="AIM">
-        <NavigationView.MenuItems>
-            <NavigationViewItem Content="Select Root" Tag="SelectRoot">
-                <NavigationViewItem.Icon>
-                    <FontIcon Glyph="&#xE8DA;"/>
-                </NavigationViewItem.Icon>
-            </NavigationViewItem>
-            <NavigationViewItem Content="Refresh Tree" Tag="RefreshTree">
-                <NavigationViewItem.Icon>
-                    <FontIcon Glyph="&#xE72C;"/>
-                </NavigationViewItem.Icon>
-            </NavigationViewItem>
-            <NavigationViewItemSeparator/>
-            <NavigationViewItem Content="Browse" Tag="Browse" IsSelected="True">
-                <NavigationViewItem.Icon>
-                    <FontIcon Glyph="&#xE8F1;"/>
-                </NavigationViewItem.Icon>
-            </NavigationViewItem>
-            <NavigationViewItem Content="Preview" Tag="Preview">
-                <NavigationViewItem.Icon>
-                    <FontIcon Glyph="&#xE8FF;"/>
-                </NavigationViewItem.Icon>
-            </NavigationViewItem>
-            <NavigationViewItem Content="Search" Tag="Search">
-                <NavigationViewItem.Icon>
-                    <FontIcon Glyph="&#xE721;"/>
-                </NavigationViewItem.Icon>
-            </NavigationViewItem>
-            <NavigationViewItem Content="Scans" Tag="Scans">
-                <NavigationViewItem.Icon>
-                    <FontIcon Glyph="&#xE7C1;"/>
-                </NavigationViewItem.Icon>
-            </NavigationViewItem>
-            <NavigationViewItem Content="Inv Archives" Tag="InvArchives">
-                <NavigationViewItem.Icon>
-                    <FontIcon Glyph="&#xE8B7;"/>
-                </NavigationViewItem.Icon>
-            </NavigationViewItem>
-            <NavigationViewItem Content="Stats" Tag="Stats">
-                <NavigationViewItem.Icon>
-                    <FontIcon Glyph="&#xE9D9;"/>
-                </NavigationViewItem.Icon>
-            </NavigationViewItem>
-        </NavigationView.MenuItems>
-        
-        <NavigationView.FooterMenuItems>
-            <NavigationViewItem Content="Settings" Tag="Settings">
-                <NavigationViewItem.Icon>
-                    <FontIcon Glyph="&#xE713;"/>
-                </NavigationViewItem.Icon>
-            </NavigationViewItem>
-        </NavigationView.FooterMenuItems>
-        
-        <Frame x:Name="MainFrame" x:FieldModifier="public"/>
-    </NavigationView>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <InfoBar
+            x:Name="AppInfoBar"
+            Grid.Row="0"
+            IsOpen="False"
+            HorizontalAlignment="Stretch"
+            Margin="4,4,4,0"/>
+
+        <NavigationView 
+            x:Name="NavView"
+            Grid.Row="1"
+            Loaded="NavView_Loaded"
+            ItemInvoked="NavView_ItemInvoked"
+            IsBackButtonVisible="Collapsed"
+            OpenPaneLength="200">
+
+            <NavigationView.MenuItems>
+                <NavigationViewItem Content="Refresh Tree" Tag="RefreshTree">
+                    <NavigationViewItem.Icon>
+                        <FontIcon Glyph="&#xE72C;"/>
+                    </NavigationViewItem.Icon>
+                </NavigationViewItem>
+
+                <NavigationViewItemSeparator/>
+
+                <NavigationViewItem Content="Browse" Tag="Browse" IsSelected="True">
+                    <NavigationViewItem.Icon>
+                        <FontIcon Glyph="&#xE8F1;"/>
+                    </NavigationViewItem.Icon>
+                </NavigationViewItem>
+                <NavigationViewItem Content="Preview" Tag="Preview">
+                    <NavigationViewItem.Icon>
+                        <FontIcon Glyph="&#xE8FF;"/>
+                    </NavigationViewItem.Icon>
+                </NavigationViewItem>
+                <NavigationViewItem Content="Search" Tag="Search">
+                    <NavigationViewItem.Icon>
+                        <FontIcon Glyph="&#xE721;"/>
+                    </NavigationViewItem.Icon>
+                </NavigationViewItem>
+                <NavigationViewItem Content="Scans" Tag="Scans">
+                    <NavigationViewItem.Icon>
+                        <FontIcon Glyph="&#xE7C1;"/>
+                    </NavigationViewItem.Icon>
+                </NavigationViewItem>
+
+                <!-- INVENTORY ITEM - Visibility handled in code-behind -->
+                <NavigationViewItem Content="Inventory">
+                    <NavigationViewItem.Icon>
+                        <FontIcon Glyph="&#xE8B7;"/>
+                    </NavigationViewItem.Icon>
+                    <NavigationViewItem.MenuItems>
+                        <NavigationViewItem Content="Admin Tools" Tag="InventoryAdminTools">
+                            <NavigationViewItem.Icon>
+                                <FontIcon Glyph="&#xE90F;"/>
+                            </NavigationViewItem.Icon>
+                        </NavigationViewItem>
+                        <NavigationViewItem Content="Arch Viewer" Tag="InventoryViewer">
+                            <NavigationViewItem.Icon>
+                                <FontIcon Glyph="&#xE773;"/>
+                            </NavigationViewItem.Icon>
+                        </NavigationViewItem>
+                        <NavigationViewItem Content="Dir Analysis" Tag="DirAnalysis">
+                            <NavigationViewItem.Icon>
+                                <FontIcon Glyph="&#xEBE8;"/>
+                            </NavigationViewItem.Icon>
+                        </NavigationViewItem>
+                    </NavigationViewItem.MenuItems>
+                </NavigationViewItem>
+
+                <NavigationViewItem Content="Paperwork Forms" Tag="PaperworkForms">
+                    <NavigationViewItem.Icon>
+                        <FontIcon Glyph="&#xE737;"/>
+                    </NavigationViewItem.Icon>
+                </NavigationViewItem>
+
+                <NavigationViewItem Content="Stats" Tag="Stats">
+                    <NavigationViewItem.Icon>
+                        <FontIcon Glyph="&#xE9D9;"/>
+                    </NavigationViewItem.Icon>
+                </NavigationViewItem>
+
+            </NavigationView.MenuItems>
+
+            <Frame x:Name="ContentFrame"/>
+
+        </NavigationView>
+    </Grid>
 </Window>

@@ -1,27 +1,49 @@
-﻿using System.Collections.Generic;
+﻿using AIM.Models;
+using System;
 using System.IO;
 using System.Text.Json;
-using System.Threading.Tasks;
+using Windows.Storage;
 
 namespace AIM.Services;
 
 public class SettingsService : ISettingsService
 {
-    private const string SettingsFile = "settings.json";
+    private readonly string _settingsPath;
 
-    public async Task<Dictionary<string, string>> LoadSettingsAsync()
+    public SettingsService()
     {
-        if (File.Exists(SettingsFile))
-        {
-            string json = await File.ReadAllTextAsync(SettingsFile);
-            return JsonSerializer.Deserialize<Dictionary<string, string>>(json) ?? new();
-        }
-        return new();
+        var appDataFolder = ApplicationData.Current.LocalFolder.Path;
+        _settingsPath = Path.Combine(appDataFolder, "settings.json");
     }
 
-    public async Task SaveSettingsAsync(Dictionary<string, string> settings)
+    // This now correctly returns the AppSettings object, fixing the error.
+    public AppSettings LoadSettings()
     {
-        string json = JsonSerializer.Serialize(settings);
-        await File.WriteAllTextAsync(SettingsFile, json);
+        try
+        {
+            if (File.Exists(_settingsPath))
+            {
+                var json = File.ReadAllText(_settingsPath);
+                return JsonSerializer.Deserialize<AppSettings>(json) ?? new AppSettings();
+            }
+        }
+        catch (Exception)
+        {
+            // If deserialization fails, return default settings
+        }
+        return new AppSettings();
+    }
+
+    public void SaveSettings(AppSettings settings)
+    {
+        try
+        {
+            var json = JsonSerializer.Serialize(settings, new JsonSerializerOptions { WriteIndented = true });
+            File.WriteAllText(_settingsPath, json);
+        }
+        catch (Exception)
+        {
+            // Handle save error if necessary
+        }
     }
 }

@@ -1,6 +1,9 @@
 ﻿using AIM.Services;
 using AIM.ViewModels;
+using AIM.Views;
 using CommunityToolkit.Mvvm.DependencyInjection;
+using CommunityToolkit.Mvvm.Messaging;
+using LiveChartsCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Xaml;
 using System;
@@ -11,35 +14,99 @@ public partial class App : Application
 {
     public App()
     {
-        Services = ConfigureServices();
-        Ioc.Default.ConfigureServices(Services); // Add this line to configure the Ioc container
-        InitializeComponent();
+        this.InitializeComponent();
     }
 
-    public new static App Current => (App)Application.Current;
+    public static Window? MainWindow { get; private set; }
+    public IServiceProvider Services { get; private set; }
 
-    public IServiceProvider Services { get; }
+    protected override async void OnLaunched(LaunchActivatedEventArgs args)
+    {
+        Services = ConfigureServices();
+        Ioc.Default.ConfigureServices(Services);
+
+        // Initialize SecurityService before showing the main window
+        var securityService = Ioc.Default.GetRequiredService<SecurityService>();
+        await securityService.InitializeAsync();
+
+        MainWindow = new MainWindow();
+
+        var themeService = Ioc.Default.GetRequiredService<IThemeService>();
+        themeService.InitializeTheme();
+
+        MainWindow.Activate();
+
+    }
+
 
     private static IServiceProvider ConfigureServices()
     {
         var services = new ServiceCollection();
 
-        services.AddSingleton<IFileService, FileService>();
-        services.AddSingleton<ISearchService, SearchService>();
-        services.AddSingleton<IBackupService, BackupService>();
-        services.AddSingleton<ILoggingService, LoggingService>();
+        // Services
+        services.AddSingleton<INavigationService, NavigationService>();
         services.AddSingleton<ISettingsService, SettingsService>();
+        services.AddSingleton<IFileService, FileService>();
+        services.AddSingleton<IDialogService, DialogService>();
+        services.AddSingleton<IInfoBarService, InfoBarService>();
+        services.AddSingleton<ISearchService, SearchService>();
+        services.AddSingleton<IDirectoryOperationService, DirectoryOperationService>();
+        services.AddSingleton<IMessenger>(WeakReferenceMessenger.Default);
+        services.AddSingleton<IPrintService, PrintService>();
+        services.AddSingleton<FormTemplateFactory>();
+        services.AddSingleton<SecurityService>();
+        services.AddSingleton<EncryptionService>();
+        services.AddSingleton<AuditLoggingService>();
+        services.AddSingleton<IEncryptedSettingsService, EncryptedSettingsService>();
+        services.AddSingleton<IThemeService, ThemeService>();
 
+
+        // ViewModels
         services.AddTransient<MainViewModel>();
+        services.AddTransient<BrowseViewModel>();
+        services.AddTransient<PreviewViewModel>();
+        services.AddTransient<SearchViewModel>();
+        services.AddTransient<ScansViewModel>();
+        services.AddTransient<StatsViewModel>();
+        services.AddTransient<InventoryArchiveViewModel>(); // Reused for Dir Archiver
+        services.AddTransient<InventoryViewerViewModel>();
+        services.AddTransient<InventoryAdminViewModel>();
+        services.AddTransient<SettingsViewModel>();
+        services.AddTransient<PrintableFormViewModel>();
+        services.AddTransient<DirClonerViewModel>();
+        services.AddTransient<BatchRenamerViewModel>();
+        services.AddTransient<DirAnalysisViewModel>();
+        services.AddTransient<FormGeneratorViewModel>();
+        services.AddTransient<LogViewerViewModel>();
+
+
+        // Pages
+        services.AddTransient<BrowsePage>();
+        services.AddTransient<PreviewPage>();
+        services.AddTransient<SearchPage>();
+        services.AddTransient<ScansPage>();
+        services.AddTransient<StatsPage>();
+        services.AddTransient<InventoryArchivePage>(); // This will become a UserControl view
+        services.AddTransient<InventoryViewerPage>();
+        services.AddTransient<SettingsPage>();
+        services.AddTransient<PrintableFormPage>();
+        services.AddTransient<InventoryAdminToolsPage>();
+        services.AddTransient<DirAnalysisPage>();
+        services.AddTransient<FormGeneratorPage>(); 
+        services.AddTransient<LogViewerPage>();
+
 
         return services.BuildServiceProvider();
+
     }
 
-    protected override void OnLaunched(Microsoft.UI.Xaml.LaunchActivatedEventArgs args)
+    public static T GetService<T>() where T : class
     {
-        m_window = new MainWindow();
-        m_window.Activate();
-    }
+        if ((Current as App)?.Services.GetService(typeof(T)) is not T service)
+        {
+            throw new InvalidOperationException($"Cannot resolve service of type {typeof(T).Name}");
+        }
 
-    private Window m_window;
+        return service;
+    }
 }
