@@ -218,7 +218,7 @@
                                                 <Storyboard>
                                                     <ColorAnimation Storyboard.TargetName="BackgroundBrush" 
                                                                     Storyboard.TargetProperty="Color" 
-                                                                    To="{StaticResource PrimaryColor}" 
+                                                                    To="#0078D4" 
                                                                     Duration="0:0:0.3">
                                                         <ColorAnimation.EasingFunction>
                                                             <CubicEase EasingMode="EaseOut"/>
@@ -226,20 +226,12 @@
                                                     </ColorAnimation>
                                                     <ColorAnimation Storyboard.TargetName="BorderBrush" 
                                                                     Storyboard.TargetProperty="Color" 
-                                                                    To="{StaticResource PrimaryDarkColor}" 
+                                                                    To="#005A9E" 
                                                                     Duration="0:0:0.3">
                                                         <ColorAnimation.EasingFunction>
                                                             <CubicEase EasingMode="EaseOut"/>
                                                         </ColorAnimation.EasingFunction>
                                                     </ColorAnimation>
-                                                    <DoubleAnimation Storyboard.TargetName="RootBorder"
-                                                                     Storyboard.TargetProperty="Translation.Y"
-                                                                     To="-2"
-                                                                     Duration="0:0:0.2">
-                                                        <DoubleAnimation.EasingFunction>
-                                                            <CubicEase EasingMode="EaseOut"/>
-                                                        </DoubleAnimation.EasingFunction>
-                                                    </DoubleAnimation>
                                                 </Storyboard>
                                             </VisualState>
                                             <VisualState x:Name="Unchecked">
@@ -254,20 +246,12 @@
                                                     </ColorAnimation>
                                                     <ColorAnimation Storyboard.TargetName="BorderBrush" 
                                                                     Storyboard.TargetProperty="Color" 
-                                                                    To="{StaticResource PrimaryColor}" 
+                                                                    To="#0078D4" 
                                                                     Duration="0:0:0.3">
                                                         <ColorAnimation.EasingFunction>
                                                             <CubicEase EasingMode="EaseOut"/>
                                                         </ColorAnimation.EasingFunction>
                                                     </ColorAnimation>
-                                                    <DoubleAnimation Storyboard.TargetName="RootBorder"
-                                                                     Storyboard.TargetProperty="Translation.Y"
-                                                                     To="0"
-                                                                     Duration="0:0:0.2">
-                                                        <DoubleAnimation.EasingFunction>
-                                                            <CubicEase EasingMode="EaseOut"/>
-                                                        </DoubleAnimation.EasingFunction>
-                                                    </DoubleAnimation>
                                                 </Storyboard>
                                             </VisualState>
                                         </VisualStateGroup>
@@ -284,12 +268,8 @@
                                             <VisualState x:Name="Pressed">
                                                 <Storyboard>
                                                     <DoubleAnimation Storyboard.TargetName="RootBorder"
-                                                                     Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleX)"
-                                                                     To="0.98"
-                                                                     Duration="0:0:0.1"/>
-                                                    <DoubleAnimation Storyboard.TargetName="RootBorder"
-                                                                     Storyboard.TargetProperty="(UIElement.RenderTransform).(ScaleTransform.ScaleY)"
-                                                                     To="0.98"
+                                                                     Storyboard.TargetProperty="Opacity"
+                                                                     To="0.8"
                                                                      Duration="0:0:0.1"/>
                                                 </Storyboard>
                                             </VisualState>
@@ -299,11 +279,8 @@
                                         <SolidColorBrush x:Name="BackgroundBrush" Color="Transparent"/>
                                     </Border.Background>
                                     <Border.BorderBrush>
-                                        <SolidColorBrush x:Name="BorderBrush" Color="{StaticResource PrimaryColor}"/>
+                                        <SolidColorBrush x:Name="BorderBrush" Color="#0078D4"/>
                                     </Border.BorderBrush>
-                                    <Border.RenderTransform>
-                                        <ScaleTransform CenterX="0.5" CenterY="0.5"/>
-                                    </Border.RenderTransform>
                                     <Grid>
                                         <Border x:Name="HoverGlow" 
                                                 Background="{StaticResource PrimaryGradientBrush}"

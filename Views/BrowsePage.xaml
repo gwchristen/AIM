@@ -116,31 +116,31 @@
             
             <Button Command="{Binding RenameFileCommand}" MinWidth="120" CornerRadius="6">
                 <StackPanel Orientation="Horizontal" Spacing="8">
-                    <FontIcon Glyph="&#xE8AC;" Foreground="#0078D4"/>
+                    <FontIcon Glyph="&#xE8AC;" Foreground="{StaticResource PrimaryBrush}"/>
                     <TextBlock Text="Rename"/>
                 </StackPanel>
             </Button>
             <Button Command="{Binding ArchiveFileCommand}" MinWidth="120" CornerRadius="6">
                 <StackPanel Orientation="Horizontal" Spacing="8">
-                    <FontIcon Glyph="&#xE7B8;" Foreground="#8E8CD8"/>
+                    <FontIcon Glyph="&#xE7B8;" Foreground="{StaticResource SecondaryBrush}"/>
                     <TextBlock Text="Archive"/>
                 </StackPanel>
             </Button>
             <Button Command="{Binding ShipFileCommand}" MinWidth="120" CornerRadius="6">
                 <StackPanel Orientation="Horizontal" Spacing="8">
-                    <FontIcon Glyph="&#xE8E1;" Foreground="#107C10"/>
+                    <FontIcon Glyph="&#xE8E1;" Foreground="{StaticResource SuccessBrush}"/>
                     <TextBlock Text="Shipped"/>
                 </StackPanel>
             </Button>
             <Button Command="{Binding MoveFileCommand}" MinWidth="120" CornerRadius="6">
                 <StackPanel Orientation="Horizontal" Spacing="8">
-                    <FontIcon Glyph="&#xE8DE;" Foreground="#FF6B35"/>
+                    <FontIcon Glyph="&#xE8DE;" Foreground="{StaticResource AccentBrush}"/>
                     <TextBlock Text="Move →"/>
                 </StackPanel>
             </Button>
             <Button Command="{Binding UndoCommand}" MinWidth="120" CornerRadius="6">
                 <StackPanel Orientation="Horizontal" Spacing="8">
-                    <FontIcon Glyph="&#xE7A7;" Foreground="#FFA500"/>
+                    <FontIcon Glyph="&#xE7A7;" Foreground="{StaticResource WarningBrush}"/>
                     <TextBlock Text="Undo"/>
                 </StackPanel>
             </Button>
