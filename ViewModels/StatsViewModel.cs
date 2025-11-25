@@ -106,11 +106,7 @@ public partial class StatsViewModel : ObservableObject
         });
     }
 
-    /// <summary>
-    /// Opens a file in the preview page for detailed inspection.
-    /// Command is public to allow binding from XAML.
-    /// </summary>
-    /// <param name="file">The problematic file to open.</param>
+    // THE FIX: The method is now public, which makes the generated OpenFileCommand public.
     [RelayCommand]
     public void OpenFile(ProblematicFile file)
     {

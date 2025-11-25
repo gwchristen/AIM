@@ -13,12 +13,6 @@
     </Page.Resources>
 
     <Grid Margin="24">
-        <Grid.Background>
-            <LinearGradientBrush StartPoint="0,0" EndPoint="1,1" Opacity="0.05">
-                <GradientStop Color="#8E8CD8" Offset="0"/>
-                <GradientStop Color="#A8A6E3" Offset="1"/>
-            </LinearGradientBrush>
-        </Grid.Background>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
@@ -30,42 +24,26 @@
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
-            <Button x:Name="GoBackButton" Grid.Column="0" VerticalAlignment="Top" Margin="0,0,16,0" Click="GoBackButton_Click" IsEnabled="{x:Bind Frame.CanGoBack, Mode=OneWay}" CornerRadius="6">
+            <Button x:Name="GoBackButton" Grid.Column="0" VerticalAlignment="Top" Margin="0,0,16,0" Click="GoBackButton_Click" IsEnabled="{x:Bind Frame.CanGoBack, Mode=OneWay}">
                 <StackPanel Orientation="Horizontal" Spacing="8">
-                    <FontIcon Glyph="&#xE72B;" FontSize="16" Foreground="{StaticResource SecondaryBrush}"/>
+                    <FontIcon Glyph="&#xE72B;" FontSize="16"/>
                     <TextBlock Text="Go Back"/>
                 </StackPanel>
             </Button>
             <StackPanel Grid.Column="1">
-                <Border Background="{StaticResource SecondaryBrush}" 
-                        CornerRadius="6" 
-                        Padding="12,8" 
-                        Margin="0,0,0,8">
-                    <TextBlock Text="{x:Bind ViewModel.FileItem.Name, Mode=OneWay}" 
-                               Style="{ThemeResource TitleTextBlockStyle}"
-                               Foreground="White"
-                               FontWeight="Bold"/>
-                </Border>
-                <TextBlock Text="{x:Bind ViewModel.FileItem.FullPath, Mode=OneWay}" 
-                           Style="{ThemeResource CaptionTextBlockStyle}"
-                           Foreground="{StaticResource SecondaryDarkBrush}"
-                           FontWeight="SemiBold"/>
+                <TextBlock Text="{x:Bind ViewModel.FileItem.Name, Mode=OneWay}" Style="{ThemeResource TitleTextBlockStyle}" Margin="0,0,0,8"/>
+                <TextBlock Text="{x:Bind ViewModel.FileItem.FullPath, Mode=OneWay}" Style="{ThemeResource CaptionTextBlockStyle}"/>
             </StackPanel>
             <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="12" VerticalAlignment="Top">
-                <Button Command="{x:Bind ViewModel.SaveContentCommand}" 
-                        Visibility="{x:Bind ViewModel.IsDirty, Mode=OneWay}" 
-                        Style="{ThemeResource AccentButtonStyle}"
-                        Background="{StaticResource SuccessBrush}"
-                        CornerRadius="8"
-                        BorderThickness="0">
+                <Button Command="{x:Bind ViewModel.SaveContentCommand}" Visibility="{x:Bind ViewModel.IsDirty, Mode=OneWay}" Style="{ThemeResource AccentButtonStyle}">
                     <StackPanel Orientation="Horizontal" Spacing="8">
                         <FontIcon Glyph="&#xE74E;" FontSize="16"/>
-                        <TextBlock Text="Save Changes" FontWeight="SemiBold"/>
+                        <TextBlock Text="Save Changes"/>
                     </StackPanel>
                 </Button>
-                <Button Command="{x:Bind ViewModel.CopyContentCommand}" CornerRadius="6">
+                <Button Command="{x:Bind ViewModel.CopyContentCommand}">
                     <StackPanel Orientation="Horizontal" Spacing="8">
-                        <FontIcon Glyph="&#xE8C8;" FontSize="16" Foreground="{StaticResource InfoBrush}"/>
+                        <FontIcon Glyph="&#xE8C8;" FontSize="16"/>
                         <TextBlock Text="Copy Content"/>
                     </StackPanel>
                 </Button>

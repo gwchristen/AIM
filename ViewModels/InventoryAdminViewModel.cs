@@ -15,7 +15,7 @@ namespace AIM.ViewModels;
 public partial class InventoryAdminViewModel : ObservableObject
 {
     private readonly IDialogService _dialogService;
-    private readonly IDirectoryOperationService _directoryOperationService;
+    private readonly DirectoryOperationService _directoryOperationService;
     private readonly INavigationService _navigationService;
 
     [ObservableProperty]
@@ -56,7 +56,7 @@ public partial class InventoryAdminViewModel : ObservableObject
     private bool CanGenerateForm() => !string.IsNullOrEmpty(FormDirectory);
     private bool CanRenameFiles() => !string.IsNullOrEmpty(RenameDirectory);
 
-    public InventoryAdminViewModel(IDialogService dialogService, IDirectoryOperationService directoryOperationService, INavigationService navigationService)
+    public InventoryAdminViewModel(IDialogService dialogService, DirectoryOperationService directoryOperationService, INavigationService navigationService)
     {
         _dialogService = dialogService;
         _directoryOperationService = directoryOperationService;

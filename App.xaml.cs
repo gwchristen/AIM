@@ -20,18 +20,14 @@ public partial class App : Application
     public static Window? MainWindow { get; private set; }
     public IServiceProvider Services { get; private set; }
 
-    protected override async void OnLaunched(LaunchActivatedEventArgs args)
+    protected override void OnLaunched(LaunchActivatedEventArgs args)
     {
         Services = ConfigureServices();
         Ioc.Default.ConfigureServices(Services);
 
-        // Initialize SecurityService before showing the main window
-        var securityService = Ioc.Default.GetRequiredService<SecurityService>();
-        await securityService.InitializeAsync();
-
         MainWindow = new MainWindow();
 
-        var themeService = Ioc.Default.GetRequiredService<IThemeService>();
+        var themeService = Ioc.Default.GetRequiredService<ThemeService>();
         themeService.InitializeTheme();
 
         MainWindow.Activate();
@@ -50,15 +46,15 @@ public partial class App : Application
         services.AddSingleton<IDialogService, DialogService>();
         services.AddSingleton<IInfoBarService, InfoBarService>();
         services.AddSingleton<ISearchService, SearchService>();
-        services.AddSingleton<IDirectoryOperationService, DirectoryOperationService>();
+        services.AddSingleton<DirectoryOperationService>();
         services.AddSingleton<IMessenger>(WeakReferenceMessenger.Default);
         services.AddSingleton<IPrintService, PrintService>();
         services.AddSingleton<FormTemplateFactory>();
         services.AddSingleton<SecurityService>();
         services.AddSingleton<EncryptionService>();
         services.AddSingleton<AuditLoggingService>();
-        services.AddSingleton<IEncryptedSettingsService, EncryptedSettingsService>();
-        services.AddSingleton<IThemeService, ThemeService>();
+        services.AddSingleton<EncryptedSettingsService>();
+        services.AddSingleton<ThemeService>();
 
 
         // ViewModels
@@ -88,6 +84,7 @@ public partial class App : Application
         services.AddTransient<StatsPage>();
         services.AddTransient<InventoryArchivePage>(); // This will become a UserControl view
         services.AddTransient<InventoryViewerPage>();
+        // REMOVED: services.AddTransient<InventoryAdminPage>();
         services.AddTransient<SettingsPage>();
         services.AddTransient<PrintableFormPage>();
         services.AddTransient<InventoryAdminToolsPage>();

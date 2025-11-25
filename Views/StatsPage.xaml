@@ -19,20 +19,10 @@
         </Grid.RowDefinitions>
 
         <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,24">
-            <Border Background="{StaticResource PrimaryGradientBrush}" 
-                    CornerRadius="8" 
-                    Padding="16,8">
-                <TextBlock Text="Statistics" 
-                           Style="{ThemeResource TitleTextBlockStyle}"
-                           Foreground="White"
-                           FontWeight="Bold"/>
-            </Border>
-            <Button Command="{Binding LoadStatsCommand}" 
-                    Margin="24,0,0,0" 
-                    VerticalAlignment="Center"
-                    CornerRadius="6">
+            <TextBlock Text="Statistics" Style="{ThemeResource TitleTextBlockStyle}"/>
+            <Button Command="{Binding LoadStatsCommand}" Margin="24,0,0,0" VerticalAlignment="Center">
                 <StackPanel Orientation="Horizontal" Spacing="8">
-                    <SymbolIcon Symbol="Refresh" Foreground="{StaticResource SuccessBrush}"/>
+                    <SymbolIcon Symbol="Refresh"/>
                     <TextBlock Text="Refresh"/>
                 </StackPanel>
             </Button>
@@ -40,67 +30,22 @@
 
         <!-- THE FIX: Added HorizontalAlignment="Center" to this StackPanel -->
         <StackPanel Grid.Row="1" Orientation="Horizontal" Spacing="16" Margin="0,0,0,24" HorizontalAlignment="Center">
-            <Border Background="{ThemeResource LayerFillColorDefaultBrush}" 
-                    BorderBrush="{StaticResource PrimaryBrush}" 
-                    BorderThickness="2" 
-                    CornerRadius="8" 
-                    MinWidth="200" 
-                    Padding="16">
-                <Border.Shadow>
-                    <ThemeShadow/>
-                </Border.Shadow>
+            <Border Background="{ThemeResource LayerFillColorDefaultBrush}" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="4" MinWidth="200" Padding="16">
                 <StackPanel Spacing="4">
-                    <TextBlock Text="Total Files" 
-                               Style="{ThemeResource CaptionTextBlockStyle}" 
-                               Foreground="{StaticResource PrimaryBrush}"
-                               FontWeight="SemiBold"/>
-                    <TextBlock Text="{Binding TotalFileCount, Mode=OneWay}" 
-                               Style="{ThemeResource SubtitleTextBlockStyle}" 
-                               HorizontalAlignment="Center"
-                               Foreground="{StaticResource PrimaryDarkBrush}"
-                               FontWeight="Bold"/>
+                    <TextBlock Text="Total Files" Style="{ThemeResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                    <TextBlock Text="{Binding TotalFileCount, Mode=OneWay}" Style="{ThemeResource SubtitleTextBlockStyle}" HorizontalAlignment="Center"/>
                 </StackPanel>
             </Border>
-            <Border Background="{ThemeResource LayerFillColorDefaultBrush}" 
-                    BorderBrush="{StaticResource SecondaryBrush}" 
-                    BorderThickness="2" 
-                    CornerRadius="8" 
-                    MinWidth="200" 
-                    Padding="16">
-                <Border.Shadow>
-                    <ThemeShadow/>
-                </Border.Shadow>
+            <Border Background="{ThemeResource LayerFillColorDefaultBrush}" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="4" MinWidth="200" Padding="16">
                 <StackPanel Spacing="4">
-                    <TextBlock Text="Total Devices" 
-                               Style="{ThemeResource CaptionTextBlockStyle}" 
-                               Foreground="{StaticResource SecondaryBrush}"
-                               FontWeight="SemiBold"/>
-                    <TextBlock Text="{Binding TotalDeviceCount, Mode=OneWay}" 
-                               Style="{ThemeResource SubtitleTextBlockStyle}" 
-                               HorizontalAlignment="Center"
-                               Foreground="{StaticResource SecondaryDarkBrush}"
-                               FontWeight="Bold"/>
+                    <TextBlock Text="Total Devices" Style="{ThemeResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                    <TextBlock Text="{Binding TotalDeviceCount, Mode=OneWay}" Style="{ThemeResource SubtitleTextBlockStyle}" HorizontalAlignment="Center"/>
                 </StackPanel>
             </Border>
-            <Border Background="{ThemeResource LayerFillColorDefaultBrush}" 
-                    BorderBrush="{StaticResource ErrorBrush}" 
-                    BorderThickness="2" 
-                    CornerRadius="8" 
-                    MinWidth="200" 
-                    Padding="16">
-                <Border.Shadow>
-                    <ThemeShadow/>
-                </Border.Shadow>
+            <Border Background="{ThemeResource LayerFillColorDefaultBrush}" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="4" MinWidth="200" Padding="16">
                 <StackPanel Spacing="4">
-                    <TextBlock Text="Problematic Files" 
-                               Style="{ThemeResource CaptionTextBlockStyle}" 
-                               Foreground="{StaticResource ErrorBrush}"
-                               FontWeight="SemiBold"/>
-                    <TextBlock Text="{Binding ProblematicFileCount, Mode=OneWay}" 
-                               Style="{ThemeResource SubtitleTextBlockStyle}" 
-                               Foreground="{StaticResource ErrorBrush}" 
-                               HorizontalAlignment="Center"
-                               FontWeight="Bold"/>
+                    <TextBlock Text="Problematic Files" Style="{ThemeResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                    <TextBlock Text="{Binding ProblematicFileCount, Mode=OneWay}" Style="{ThemeResource SubtitleTextBlockStyle}" Foreground="{ThemeResource SystemErrorTextColor}" HorizontalAlignment="Center"/>
                 </StackPanel>
             </Border>
         </StackPanel>
@@ -112,21 +57,9 @@
             </Grid.ColumnDefinitions>
 
             <StackPanel Grid.Column="0" Spacing="16">
-                <Border Background="{ThemeResource LayerFillColorDefaultBrush}" 
-                        BorderBrush="{StaticResource SecondaryBrush}" 
-                        BorderThickness="2" 
-                        CornerRadius="8" 
-                        Padding="8">
-                    <Border.Shadow>
-                        <ThemeShadow/>
-                    </Border.Shadow>
+                <Border Background="{ThemeResource LayerFillColorDefaultBrush}" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="4" Padding="4">
                     <StackPanel>
-                        <TextBlock Text="Files by OpCo" 
-                                   Style="{ThemeResource SubtitleTextBlockStyle}" 
-                                   HorizontalAlignment="Center" 
-                                   Margin="0,0,0,4"
-                                   Foreground="{StaticResource SecondaryDarkBrush}"
-                                   FontWeight="SemiBold"/>
+                        <TextBlock Text="Files by OpCo" Style="{ThemeResource SubtitleTextBlockStyle}" HorizontalAlignment="Center" Margin="0,0,0,4"/>
                         <lvc:PieChart
                             x:Name="FileChart"
                             Height="180"
@@ -137,21 +70,9 @@
                             Background="Transparent"/>
                     </StackPanel>
                 </Border>
-                <Border Background="{ThemeResource LayerFillColorDefaultBrush}" 
-                        BorderBrush="{StaticResource AccentBrush}" 
-                        BorderThickness="2" 
-                        CornerRadius="8" 
-                        Padding="8">
-                    <Border.Shadow>
-                        <ThemeShadow/>
-                    </Border.Shadow>
+                <Border Background="{ThemeResource LayerFillColorDefaultBrush}" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="4" Padding="4">
                     <StackPanel>
-                        <TextBlock Text="Devices by OpCo" 
-                                   Style="{ThemeResource SubtitleTextBlockStyle}" 
-                                   HorizontalAlignment="Center" 
-                                   Margin="0,0,0,4"
-                                   Foreground="{StaticResource AccentDarkBrush}"
-                                   FontWeight="SemiBold"/>
+                        <TextBlock Text="Devices by OpCo" Style="{ThemeResource SubtitleTextBlockStyle}" HorizontalAlignment="Center" Margin="0,0,0,4"/>
                         <lvc:PieChart
                             x:Name="DeviceChart"
                             Height="180"

@@ -12,13 +12,13 @@ namespace AIM.ViewModels;
 public partial class BatchRenamerViewModel : ObservableObject
 {
     private readonly IDialogService _dialogService;
-    private readonly IDirectoryOperationService _directoryOperationService;
+    private readonly DirectoryOperationService _directoryOperationService;
 
     [ObservableProperty]
     [NotifyCanExecuteChangedFor(nameof(RenameFilesCommand))]
     private string? _renameDirectory;
 
-    public BatchRenamerViewModel(IDialogService dialogService, IDirectoryOperationService directoryOperationService)
+    public BatchRenamerViewModel(IDialogService dialogService, DirectoryOperationService directoryOperationService)
     {
         _dialogService = dialogService;
         _directoryOperationService = directoryOperationService;

@@ -7,49 +7,26 @@ using System.IO;
 
 namespace AIM.ViewModels;
 
-/// <summary>
-/// Main application view model that manages the primary application state.
-/// Handles directory tree navigation, file selection, and security-based feature visibility.
-/// </summary>
 public partial class MainViewModel : ObservableObject
 {
     private readonly ISettingsService _settingsService;
     private readonly IFileService _fileService;
     private readonly SecurityService _securityService;
 
-    /// <summary>
-    /// Gets or sets the currently selected root directory path.
-    /// When changed, triggers rebuilding of the directory tree.
-    /// </summary>
     [ObservableProperty]
     private string selectedRoot;
 
-    /// <summary>
-    /// Gets or sets whether the Inventory tab is visible in the navigation.
-    /// Visibility is controlled by user authorization status.
-    /// </summary>
     [ObservableProperty]
     private bool isInventoryTabVisible;
 
-    /// <summary>
-    /// Gets the collection of directory items for the left navigation tree.
-    /// Populated based on the selected root directory.
-    /// </summary>
+    // Collections required by other ViewModels
     public ObservableCollection<DirectoryItem> LeftTree { get; } = new();
-    
-    /// <summary>
-    /// Gets the collection of selected scan files.
-    /// Used for file operations and previews.
-    /// </summary>
     public ObservableCollection<FileItem> SelectedScanFiles { get; } = new();
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="MainViewModel"/> class.
-    /// Loads settings, initializes security, and sets up the initial application state.
+    /// Constructor that accepts all required services.
+    /// The DI container will use this single constructor.
     /// </summary>
-    /// <param name="settingsService">Service for loading and saving application settings.</param>
-    /// <param name="fileService">Service for file and directory operations.</param>
-    /// <param name="securityService">Service for managing security and authorization.</param>
     public MainViewModel(ISettingsService settingsService, IFileService fileService, SecurityService securityService)
     {
         _settingsService = settingsService;
@@ -58,14 +35,17 @@ public partial class MainViewModel : ObservableObject
 
         Debug.WriteLine($"[MainViewModel] Constructor starting");
 
-        // Load authorized users from settings (for backward compatibility)
+        // IMPORTANT: Load authorized users from settings FIRST
         LoadAuthorizedUsersFromSettings();
+
+        // Set default master password
+        _securityService.SetMasterPassword("AIMAdmin123");
 
         // Load the selected root from settings
         var appSettings = _settingsService.LoadSettings();
         SelectedRoot = appSettings.DefaultRootDirectory;
 
-        // Check inventory visibility based on current authorization
+        // NOW check inventory visibility (after authorized users are loaded)
         UpdateInventoryTabVisibility();
 
         Debug.WriteLine($"[Main] MainViewModel initialized");
@@ -75,8 +55,8 @@ public partial class MainViewModel : ObservableObject
     }
 
     /// <summary>
-    /// Loads authorized users from application settings and updates the security service.
-    /// This method must be called early in initialization, before checking authorization status.
+    /// Loads authorized users from settings and updates SecurityService.
+    /// This must be called early, before checking authorization status.
     /// </summary>
     private void LoadAuthorizedUsersFromSettings()
     {
@@ -95,8 +75,8 @@ public partial class MainViewModel : ObservableObject
     }
 
     /// <summary>
-    /// Updates the visibility of the Inventory tab based on current security status.
-    /// Should be called whenever the security status changes (e.g., master password override activated/deactivated).
+    /// Updates the Inventory tab visibility based on current security status.
+    /// This should be called whenever the security status changes (e.g., master password override activated/deactivated).
     /// </summary>
     public void UpdateInventoryTabVisibility()
     {
@@ -109,10 +89,8 @@ public partial class MainViewModel : ObservableObject
     }
 
     /// <summary>
-    /// Partial method invoked when the selected root directory changes.
-    /// Saves the new root to settings and rebuilds the directory tree.
+    /// Called when the selected root directory changes.
     /// </summary>
-    /// <param name="value">The new selected root directory path.</param>
     partial void OnSelectedRootChanged(string value)
     {
         var appSettings = _settingsService.LoadSettings();
@@ -123,8 +101,7 @@ public partial class MainViewModel : ObservableObject
     }
 
     /// <summary>
-    /// Builds the directory tree from the currently selected root directory.
-    /// Clears existing tree and populates subdirectories recursively.
+    /// Builds the directory tree from the selected root.
     /// </summary>
     private void BuildTree()
     {

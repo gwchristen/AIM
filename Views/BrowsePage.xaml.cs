@@ -104,7 +104,8 @@ public sealed partial class BrowsePage : Page
     {
         string destinationFolderPath = null;
 
-        // Case 1: We dropped on a specific folder item (check if target is a folder)
+        // Case 1: We dropped on a specific folder item.
+        // THE FIX: Corrected typo "IisFolder" to "IsFolder"
         if ((e.OriginalSource as FrameworkElement)?.DataContext is ContentItem targetFolder && targetFolder.IsFolder)
         {
             destinationFolderPath = targetFolder.FullPath;
