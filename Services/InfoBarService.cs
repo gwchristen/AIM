@@ -21,13 +21,13 @@ public class InfoBarService : IInfoBarService
 
     public void Show(string title, string message, InfoBarSeverity severity, int autoHideDelay = 5000)
     {
-        // Check if the InfoBar has been initialized before attempting to use it
+        // THE FIX: We no longer try to auto-find the control. We just check if it's there.
         if (_appInfoBar == null)
         {
-            return; // If not initialized, do nothing to prevent crashes
+            return; // If not initialized, do nothing. This prevents the crash.
         }
 
-        // Ensure this UI update happens on the UI thread
+        // Ensure this UI update happens on the UI thread.
         _appInfoBar.DispatcherQueue.TryEnqueue(() =>
         {
             _appInfoBar.Title = title;
@@ -35,7 +35,7 @@ public class InfoBarService : IInfoBarService
             _appInfoBar.Severity = severity;
             _appInfoBar.IsOpen = true;
 
-            // Stop any previous timer and start a new one if needed
+            // Stop any previous timer and start a new one if needed.
             _timer?.Change(autoHideDelay > 0 ? autoHideDelay : Timeout.Infinite, Timeout.Infinite);
         });
     }

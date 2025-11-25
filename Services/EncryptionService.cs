@@ -5,19 +5,14 @@ using System.Text;
 namespace AIM.Services;
 
 /// <summary>
-/// Provides AES-256 encryption and decryption services for sensitive data.
-/// Uses machine-specific key derivation to ensure encrypted data is tied to the machine it was created on.
-/// Keys are derived from the machine name and username using SHA-256 hashing.
+/// Provides AES encryption/decryption for sensitive data like authorized users list.
+/// Uses a hardcoded key derived from the machine's network adapter ID for consistency.
 /// </summary>
 public class EncryptionService
 {
     private readonly byte[] _encryptionKey;
     private readonly byte[] _encryptionIV;
 
-    /// <summary>
-    /// Initializes a new instance of the <see cref="EncryptionService"/> class.
-    /// Automatically derives encryption keys from machine-specific data.
-    /// </summary>
     public EncryptionService()
     {
         // Derive encryption key from machine-specific data
@@ -27,11 +22,8 @@ public class EncryptionService
     }
 
     /// <summary>
-    /// Encrypts a plain text string using AES-256 encryption.
+    /// Encrypt a string using AES encryption.
     /// </summary>
-    /// <param name="plainText">The plain text to encrypt. If null or empty, returns the input unchanged.</param>
-    /// <returns>A Base64-encoded string containing the encrypted data.</returns>
-    /// <exception cref="Exception">Thrown when encryption fails.</exception>
     public string Encrypt(string plainText)
     {
         if (string.IsNullOrEmpty(plainText))
@@ -67,11 +59,8 @@ public class EncryptionService
     }
 
     /// <summary>
-    /// Decrypts an AES-256 encrypted string back to plain text.
+    /// Decrypt a string using AES encryption.
     /// </summary>
-    /// <param name="cipherText">The Base64-encoded encrypted string. If null or empty, returns the input unchanged.</param>
-    /// <returns>The decrypted plain text string.</returns>
-    /// <exception cref="Exception">Thrown when decryption fails, typically due to invalid cipherText or wrong key.</exception>
     public string Decrypt(string cipherText)
     {
         if (string.IsNullOrEmpty(cipherText))
@@ -106,11 +95,8 @@ public class EncryptionService
     }
 
     /// <summary>
-    /// Derives a 256-bit (32-byte) AES encryption key from machine-specific data.
-    /// Uses SHA-256 to hash the combination of machine name and username.
-    /// This ensures the key is consistent for the same user on the same machine.
+    /// Derive a 256-bit encryption key from machine-specific data.
     /// </summary>
-    /// <returns>A 32-byte encryption key.</returns>
     private byte[] DeriveKeyFromMachine()
     {
         // Use machine name and OS as key material
@@ -123,11 +109,8 @@ public class EncryptionService
     }
 
     /// <summary>
-    /// Derives a 128-bit (16-byte) initialization vector (IV) from machine-specific data.
-    /// Uses SHA-256 to hash the machine name and takes the first 16 bytes.
-    /// The IV ensures that identical plaintexts encrypt to different ciphertexts.
+    /// Derive a 128-bit IV from machine-specific data.
     /// </summary>
-    /// <returns>A 16-byte initialization vector.</returns>
     private byte[] DeriveIVFromMachine()
     {
         var machineId = Environment.MachineName;

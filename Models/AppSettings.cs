@@ -3,66 +3,22 @@ using System.Collections.Generic;
 
 namespace AIM.Models;
 
-/// <summary>
-/// Represents the application configuration settings.
-/// Settings are persisted to local storage and loaded on application startup.
-/// </summary>
 public class AppSettings
 {
-    /// <summary>
-    /// Gets or sets the default root directory for file browsing operations.
-    /// </summary>
+    // Directory Settings
     public string DefaultRootDirectory { get; set; } = string.Empty;
-    
-    /// <summary>
-    /// Gets or sets the path where archived files are stored.
-    /// </summary>
     public string ArchivePath { get; set; } = string.Empty;
-    
-    /// <summary>
-    /// Gets or sets the directory path for shipped items.
-    /// </summary>
     public string ShippedDirectory { get; set; } = string.Empty;
-    
-    /// <summary>
-    /// Gets or sets the directory where file scan results are stored.
-    /// </summary>
     public string FileScansDirectory { get; set; } = string.Empty;
-    
-    /// <summary>
-    /// Gets or sets the directory where inventory archives are stored.
-    /// </summary>
     public string InventoryArchiveDirectory { get; set; } = string.Empty;
 
-    /// <summary>
-    /// Gets or sets the file path to the encrypted security configuration.
-    /// This file contains the master password and authorized users list.
-    /// </summary>
+    // Security Settings Storage Path
     public string SecurityConfigPath { get; set; } = string.Empty;
 
-    /// <summary>
-    /// Gets or sets the current application theme preference.
-    /// Valid values: "FollowSystem", "Light", "Dark", "HighContrast".
-    /// Defaults to "FollowSystem".
-    /// </summary>
-    public string Theme { get; set; } = "FollowSystem";
+    // Theme Settings
+    public string Theme { get; set; } = "FollowSystem";  // Add this
 
-    /// <summary>
-    /// Gets or sets the application password.
-    /// This property is deprecated; use SecurityConfigPath for encrypted password storage instead.
-    /// </summary>
+    // Other settings
     public string Password { get; set; } = string.Empty;
-    
-    /// <summary>
-    /// Gets or sets the list of authorized user IDs.
-    /// This property is deprecated; use SecurityConfigPath for encrypted user list storage instead.
-    /// </summary>
     public List<string> AuthorizedUsers { get; set; } = new();
-
-    /// <summary>
-    /// Gets or sets whether the initial master password has been set.
-    /// When false, the application requires the user to set a master password on first launch.
-    /// This ensures no default or hardcoded passwords are used in production.
-    /// </summary>
-    public bool IsInitialPasswordSet { get; set; } = false;
 }

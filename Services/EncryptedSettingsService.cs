@@ -15,7 +15,7 @@ namespace AIM.Services;
 /// <summary>
 /// Handles encryption and decryption of sensitive settings using Windows Data Protection
 /// </summary>
-public class EncryptedSettingsService : IEncryptedSettingsService
+public class EncryptedSettingsService
 {
     private const string SECURITY_CONFIG_FILENAME = "security.config";
 

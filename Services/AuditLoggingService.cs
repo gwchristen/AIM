@@ -455,118 +455,59 @@ public class AuditLoggingService
 }
 
 /// <summary>
-/// Represents a single audit log entry containing information about a user action.
-/// Entries are serialized to JSON for persistent storage and review.
+/// Represents a single audit log entry.
 /// </summary>
 public class AuditLogEntry
 {
-    /// <summary>
-    /// Gets or sets the timestamp when the action occurred (UTC).
-    /// </summary>
     [JsonPropertyName("timestamp")]
     public DateTime Timestamp { get; set; }
 
-    /// <summary>
-    /// Gets or sets the user ID (Windows username) who performed the action.
-    /// Defaults to the current Windows user if not explicitly set.
-    /// </summary>
     [JsonPropertyName("userId")]
     public string UserId { get; set; } = Environment.UserName;
 
-    /// <summary>
-    /// Gets or sets the type of action performed (e.g., "FILE_ACCESS", "FILE_DELETE", "FILE_MOVE").
-    /// See <see cref="AuditActionTypes"/> for standard action type constants.
-    /// </summary>
     [JsonPropertyName("actionType")]
-    public string ActionType { get; set; }
+    public string ActionType { get; set; } // "FILE_ACCESS", "FILE_DELETE", "FILE_MOVE", etc.
 
-    /// <summary>
-    /// Gets or sets a human-readable description of the action.
-    /// </summary>
     [JsonPropertyName("description")]
-    public string Description { get; set; }
+    public string Description { get; set; } // Human-readable description
 
-    /// <summary>
-    /// Gets or sets the file or folder path affected by the action.
-    /// </summary>
     [JsonPropertyName("targetPath")]
-    public string TargetPath { get; set; }
+    public string TargetPath { get; set; } // File/folder path affected
 
-    /// <summary>
-    /// Gets or sets additional details about the action in JSON format.
-    /// Contains operation-specific information such as source/destination paths, file names, etc.
-    /// </summary>
     [JsonPropertyName("details")]
-    public string Details { get; set; }
+    public string Details { get; set; } // JSON formatted with operation-specific details
 }
 
 /// <summary>
-/// Provides standard action type constants for audit logging.
-/// Use these constants to ensure consistency in audit log entries.
+/// Action type constants for audit logging.
 /// </summary>
 public static class AuditActionTypes
 {
     // File Operations
-    /// <summary>File was accessed or opened for reading.</summary>
     public const string FILE_ACCESS = "FILE_ACCESS";
-    
-    /// <summary>File was previewed in the application.</summary>
     public const string FILE_PREVIEW = "FILE_PREVIEW";
-    
-    /// <summary>File was opened with an external application.</summary>
     public const string FILE_OPEN = "FILE_OPEN";
-    
-    /// <summary>File was copied to another location.</summary>
     public const string FILE_COPY = "FILE_COPY";
-    
-    /// <summary>File was moved to another location.</summary>
     public const string FILE_MOVE = "FILE_MOVE";
-    
-    /// <summary>File was deleted.</summary>
     public const string FILE_DELETE = "FILE_DELETE";
-    
-    /// <summary>File was renamed.</summary>
     public const string FILE_RENAME = "FILE_RENAME";
-    
-    /// <summary>File was created.</summary>
     public const string FILE_CREATE = "FILE_CREATE";
 
     // Directory Operations
-    /// <summary>Directory was accessed or browsed.</summary>
     public const string DIR_ACCESS = "DIR_ACCESS";
-    
-    /// <summary>Directory was created.</summary>
     public const string DIR_CREATE = "DIR_CREATE";
-    
-    /// <summary>Directory was deleted.</summary>
     public const string DIR_DELETE = "DIR_DELETE";
-    
-    /// <summary>Directory was renamed.</summary>
     public const string DIR_RENAME = "DIR_RENAME";
 
     // Security Actions
-    /// <summary>Master password was successfully validated and override activated.</summary>
     public const string MASTER_UNLOCK = "MASTER_UNLOCK";
-    
-    /// <summary>Master password override was deactivated.</summary>
     public const string MASTER_LOCK = "MASTER_LOCK";
-    
-    /// <summary>Master password was changed.</summary>
     public const string MASTER_PASSWORD_CHANGED = "MASTER_PASSWORD_CHANGED";
-    
-    /// <summary>User was added to the authorized users list.</summary>
     public const string USER_ADDED = "USER_ADDED";
-    
-    /// <summary>User was removed from the authorized users list.</summary>
     public const string USER_REMOVED = "USER_REMOVED";
-    
-    /// <summary>Application settings were modified.</summary>
     public const string SETTINGS_CHANGED = "SETTINGS_CHANGED";
 
     // Search/Preview
-    /// <summary>Search operation was performed.</summary>
     public const string SEARCH_PERFORMED = "SEARCH_PERFORMED";
-    
-    /// <summary>Filter was applied to data view.</summary>
     public const string FILTER_APPLIED = "FILTER_APPLIED";
 }
