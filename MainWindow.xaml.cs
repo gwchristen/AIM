@@ -1,13 +1,14 @@
 using AIM.Services;
-using AIM.Views;
 using AIM.ViewModels;
+using AIM.Views;
 using CommunityToolkit.Mvvm.DependencyInjection;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Navigation;
 using System;
-using System.Linq;
+using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 
 namespace AIM;
 
@@ -185,39 +186,6 @@ public sealed partial class MainWindow : Window
         }
     }
 
-    private void NavigateToPage(string navItemTag)
-    {
-        Debug.WriteLine($"[MainWindow] NavigateToPage called with tag: {navItemTag}");
-
-        Type? pageType = navItemTag switch
-        {
-            "RefreshTree" => null,
-            "Browse" => typeof(BrowsePage),
-            "Preview" => typeof(PreviewPage),
-            "Search" => typeof(SearchPage),
-            "Scans" => typeof(ScansPage),
-            "InventoryAdminTools" => typeof(InventoryAdminToolsPage),
-            "InventoryViewer" => typeof(InventoryViewerPage),
-            "DirAnalysis" => typeof(DirAnalysisPage),
-            "PaperworkForms" => typeof(FormGeneratorPage),
-            "Stats" => typeof(StatsPage),
-            "LogViewer" => typeof(LogViewerPage),
-            _ => null
-        };
-
-        Debug.WriteLine($"[MainWindow] Resolved pageType: {pageType?.Name ?? "null"}");
-
-        if (pageType != null && ContentFrame.CurrentSourcePageType != pageType)
-        {
-            Debug.WriteLine($"[MainWindow] Navigating to {pageType.Name}");
-            _navigationService.NavigateTo(pageType);
-        }
-        else
-        {
-            Debug.WriteLine($"[MainWindow] Navigation skipped - pageType is null or already on page");
-        }
-    }
-
     /// <summary>
     /// Public method to update inventory tab visibility. 
     /// Called by SettingsViewModel when security status changes.
@@ -240,5 +208,58 @@ public sealed partial class MainWindow : Window
         }
 
         UpdateLockUnlockButtonState();
+    }
+
+    private Dictionary<Type, Page> _pageCache = new();
+    private Type _currentPageType = null;
+
+    private void NavigateToPage(string navItemTag)
+    {
+        Debug.WriteLine($"[MainWindow] NavigateToPage called with tag: {navItemTag}");
+
+        Type? pageType = navItemTag switch
+        {
+            "RefreshTree" => null,
+            "Browse" => typeof(BrowsePage),
+            "Preview" => typeof(PreviewPage),
+            "Search" => typeof(SearchPage),
+            "Scans" => typeof(ScansPage),
+            "InventoryAdminTools" => typeof(InventoryAdminToolsPage),
+            "InventoryViewer" => typeof(InventoryViewerPage),
+            "DirAnalysis" => typeof(DirAnalysisPage),
+            "PaperworkForms" => typeof(FormGeneratorPage),
+            "Stats" => typeof(StatsPage),
+            "LogViewer" => typeof(LogViewerPage),
+            _ => null
+        };
+
+        Debug.WriteLine($"[MainWindow] Resolved pageType: {pageType?.Name ?? "null"}");
+
+        if (pageType != null && _currentPageType != pageType)
+        {
+            // Check if we have a cached instance
+            if (!_pageCache.ContainsKey(pageType))
+            {
+                // Create new instance and cache it
+                _pageCache[pageType] = (Page)Activator.CreateInstance(pageType);
+                Debug.WriteLine($"[MainWindow] Created and cached new instance of {pageType.Name}");
+            }
+            else
+            {
+                Debug.WriteLine($"[MainWindow] Using cached instance of {pageType.Name}");
+            }
+
+            Debug.WriteLine($"[MainWindow] Navigating to {pageType.Name}");
+            ContentFrame.Content = _pageCache[pageType];
+            _currentPageType = pageType;
+        }
+        else if (pageType == null)
+        {
+            Debug.WriteLine($"[MainWindow] Navigation skipped - pageType is null");
+        }
+        else
+        {
+            Debug.WriteLine($"[MainWindow] Navigation skipped - already on {pageType.Name}");
+        }
     }
 }

@@ -59,10 +59,10 @@ public partial class App : Application
 
         // ViewModels
         services.AddTransient<MainViewModel>();
-        services.AddTransient<BrowseViewModel>();
+        services.AddSingleton<BrowseViewModel>();
         services.AddTransient<PreviewViewModel>();
-        services.AddTransient<SearchViewModel>();
-        services.AddTransient<ScansViewModel>();
+        services.AddSingleton<SearchViewModel>();
+        services.AddSingleton<ScansViewModel>();
         services.AddTransient<StatsViewModel>();
         services.AddTransient<InventoryArchiveViewModel>(); // Reused for Dir Archiver
         services.AddTransient<InventoryViewerViewModel>();
@@ -77,10 +77,10 @@ public partial class App : Application
 
 
         // Pages
-        services.AddTransient<BrowsePage>();
+        services.AddSingleton<BrowsePage>();
         services.AddTransient<PreviewPage>();
-        services.AddTransient<SearchPage>();
-        services.AddTransient<ScansPage>();
+        services.AddSingleton<SearchPage>();
+        services.AddSingleton<ScansPage>();
         services.AddTransient<StatsPage>();
         services.AddTransient<InventoryArchivePage>(); // This will become a UserControl view
         services.AddTransient<InventoryViewerPage>();
