@@ -14,18 +14,21 @@ namespace AIM;
 public sealed partial class MainWindow : Window
 {
     private readonly INavigationService _navigationService;
+    //private readonly SecurityService _securityService;
     private MainViewModel _mainViewModel;
+    private SecurityService _securityService;
 
     public MainWindow()
     {
         this.InitializeComponent();
         _navigationService = Ioc.Default.GetRequiredService<INavigationService>();
+        _securityService = Ioc.Default.GetRequiredService<SecurityService>();
         _navigationService.Initialize(ContentFrame);
 
         // Get MainViewModel
         _mainViewModel = Ioc.Default.GetRequiredService<MainViewModel>();
 
-        Debug.WriteLine($"[MainWindow] MainViewModel obtained. IsInventoryTabVisible: {_mainViewModel.IsInventoryTabVisible}");
+        Debug.WriteLine($"[MainWindow] MainViewModel obtained.  IsInventoryTabVisible: {_mainViewModel.IsInventoryTabVisible}");
 
         // Subscribe to property changes IMMEDIATELY - before NavView_Loaded
         _mainViewModel.PropertyChanged += MainViewModel_PropertyChanged;
@@ -35,7 +38,7 @@ public sealed partial class MainWindow : Window
             rootElement.DataContext = _mainViewModel;
         }
 
-        Debug.WriteLine($"[MainWindow] Constructor complete. Property subscription added.");
+        Debug.WriteLine($"[MainWindow] Constructor complete.  Property subscription added.");
     }
 
     private void MainViewModel_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
@@ -55,6 +58,7 @@ public sealed partial class MainWindow : Window
 
         // Set initial visibility
         UpdateInventoryItemVisibility();
+        UpdateLockUnlockButtonState();
 
         var browseItem = NavView.MenuItems.OfType<NavigationViewItem>().FirstOrDefault(i => i.Tag?.ToString() == "Browse");
         if (browseItem != null)
@@ -83,6 +87,23 @@ public sealed partial class MainWindow : Window
         }
     }
 
+    private void UpdateLockUnlockButtonState()
+    {
+        if (LockUnlockButton != null)
+        {
+            if (_securityService.IsFullyUnlocked)
+            {
+                LockUnlockButton.Content = "Lock";
+                Debug.WriteLine($"[MainWindow] Lock button updated to 'Lock'");
+            }
+            else
+            {
+                LockUnlockButton.Content = "Unlock";
+                Debug.WriteLine($"[MainWindow] Lock button updated to 'Unlock'");
+            }
+        }
+    }
+
     private void NavView_ItemInvoked(NavigationView sender, NavigationViewItemInvokedEventArgs args)
     {
         if (args.IsSettingsInvoked)
@@ -91,7 +112,76 @@ public sealed partial class MainWindow : Window
         }
         else if (args.InvokedItemContainer?.Tag is string navItemTag && !string.IsNullOrEmpty(navItemTag))
         {
-            NavigateToPage(navItemTag);
+            if (navItemTag == "LockUnlock")
+            {
+                HandleLockUnlockClick();
+            }
+            else
+            {
+                NavigateToPage(navItemTag);
+            }
+        }
+    }
+
+    private async void HandleLockUnlockClick()
+    {
+        if (_securityService.IsFullyUnlocked)
+        {
+            // User is unlocked, lock the session
+            _securityService.LockSession();
+            _mainViewModel.UpdateInventoryTabVisibility();
+            UpdateLockUnlockButtonState();
+            Debug.WriteLine($"[MainWindow] Session locked from sidebar button");
+        }
+        else
+        {
+            // User is locked, show PIN dialog
+            var dialog = new ContentDialog
+            {
+                Title = "Unlock with PIN",
+                PrimaryButtonText = "Unlock",
+                CloseButtonText = "Cancel",
+                DefaultButton = ContentDialogButton.Primary,
+                XamlRoot = this.Content?.XamlRoot
+            };
+
+            var stackPanel = new StackPanel { Spacing = 12 };
+            stackPanel.Children.Add(new TextBlock
+            {
+                Text = "Enter PIN to unlock:",
+                TextWrapping = TextWrapping.Wrap
+            });
+
+            var pinBox = new PasswordBox { Width = 300 };
+            stackPanel.Children.Add(pinBox);
+
+            dialog.Content = stackPanel;
+
+            var result = await dialog.ShowAsync();
+
+            if (result == ContentDialogResult.Primary)
+            {
+                string pin = pinBox.Password;
+
+                if (_securityService.ValidatePin(pin))
+                {
+                    _mainViewModel.UpdateInventoryTabVisibility();
+                    UpdateLockUnlockButtonState();
+                    Debug.WriteLine($"[MainWindow] Session unlocked from sidebar button");
+                }
+                else
+                {
+                    var errorDialog = new ContentDialog
+                    {
+                        Title = "Invalid PIN",
+                        Content = "The PIN you entered is incorrect.",
+                        CloseButtonText = "OK",
+                        XamlRoot = this.Content?.XamlRoot
+                    };
+                    await errorDialog.ShowAsync();
+                    Debug.WriteLine($"[MainWindow] Failed unlock attempt from sidebar button");
+                }
+            }
         }
     }
 
@@ -129,7 +219,7 @@ public sealed partial class MainWindow : Window
     }
 
     /// <summary>
-    /// Public method to update inventory tab visibility.
+    /// Public method to update inventory tab visibility. 
     /// Called by SettingsViewModel when security status changes.
     /// </summary>
     public void UpdateInventoryTabVisibility(bool shouldBeVisible)
@@ -148,5 +238,7 @@ public sealed partial class MainWindow : Window
         {
             Debug.WriteLine($"[MainWindow] PUBLIC METHOD: ERROR: Could not find Inventory NavigationViewItem");
         }
+
+        UpdateLockUnlockButtonState();
     }
 }

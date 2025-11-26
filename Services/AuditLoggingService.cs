@@ -479,7 +479,7 @@ public class AuditLogEntry
 }
 
 /// <summary>
-/// Action type constants for audit logging.
+/// Action type constants for audit logging. 
 /// </summary>
 public static class AuditActionTypes
 {
@@ -499,13 +499,13 @@ public static class AuditActionTypes
     public const string DIR_DELETE = "DIR_DELETE";
     public const string DIR_RENAME = "DIR_RENAME";
 
-    // Security Actions
-    public const string MASTER_UNLOCK = "MASTER_UNLOCK";
-    public const string MASTER_LOCK = "MASTER_LOCK";
-    public const string MASTER_PASSWORD_CHANGED = "MASTER_PASSWORD_CHANGED";
-    public const string USER_ADDED = "USER_ADDED";
-    public const string USER_REMOVED = "USER_REMOVED";
-    public const string SETTINGS_CHANGED = "SETTINGS_CHANGED";
+    // Security Actions - PIN-Based (replacing old MASTER_PASSWORD actions)
+    public const string PIN_UNLOCK = "PIN_UNLOCK";
+    public const string PIN_LOCK = "PIN_LOCK";
+    public const string PIN_UNLOCK_FAILED = "PIN_UNLOCK_FAILED";
+    public const string PIN_CHANGED = "PIN_CHANGED";
+    public const string SESSION_LOCKED = "SESSION_LOCKED";
+    public const string LOGS_CLEARED = "LOGS_CLEARED";
 
     // Search/Preview
     public const string SEARCH_PERFORMED = "SEARCH_PERFORMED";

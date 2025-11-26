@@ -24,7 +24,7 @@ public partial class MainViewModel : ObservableObject
     public ObservableCollection<FileItem> SelectedScanFiles { get; } = new();
 
     /// <summary>
-    /// Constructor that accepts all required services.
+    /// Constructor that accepts all required services. 
     /// The DI container will use this single constructor.
     /// </summary>
     public MainViewModel(ISettingsService settingsService, IFileService fileService, SecurityService securityService)
@@ -35,17 +35,11 @@ public partial class MainViewModel : ObservableObject
 
         Debug.WriteLine($"[MainViewModel] Constructor starting");
 
-        // IMPORTANT: Load authorized users from settings FIRST
-        LoadAuthorizedUsersFromSettings();
-
-        // Set default master password
-        _securityService.SetMasterPassword("AIMAdmin123");
-
         // Load the selected root from settings
         var appSettings = _settingsService.LoadSettings();
         SelectedRoot = appSettings.DefaultRootDirectory;
 
-        // NOW check inventory visibility (after authorized users are loaded)
+        // Check inventory visibility (based on current PIN unlock status)
         UpdateInventoryTabVisibility();
 
         Debug.WriteLine($"[Main] MainViewModel initialized");
@@ -55,28 +49,8 @@ public partial class MainViewModel : ObservableObject
     }
 
     /// <summary>
-    /// Loads authorized users from settings and updates SecurityService.
-    /// This must be called early, before checking authorization status.
-    /// </summary>
-    private void LoadAuthorizedUsersFromSettings()
-    {
-        var appSettings = _settingsService.LoadSettings();
-        var authorizedUsers = appSettings?.AuthorizedUsers ?? new System.Collections.Generic.List<string>();
-
-        Debug.WriteLine($"[MainViewModel] Loaded {authorizedUsers.Count} authorized users from settings");
-        foreach (var user in authorizedUsers)
-        {
-            Debug.WriteLine($"[MainViewModel]   - {user}");
-        }
-
-        // Set the authorized users list in SecurityService
-        _securityService.SetAuthorizedUsers(authorizedUsers);
-        Debug.WriteLine($"[MainViewModel] SecurityService.IsFullyUnlocked after loading: {_securityService.IsFullyUnlocked}");
-    }
-
-    /// <summary>
     /// Updates the Inventory tab visibility based on current security status.
-    /// This should be called whenever the security status changes (e.g., master password override activated/deactivated).
+    /// This should be called whenever the security status changes (e.g., PIN unlock activated/deactivated).
     /// </summary>
     public void UpdateInventoryTabVisibility()
     {
@@ -89,7 +63,7 @@ public partial class MainViewModel : ObservableObject
     }
 
     /// <summary>
-    /// Called when the selected root directory changes.
+    /// Called when the selected root directory changes. 
     /// </summary>
     partial void OnSelectedRootChanged(string value)
     {
@@ -101,7 +75,7 @@ public partial class MainViewModel : ObservableObject
     }
 
     /// <summary>
-    /// Builds the directory tree from the selected root.
+    /// Builds the directory tree from the selected root. 
     /// </summary>
     private void BuildTree()
     {

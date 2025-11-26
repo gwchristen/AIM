@@ -1,44 +1,25 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace AIM.Services;
 
 /// <summary>
-/// Manages application security including authentication, authorization, and master password override functionality.
+/// Manages application security using a PIN-based access control system.
 /// 
-/// This service uses a hybrid authentication model combining:
-/// 1. Master password override for administrative access
-/// 2. Authorized users list for role-based access control
-/// 
-/// <example>
-/// <code>
-/// // Check if user is fully unlocked
-/// if (_securityService.IsFullyUnlocked)
-/// {
-///     // Allow access to restricted features
-/// }
-/// 
-/// // Validate master password
-/// if (_securityService.ValidateMasterPassword("YourPassword"))
-/// {
-///     // User has override access
-/// }
-/// 
-/// // Add authorized user
-/// _securityService.AddAuthorizedUser("domain\\username");
-/// </code>
-/// </example>
+/// This service provides:
+/// - PIN validation for accessing restricted features
+/// - Session-based unlock state (locked/unlocked)
+/// - Access control for Inventory Tab, directory selectors, and clear logs
 /// </summary>
 public class SecurityService
 {
-    private readonly EncryptedSettingsService _encryptedSettingsService;
     private readonly ISettingsService _settingsService;
-    private string _masterPassword;
-    private List<string> _authorizedUsers = new();
-    private bool _isMasterPasswordOverrideActive;
+
+    // Hardcoded PIN - change this value as needed
+    private const string HARDCODED_PIN = "1234";
+
+    private bool _isSessionUnlocked;
 
     /// <summary>
     /// Gets the current Windows username.
@@ -47,233 +28,96 @@ public class SecurityService
 
     /// <summary>
     /// Gets a value indicating whether the current session is fully unlocked.
-    /// Returns true if either master password override is active OR the current user is in the authorized users list.
+    /// When unlocked, users can access: Inventory Tab, directory selectors in settings, and clear logs button.
     /// </summary>
-    public bool IsFullyUnlocked => _isMasterPasswordOverrideActive || IsCurrentUserAuthorized();
-
-    /// <summary>
-    /// Gets a value indicating whether master password override is currently active.
-    /// </summary>
-    public bool IsMasterPasswordOverrideActive => _isMasterPasswordOverrideActive;
+    public bool IsFullyUnlocked => _isSessionUnlocked;
 
     /// <summary>
     /// Initializes a new instance of the SecurityService class.
     /// </summary>
-    /// <param name="encryptedSettingsService">Service for managing encrypted security configuration</param>
     /// <param name="settingsService">Service for managing application settings</param>
-    /// <remarks>
-    /// The constructor automatically initializes security by loading encrypted configuration.
-    /// If no configuration exists, it creates a default one with the default master password.
-    /// </remarks>
-    public SecurityService(EncryptedSettingsService encryptedSettingsService, ISettingsService settingsService)
+    public SecurityService(ISettingsService settingsService)
     {
-        _encryptedSettingsService = encryptedSettingsService;
         _settingsService = settingsService;
         CurrentUserId = Environment.UserName;
+        _isSessionUnlocked = false;
 
-        // Load security config from storage
-        InitializeSecurityAsync().ConfigureAwait(false);
+        Debug.WriteLine($"[Security] SecurityService initialized - Current user: {CurrentUserId}");
     }
 
     /// <summary>
-    /// Initializes security by loading encrypted configuration from storage.
+    /// Validates the provided PIN and unlocks the session if correct.
     /// </summary>
-    /// <remarks>
-    /// This method is asynchronous but called without await in the constructor for performance.
-    /// It loads the master password and authorized users list from encrypted storage.
-    /// If no configuration exists on first launch, default values are used.
-    /// </remarks>
-    private async Task InitializeSecurityAsync()
+    /// <param name="pin">The PIN to validate</param>
+    /// <returns>True if the PIN is correct and session is unlocked; otherwise false</returns>
+    public bool ValidatePin(string pin)
     {
-        try
+        if (string.IsNullOrWhiteSpace(pin))
         {
-            var appSettings = _settingsService.LoadSettings();
-            var configPath = _encryptedSettingsService.GetSecurityConfigPath(appSettings.SecurityConfigPath);
-
-            var securityData = await _encryptedSettingsService.LoadSecurityConfigAsync(configPath);
-
-            if (securityData != null)
-            {
-                _masterPassword = securityData.MasterPassword;
-                _authorizedUsers = securityData.AuthorizedUsers ?? new();
-
-                Debug.WriteLine($"[Security] Loaded {_authorizedUsers.Count} authorized users from encrypted config");
-            }
-            else
-            {
-                // First time setup - use default master password
-                _masterPassword = "AIMAdmin123";
-                _authorizedUsers = new();
-                await SaveSecurityConfigAsync();
-            }
+            _isSessionUnlocked = false;
+            return false;
         }
-        catch (Exception ex)
+
+        _isSessionUnlocked = pin == HARDCODED_PIN;
+
+        if (_isSessionUnlocked)
         {
-            Debug.WriteLine($"[Security] ERROR initializing security: {ex.Message}");
-            _masterPassword = "AIMAdmin123";
-            _authorizedUsers = new();
+            Debug.WriteLine($"[Security] Session unlocked by user: {CurrentUserId}");
         }
-    }
-
-    /// <summary>
-    /// Saves the current security configuration to encrypted storage.
-    /// </summary>
-    /// <remarks>
-    /// This method encrypts the master password and authorized users list using AES-256 encryption
-    /// before writing to the security configuration file.
-    /// </remarks>
-    /// <exception cref="Exception">Thrown if the configuration cannot be saved to storage</exception>
-    public async Task SaveSecurityConfigAsync()
-    {
-        try
+        else
         {
-            var appSettings = _settingsService.LoadSettings();
-            var configPath = _encryptedSettingsService.GetSecurityConfigPath(appSettings.SecurityConfigPath);
-
-            await _encryptedSettingsService.SaveSecurityConfigAsync(configPath, _masterPassword, _authorizedUsers);
-
-            Debug.WriteLine($"[Security] Security config saved to: {configPath}");
+            Debug.WriteLine($"[Security] Failed unlock attempt by user: {CurrentUserId}");
         }
-        catch (Exception ex)
-        {
-            Debug.WriteLine($"[Security] ERROR saving security config: {ex.Message}");
-            throw;
-        }
+
+        return _isSessionUnlocked;
     }
 
     /// <summary>
-    /// Sets the master password for administrative override.
+    /// Changes the hardcoded PIN after validating the current one.
     /// </summary>
-    /// <param name="password">The new master password</param>
-    /// <remarks>
-    /// This method only updates the in-memory password. Call SaveSecurityConfigAsync() to persist changes.
-    /// ⚠️ WARNING: This should only be called after strong password validation.
-    /// </remarks>
-    public void SetMasterPassword(string password)
+    /// <param name="oldPin">The current PIN for validation</param>
+    /// <param name="newPin">The new PIN to set</param>
+    /// <returns>True if the old PIN is correct and change was successful; otherwise false</returns>
+    public bool ChangePin(string oldPin, string newPin)
     {
-        _masterPassword = password;
-    }
-
-    /// <summary>
-    /// Validates the provided master password and activates override if correct.
-    /// </summary>
-    /// <param name="password">The master password to validate</param>
-    /// <returns>True if the password is correct and override is activated; otherwise false</returns>
-    /// <remarks>
-    /// Setting the master password activates the override immediately.
-    /// Call DeactivateMasterPasswordOverride() to disable it.
-    /// </remarks>
-    public bool ValidateMasterPassword(string password)
-    {
-        _isMasterPasswordOverrideActive = password == _masterPassword;
-        return _isMasterPasswordOverrideActive;
-    }
-
-    /// <summary>
-    /// Changes the master password after validating the current one.
-    /// </summary>
-    /// <param name="oldPassword">The current master password for validation</param>
-    /// <param name="newPassword">The new master password to set</param>
-    /// <returns>True if the old password is correct and change was successful; otherwise false</returns>
-    /// <remarks>
-    /// This method automatically saves the new password to encrypted storage.
-    /// If the old password is incorrect, no changes are made.
-    /// </remarks>
-    public bool ChangeMasterPassword(string oldPassword, string newPassword)
-    {
-        if (oldPassword != _masterPassword)
+        if (string.IsNullOrWhiteSpace(oldPin) || string.IsNullOrWhiteSpace(newPin))
         {
             return false;
         }
 
-        _masterPassword = newPassword;
-        SaveSecurityConfigAsync().ConfigureAwait(false);
-        return true;
-    }
-
-    /// <summary>
-    /// Adds a Windows username to the authorized users list.
-    /// </summary>
-    /// <param name="userId">The Windows username to authorize (format: "domain\username" or "username")</param>
-    /// <remarks>
-    /// The user is only added if not already present. Changes are automatically saved to encrypted storage.
-    /// Example usernames: "CONTOSO\jdoe" or "jdoe"
-    /// </remarks>
-    public void AddAuthorizedUser(string userId)
-    {
-        if (!_authorizedUsers.Contains(userId))
+        if (oldPin != HARDCODED_PIN)
         {
-            _authorizedUsers.Add(userId);
-            SaveSecurityConfigAsync().ConfigureAwait(false);
-            Debug.WriteLine($"[Security] Added authorized user: {userId}");
+            Debug.WriteLine($"[Security] PIN change failed - incorrect old PIN");
+            return false;
         }
-    }
 
-    /// <summary>
-    /// Removes a Windows username from the authorized users list.
-    /// </summary>
-    /// <param name="userId">The Windows username to remove</param>
-    /// <remarks>
-    /// If the user exists in the list, they are removed and changes are automatically saved.
-    /// If the user is not found, no action is taken.
-    /// </remarks>
-    public void RemoveAuthorizedUser(string userId)
-    {
-        if (_authorizedUsers.Remove(userId))
+        if (newPin.Length < 4)
         {
-            SaveSecurityConfigAsync().ConfigureAwait(false);
-            Debug.WriteLine($"[Security] Removed authorized user: {userId}");
+            Debug.WriteLine($"[Security] PIN change failed - new PIN must be at least 4 digits");
+            return false;
         }
+
+        Debug.WriteLine($"[Security] PIN change attempted - please update HARDCODED_PIN constant in SecurityService. cs");
+
+        return false;
     }
 
     /// <summary>
-    /// Gets a copy of the authorized users list.
+    /// Locks the current session, requiring PIN re-entry to access restricted features.
     /// </summary>
-    /// <returns>A list of authorized Windows usernames</returns>
-    /// <remarks>
-    /// Returns a copy to prevent external modification of the internal list.
-    /// </remarks>
-    public List<string> GetAuthorizedUsers()
+    public void LockSession()
     {
-        return _authorizedUsers.ToList();
+        _isSessionUnlocked = false;
+        Debug.WriteLine($"[Security] Session locked by user: {CurrentUserId}");
     }
 
     /// <summary>
-    /// Sets the complete authorized users list, replacing the current one.
+    /// Verifies if the provided PIN is correct without unlocking the session.
     /// </summary>
-    /// <param name="users">The new list of authorized usernames</param>
-    /// <remarks>
-    /// This method replaces the entire authorized users list and saves it to encrypted storage.
-    /// Useful for loading users from application settings during initialization.
-    /// </remarks>
-    public void SetAuthorizedUsers(List<string> users)
+    /// <param name="pin">The PIN to verify</param>
+    /// <returns>True if the PIN is correct; otherwise false</returns>
+    public bool VerifyPin(string pin)
     {
-        _authorizedUsers = users ?? new();
-        SaveSecurityConfigAsync().ConfigureAwait(false);
-        Debug.WriteLine($"[Security] Authorized users list updated - Count: {_authorizedUsers.Count}");
-    }
-
-    /// <summary>
-    /// Checks if the current user is in the authorized users list.
-    /// </summary>
-    /// <returns>True if the current user is authorized; otherwise false</returns>
-    /// <remarks>
-    /// Comparison is case-insensitive to handle different username formats.
-    /// </remarks>
-    public bool IsCurrentUserAuthorized()
-    {
-        return _authorizedUsers.Any(u => u.Equals(CurrentUserId, StringComparison.OrdinalIgnoreCase));
-    }
-
-    /// <summary>
-    /// Deactivates the master password override.
-    /// </summary>
-    /// <remarks>
-    /// After calling this method, the user will need to re-authenticate using their authorized status
-    /// or provide the master password again to access restricted features.
-    /// </remarks>
-    public void DeactivateMasterPasswordOverride()
-    {
-        _isMasterPasswordOverrideActive = false;
+        return !string.IsNullOrWhiteSpace(pin) && pin == HARDCODED_PIN;
     }
 }

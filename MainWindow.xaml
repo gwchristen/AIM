@@ -96,6 +96,14 @@
 
             </NavigationView.MenuItems>
 
+            <NavigationView.FooterMenuItems>
+                <NavigationViewItem x:Name="LockUnlockButton" Content="Unlock" Tag="LockUnlock">
+                    <NavigationViewItem.Icon>
+                        <FontIcon Glyph="&#xE72E;"/>
+                    </NavigationViewItem.Icon>
+                </NavigationViewItem>
+            </NavigationView.FooterMenuItems>
+
             <Frame x:Name="ContentFrame"/>
 
         </NavigationView>

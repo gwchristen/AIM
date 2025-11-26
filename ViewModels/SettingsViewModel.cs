@@ -53,22 +53,19 @@ public partial class SettingsViewModel : ObservableObject
     private bool isDirectoriesUnlocked;
 
     [ObservableProperty]
-    private bool isMasterPasswordOverrideActive;
-
-    [ObservableProperty]
-    private ObservableCollection<string> authorizedUsersList;
+    private bool isSessionUnlocked;
 
     [ObservableProperty]
     private string currentUserId;
 
     [ObservableProperty]
-    private bool masterPasswordChangeSuccess;
+    private bool pinChangeSuccess;
 
     [ObservableProperty]
-    private bool masterPasswordChangeError;
+    private bool pinChangeError;
 
     [ObservableProperty]
-    private string masterPasswordErrorMessage;
+    private string pinErrorMessage;
 
     // Audit Log Properties
     [ObservableProperty]
@@ -133,7 +130,6 @@ public partial class SettingsViewModel : ObservableObject
         _themeService = themeService;
 
         // Initialize collections
-        AuthorizedUsersList = new ObservableCollection<string>();
         AllLogs = new ObservableCollection<AuditLogEntry>();
         FilteredLogs = new ObservableCollection<AuditLogEntry>();
         AvailableActionTypes = new ObservableCollection<string>();
@@ -142,8 +138,6 @@ public partial class SettingsViewModel : ObservableObject
 
         // Load settings and check authorization
         LoadSettings();
-
-        RefreshAuthorizedUsersList();
         UpdateUnlockStatus();
 
         CurrentUserId = _securityService.CurrentUserId;
@@ -153,7 +147,7 @@ public partial class SettingsViewModel : ObservableObject
         InitializeThemes();
 
         Debug.WriteLine($"[Settings] Current user: {CurrentUserId}");
-        Debug.WriteLine($"[Settings] Is authorized: {_securityService.IsFullyUnlocked}");
+        Debug.WriteLine($"[Settings] Is session unlocked: {_securityService.IsFullyUnlocked}");
 
         // Load audit logs
         LoadLogsAsync().ConfigureAwait(false);
@@ -180,7 +174,6 @@ public partial class SettingsViewModel : ObservableObject
             AvailableThemes.Add(_themeService.GetThemeName(theme));
         }
 
-        // Set the current theme name as a string
         SelectedThemeName = _themeService.GetThemeName(_themeService.CurrentTheme);
         UpdateAccentColorDisplay();
         IsHighContrast = _themeService.IsHighContrast;
@@ -203,7 +196,6 @@ public partial class SettingsViewModel : ObservableObject
 
         Debug.WriteLine($"[Settings] Theme selection changed to: {themeName}");
 
-        // Convert theme name back to AppTheme enum
         AppTheme selectedTheme = themeName switch
         {
             "Follow Windows Theme" => AppTheme.FollowSystem,
@@ -231,16 +223,6 @@ public partial class SettingsViewModel : ObservableObject
         Debug.WriteLine($"[Settings] Accent color refreshed");
     }
 
-    private void RefreshAuthorizedUsersList()
-    {
-        AuthorizedUsersList.Clear();
-        foreach (var user in _securityService.GetAuthorizedUsers())
-        {
-            AuthorizedUsersList.Add(user);
-        }
-        Debug.WriteLine($"[Settings] Refreshed authorized users list - Count: {AuthorizedUsersList.Count}");
-    }
-
     [RelayCommand]
     private void SaveSettings()
     {
@@ -251,7 +233,6 @@ public partial class SettingsViewModel : ObservableObject
         _appSettings.InventoryArchiveDirectory = InventoryArchiveDirectory;
         _appSettings.SecurityConfigPath = SecurityConfigPath;
         _appSettings.Password = Password;
-        _appSettings.AuthorizedUsers = _securityService.GetAuthorizedUsers();
 
         _settingsService.SaveSettings(_appSettings);
         Debug.WriteLine($"[Settings] Settings saved");
@@ -259,19 +240,19 @@ public partial class SettingsViewModel : ObservableObject
         LogAction("SETTINGS_CHANGED", "Application settings were updated");
     }
 
-    [RelayCommand(CanExecute = nameof(CanChangeMasterPassword))]
-    private async Task ChangeMasterPasswordAsync()
+    [RelayCommand(CanExecute = nameof(CanChangePIN))]
+    private async Task ChangePINAsync()
     {
         if (!_securityService.IsFullyUnlocked)
         {
-            await ShowErrorDialogAsync("Access Denied", "You must be authorized or have master override enabled to change the master password.");
-            LogAction("MASTER_PASSWORD_CHANGE_DENIED", "Unauthorized user attempted to change master password");
+            await ShowErrorDialogAsync("Access Denied", "You must enter the correct PIN to change the PIN code.");
+            LogAction("PIN_CHANGE_DENIED", "Unauthorized user attempted to change PIN");
             return;
         }
 
         var dialog = new ContentDialog
         {
-            Title = "Change Master Password",
+            Title = "Change PIN",
             PrimaryButtonText = "Change",
             CloseButtonText = "Cancel",
             DefaultButton = ContentDialogButton.Primary,
@@ -282,27 +263,34 @@ public partial class SettingsViewModel : ObservableObject
 
         stackPanel.Children.Add(new TextBlock
         {
-            Text = "Current Master Password:",
+            Text = "Current PIN:",
             FontWeight = FontWeights.SemiBold
         });
-        var currentPasswordBox = new PasswordBox { Width = 300 };
-        stackPanel.Children.Add(currentPasswordBox);
+        var currentPinBox = new PasswordBox { Width = 300 };
+        stackPanel.Children.Add(currentPinBox);
 
         stackPanel.Children.Add(new TextBlock
         {
-            Text = "New Master Password:",
+            Text = "New PIN (4+ digits):",
             FontWeight = FontWeights.SemiBold
         });
-        var newPasswordBox = new PasswordBox { Width = 300 };
-        stackPanel.Children.Add(newPasswordBox);
+        var newPinBox = new PasswordBox { Width = 300 };
+        stackPanel.Children.Add(newPinBox);
 
         stackPanel.Children.Add(new TextBlock
         {
-            Text = "Confirm New Password:",
+            Text = "Confirm New PIN:",
             FontWeight = FontWeights.SemiBold
         });
-        var confirmPasswordBox = new PasswordBox { Width = 300 };
-        stackPanel.Children.Add(confirmPasswordBox);
+        var confirmPinBox = new PasswordBox { Width = 300 };
+        stackPanel.Children.Add(confirmPinBox);
+
+        stackPanel.Children.Add(new TextBlock
+        {
+            Text = "⚠️ Note: PIN changes require code modification.  Contact your administrator.",
+            FontSize = 12,
+            Foreground = new Microsoft.UI.Xaml.Media.SolidColorBrush(Microsoft.UI.Colors.Orange)
+        });
 
         dialog.Content = stackPanel;
 
@@ -310,58 +298,58 @@ public partial class SettingsViewModel : ObservableObject
 
         if (result == ContentDialogResult.Primary)
         {
-            string currentPassword = currentPasswordBox.Password;
-            string newPassword = newPasswordBox.Password;
-            string confirmPassword = confirmPasswordBox.Password;
+            string currentPin = currentPinBox.Password;
+            string newPin = newPinBox.Password;
+            string confirmPin = confirmPinBox.Password;
 
-            if (string.IsNullOrWhiteSpace(currentPassword))
+            if (string.IsNullOrWhiteSpace(currentPin))
             {
-                await ShowErrorDialogAsync("Validation Error", "Current password is required");
+                await ShowErrorDialogAsync("Validation Error", "Current PIN is required");
                 return;
             }
 
-            if (string.IsNullOrWhiteSpace(newPassword))
+            if (string.IsNullOrWhiteSpace(newPin))
             {
-                await ShowErrorDialogAsync("Validation Error", "New password is required");
+                await ShowErrorDialogAsync("Validation Error", "New PIN is required");
                 return;
             }
 
-            if (newPassword != confirmPassword)
+            if (newPin != confirmPin)
             {
-                await ShowErrorDialogAsync("Validation Error", "New passwords do not match");
+                await ShowErrorDialogAsync("Validation Error", "New PINs do not match");
                 return;
             }
 
-            if (newPassword.Length < 6)
+            if (newPin.Length < 4)
             {
-                await ShowErrorDialogAsync("Validation Error", "New password must be at least 6 characters");
+                await ShowErrorDialogAsync("Validation Error", "New PIN must be at least 4 digits");
                 return;
             }
 
-            if (_securityService.ChangeMasterPassword(currentPassword, newPassword))
+            if (_securityService.ChangePin(currentPin, newPin))
             {
-                await ShowSuccessDialogAsync("Success", "Master password changed successfully!");
-                LogAction("MASTER_PASSWORD_CHANGED", "User successfully changed the master password");
+                await ShowSuccessDialogAsync("Success", "PIN changed successfully!");
+                LogAction("PIN_CHANGED", "User successfully changed the PIN");
             }
             else
             {
-                await ShowErrorDialogAsync("Error", "Current password is incorrect");
-                LogAction("MASTER_PASSWORD_CHANGE_FAILED", "Failed to change master password - incorrect old password");
+                await ShowErrorDialogAsync("Error", "Current PIN is incorrect or change failed. Note: PIN changes require code modification.");
+                LogAction("PIN_CHANGE_FAILED", "Failed to change PIN - incorrect old PIN or system limitation");
             }
         }
     }
 
-    private bool CanChangeMasterPassword()
+    private bool CanChangePIN()
     {
         return _securityService.IsFullyUnlocked;
     }
 
     [RelayCommand]
-    private async Task UnlockWithMasterPasswordAsync()
+    private async Task UnlockWithPINAsync()
     {
         var dialog = new ContentDialog
         {
-            Title = "Master Password Override",
+            Title = "Unlock with PIN",
             PrimaryButtonText = "Unlock",
             CloseButtonText = "Cancel",
             DefaultButton = ContentDialogButton.Primary,
@@ -371,12 +359,12 @@ public partial class SettingsViewModel : ObservableObject
         var stackPanel = new StackPanel { Spacing = 12 };
         stackPanel.Children.Add(new TextBlock
         {
-            Text = "Enter master password to unlock all features:",
+            Text = "Enter PIN to unlock restricted features:",
             TextWrapping = TextWrapping.Wrap
         });
 
-        var passwordBox = new PasswordBox { Width = 300 };
-        stackPanel.Children.Add(passwordBox);
+        var pinBox = new PasswordBox { Width = 300 };
+        stackPanel.Children.Add(pinBox);
 
         dialog.Content = stackPanel;
 
@@ -384,37 +372,38 @@ public partial class SettingsViewModel : ObservableObject
 
         if (result == ContentDialogResult.Primary)
         {
-            string password = passwordBox.Password;
+            string pin = pinBox.Password;
 
-            if (_securityService.ValidateMasterPassword(password))
+            if (_securityService.ValidatePin(pin))
             {
-                IsMasterPasswordOverrideActive = _securityService.IsMasterPasswordOverrideActive;
+                IsSessionUnlocked = _securityService.IsFullyUnlocked;
                 IsUserAuthorized = true;
                 UpdateUnlockStatus();
-                RefreshAuthorizedUsersList();
 
                 _mainViewModel.UpdateInventoryTabVisibility();
                 bool isNowVisible = _securityService.IsFullyUnlocked;
                 UpdateMainWindowInventoryTab(isNowVisible);
 
-                await ShowSuccessDialogAsync("Success", "Master password override activated. All features are now unlocked.");
-                Debug.WriteLine($"[Settings] Master password override activated");
+                await ShowSuccessDialogAsync("Success", "Session unlocked.  All restricted features are now available.");
+                LogAction("PIN_UNLOCK", "Session unlocked by user");
+                Debug.WriteLine($"[Settings] Session unlocked");
             }
             else
             {
-                await ShowErrorDialogAsync("Invalid Password", "The password you entered is incorrect.");
-                Debug.WriteLine($"[Settings] Master password override failed - incorrect password");
+                await ShowErrorDialogAsync("Invalid PIN", "The PIN you entered is incorrect.");
+                LogAction("PIN_UNLOCK_FAILED", "Failed unlock attempt - incorrect PIN");
+                Debug.WriteLine($"[Settings] Failed unlock attempt");
             }
         }
     }
 
     [RelayCommand]
-    private void DeactivateMasterPasswordOverride()
+    private void LockSession()
     {
-        Debug.WriteLine($"[Settings] DeactivateMasterPasswordOverride called");
+        Debug.WriteLine($"[Settings] LockSession called");
 
-        _securityService.DeactivateMasterPasswordOverride();
-        IsMasterPasswordOverrideActive = false;
+        _securityService.LockSession();
+        IsSessionUnlocked = false;
         IsUserAuthorized = false;
         UpdateUnlockStatus();
 
@@ -422,49 +411,8 @@ public partial class SettingsViewModel : ObservableObject
         bool isNowVisible = _securityService.IsFullyUnlocked;
         UpdateMainWindowInventoryTab(isNowVisible);
 
-        Debug.WriteLine($"[Settings] Master password override deactivated");
-
-        LogAction("MASTER_LOCK", "Master password override was deactivated");
-    }
-
-    [RelayCommand]
-    private void AddAuthorizedUser(string userId)
-    {
-        if (_securityService.IsFullyUnlocked && !string.IsNullOrWhiteSpace(userId))
-        {
-            _securityService.AddAuthorizedUser(userId);
-            AuthorizedUsersList.Add(userId);
-            SaveSettings();
-
-            // Refresh authorization status
-            IsUserAuthorized = _securityService.IsFullyUnlocked;
-            UpdateUnlockStatus();
-
-            UpdateMainWindowForUserChanges();
-
-            Debug.WriteLine($"[Settings] Added authorized user: {userId}");
-            LogAction("USER_ADDED", $"User '{userId}' was added to authorized users");
-        }
-    }
-
-    [RelayCommand]
-    private void RemoveAuthorizedUser(string userId)
-    {
-        if (_securityService.IsFullyUnlocked)
-        {
-            _securityService.RemoveAuthorizedUser(userId);
-            AuthorizedUsersList.Remove(userId);
-            SaveSettings();
-
-            // Refresh authorization status
-            IsUserAuthorized = _securityService.IsFullyUnlocked;
-            UpdateUnlockStatus();
-
-            UpdateMainWindowForUserChanges();
-
-            Debug.WriteLine($"[Settings] Removed authorized user: {userId}");
-            LogAction("USER_REMOVED", $"User '{userId}' was removed from authorized users");
-        }
+        Debug.WriteLine($"[Settings] Session locked");
+        LogAction("SESSION_LOCKED", "Session was locked");
     }
 
     [RelayCommand]
@@ -612,7 +560,7 @@ public partial class SettingsViewModel : ObservableObject
     {
         if (!IsUserAuthorized)
         {
-            await ShowErrorDialogAsync("Access Denied", "You do not have permission to clear audit logs. Only authorized users can clear logs.");
+            await ShowErrorDialogAsync("Access Denied", "You must unlock the session with the correct PIN to clear audit logs.");
             _auditLoggingService.LogClearLogsAttempt(false, Environment.UserName);
             return;
         }
@@ -620,7 +568,7 @@ public partial class SettingsViewModel : ObservableObject
         var dialog = new ContentDialog
         {
             Title = "Clear All Logs",
-            Content = "Are you sure you want to delete all audit logs? This action cannot be undone.",
+            Content = "Are you sure you want to delete all audit logs?  This action cannot be undone.",
             PrimaryButtonText = "Clear",
             CloseButtonText = "Cancel",
             DefaultButton = ContentDialogButton.Close,
@@ -640,6 +588,7 @@ public partial class SettingsViewModel : ObservableObject
 
                 await ShowSuccessDialogAsync("Logs Cleared", "All audit logs have been cleared.");
                 Debug.WriteLine($"[Settings] Logs cleared by authorized user");
+                LogAction("LOGS_CLEARED", "Audit logs were cleared");
             }
             catch (Exception ex)
             {
@@ -651,15 +600,13 @@ public partial class SettingsViewModel : ObservableObject
     private void UpdateUnlockStatus()
     {
         IsDirectoriesUnlocked = _securityService.IsFullyUnlocked;
-        IsMasterPasswordOverrideActive = _securityService.IsMasterPasswordOverrideActive;
+        IsSessionUnlocked = _securityService.IsFullyUnlocked;
 
-        ChangeMasterPasswordCommand.NotifyCanExecuteChanged();
-        UnlockWithMasterPasswordCommand.NotifyCanExecuteChanged();
+        ChangePINCommand.NotifyCanExecuteChanged();
+        UnlockWithPINCommand.NotifyCanExecuteChanged();
         SaveSettingsCommand.NotifyCanExecuteChanged();
-        AddAuthorizedUserCommand.NotifyCanExecuteChanged();
-        RemoveAuthorizedUserCommand.NotifyCanExecuteChanged();
 
-        Debug.WriteLine($"[Settings] Unlock status updated - Directories unlocked: {IsDirectoriesUnlocked}");
+        Debug.WriteLine($"[Settings] Unlock status updated - Session unlocked: {IsDirectoriesUnlocked}");
         Debug.WriteLine($"[Settings] IsFullyUnlocked: {_securityService.IsFullyUnlocked}");
     }
 
@@ -674,12 +621,6 @@ public partial class SettingsViewModel : ObservableObject
         {
             Debug.WriteLine($"[Settings] WARNING: Could not access MainWindow");
         }
-    }
-
-    private void UpdateMainWindowForUserChanges()
-    {
-        bool isNowVisible = _securityService.IsFullyUnlocked;
-        UpdateMainWindowInventoryTab(isNowVisible);
     }
 
     private async Task ShowSuccessDialogAsync(string title, string message)

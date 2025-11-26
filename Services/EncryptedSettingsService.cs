@@ -1,46 +1,28 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
-using Windows.Security.Cryptography;
-using Windows.Security.Cryptography.DataProtection;
-using Windows.Storage.Streams;
 
 namespace AIM.Services;
 
 /// <summary>
-/// Handles encryption and decryption of sensitive settings using Windows Data Protection
+/// Handles storage and retrieval of application settings. 
+/// Note: With the new PIN-based system, sensitive data encryption is no longer needed
+/// as the PIN is hardcoded and not stored. 
 /// </summary>
 public class EncryptedSettingsService
 {
     private const string SECURITY_CONFIG_FILENAME = "security.config";
 
-    public class EncryptedSecurityConfig
-    {
-        [JsonPropertyName("masterPasswordHash")]
-        public string MasterPasswordHash { get; set; }
-
-        [JsonPropertyName("authorizedUsers")]
-        public List<string> AuthorizedUsers { get; set; } = new();
-
-        [JsonPropertyName("encryptedData")]
-        public string EncryptedData { get; set; }
-
-        [JsonPropertyName("lastModified")]
-        public DateTime LastModified { get; set; }
-    }
-
     public class SecurityData
     {
-        [JsonPropertyName("masterPassword")]
-        public string MasterPassword { get; set; }
+        [JsonPropertyName("lastModified")]
+        public DateTime LastModified { get; set; }
 
-        [JsonPropertyName("authorizedUsers")]
-        public List<string> AuthorizedUsers { get; set; } = new();
+        [JsonPropertyName("notes")]
+        public string Notes { get; set; } = "PIN-based security system - PIN is hardcoded";
     }
 
     /// <summary>
@@ -67,47 +49,25 @@ public class EncryptedSettingsService
     }
 
     /// <summary>
-    /// Save encrypted security configuration
+    /// Save security configuration metadata (no sensitive data stored with PIN-based system)
     /// </summary>
-    public async Task SaveSecurityConfigAsync(string configPath, string masterPassword, List<string> authorizedUsers)
+    public async Task SaveSecurityConfigAsync(string configPath)
     {
         try
         {
             var securityData = new SecurityData
             {
-                MasterPassword = masterPassword,
-                AuthorizedUsers = authorizedUsers
+                LastModified = DateTime.UtcNow,
+                Notes = "PIN-based security system - PIN is hardcoded for enhanced security"
             };
 
-            // Serialize security data
-            var json = JsonSerializer.Serialize(securityData);
-
-            // Encrypt using Windows Data Protection
-            var provider = new DataProtectionProvider("LOCAL=user");
-            IBuffer buffData = CryptographicBuffer.ConvertStringToBinary(json, BinaryStringEncoding.Utf8);
-            IBuffer buffEncrypted = await provider.ProtectAsync(buffData);
-            string encryptedData = CryptographicBuffer.EncodeToBase64String(buffEncrypted);
-
-            // Hash the master password for verification
-            string masterPasswordHash = HashPassword(masterPassword);
-
-            var config = new EncryptedSecurityConfig
-            {
-                MasterPasswordHash = masterPasswordHash,
-                AuthorizedUsers = authorizedUsers,
-                EncryptedData = encryptedData,
-                LastModified = DateTime.UtcNow
-            };
-
-            // Ensure directory exists
             var configDir = Path.GetDirectoryName(configPath);
             if (!Directory.Exists(configDir))
             {
                 Directory.CreateDirectory(configDir);
             }
 
-            // Write to file
-            var configJson = JsonSerializer.Serialize(config, new JsonSerializerOptions { WriteIndented = true });
+            var configJson = JsonSerializer.Serialize(securityData, new JsonSerializerOptions { WriteIndented = true });
             await File.WriteAllTextAsync(configPath, configJson);
 
             Debug.WriteLine($"[EncryptedSettings] Security config saved to: {configPath}");
@@ -120,7 +80,7 @@ public class EncryptedSettingsService
     }
 
     /// <summary>
-    /// Load and decrypt security configuration
+    /// Load security configuration metadata
     /// </summary>
     public async Task<SecurityData> LoadSecurityConfigAsync(string configPath)
     {
@@ -129,53 +89,20 @@ public class EncryptedSettingsService
             if (!File.Exists(configPath))
             {
                 Debug.WriteLine($"[EncryptedSettings] Security config not found at: {configPath}");
-                return null;
+                await SaveSecurityConfigAsync(configPath);
+                return new SecurityData { LastModified = DateTime.UtcNow };
             }
 
             var configJson = await File.ReadAllTextAsync(configPath);
-            var config = JsonSerializer.Deserialize<EncryptedSecurityConfig>(configJson);
-
-            if (config == null)
-            {
-                Debug.WriteLine($"[EncryptedSettings] Failed to deserialize security config");
-                return null;
-            }
-
-            // Decrypt using Windows Data Protection
-            var provider = new DataProtectionProvider("LOCAL=user");
-            IBuffer buffEncrypted = CryptographicBuffer.DecodeFromBase64String(config.EncryptedData);
-            IBuffer buffDecrypted = await provider.UnprotectAsync(buffEncrypted);
-            string json = CryptographicBuffer.ConvertBinaryToString(BinaryStringEncoding.Utf8, buffDecrypted);
-
-            var securityData = JsonSerializer.Deserialize<SecurityData>(json);
+            var securityData = JsonSerializer.Deserialize<SecurityData>(configJson);
 
             Debug.WriteLine($"[EncryptedSettings] Security config loaded successfully from: {configPath}");
-            return securityData;
+            return securityData ?? new SecurityData();
         }
         catch (Exception ex)
         {
             Debug.WriteLine($"[EncryptedSettings] ERROR loading security config: {ex.Message}");
-            throw;
+            return new SecurityData();
         }
-    }
-
-    /// <summary>
-    /// Hash password using SHA256
-    /// </summary>
-    private string HashPassword(string password)
-    {
-        var buffer = CryptographicBuffer.ConvertStringToBinary(password, BinaryStringEncoding.Utf8);
-        var hashedBuffer = Windows.Security.Cryptography.Core.HashAlgorithmProvider.OpenAlgorithm(
-            Windows.Security.Cryptography.Core.HashAlgorithmNames.Sha256).HashData(buffer);
-        return CryptographicBuffer.EncodeToBase64String(hashedBuffer);
-    }
-
-    /// <summary>
-    /// Verify password against hash
-    /// </summary>
-    public bool VerifyPasswordHash(string password, string hash)
-    {
-        var hashOfInput = HashPassword(password);
-        return hashOfInput == hash;
     }
 }

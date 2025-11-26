@@ -24,146 +24,88 @@
 		<!-- TabView for Settings Sections -->
 		<TabView Grid.Row="1" Margin="0,16,0,0">
 
-			<!-- TAB 1: SECURITY SETTINGS -->
-			<TabViewItem Header="🔐 Security">
-				<TabViewItem.IconSource>
-					<SymbolIconSource Symbol="Setting"/>
-				</TabViewItem.IconSource>
-				<ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
-					<StackPanel Margin="24,16,24,24" Spacing="16">
+            <!-- TAB 1: SECURITY SETTINGS -->
+            <TabViewItem Header="🔐 Security">
+                <TabViewItem.IconSource>
+                    <SymbolIconSource Symbol="Setting"/>
+                </TabViewItem.IconSource>
+                <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                    <StackPanel Margin="24,16,24,24" Spacing="16">
 
-						<!-- Master Password Management Section -->
-						<Expander Header="🔑 Change Master Password" IsExpanded="False" Padding="12">
-							<StackPanel Spacing="12">
-								<TextBlock Text="Update your master password" FontSize="12" Foreground="#666666"/>
+                        <!-- PIN Management Section -->
+                        <Expander Header="🔑 Change PIN" IsExpanded="False" Padding="12">
+                            <StackPanel Spacing="12">
+                                <TextBlock Text="Update your security PIN" FontSize="12" Foreground="#666666"/>
 
-								<Button
-                                    Content="🔑 Change Master Password"
-                                    Command="{Binding ChangeMasterPasswordCommand}"
-                                    Style="{ThemeResource AccentButtonStyle}"/>
+                                <Button
+                        Content="🔑 Change PIN"
+                        Command="{Binding ChangePINCommand}"
+                        Style="{ThemeResource AccentButtonStyle}"/>
 
-								<InfoBar
-                                    IsOpen="True"
-                                    Severity="Informational"
-                                    Title="💡 Note"
-                                    Message="You must have master override enabled or be an authorized user to change the master password."
-                                    IsClosable="True"/>
-							</StackPanel>
-						</Expander>
+                                <InfoBar
+                        IsOpen="True"
+                        Severity="Informational"
+                        Title="💡 Note"
+                        Message="You must have the session unlocked with the correct PIN to change it."
+                        IsClosable="True"/>
+                            </StackPanel>
+                        </Expander>
 
-						<!-- Master Password Override Security Section -->
-						<Expander Header="🔓 Master Password Override" IsExpanded="True" Padding="12">
-							<StackPanel Spacing="12">
-								<TextBlock Text="Emergency Access Control" FontSize="14" FontWeight="Bold"/>
+                        <!-- PIN Unlock/Lock Section -->
+                        <Expander Header="🔓 Session Access Control" IsExpanded="True" Padding="12">
+                            <StackPanel Spacing="12">
+                                <TextBlock Text="Manage your session access" FontSize="14" FontWeight="Bold"/>
 
-								<StackPanel Spacing="8">
-									<TextBlock Text="Current User:" FontSize="12" FontWeight="SemiBold"/>
-									<TextBlock Text="{Binding CurrentUserId}" FontSize="12" Foreground="#666666"/>
+                                <StackPanel Spacing="8">
+                                    <TextBlock Text="Current User:" FontSize="12" FontWeight="SemiBold"/>
+                                    <TextBlock Text="{Binding CurrentUserId}" FontSize="12" Foreground="#666666"/>
 
-									<StackPanel Orientation="Horizontal" Spacing="8">
-										<Button
-                                            Content="🔓 Unlock with Master Password"
-                                            Command="{Binding UnlockWithMasterPasswordCommand}"
-                                            IsEnabled="{Binding IsMasterPasswordOverrideActive, Converter={StaticResource BoolNegationConverter}}"
-                                            Style="{ThemeResource AccentButtonStyle}"/>
+                                    <StackPanel Orientation="Horizontal" Spacing="8">
+                                        <Button
+                                Content="🔓 Unlock with PIN"
+                                Command="{Binding UnlockWithPINCommand}"
+                                IsEnabled="{Binding IsSessionUnlocked, Converter={StaticResource BoolNegationConverter}}"
+                                Style="{ThemeResource AccentButtonStyle}"/>
 
-										<Button
-                                            Content="🔒 Deactivate Override"
-                                            Command="{Binding DeactivateMasterPasswordOverrideCommand}"
-                                            IsEnabled="{Binding IsMasterPasswordOverrideActive}"
-                                            Background="Orange"/>
-									</StackPanel>
+                                        <Button
+                                Content="🔒 Lock Session"
+                                Command="{Binding LockSessionCommand}"
+                                IsEnabled="{Binding IsSessionUnlocked}"
+                                Background="Orange"/>
+                                    </StackPanel>
 
-									<InfoBar
-                                        IsOpen="{Binding IsMasterPasswordOverrideActive}"
-                                        Severity="Warning"
-                                        Title="⚠️ Master Password Override Active"
-                                        Message="All features are currently unlocked. Click 'Deactivate Override' to return to normal security mode."
-                                        IsClosable="False"/>
-								</StackPanel>
-							</StackPanel>
-						</Expander>
+                                    <InfoBar
+                            IsOpen="{Binding IsSessionUnlocked}"
+                            Severity="Warning"
+                            Title="⚠️ Session Unlocked"
+                            Message="Your session is currently unlocked. Restricted features are accessible. Click 'Lock Session' to secure your access."
+                            IsClosable="False"/>
+                                </StackPanel>
+                            </StackPanel>
+                        </Expander>
 
-						<!-- Authorized Users Management Section -->
-						<Expander
-                            Visibility="{Binding IsDirectoriesUnlocked, Converter={StaticResource BoolToVisibilityConverter}}"
-                            Header="👥 Authorized Users"
-                            Padding="12"
-                            IsExpanded="True">
-							<StackPanel Spacing="12">
-								<TextBlock Text="Manage users with full app access:" FontSize="12"/>
+                        <!-- Access Information -->
+                        <Expander Header="ℹ️ Protected Features" IsExpanded="True" Padding="12">
+                            <StackPanel Spacing="12">
+                                <TextBlock Text="The following features require PIN unlock:" FontSize="12" FontWeight="SemiBold"/>
 
-								<TextBlock
-                                    Text="{Binding AuthorizedUsersList.Count}"
-                                    FontSize="11"
-                                    Foreground="#666666"/>
+                                <StackPanel Spacing="8">
+                                    <TextBlock Text="• Inventory Tab - Access to inventory management" FontSize="12"/>
+                                    <TextBlock Text="• Directory Selectors - Modify application directory settings" FontSize="12"/>
+                                    <TextBlock Text="• Clear Logs - Delete audit log entries" FontSize="12"/>
+                                </StackPanel>
 
-								<!-- Authorized Users List -->
-								<ListView
-                                    ItemsSource="{Binding AuthorizedUsersList}"
-                                    Height="150"
-                                    Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
-                                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
-                                    BorderThickness="1"
-                                    x:Name="AuthorizedUsersListView">
-									<ListView.ItemTemplate>
-										<DataTemplate x:DataType="x:String">
-											<Grid Padding="8" ColumnSpacing="8">
-												<Grid.ColumnDefinitions>
-													<ColumnDefinition Width="*"/>
-													<ColumnDefinition Width="Auto"/>
-												</Grid.ColumnDefinitions>
-												<TextBlock
-                                                    Text="{Binding}"
-                                                    VerticalAlignment="Center"
-                                                    Grid.Column="0"/>
-												<Button
-                                                    Content="Remove"
-                                                    Grid.Column="1"
-                                                    Command="{Binding DataContext.RemoveAuthorizedUserCommand, ElementName=SettingsPageRoot}"
-                                                    CommandParameter="{Binding}"
-                                                    FontSize="12"/>
-											</Grid>
-										</DataTemplate>
-									</ListView.ItemTemplate>
-									<ListView.ItemContainerStyle>
-										<Style TargetType="ListViewItem">
-											<Setter Property="HorizontalContentAlignment" Value="Stretch"/>
-										</Style>
-									</ListView.ItemContainerStyle>
-								</ListView>
-
-								<!-- Add New User -->
-								<TextBlock Text="Add New Authorized User:" FontSize="12" FontWeight="SemiBold"/>
-								<Grid ColumnSpacing="8">
-									<Grid.ColumnDefinitions>
-										<ColumnDefinition Width="*"/>
-										<ColumnDefinition Width="Auto"/>
-									</Grid.ColumnDefinitions>
-									<TextBox
-                                        x:Name="NewUserIdTextBox"
-                                        PlaceholderText="Enter user ID (e.g., DOMAIN\username or just username)"
-                                        Grid.Column="0"
-                                        Height="40"/>
-									<Button
-                                        Content="Add User"
-                                        Grid.Column="1"
-                                        Command="{Binding AddAuthorizedUserCommand}"
-                                        CommandParameter="{Binding Text, ElementName=NewUserIdTextBox}"
-                                        Height="40"/>
-								</Grid>
-
-								<InfoBar
-                                    IsOpen="True"
-                                    Severity="Informational"
-                                    Title="💡 Tip"
-                                    Message="Users added here will have full access to the app. Check your Windows user ID above to add authorized users."
-                                    IsClosable="True"/>
-							</StackPanel>
-						</Expander>
-					</StackPanel>
-				</ScrollViewer>
-			</TabViewItem>
+                                <InfoBar
+                        IsOpen="True"
+                        Severity="Informational"
+                        Title="💡 Security Model"
+                        Message="This application uses PIN-based access control. The PIN is required to access sensitive features."
+                        IsClosable="True"/>
+                            </StackPanel>
+                        </Expander>
+                    </StackPanel>
+                </ScrollViewer>
+            </TabViewItem>
 
             <!-- TAB 2: DIRECTORY SETTINGS -->
             <TabViewItem Header="📁 Directories">

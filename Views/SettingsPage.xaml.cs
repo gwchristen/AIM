@@ -44,7 +44,6 @@ public sealed partial class SettingsPage : Page, INotifyPropertyChanged
         DataContext = ViewModel;
     }
 
-    // Directory Browse Handlers
     private async void BrowseRootDirectory_Click(object sender, RoutedEventArgs e)
     {
         await BrowseFolderAsync(path => ViewModel.DefaultRootDirectory = path);
@@ -75,7 +74,6 @@ public sealed partial class SettingsPage : Page, INotifyPropertyChanged
         await BrowseFolderAsync(path => ViewModel.SecurityConfigPath = path);
     }
 
-    // Generic Folder Browser
     private async Task BrowseFolderAsync(Action<string> setPath)
     {
         var folderPicker = new FolderPicker();
@@ -89,7 +87,6 @@ public sealed partial class SettingsPage : Page, INotifyPropertyChanged
         }
     }
 
-    // Button Click Handlers
     private void SaveButton_Click(object sender, RoutedEventArgs e)
     {
         ViewModel.SaveSettingsCommand.Execute(null);
@@ -100,34 +97,19 @@ public sealed partial class SettingsPage : Page, INotifyPropertyChanged
         if (!IsLocked)
         {
             IsLocked = true;
+            ViewModel.LockSessionCommand.Execute(null);
         }
     }
 
-    private async void UnlockButton_Click(object sender, RoutedEventArgs e)
+    private void UnlockButton_Click(object sender, RoutedEventArgs e)
     {
         if (IsLocked)
         {
-            var dialog = new ContentDialog
-            {
-                Title = "Enter Password",
-                Content = new PasswordBox(),
-                PrimaryButtonText = "Unlock",
-                CloseButtonText = "Cancel",
-                XamlRoot = this.XamlRoot
-            };
-            var result = await dialog.ShowAsync();
-            if (result == ContentDialogResult.Primary)
-            {
-                var password = ((PasswordBox)dialog.Content).Password;
-                if (password == ViewModel.Password)
-                {
-                    IsLocked = false;
-                }
-            }
+            ViewModel.UnlockWithPINCommand.Execute(null);
+            IsLocked = !ViewModel.IsSessionUnlocked;
         }
     }
 
-    //Theme Selection Changed Handler
     private void ThemeComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
         if (e.AddedItems.Count > 0 && e.AddedItems[0] is string selectedTheme)
