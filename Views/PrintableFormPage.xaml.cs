@@ -7,6 +7,8 @@ using Microsoft.UI.Xaml.Navigation;
 using Microsoft.UI.Xaml.Printing;
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using Windows.Graphics.Printing;
 using WinRT;
 
@@ -32,18 +34,61 @@ public sealed partial class PrintableFormPage : Page
         System.Diagnostics.Debug.WriteLine("PrintableFormPage constructor completed");
     }
 
-    protected override void OnNavigatedTo(NavigationEventArgs e)
+    protected override async void OnNavigatedTo(NavigationEventArgs e)
     {
         base.OnNavigatedTo(e);
 
         if (e.Parameter is PrintableForm form)
         {
+            // DEBUG: Show what we received
+            var debugInfo = $"Received PrintableForm:\n" +
+                            $"- Header: {form.Header}\n" +
+                            $"- Pages count: {form.Pages?.Count ?? 0}\n" +
+                            $"- PaginationLog count: {Services.PrintPaginationService.PaginationLog.Count}";
+
+            if (form.Pages?.Count > 0)
+            {
+                var firstPage = form.Pages[0];
+                debugInfo += $"\n\nFirst Page:\n" +
+                             $"- Level2Header: {firstPage.Level2Header}\n" +
+                             $"- Rows count: {firstPage.Rows?.Count ?? 0}";
+
+                if (firstPage.Rows?.Count > 0)
+                {
+                    debugInfo += $"\n- First 5 rows:";
+                    foreach (var row in firstPage.Rows.Take(5))
+                    {
+                        debugInfo += $"\n  [{row.Type}] {row.Content?.Substring(0, Math.Min(30, row.Content?.Length ?? 0))}";
+                    }
+                }
+            }
+
+            var dialog = new ContentDialog
+            {
+                Title = "DEBUG: Form Data Received",
+                Content = new TextBlock
+                {
+                    Text = debugInfo,
+                    TextWrapping = TextWrapping.Wrap,
+                    IsTextSelectionEnabled = true
+                },
+                CloseButtonText = "OK",
+                XamlRoot = this.XamlRoot
+            };
+
+            // Need to delay slightly for XamlRoot to be available
+            DispatcherQueue.TryEnqueue(async () =>
+            {
+                await Task.Delay(100);
+                await dialog.ShowAsync();
+            });
+
             _viewModel?.LoadFormData(form);
         }
 
-        // Register for printing when page loads
         RegisterForPrinting();
     }
+
 
     protected override void OnNavigatedFrom(NavigationEventArgs e)
     {
@@ -327,37 +372,197 @@ public sealed partial class PrintableFormPage : Page
 
     private FrameworkElement CreatePrintPageVisual(PrintablePage page)
     {
-        // Create the outer container with margins
+        double pageWidth = 816;
+        double pageHeight = 1056;
+
+        // REMOVE Width and Height constraints to see overflow
         var outerGrid = new Grid
         {
-            Margin = new Thickness(40), // 0. 5 inch margins (40 units ≈ 0.5 inch at 96 DPI)
+            // Width = pageWidth,      // COMMENTED OUT
+            // Height = pageHeight,    // COMMENTED OUT
             Background = new Microsoft.UI.Xaml.Media.SolidColorBrush(Windows.UI.Color.FromArgb(255, 255, 255, 255))
         };
 
-        // Create the page container
         var pageGrid = new Grid
         {
             Background = new Microsoft.UI.Xaml.Media.SolidColorBrush(Windows.UI.Color.FromArgb(255, 255, 255, 255)),
-            Margin = new Thickness(0),
-            Padding = new Thickness(0)
+            Margin = new Thickness(40),
+            HorizontalAlignment = HorizontalAlignment.Stretch,
+            VerticalAlignment = VerticalAlignment.Stretch
         };
 
-        pageGrid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
-        pageGrid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
-        pageGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
-        pageGrid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
+        pageGrid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });      // Row 0: Page Header
+        pageGrid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });      // Row 1: Level2 Header
+        pageGrid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });      // Row 2: Content - CHANGED FROM Star TO Auto
+        pageGrid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });      // Row 3: Footer
 
-        // ...  (rest of the header, level2, content, and footer code stays the same) ...
+        // ========== ROW 0: PAGE HEADER with Initials ==========
+        var headerBorder = new Border
+        {
+            Padding = new Thickness(12),
+            BorderBrush = new Microsoft.UI.Xaml.Media.SolidColorBrush(Windows.UI.Color.FromArgb(255, 0, 0, 0)),
+            BorderThickness = new Thickness(0, 0, 0, 2)
+        };
+
+        var headerGrid = new Grid();
+        headerGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+        headerGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+
+        // Left side: Title and subtitle
+        var headerStackPanel = new StackPanel { Orientation = Orientation.Vertical, Spacing = 2 };
+
+        // Determine header color based on content (matching HeaderColorConverter logic)
+        var headerColor = GetHeaderColor(page.PageHeader);
+
+        var headerText = new TextBlock
+        {
+            Text = page.PageHeader ?? _viewModel?.FormData?.Header ?? string.Empty,
+            FontSize = 22,
+            FontWeight = Microsoft.UI.Text.FontWeights.Bold,
+            Foreground = new Microsoft.UI.Xaml.Media.SolidColorBrush(headerColor)
+        };
+        headerStackPanel.Children.Add(headerText);
+
+        var subtitleText = new TextBlock
+        {
+            Text = "Inventory Summary",
+            FontSize = 12,
+            Foreground = new Microsoft.UI.Xaml.Media.SolidColorBrush(Windows.UI.Color.FromArgb(255, 102, 102, 102))
+        };
+        headerStackPanel.Children.Add(subtitleText);
+
+        Grid.SetColumn(headerStackPanel, 0);
+        headerGrid.Children.Add(headerStackPanel);
+
+        // Right side: Initials
+        var initialsText = new TextBlock
+        {
+            Text = "Initials: __________",
+            FontSize = 11,
+            Foreground = new Microsoft.UI.Xaml.Media.SolidColorBrush(Windows.UI.Color.FromArgb(255, 0, 0, 0)),
+            VerticalAlignment = VerticalAlignment.Top
+        };
+        Grid.SetColumn(initialsText, 1);
+        headerGrid.Children.Add(initialsText);
+
+        headerBorder.Child = headerGrid;
+        Grid.SetRow(headerBorder, 0);
+        pageGrid.Children.Add(headerBorder);
+
+        // ========== ROW 1: LEVEL 2 HEADER ==========
+        if (!string.IsNullOrEmpty(page.Level2Header))
+        {
+            var level2Border = new Border
+            {
+                Background = new Microsoft.UI.Xaml.Media.SolidColorBrush(Windows.UI.Color.FromArgb(255, 255, 243, 205)),
+                BorderBrush = new Microsoft.UI.Xaml.Media.SolidColorBrush(Windows.UI.Color.FromArgb(255, 0, 0, 0)),
+                BorderThickness = new Thickness(1, 1, 1, 0),
+                Padding = new Thickness(8)
+            };
+
+            var level2Text = new TextBlock
+            {
+                Text = page.Level2Header + (page.IsContinuationPage ? " (Continued)" : ""),
+                FontSize = 14,
+                FontWeight = Microsoft.UI.Text.FontWeights.Bold,
+                Foreground = new Microsoft.UI.Xaml.Media.SolidColorBrush(Windows.UI.Color.FromArgb(255, 0, 0, 0))
+            };
+            level2Border.Child = level2Text;
+
+            Grid.SetRow(level2Border, 1);
+            pageGrid.Children.Add(level2Border);
+        }
+
+        // ========== ROW 2: CONTENT ROWS ==========
+        var contentBorder = new Border
+        {
+            BorderBrush = new Microsoft.UI.Xaml.Media.SolidColorBrush(Windows.UI.Color.FromArgb(255, 0, 0, 0)),
+            BorderThickness = new Thickness(1),
+        };
+
+        var contentPanel = new StackPanel
+        {
+            HorizontalAlignment = HorizontalAlignment.Stretch
+        };
+
+        if (page.Rows != null)
+        {
+            foreach (var row in page.Rows)
+            {
+                var rowElement = CreatePrintRowVisual(row);
+                contentPanel.Children.Add(rowElement);
+            }
+        }
+
+        contentBorder.Child = contentPanel;
+        Grid.SetRow(contentBorder, 2);
+        pageGrid.Children.Add(contentBorder);
+
+        // ========== ROW 3: FOOTER ==========
+        var footerBorder = new Border
+        {
+            BorderBrush = new Microsoft.UI.Xaml.Media.SolidColorBrush(Windows.UI.Color.FromArgb(255, 0, 0, 0)),
+            BorderThickness = new Thickness(1, 2, 1, 1),
+            Background = new Microsoft.UI.Xaml.Media.SolidColorBrush(Windows.UI.Color.FromArgb(255, 249, 249, 249)),
+            Padding = new Thickness(10)
+        };
+
+        var footerGrid = new Grid();
+        footerGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+        footerGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+
+        var generatedText = new TextBlock
+        {
+            Text = "Generated by AIM Inventory Management",
+            FontSize = 10,
+            Foreground = new Microsoft.UI.Xaml.Media.SolidColorBrush(Windows.UI.Color.FromArgb(255, 102, 102, 102))
+        };
+        Grid.SetColumn(generatedText, 0);
+        footerGrid.Children.Add(generatedText);
+
+        var pageNumberText = new TextBlock
+        {
+            Text = $"Page {page.PageNumber} of {page.TotalPages}",
+            FontSize = 10,
+            Foreground = new Microsoft.UI.Xaml.Media.SolidColorBrush(Windows.UI.Color.FromArgb(255, 102, 102, 102))
+        };
+        Grid.SetColumn(pageNumberText, 1);
+        footerGrid.Children.Add(pageNumberText);
+
+        footerBorder.Child = footerGrid;
+        Grid.SetRow(footerBorder, 3);
+        pageGrid.Children.Add(footerBorder);
 
         outerGrid.Children.Add(pageGrid);
 
-        // Force layout with standard letter size MINUS margins
-        // Letter is 850x1100, minus 40 on each side = 770x1020
-        pageGrid.Measure(new Windows.Foundation.Size(770, 1020));
-        pageGrid.Arrange(new Windows.Foundation.Rect(0, 0, 770, 1020));
+        // COMMENT OUT the Measure/Arrange to see natural content size
+        // outerGrid.Measure(new Windows.Foundation. Size(pageWidth, pageHeight));
+        // outerGrid. Arrange(new Windows.Foundation.Rect(0, 0, pageWidth, pageHeight));
 
         return outerGrid;
     }
+
+    /// <summary>
+    /// Gets the header color based on the header text (matches HeaderColorConverter logic). 
+    /// </summary>
+    private Windows.UI.Color GetHeaderColor(string? header)
+    {
+        if (string.IsNullOrEmpty(header))
+            return Windows.UI.Color.FromArgb(255, 0, 0, 0); // Black default
+
+        // Add your color logic here based on header content
+        // Example: different colors for different regions/divisions
+        var headerLower = header.ToLowerInvariant();
+
+        if (headerLower.Contains("ohio"))
+            return Windows.UI.Color.FromArgb(255, 0, 100, 0); // Dark Green
+        else if (headerLower.Contains("i&m") || headerLower.Contains("i & m"))
+            return Windows.UI.Color.FromArgb(255, 0, 0, 139); // Dark Blue
+                                                              // Add more conditions as needed based on your HeaderColorConverter
+
+        return Windows.UI.Color.FromArgb(255, 0, 0, 0); // Black default
+    }
+
 
     /// <summary>
     /// Creates a visual representation of a single row item.
@@ -430,11 +635,11 @@ public sealed partial class PrintableFormPage : Page
                 break;
         }
 
-        // Add the content text
+        // In CreatePrintRowVisual method, change the contentText FontSize from 11 to 12:
         var contentText = new TextBlock
         {
             Text = item.Content ?? string.Empty,
-            FontSize = 11,
+            FontSize = 12,  // Changed from 11 to 12
             Margin = new Thickness(4, 2, 4, 2),
             VerticalAlignment = VerticalAlignment.Center,
             Foreground = new Microsoft.UI.Xaml.Media.SolidColorBrush(Windows.UI.Color.FromArgb(255, 0, 0, 0)),
@@ -470,5 +675,52 @@ public sealed partial class PrintableFormPage : Page
         }
 
         return rowGrid;
+    }
+    // Add this method to PrintableFormPage. xaml.cs
+    private async void ShowPaginationDebug()
+    {
+        var sb = new System.Text.StringBuilder();
+
+        // Show the pagination log
+        sb.AppendLine("=== PAGINATION LOG ===");
+        foreach (var line in Services.PrintPaginationService.PaginationLog)
+        {
+            sb.AppendLine(line);
+        }
+
+        // Write to a file we can access
+        try
+        {
+            var logPath = System.IO.Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.Desktop),
+                "pagination_log.txt");
+            System.IO.File.WriteAllText(logPath, sb.ToString());
+            sb.AppendLine($"\n\nLog saved to: {logPath}");
+        }
+        catch { }
+
+        var dialog = new ContentDialog
+        {
+            Title = "Pagination Debug",
+            Content = new ScrollViewer
+            {
+                Content = new TextBlock
+                {
+                    Text = sb.ToString(),
+                    FontFamily = new Microsoft.UI.Xaml.Media.FontFamily("Consolas"),
+                    FontSize = 10,
+                    TextWrapping = TextWrapping.NoWrap,
+                    IsTextSelectionEnabled = true
+                },
+                HorizontalScrollBarVisibility = ScrollBarVisibility.Auto,
+                VerticalScrollBarVisibility = ScrollBarVisibility.Auto,
+                MaxHeight = 500,
+                MaxWidth = 800
+            },
+            CloseButtonText = "OK",
+            XamlRoot = this.XamlRoot
+        };
+
+        await dialog.ShowAsync();
     }
 }

@@ -55,6 +55,8 @@ public partial class App : Application
         services.AddSingleton<AuditLoggingService>();
         services.AddSingleton<EncryptedSettingsService>();
         services.AddSingleton<ThemeService>();
+        services.AddSingleton<IPrintPaginationService, PrintPaginationService>();
+
 
 
         // ViewModels

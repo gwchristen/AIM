@@ -9,13 +9,28 @@ namespace AIM.Services;
 
 public class DirectoryOperationService
 {
+    private readonly IPrintPaginationService _paginationService;
+
+    public DirectoryOperationService(IPrintPaginationService paginationService)
+    {
+        _paginationService = paginationService;
+    }
+
+    // Parameterless constructor for backward compatibility
+    public DirectoryOperationService() : this(new PrintPaginationService())
+    {
+    }
+
     public async Task<PrintableForm> GenerateFormDataAsync(string opCoDirectoryPath)
     {
         var form = new PrintableForm
         {
             Header = "Form Data Generation",
-            Items = new List<PrintableFormItem>()
+            SubHeader = "Inventory Summary"
         };
+
+        // Collect all items first (flat list)
+        var allItems = new List<PrintableFormItem>();
 
         await Task.Run(() =>
         {
@@ -28,18 +43,18 @@ public class DirectoryOperationService
 
                 if (!level2Dirs.Any())
                 {
-                    form.Items.Add(new PrintableFormItem { Content = "Error: No 'Level 2' subdirectories found in the selected folder.", Type = RowType.Level3Header_C });
+                    allItems.Add(new PrintableFormItem { Content = "Error: No 'Level 2' subdirectories found in the selected folder.", Type = RowType.Level3Header_C });
                     return;
                 }
 
                 foreach (var level2Dir in level2Dirs)
                 {
-                    form.Items.Add(new PrintableFormItem { Content = level2Dir.Name, Type = RowType.Level2Header });
+                    allItems.Add(new PrintableFormItem { Content = level2Dir.Name, Type = RowType.Level2Header });
 
                     var filesInLevel2 = level2Dir.GetFiles().OrderBy(f => f.Name);
                     foreach (var file in filesInLevel2)
                     {
-                        form.Items.Add(new PrintableFormItem { Content = Path.GetFileNameWithoutExtension(file.Name), Type = RowType.File });
+                        allItems.Add(new PrintableFormItem { Content = Path.GetFileNameWithoutExtension(file.Name), Type = RowType.File });
                     }
 
                     var level3Dirs = level2Dir.GetDirectories().OrderBy(d => d.Name);
@@ -53,7 +68,7 @@ public class DirectoryOperationService
                         else if (dirName.Contains("3c", StringComparison.OrdinalIgnoreCase)) headerType = RowType.Level3Header_C;
                         else headerType = RowType.Level3Header_A;
 
-                        form.Items.Add(new PrintableFormItem { Content = dirName, Type = headerType });
+                        allItems.Add(new PrintableFormItem { Content = dirName, Type = headerType });
 
                         if (headerType == RowType.Level3Header_C)
                         {
@@ -64,12 +79,12 @@ public class DirectoryOperationService
                                     var lines = File.ReadLines(file.FullName).Where(line => !string.IsNullOrWhiteSpace(line));
                                     foreach (var line in lines)
                                     {
-                                        form.Items.Add(new PrintableFormItem { Content = line, Type = RowType.File });
+                                        allItems.Add(new PrintableFormItem { Content = line, Type = RowType.File });
                                     }
                                 }
                                 catch (IOException ex)
                                 {
-                                    form.Items.Add(new PrintableFormItem { Content = $"IO Error reading {file.Name}: {ex.Message}", Type = RowType.File });
+                                    allItems.Add(new PrintableFormItem { Content = $"IO Error reading {file.Name}: {ex.Message}", Type = RowType.File });
                                 }
                             }
                         }
@@ -77,24 +92,28 @@ public class DirectoryOperationService
                         {
                             foreach (var file in level3Dir.GetFiles().OrderBy(f => f.Name))
                             {
-                                form.Items.Add(new PrintableFormItem { Content = Path.GetFileNameWithoutExtension(file.Name), Type = RowType.File });
+                                allItems.Add(new PrintableFormItem { Content = Path.GetFileNameWithoutExtension(file.Name), Type = RowType.File });
                             }
                         }
                     }
 
-                    form.Items.Add(new PrintableFormItem { Type = RowType.Blank });
+                    // Add a blank row after each Level 2 section
+                    allItems.Add(new PrintableFormItem { Type = RowType.Blank });
                 }
             }
             catch (Exception ex)
             {
-                form.Items.Clear();
+                allItems.Clear();
                 form.Header = "An Error Occurred";
-                form.Items.Add(new PrintableFormItem { Content = "A critical error stopped form generation.", Type = RowType.Level2Header });
-                form.Items.Add(new PrintableFormItem { Content = ex.Message, Type = RowType.File });
-                form.Items.Add(new PrintableFormItem { Type = RowType.Blank });
-                form.Items.Add(new PrintableFormItem { Content = ex.StackTrace, Type = RowType.File });
+                allItems.Add(new PrintableFormItem { Content = "A critical error stopped form generation.", Type = RowType.Level2Header });
+                allItems.Add(new PrintableFormItem { Content = ex.Message, Type = RowType.File });
+                allItems.Add(new PrintableFormItem { Type = RowType.Blank });
+                allItems.Add(new PrintableFormItem { Content = ex.StackTrace ?? "No stack trace available", Type = RowType.File });
             }
         });
+
+        // Now paginate the content intelligently
+        form.Pages = _paginationService.PaginateContent(form.Header, allItems);
 
         return form;
     }
