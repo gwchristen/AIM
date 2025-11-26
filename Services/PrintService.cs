@@ -125,6 +125,8 @@ public class PrintService : IPrintService
 
                 printTask.Options.Orientation = PrintOrientation.Portrait;
 
+
+
                 // Handle completion
                 printTask.Completed += (task, completedArgs) =>
                 {

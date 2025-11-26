@@ -228,14 +228,14 @@
             <AppBarButton Icon="Print" Label="Print" Command="{Binding PrintCurrentPageCommand}"/>
         </CommandBar>
 
-        <!-- FlipView for Page Navigation (No ScrollViewer!) -->
+        <!-- FlipView for Page Navigation -->
         <FlipView Grid.Row="1" 
-                  ItemsSource="{Binding Pages}"
-                  SelectedItem="{Binding CurrentPage, Mode=TwoWay}"
-                  ItemTemplate="{StaticResource PageTemplate}"
-                  Background="#F5F5F5"
-                  Padding="20"
-                  Visibility="{Binding CurrentPage, Converter={StaticResource NullToVisibilityConverter}, Mode=OneWay}">
+              ItemsSource="{Binding Pages}"
+              SelectedItem="{Binding CurrentPage, Mode=TwoWay}"
+              ItemTemplate="{StaticResource PageTemplate}"
+              Background="#F5F5F5"
+              Padding="20"
+              Visibility="{Binding CurrentPage, Converter={StaticResource NullToVisibilityConverter}, Mode=OneWay}">
         </FlipView>
 
         <!-- Page Info Bar -->
