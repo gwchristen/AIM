@@ -1,51 +1,28 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Generic;
 
 namespace AIM.Services;
 
-/// <summary>
-/// Factory for creating and managing form templates.
-/// </summary>
 public class FormTemplateFactory
 {
-    private readonly Dictionary<string, Func<IFormTemplate>> _templates;
+    private readonly IPrintPaginationService _paginationService;
 
-    public FormTemplateFactory()
+    public FormTemplateFactory(IPrintPaginationService paginationService)
     {
-        _templates = new Dictionary<string, Func<IFormTemplate>>
+        _paginationService = paginationService;
+    }
+
+    public IFormTemplate GetTemplate(string templateName)
+    {
+        return templateName switch
         {
-            { "Ohio", () => new OhioInventoryTemplate() },
-            { "I&M", () => new IMInventoryTemplate() }
+            "Ohio" => new OhioInventoryTemplate(_paginationService),
+            "I&M" => new IMInventoryTemplate(_paginationService),
+            _ => new OhioInventoryTemplate(_paginationService)
         };
     }
 
-    /// <summary>
-    /// Gets a template by name.
-    /// </summary>
-    public IFormTemplate GetTemplate(string templateName)
-    {
-        if (_templates.TryGetValue(templateName, out var factory))
-        {
-            return factory();
-        }
-
-        throw new ArgumentException($"Template '{templateName}' not found.");
-    }
-
-    /// <summary>
-    /// Gets all available template names.
-    /// </summary>
     public IEnumerable<string> GetAvailableTemplates()
     {
-        return _templates.Keys;
-    }
-
-    /// <summary>
-    /// Registers a new template.
-    /// </summary>
-    public void RegisterTemplate(string name, Func<IFormTemplate> factory)
-    {
-        _templates[name] = factory;
+        return new[] { "Ohio", "I&M" };
     }
 }

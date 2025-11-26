@@ -6,4 +6,13 @@
 public class IMInventoryTemplate : BaseInventoryTemplate
 {
     public override string TemplateName => "I&M";
+
+    public IMInventoryTemplate(IPrintPaginationService paginationService)
+    : base(paginationService)
+    {
+    }
+
+    public IMInventoryTemplate() : base()
+    {
+    }
 }
