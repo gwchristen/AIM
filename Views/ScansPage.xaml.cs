@@ -18,6 +18,7 @@ public sealed partial class ScansPage : Page
     {
         this.InitializeComponent();
         ViewModel = Ioc.Default.GetRequiredService<ScansViewModel>();
+        this.Unloaded += (s, e) => ViewModel.DeactivatePage();
     }
 
     private void ItemGrid_RightTapped(object sender, RightTappedRoutedEventArgs e)

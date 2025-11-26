@@ -21,10 +21,15 @@ public partial class MainViewModel : ObservableObject
 
     // Collections required by other ViewModels
     public ObservableCollection<DirectoryItem> LeftTree { get; } = new();
-    public ObservableCollection<FileItem> SelectedScanFiles { get; } = new();
+
+    private ObservableCollection<FileItem> _selectedScanFiles = new();
+    public ObservableCollection<FileItem> SelectedScanFiles
+    {
+        get => _selectedScanFiles;
+    }
 
     /// <summary>
-    /// Constructor that accepts all required services. 
+    /// Constructor that accepts all required services.  
     /// The DI container will use this single constructor.
     /// </summary>
     public MainViewModel(ISettingsService settingsService, IFileService fileService, SecurityService securityService)
@@ -46,10 +51,17 @@ public partial class MainViewModel : ObservableObject
         Debug.WriteLine($"[Main] Current user: {_securityService.CurrentUserId}");
         Debug.WriteLine($"[Main] Is fully unlocked: {_securityService.IsFullyUnlocked}");
         Debug.WriteLine($"[Main] Inventory tab visible: {IsInventoryTabVisible}");
+
+        // Add debug logging to SelectedScanFiles collection changes
+        _selectedScanFiles.CollectionChanged += (s, e) =>
+        {
+            Debug.WriteLine($"[MainViewModel.SelectedScanFiles] CollectionChanged - Action: {e.Action}, Count: {_selectedScanFiles.Count}");
+            Debug.WriteLine($"[MainViewModel. SelectedScanFiles] Stack: {System.Environment.StackTrace}");
+        };
     }
 
     /// <summary>
-    /// Updates the Inventory tab visibility based on current security status.
+    /// Updates the Inventory tab visibility based on current security status. 
     /// This should be called whenever the security status changes (e.g., PIN unlock activated/deactivated).
     /// </summary>
     public void UpdateInventoryTabVisibility()
@@ -75,7 +87,7 @@ public partial class MainViewModel : ObservableObject
     }
 
     /// <summary>
-    /// Builds the directory tree from the selected root. 
+    /// Builds the directory tree from the selected root.  
     /// </summary>
     private void BuildTree()
     {

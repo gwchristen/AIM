@@ -20,6 +20,7 @@ public partial class ScansViewModel : ObservableObject
     private readonly ISettingsService _settingsService;
     private readonly IInfoBarService _infoBarService;
     private string _rootScanPath;
+    private bool _isPageActive = true; // Add this flag
 
     private readonly List<ScanTreeItem> _masterItemList = new();
     public ObservableCollection<ScanTreeItem> CurrentItems { get; } = new();
@@ -124,9 +125,16 @@ public partial class ScansViewModel : ObservableObject
         IsListVisible = !IsEmptyMessageVisible;
     }
 
+    public void DeactivatePage()
+    {
+        _isPageActive = false;
+        System.Diagnostics.Debug.WriteLine("[ScansViewModel] Page deactivated");
+    }
+
     [RelayCommand]
     private async Task PageLoaded()
     {
+        _isPageActive = true; // Page is now active
         var settings = _settingsService.LoadSettings();
         _rootScanPath = settings.FileScansDirectory;
         if (string.IsNullOrEmpty(_rootScanPath) || !Directory.Exists(_rootScanPath))
@@ -157,11 +165,26 @@ public partial class ScansViewModel : ObservableObject
     [RelayCommand]
     private void SelectionChanged(IList<object> selectedItems)
     {
-        if (selectedItems == null) return;
+        System.Diagnostics.Debug.WriteLine($"[ScansViewModel. SelectionChanged] Called with {selectedItems?.Count ?? 0} items");
+
+        if (selectedItems == null || selectedItems.Count == 0)
+        {
+            System.Diagnostics.Debug.WriteLine("[ScansViewModel.SelectionChanged] Ignoring empty or null selection");
+            return;
+        }
+
         var selectedPaths = selectedItems.Cast<ScanTreeItem>().Where(i => !i.IsFolder).Select(i => i.FullPath).ToHashSet();
+        System.Diagnostics.Debug.WriteLine($"[ScansViewModel.SelectionChanged] Processing {selectedPaths.Count} selected files");
+
         var visiblePaths = CurrentItems.Where(i => !i.IsFolder).Select(i => i.FullPath).ToHashSet();
         var itemsToRemove = _mainViewModel.SelectedScanFiles.Where(sf => visiblePaths.Contains(sf.FullPath) && !selectedPaths.Contains(sf.FullPath)).ToList();
-        foreach (var item in itemsToRemove) { _mainViewModel.SelectedScanFiles.Remove(item); }
+
+        foreach (var item in itemsToRemove)
+        {
+            System.Diagnostics.Debug.WriteLine($"[ScansViewModel.SelectionChanged] Removing: {item.Name}");
+            _mainViewModel.SelectedScanFiles.Remove(item);
+        }
+
         foreach (var path in selectedPaths)
         {
             if (!_mainViewModel.SelectedScanFiles.Any(sf => sf.FullPath == path))
@@ -169,8 +192,11 @@ public partial class ScansViewModel : ObservableObject
                 var fileItem = CurrentItems.First(i => i.FullPath == path);
                 var fileType = Path.GetExtension(fileItem.FullPath).Trim('.').ToUpper() == "CSV" ? FileType.Csv : FileType.Text;
                 _mainViewModel.SelectedScanFiles.Add(new FileItem { Name = fileItem.Name, FullPath = fileItem.FullPath, Type = fileType, Size = fileItem.Size, ModifiedDate = fileItem.ModifiedDate });
+                System.Diagnostics.Debug.WriteLine($"[ScansViewModel. SelectionChanged] Added: {fileItem.Name}");
             }
         }
+
+        System.Diagnostics.Debug.WriteLine($"[ScansViewModel.SelectionChanged] Final count: {_mainViewModel.SelectedScanFiles.Count}");
     }
 
     [RelayCommand]

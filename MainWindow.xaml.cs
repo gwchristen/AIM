@@ -267,24 +267,15 @@ public sealed partial class MainWindow : Window
 
         if (pageType != null && _currentPageType != pageType)
         {
-            // Check if we have a cached instance
-            if (!_pageCache.ContainsKey(pageType))
+            // Get the page from the DI container instead of creating a new instance
+            var page = (Page)Ioc.Default.GetService(pageType);
+            if (page != null)
             {
-                // Create new instance and cache it
-                _pageCache[pageType] = (Page)Activator.CreateInstance(pageType);
-                Debug.WriteLine($"[MainWindow] Created and cached new instance of {pageType.Name}");
+                Debug.WriteLine($"[MainWindow] Got instance of {pageType.Name} from DI container");
+                ContentFrame.Content = page;
+                _currentPageType = pageType;
+                HighlightSidebarItem(navItemTag);
             }
-            else
-            {
-                Debug.WriteLine($"[MainWindow] Using cached instance of {pageType.Name}");
-            }
-
-            Debug.WriteLine($"[MainWindow] Navigating to {pageType.Name}");
-            ContentFrame.Content = _pageCache[pageType];
-            _currentPageType = pageType;
-
-            // Highlight the corresponding sidebar item
-            HighlightSidebarItem(navItemTag);
         }
         else if (pageType == null)
         {

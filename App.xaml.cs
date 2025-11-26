@@ -58,7 +58,7 @@ public partial class App : Application
 
 
         // ViewModels
-        services.AddTransient<MainViewModel>();
+        services.AddSingleton<MainViewModel>();
         services.AddSingleton<BrowseViewModel>();
         services.AddTransient<PreviewViewModel>();
         services.AddSingleton<SearchViewModel>();

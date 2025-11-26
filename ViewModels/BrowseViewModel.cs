@@ -57,6 +57,7 @@ public partial class BrowseViewModel : ObservableObject
         _mainViewModel.SelectedScanFiles.CollectionChanged += (s, e) => CopyFromScansCommand.NotifyCanExecuteChanged();
         SelectedLeftItems.CollectionChanged += (s, e) => UpdateButtonStates();
         InitializePaths();
+        UpdateButtonStates();
     }
 
     #region Property Changed Handlers
@@ -161,7 +162,16 @@ public partial class BrowseViewModel : ObservableObject
     private bool CanPerformMultiFileAction() => SelectedLeftItems.Cast<ContentItem>().Any(item => !item.IsFolder);
     private bool CanPerformSingleFileAction() => SelectedLeftItems.Count == 1 && !SelectedLeftItems.Cast<ContentItem>().First().IsFolder;
     private bool CanMoveFile() => CanPerformMultiFileAction() && SelectedRightDirectory != null;
-    private bool CanCopyFromScans() => SelectedRightDirectory != null && _mainViewModel.SelectedScanFiles.Any();
+    private bool CanCopyFromScans()
+    {
+        var hasRightDir = SelectedRightDirectory != null;
+        var hasScanFiles = _mainViewModel.SelectedScanFiles.Any();
+        var result = hasRightDir && hasScanFiles;
+
+        System.Diagnostics.Debug.WriteLine($"[CanCopyFromScans] HasRightDir: {hasRightDir}, HasScanFiles: {hasScanFiles}, Result: {result}, ScanFilesCount: {_mainViewModel.SelectedScanFiles.Count}");
+
+        return result;
+    }
     private bool CanUndo() => _undoStack.Any();
     private bool CanGoUpLeft() => LeftBreadcrumbs.Count > 1;
     private bool CanGoUpRight() => RightBreadcrumbs.Count > 1;
@@ -173,6 +183,7 @@ public partial class BrowseViewModel : ObservableObject
         ShipFileCommand.NotifyCanExecuteChanged();
         MoveFileCommand.NotifyCanExecuteChanged();
         NavigateToPreviewCommand.NotifyCanExecuteChanged();
+        CopyFromScansCommand.NotifyCanExecuteChanged();
     }
 
     [RelayCommand]
@@ -383,13 +394,16 @@ public partial class BrowseViewModel : ObservableObject
                     $"Failed to copy '{file.Name}' from Scans: {ex.Message}",
                     new Dictionary<string, string>
                     {
-                        { "destination", Path.Combine(SelectedRightDirectory.FullPath, file.Name) },
-                        { "error", ex.Message }
+                    { "destination", Path.Combine(SelectedRightDirectory.FullPath, file. Name) },
+                    { "error", ex.Message }
                     }
                 );
             }
         }
+        // Clear the selected scan files after copying
+        _mainViewModel.SelectedScanFiles.Clear();
         UpdateRightFilteredContents();
+        CopyFromScansCommand.NotifyCanExecuteChanged();
     }
 
     [RelayCommand(CanExecute = nameof(CanUndo))]

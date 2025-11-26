@@ -99,46 +99,46 @@
                 </controls:DataGrid>
             </Grid>
 
-            <!-- Middle Column -->
-            <StackPanel Grid.Column="1" Orientation="Vertical" VerticalAlignment="Center" Spacing="8" Margin="16">
-                <Button Command="{Binding RenameFileCommand}" MinWidth="120">
-                    <StackPanel Orientation="Horizontal" Spacing="8">
-                        <FontIcon Glyph="&#xE8AC;"/>
-                        <TextBlock Text="Rename"/>
-                    </StackPanel>
-                </Button>
-                <Button Command="{Binding ArchiveFileCommand}" MinWidth="120">
-                    <StackPanel Orientation="Horizontal" Spacing="8">
-                        <FontIcon Glyph="&#xE7B8;"/>
-                        <TextBlock Text="Archive"/>
-                    </StackPanel>
-                </Button>
-                <Button Command="{Binding ShipFileCommand}" MinWidth="120">
-                    <StackPanel Orientation="Horizontal" Spacing="8">
-                        <FontIcon Glyph="&#xE8E1;"/>
-                        <TextBlock Text="Shipped"/>
-                    </StackPanel>
-                </Button>
-                <Button Command="{Binding MoveFileCommand}" MinWidth="120">
-                    <StackPanel Orientation="Horizontal" Spacing="8">
-                        <FontIcon Glyph="&#xE8DE;"/>
-                        <TextBlock Text="Move →"/>
-                    </StackPanel>
-                </Button>
-                <Button Command="{Binding UndoCommand}" MinWidth="120">
-                    <StackPanel Orientation="Horizontal" Spacing="8">
-                        <FontIcon Glyph="&#xE7A7;"/>
-                        <TextBlock Text="Undo"/>
-                    </StackPanel>
-                </Button>
-                <Rectangle Height="24"/>
-                <Button Command="{Binding CopyFromScansCommand}" Style="{ThemeResource AccentButtonStyle}" MinWidth="120">
-                    <StackPanel Orientation="Horizontal" Spacing="8">
-                        <FontIcon Glyph="&#xE8C8;"/>
-                        <TextBlock Text="Copy from Scans"/>
-                    </StackPanel>
-                </Button>
-            </StackPanel>
+        <!-- Middle Column -->
+        <StackPanel Grid.Column="1" Orientation="Vertical" VerticalAlignment="Center" Spacing="8" Margin="8">
+            <Button Command="{Binding RenameFileCommand}" MinWidth="120">
+                <StackPanel Orientation="Horizontal" Spacing="8">
+                    <FontIcon Glyph="&#xE8AC;" Foreground="#0078D4"/>
+                    <TextBlock Text="Rename"/>
+                </StackPanel>
+            </Button>
+            <Button Command="{Binding ArchiveFileCommand}" MinWidth="120">
+                <StackPanel Orientation="Horizontal" Spacing="8">
+                    <FontIcon Glyph="&#xE7B8;" Foreground="#EA6100"/>
+                    <TextBlock Text="Archive"/>
+                </StackPanel>
+            </Button>
+            <Button Command="{Binding ShipFileCommand}" MinWidth="120">
+                <StackPanel Orientation="Horizontal" Spacing="8">
+                    <FontIcon Glyph="&#xE8E1;" Foreground="#107C10"/>
+                    <TextBlock Text="Shipped"/>
+                </StackPanel>
+            </Button>
+            <Button Command="{Binding MoveFileCommand}" MinWidth="120">
+                <StackPanel Orientation="Horizontal" Spacing="8">
+                    <FontIcon Glyph="&#xE8DE;" Foreground="#0078D4"/>
+                    <TextBlock Text="Move"/>
+                </StackPanel>
+            </Button>
+            <Button Command="{Binding UndoCommand}" MinWidth="120">
+                <StackPanel Orientation="Horizontal" Spacing="8">
+                    <FontIcon Glyph="&#xE7A7;" Foreground="#0078D4"/>
+                    <TextBlock Text="Undo"/>
+                </StackPanel>
+            </Button>
+            <Rectangle Height="24"/>
+            <Button Command="{Binding CopyFromScansCommand}" Style="{StaticResource AccentButtonStyle}" MinWidth="120">
+                <StackPanel Orientation="Horizontal" Spacing="8">
+                    <FontIcon Glyph="&#xE8C8;" Foreground="#107C10"/>
+                    <TextBlock Text="Copy from Scans"/>
+                </StackPanel>
+            </Button>
+        </StackPanel>
 
             <!-- Right Side -->
             <Grid Grid.Column="2" Margin="8">

@@ -24,10 +24,10 @@
 		<!-- TabView for Settings Sections -->
 		<TabView Grid.Row="1" Margin="0,16,0,0">
 
-            <!-- TAB 1: SECURITY SETTINGS -->
-            <TabViewItem Header="🔐 Security">
+            <!-- TAB 1: SECURITY SETTINGS - Lock Icon (Blue) -->
+            <TabViewItem Header="Security">
                 <TabViewItem.IconSource>
-                    <SymbolIconSource Symbol="Setting"/>
+                    <FontIconSource Glyph="&#xE72E;" FontWeight="Bold" Foreground="#0078D4"/>
                 </TabViewItem.IconSource>
                 <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
                     <StackPanel Margin="24,16,24,24" Spacing="16">
@@ -107,10 +107,10 @@
                 </ScrollViewer>
             </TabViewItem>
 
-            <!-- TAB 2: DIRECTORY SETTINGS -->
-            <TabViewItem Header="📁 Directories">
+            <!-- TAB 2: DIRECTORY SETTINGS - Folder Icon (Teal) -->
+            <TabViewItem Header="Directories">
                 <TabViewItem.IconSource>
-                    <SymbolIconSource Symbol="Folder"/>
+                    <FontIconSource Glyph="&#xE8B7;" FontWeight="Bold" Foreground="#008B8B"/>
                 </TabViewItem.IconSource>
                 <Grid>
                     <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
@@ -274,13 +274,13 @@
                 </Grid>
             </TabViewItem>
 
-            <!-- TAB 3: AUDIT LOGS -->
-			<TabViewItem Header="📋 Audit Logs">
-				<TabViewItem.IconSource>
-					<SymbolIconSource Symbol="Document"/>
-				</TabViewItem.IconSource>
-				<ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
-					<StackPanel Margin="24,16,24,24" Spacing="16">
+            <!-- TAB 3: AUDIT LOGS - Document Icon (Purple) -->
+            <TabViewItem Header="Audit Logs">
+                <TabViewItem.IconSource>
+                    <FontIconSource Glyph="&#xE71E;" FontWeight="Bold" Foreground="#7B2CBF"/>
+                    </TabViewItem.IconSource>
+                    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                        <StackPanel Margin="24,16,24,24" Spacing="16">
 						<TextBlock Text="📋 Audit Log Viewer" Style="{ThemeResource SubtitleTextBlockStyle}"/>
 
 						<!-- Stats -->
@@ -445,13 +445,13 @@
 				</ScrollViewer>
 			</TabViewItem>
 
-            <!-- TAB 4: THEME SETTINGS -->
-            <TabViewItem Header="🎨 Theme">
+            <!-- TAB 4: THEME SETTINGS - Palette Icon (Indigo) -->
+            <TabViewItem Header="Theme">
                 <TabViewItem.IconSource>
-                    <SymbolIconSource Symbol="Favorite"/>
-                </TabViewItem.IconSource>
-                <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
-                    <StackPanel Margin="24,16,24,24" Spacing="16">
+                    <FontIconSource Glyph="&#xE790;" FontWeight="Bold" Foreground="#4C3D8F"/>
+                    </TabViewItem.IconSource>
+                    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+                        <StackPanel Margin="24,16,24,24" Spacing="16">
                         <TextBlock Text="Customize Application Appearance" FontSize="14" FontWeight="SemiBold"/>
 
                         <!-- Theme Selection -->

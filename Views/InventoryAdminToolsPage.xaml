@@ -11,27 +11,30 @@
     <Grid Margin="24">
         <TabView>
             <TabView.TabItems>
+                <!-- Dir Archiver - Orange Icon -->
                 <TabViewItem Header="Dir Archiver">
                     <TabViewItem.IconSource>
-                        <FontIconSource Glyph="&#xE7B8;"/>
+                        <FontIconSource Glyph="&#xE7B8;" FontWeight="Bold" Foreground="#EA6100"/>
                     </TabViewItem.IconSource>
                     <admintools:DirArchiverView/>
                 </TabViewItem>
 
+                <!-- Dir Cloner - Green Icon -->
                 <TabViewItem Header="Dir Cloner">
                     <TabViewItem.IconSource>
-                        <FontIconSource Glyph="&#xE8C8;"/>
+                        <FontIconSource Glyph="&#xE8C8;" FontWeight="Bold" Foreground="#107C10"/>
                     </TabViewItem.IconSource>
                     <admintools:DirClonerView/>
                 </TabViewItem>
 
+                <!-- Batch Renamer - Blue Icon -->
                 <TabViewItem Header="Batch Renamer">
                     <TabViewItem.IconSource>
-                        <FontIconSource Glyph="&#xE8AC;"/>
-                    </TabViewItem.IconSource>
-                    <admintools:BatchRenamerView/>
+                        <FontIconSource Glyph="&#xE8AC;" FontWeight="Bold" Foreground="#0078D4"/>
+                        </TabViewItem.IconSource>
+                        <admintools:BatchRenamerView/>
                 </TabViewItem>
-            </TabView.TabItems>
+                </TabView.TabItems>
         </TabView>
     </Grid>
 </Page>
