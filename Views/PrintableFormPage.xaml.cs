@@ -34,60 +34,76 @@ public sealed partial class PrintableFormPage : Page
         System.Diagnostics.Debug.WriteLine("PrintableFormPage constructor completed");
     }
 
-    protected override async void OnNavigatedTo(NavigationEventArgs e)
+    protected override void OnNavigatedTo(NavigationEventArgs e)
     {
         base.OnNavigatedTo(e);
 
         if (e.Parameter is PrintableForm form)
         {
-            // DEBUG: Show what we received
-            var debugInfo = $"Received PrintableForm:\n" +
-                            $"- Header: {form.Header}\n" +
-                            $"- Pages count: {form.Pages?.Count ?? 0}\n" +
-                            $"- PaginationLog count: {Services.PrintPaginationService.PaginationLog.Count}";
+            _viewModel?.LoadFormData(form);
 
-            if (form.Pages?.Count > 0)
+            // DEBUG: Show what we received after page is fully loaded
+            this.Loaded += async (s, args) =>
             {
-                var firstPage = form.Pages[0];
-                debugInfo += $"\n\nFirst Page:\n" +
-                             $"- Level2Header: {firstPage.Level2Header}\n" +
-                             $"- Rows count: {firstPage.Rows?.Count ?? 0}";
+                await Task.Delay(500); // Wait for everything to settle
 
-                if (firstPage.Rows?.Count > 0)
+                try
                 {
-                    debugInfo += $"\n- First 5 rows:";
-                    foreach (var row in firstPage.Rows.Take(5))
+                    var debugInfo = $"Received PrintableForm:\n" +
+                                    $"- Header: {form.Header}\n" +
+                                    $"- Pages count: {form.Pages?.Count ?? 0}\n" +
+                                    $"- PaginationLog count: {Services.PrintPaginationService.PaginationLog.Count}";
+
+                    if (form.Pages?.Count > 0)
                     {
-                        debugInfo += $"\n  [{row.Type}] {row.Content?.Substring(0, Math.Min(30, row.Content?.Length ?? 0))}";
+                        var firstPage = form.Pages[0];
+                        debugInfo += $"\n\nFirst Page:\n" +
+                                     $"- Level2Header: {firstPage.Level2Header}\n" +
+                                     $"- Rows count: {firstPage.Rows?.Count ?? 0}";
+
+                        if (firstPage.Rows?.Count > 0)
+                        {
+                            debugInfo += $"\n- First 5 rows:";
+                            foreach (var row in firstPage.Rows.Take(5))
+                            {
+                                var content = row.Content ?? "(null)";
+                                if (content.Length > 30) content = content.Substring(0, 30) + "...";
+                                debugInfo += $"\n  [{row.Type}] {content}";
+                            }
+                        }
+                    }
+
+                    if (this.XamlRoot != null)
+                    {
+                        var dialog = new ContentDialog
+                        {
+                            Title = "DEBUG: Form Data",
+                            Content = new ScrollViewer
+                            {
+                                Content = new TextBlock
+                                {
+                                    Text = debugInfo,
+                                    TextWrapping = TextWrapping.Wrap,
+                                    IsTextSelectionEnabled = true
+                                },
+                                MaxHeight = 400
+                            },
+                            CloseButtonText = "OK",
+                            XamlRoot = this.XamlRoot
+                        };
+                        await dialog.ShowAsync();
                     }
                 }
-            }
-
-            var dialog = new ContentDialog
-            {
-                Title = "DEBUG: Form Data Received",
-                Content = new TextBlock
+                catch (Exception ex)
                 {
-                    Text = debugInfo,
-                    TextWrapping = TextWrapping.Wrap,
-                    IsTextSelectionEnabled = true
-                },
-                CloseButtonText = "OK",
-                XamlRoot = this.XamlRoot
+                    System.Diagnostics.Debug.WriteLine($"Debug dialog error: {ex.Message}");
+                }
             };
-
-            // Need to delay slightly for XamlRoot to be available
-            DispatcherQueue.TryEnqueue(async () =>
-            {
-                await Task.Delay(100);
-                await dialog.ShowAsync();
-            });
-
-            _viewModel?.LoadFormData(form);
         }
 
         RegisterForPrinting();
     }
+
 
 
     protected override void OnNavigatedFrom(NavigationEventArgs e)
