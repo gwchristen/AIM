@@ -9,6 +9,8 @@ public class NavigationService : INavigationService
 
     public bool CanGoBack => _frame?.CanGoBack ?? false;
 
+    public event NavigationChangedHandler NavigationChanged;
+
     public void Initialize(Frame frame)
     {
         _frame = frame;
@@ -21,6 +23,7 @@ public class NavigationService : INavigationService
             throw new InvalidOperationException("Navigation frame has not been initialized.");
         }
         _frame.Navigate(pageType);
+        NavigationChanged?.Invoke(pageType);
     }
 
     public void NavigateTo(Type pageType, object parameter)
@@ -30,6 +33,7 @@ public class NavigationService : INavigationService
             throw new InvalidOperationException("Navigation frame has not been initialized.");
         }
         _frame.Navigate(pageType, parameter);
+        NavigationChanged?.Invoke(pageType);
     }
 
     public void GoBack()

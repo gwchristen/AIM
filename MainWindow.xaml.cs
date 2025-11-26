@@ -25,6 +25,7 @@ public sealed partial class MainWindow : Window
         _navigationService = Ioc.Default.GetRequiredService<INavigationService>();
         _securityService = Ioc.Default.GetRequiredService<SecurityService>();
         _navigationService.Initialize(ContentFrame);
+        _navigationService.NavigationChanged += NavigationService_NavigationChanged;
 
         // Get MainViewModel
         _mainViewModel = Ioc.Default.GetRequiredService<MainViewModel>();
@@ -40,6 +41,35 @@ public sealed partial class MainWindow : Window
         }
 
         Debug.WriteLine($"[MainWindow] Constructor complete.  Property subscription added.");
+    }
+
+    private void NavigationService_NavigationChanged(Type pageType)
+    {
+        Debug.WriteLine($"[MainWindow] NavigationChanged event: {pageType.Name}");
+
+        // Update our tracking of current page type
+        _currentPageType = pageType;
+
+        // Convert pageType to tag and highlight sidebar
+        string tag = pageType switch
+        {
+            _ when pageType == typeof(BrowsePage) => "Browse",
+            _ when pageType == typeof(PreviewPage) => "Preview",
+            _ when pageType == typeof(SearchPage) => "Search",
+            _ when pageType == typeof(ScansPage) => "Scans",
+            _ when pageType == typeof(InventoryAdminToolsPage) => "InventoryAdminTools",
+            _ when pageType == typeof(InventoryViewerPage) => "InventoryViewer",
+            _ when pageType == typeof(DirAnalysisPage) => "DirAnalysis",
+            _ when pageType == typeof(FormGeneratorPage) => "PaperworkForms",
+            _ when pageType == typeof(StatsPage) => "Stats",
+            _ when pageType == typeof(LogViewerPage) => "LogViewer",
+            _ => null
+        };
+
+        if (tag != null)
+        {
+            HighlightSidebarItem(tag);
+        }
     }
 
     private void MainViewModel_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
@@ -252,6 +282,9 @@ public sealed partial class MainWindow : Window
             Debug.WriteLine($"[MainWindow] Navigating to {pageType.Name}");
             ContentFrame.Content = _pageCache[pageType];
             _currentPageType = pageType;
+
+            // Highlight the corresponding sidebar item
+            HighlightSidebarItem(navItemTag);
         }
         else if (pageType == null)
         {
@@ -260,6 +293,58 @@ public sealed partial class MainWindow : Window
         else
         {
             Debug.WriteLine($"[MainWindow] Navigation skipped - already on {pageType.Name}");
+        }
+    }
+
+    private void NavigateToPageByType(Type pageType)
+    {
+        // Helper method for programmatic navigation by page type
+        string tag = pageType switch
+        {
+            _ when pageType == typeof(BrowsePage) => "Browse",
+            _ when pageType == typeof(PreviewPage) => "Preview",
+            _ when pageType == typeof(SearchPage) => "Search",
+            _ when pageType == typeof(ScansPage) => "Scans",
+            _ when pageType == typeof(InventoryAdminToolsPage) => "InventoryAdminTools",
+            _ when pageType == typeof(InventoryViewerPage) => "InventoryViewer",
+            _ when pageType == typeof(DirAnalysisPage) => "DirAnalysis",
+            _ when pageType == typeof(FormGeneratorPage) => "PaperworkForms",
+            _ when pageType == typeof(StatsPage) => "Stats",
+            _ when pageType == typeof(LogViewerPage) => "LogViewer",
+            _ => null
+        };
+
+        if (tag != null)
+        {
+            NavigateToPage(tag);
+        }
+    }
+
+    private void HighlightSidebarItem(string tag)
+    {
+        // Find and select the navigation item with the matching tag
+        foreach (var item in NavView.MenuItems.OfType<NavigationViewItem>())
+        {
+            if (item.Tag?.ToString() == tag)
+            {
+                NavView.SelectedItem = item;
+                Debug.WriteLine($"[MainWindow] Sidebar item '{tag}' selected");
+                return;
+            }
+
+            // Check subitems for nested items
+            if (item.MenuItems.Count > 0)
+            {
+                foreach (var subItem in item.MenuItems.OfType<NavigationViewItem>())
+                {
+                    if (subItem.Tag?.ToString() == tag)
+                    {
+                        NavView.SelectedItem = subItem;
+                        Debug.WriteLine($"[MainWindow] Sidebar subitem '{tag}' selected");
+                        return;
+                    }
+                }
+            }
         }
     }
 }

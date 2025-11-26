@@ -37,8 +37,6 @@
 
             <ToggleSwitch Header="Search in file contents" IsOn="{x:Bind ViewModel.IsContentSearch, Mode=TwoWay}"/>
 
-            <!-- THIS IS THE FIX: The old TextBlock for status messages has been completely removed. -->
-
         </StackPanel>
 
         <ListView Grid.Row="2"
@@ -51,21 +49,60 @@
                 <core:EventTriggerBehavior EventName="DoubleTapped">
                     <core:InvokeCommandAction 
                         Command="{x:Bind ViewModel.HandleItemDoubleClickCommand}"
-                        CommandParameter="{x:Bind ResultsListView.SelectedItem, Mode=OneWay}"/>
+                        CommandParameter="{x:Bind ResultsListView. SelectedItem, Mode=OneWay}"/>
                 </core:EventTriggerBehavior>
             </interactivity:Interaction.Behaviors>
 
             <ListView.ItemTemplate>
                 <DataTemplate x:DataType="models:FileItem">
-                    <Grid Margin="0,4">
+                    <Grid Margin="0,8" Padding="8" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" CornerRadius="4">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="300"/>
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="100"/>
+                            <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
-                        <TextBlock Grid.Column="0" Text="{x:Bind Name}" TextTrimming="CharacterEllipsis"/>
-                        <TextBlock Grid.Column="1" Text="{x:Bind FullPath}" TextTrimming="CharacterEllipsis" Margin="8,0"/>
-                        <TextBlock Grid.Column="2" Text="{x:Bind Type}"/>
+
+                        <!-- File Name -->
+                        <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                            <TextBlock Text="{x:Bind Name}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis"/>
+                        </StackPanel>
+
+                        <!-- File Path -->
+                        <TextBlock Grid.Column="1" Text="{x:Bind FullPath}" TextTrimming="CharacterEllipsis" Margin="8,0" VerticalAlignment="Center" Foreground="#666666"/>
+
+                        <!-- File Type -->
+                        <TextBlock Grid.Column="2" Text="{x:Bind Type}" VerticalAlignment="Center" TextAlignment="Center"/>
+
+                        <!-- Action Buttons -->
+                        <StackPanel Grid.Column="3" Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
+                            <!-- Preview Button -->
+                            <Button
+                                ToolTipService.ToolTip="Preview file"
+                                Click="PreviewButton_Click"
+                                Padding="8,4"
+                                FontSize="12">
+                                <FontIcon Glyph="&#xE8FF;" FontSize="14"/>
+                            </Button>
+
+                            <!-- Open in Browse Tab Button -->
+                            <Button
+                                ToolTipService.ToolTip="Open in Browse tab"
+                                Click="BrowseButton_Click"
+                                Padding="8,4"
+                                FontSize="12">
+                                <FontIcon Glyph="&#xE8F1;" FontSize="14"/>
+                            </Button>
+
+                            <!-- Copy Path Button -->
+                            <Button
+                                ToolTipService.ToolTip="Copy file path"
+                                Click="CopyPathButton_Click"
+                                Padding="8,4"
+                                FontSize="12">
+                                <FontIcon Glyph="&#xE8C8;" FontSize="14"/>
+                            </Button>
+                        </StackPanel>
                     </Grid>
                 </DataTemplate>
             </ListView.ItemTemplate>
