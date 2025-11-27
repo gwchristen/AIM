@@ -2,14 +2,16 @@ using AIM.Models;
 using AIM.ViewModels;
 using CommunityToolkit.Mvvm.DependencyInjection;
 using CommunityToolkit.WinUI.UI.Controls;
+using Microsoft.UI;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Controls.Primitives;
 using Microsoft.UI.Xaml.Input;
+using Microsoft.UI.Xaml.Media;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using Windows.ApplicationModel.DataTransfer;
+using Windows.UI;
 
 namespace AIM.Views;
 
@@ -17,6 +19,8 @@ public sealed partial class BrowsePage : Page
 {
     private readonly BrowseViewModel ViewModel;
     private ContentItem _rightClickedItem;
+    private readonly SolidColorBrush _dropHighlightBrush = new(Color.FromArgb(100, 16, 124, 16));
+    private readonly SolidColorBrush _transparentBrush = new(Colors.Transparent);
 
     public BrowsePage()
     {
@@ -108,15 +112,12 @@ public sealed partial class BrowsePage : Page
 
     private void LeftDataGrid_RightTapped(object sender, RightTappedRoutedEventArgs e)
     {
-        // Get the item that was right-clicked
         if ((e.OriginalSource as FrameworkElement)?.DataContext is ContentItem item)
         {
             _rightClickedItem = item;
 
-            // If clicking on a file (not folder), show source context menu
             if (!item.IsFolder)
             {
-                // Select the item if not already selected
                 if (!LeftDataGrid.SelectedItems.Contains(item))
                 {
                     LeftDataGrid.SelectedItem = item;
@@ -130,27 +131,45 @@ public sealed partial class BrowsePage : Page
     }
     #endregion
 
-    #region Right ListView Events
+    #region Right ListView Events with Drop Highlighting
     private void RightListView_DragOver(object sender, DragEventArgs e)
     {
         e.AcceptedOperation = DataPackageOperation.None;
+
+        // Show drop highlight
+        DropTargetBorder.BorderBrush = _dropHighlightBrush;
+        DropTargetBorder.Background = new SolidColorBrush(Color.FromArgb(30, 16, 124, 16));
 
         if ((e.OriginalSource as FrameworkElement)?.DataContext is ContentItem targetItem && targetItem.IsFolder)
         {
             e.AcceptedOperation = DataPackageOperation.Move;
             e.DragUIOverride.Caption = $"Move to {targetItem.Name}";
+            e.DragUIOverride.IsGlyphVisible = true;
         }
         else if (ViewModel.SelectedRightDirectory != null)
         {
             e.AcceptedOperation = DataPackageOperation.Move;
             e.DragUIOverride.Caption = $"Move to {ViewModel.SelectedRightDirectory.Name}";
+            e.DragUIOverride.IsGlyphVisible = true;
         }
 
         e.DragUIOverride.IsCaptionVisible = true;
+        e.DragUIOverride.IsContentVisible = true;
+    }
+
+    private void RightListView_DragLeave(object sender, DragEventArgs e)
+    {
+        // Remove drop highlight
+        DropTargetBorder.BorderBrush = _transparentBrush;
+        DropTargetBorder.Background = _transparentBrush;
     }
 
     private async void RightListView_Drop(object sender, DragEventArgs e)
     {
+        // Remove drop highlight
+        DropTargetBorder.BorderBrush = _transparentBrush;
+        DropTargetBorder.Background = _transparentBrush;
+
         string destinationFolderPath = null;
 
         if ((e.OriginalSource as FrameworkElement)?.DataContext is ContentItem targetFolder && targetFolder.IsFolder)
@@ -180,13 +199,11 @@ public sealed partial class BrowsePage : Page
     }
     #endregion
 
-    #region General Context Menu (Page level - everywhere else)
+    #region Context Menu Events
     private void Page_RightTapped(object sender, RightTappedRoutedEventArgs e)
     {
-        // Don't show if already handled by DataGrid
         if (e.Handled) return;
 
-        // Don't show general menu if clicking on Source DataGrid area
         var position = e.GetPosition(LeftDataGrid);
         if (position.X >= 0 && position.X <= LeftDataGrid.ActualWidth &&
             position.Y >= 0 && position.Y <= LeftDataGrid.ActualHeight)
@@ -198,78 +215,57 @@ public sealed partial class BrowsePage : Page
         flyout?.ShowAt(sender as FrameworkElement, e.GetPosition(sender as UIElement));
         e.Handled = true;
     }
-    #endregion
 
-    #region Source Context Menu Handlers
     private void ContextMenu_Rename_Click(object sender, RoutedEventArgs e)
     {
         if (ViewModel.RenameFileCommand.CanExecute(null))
-        {
             ViewModel.RenameFileCommand.Execute(null);
-        }
     }
 
     private void ContextMenu_AddToSelection_Click(object sender, RoutedEventArgs e)
     {
         if (ViewModel.AddToSelectionCommand.CanExecute(null))
-        {
             ViewModel.AddToSelectionCommand.Execute(null);
-        }
     }
 
     private void ContextMenu_Edit_Click(object sender, RoutedEventArgs e)
     {
         if (ViewModel.NavigateToPreviewCommand.CanExecute(null))
-        {
             ViewModel.NavigateToPreviewCommand.Execute(null);
-        }
     }
 
     private void ContextMenu_Archive_Click(object sender, RoutedEventArgs e)
     {
         if (ViewModel.ArchiveFileCommand.CanExecute(null))
-        {
             ViewModel.ArchiveFileCommand.Execute(null);
-        }
     }
 
     private void ContextMenu_Shipped_Click(object sender, RoutedEventArgs e)
     {
         if (ViewModel.ShipFileCommand.CanExecute(null))
-        {
             ViewModel.ShipFileCommand.Execute(null);
-        }
     }
 
     private void ContextMenu_Move_Click(object sender, RoutedEventArgs e)
     {
         if (ViewModel.MoveFileCommand.CanExecute(null))
-        {
             ViewModel.MoveFileCommand.Execute(null);
-        }
     }
-    #endregion
 
-    #region General Context Menu Handlers
     private void ContextMenu_ClearSelection_Click(object sender, RoutedEventArgs e)
     {
         if (ViewModel.ClearSelectionCommand.CanExecute(null))
-        {
             ViewModel.ClearSelectionCommand.Execute(null);
-        }
     }
 
     private void ContextMenu_CopyFromScans_Click(object sender, RoutedEventArgs e)
     {
         if (ViewModel.CopyFromScansCommand.CanExecute(null))
-        {
             ViewModel.CopyFromScansCommand.Execute(null);
-        }
     }
 
     private async void ContextMenu_CopyFilepath_Click(object sender, RoutedEventArgs e)
     {
-        // Copy filepath of selected items or persistent selection
         var paths = new List<string>();
 
         if (ViewModel.PersistentSelectedPaths.Any())
@@ -290,8 +286,6 @@ public sealed partial class BrowsePage : Page
             var dataPackage = new DataPackage();
             dataPackage.SetText(string.Join(Environment.NewLine, paths));
             Clipboard.SetContent(dataPackage);
-
-            // Show feedback via status
             ViewModel.SetOperationStatusPublic($"Copied {paths.Count} path(s) to clipboard");
         }
     }
@@ -299,9 +293,7 @@ public sealed partial class BrowsePage : Page
     private void ContextMenu_Undo_Click(object sender, RoutedEventArgs e)
     {
         if (ViewModel.UndoCommand.CanExecute(null))
-        {
             ViewModel.UndoCommand.Execute(null);
-        }
     }
     #endregion
 }

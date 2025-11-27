@@ -73,6 +73,38 @@ public partial class BrowseViewModel : ObservableObject
     private int _undoStackCount;
     #endregion
 
+
+    #region Panel States
+    // Loading states
+    [ObservableProperty]
+    private bool _isLeftPanelLoading;
+
+    [ObservableProperty]
+    private bool _isRightPanelLoading;
+
+    [ObservableProperty]
+    private string _leftPanelLoadingText = "Loading... ";
+
+    [ObservableProperty]
+    private string _rightPanelLoadingText = "Loading... ";
+    #endregion
+
+    #region Error Handling
+    // Error states
+    [ObservableProperty]
+    private bool _hasLeftPanelError;
+
+    [ObservableProperty]
+    private string _leftPanelErrorMessage = string.Empty;
+
+    [ObservableProperty]
+    private bool _hasRightPanelError;
+
+    [ObservableProperty]
+    private string _rightPanelErrorMessage = string.Empty;
+    #endregion
+
+
     public BrowseViewModel(MainViewModel mainViewModel, IFileService fileService, ISettingsService settingsService, IDialogService dialogService, INavigationService navigationService, AuditLoggingService auditLoggingService)
     {
         _mainViewModel = mainViewModel;
@@ -190,6 +222,11 @@ public partial class BrowseViewModel : ObservableObject
         }
     }
 
+    public void SetOperationStatusPublic(string message, bool autoClear = true, int delayMs = 3000)
+    {
+        SetOperationStatus(message, autoClear, delayMs);
+    }
+
     private string GetRelativePathForDisplay(string fullPath)
     {
         if (string.IsNullOrEmpty(_rootPath) || string.IsNullOrEmpty(fullPath))
@@ -222,7 +259,7 @@ public partial class BrowseViewModel : ObservableObject
         );
 
         UpdateLeftBreadcrumbs(value?.FullPath);
-        UpdateAndSortLeftFilteredContents();
+        _ = UpdateAndSortLeftFilteredContentsAsync();
     }
 
     partial void OnSelectedRightContentChanged(ContentItem value)
@@ -230,7 +267,7 @@ public partial class BrowseViewModel : ObservableObject
         if (value?.IsFolder == true)
         {
             SelectedRightDirectory = new DirectoryItem { FullPath = value.FullPath, Name = value.Name };
-            UpdateRightFilteredContents();
+            _ = UpdateRightFilteredContentsAsync();
         }
     }
     #endregion
@@ -244,7 +281,7 @@ public partial class BrowseViewModel : ObservableObject
         RootName = root.Name;
         SelectedLeftDirectory = root;
         SelectedRightDirectory = root;
-        UpdateRightFilteredContents();
+        _ = UpdateRightFilteredContentsAsync();
     }
 
     private void UpdateLeftBreadcrumbs(string currentPath) => UpdateBreadcrumbs(currentPath, LeftBreadcrumbs, GoUpLeftCommand, RootName, _rootPath);
@@ -288,73 +325,157 @@ public partial class BrowseViewModel : ObservableObject
         _ => FileType.Other
     };
 
-    private void UpdateAndSortLeftFilteredContents()
+    private async Task UpdateAndSortLeftFilteredContentsAsync()
     {
         var dir = SelectedLeftDirectory;
         if (dir == null) return;
-        var tempItems = new List<ContentItem>();
+
+        HasLeftPanelError = false;
+        LeftPanelErrorMessage = string.Empty;
+        IsLeftPanelLoading = true;
+        LeftPanelLoadingText = $"Loading {dir.Name}... ";
+
         try
         {
-            var subDirs = Directory.GetDirectories(dir.FullPath)
-                .Where(DoesContainRelevantFiles)
-                .Select(d => new ContentItem
-                {
-                    Name = Path.GetFileName(d),
-                    FullPath = d,
-                    IsFolder = true,
-                    ModifiedDate = Directory.GetLastWriteTime(d)
-                });
-            tempItems.AddRange(subDirs);
+            var tempItems = new List<ContentItem>();
 
-            var relevantExtensions = new HashSet<string> { ".txt", ".csv" };
-            var files = Directory.GetFiles(dir.FullPath)
-                .Where(f => relevantExtensions.Contains(Path.GetExtension(f).ToLowerInvariant()))
-                .Select(f =>
+            await Task.Run(() =>
+            {
+                try
                 {
-                    var info = new FileInfo(f);
-                    return new ContentItem
-                    {
-                        Name = info.Name,
-                        FullPath = info.FullName,
-                        IsFolder = false,
-                        Size = info.Length,
-                        ModifiedDate = info.LastWriteTime
-                    };
-                });
-            tempItems.AddRange(files);
+                    var subDirs = Directory.GetDirectories(dir.FullPath)
+                        .Where(DoesContainRelevantFiles)
+                        .Select(d => new ContentItem
+                        {
+                            Name = Path.GetFileName(d),
+                            FullPath = d,
+                            IsFolder = true,
+                            ModifiedDate = Directory.GetLastWriteTime(d)
+                        });
+                    tempItems.AddRange(subDirs);
+
+                    var relevantExtensions = new HashSet<string> { ".txt", ".csv" };
+                    var files = Directory.GetFiles(dir.FullPath)
+                        .Where(f => relevantExtensions.Contains(Path.GetExtension(f).ToLowerInvariant()))
+                        .Select(f =>
+                        {
+                            var info = new FileInfo(f);
+                            return new ContentItem
+                            {
+                                Name = info.Name,
+                                FullPath = info.FullName,
+                                IsFolder = false,
+                                Size = info.Length,
+                                ModifiedDate = info.LastWriteTime
+                            };
+                        });
+                    tempItems.AddRange(files);
+                }
+                catch (UnauthorizedAccessException)
+                {
+                    throw new Exception($"Access denied to '{dir.Name}'. You don't have permission to view this folder.");
+                }
+                catch (DirectoryNotFoundException)
+                {
+                    throw new Exception($"Folder '{dir.Name}' no longer exists.  It may have been moved or deleted.");
+                }
+                catch (IOException ex)
+                {
+                    throw new Exception($"Unable to read '{dir.Name}': {ex.Message}");
+                }
+            });
+
+            Func<ContentItem, object> keySelector = _currentSortColumn switch
+            {
+                "Date" => i => i.ModifiedDate,
+                "Size" => i => i.Size,
+                _ => i => i.Name
+            };
+            var sortedItems = _isSortAscending
+                ? tempItems.OrderBy(i => !i.IsFolder).ThenBy(keySelector)
+                : tempItems.OrderBy(i => !i.IsFolder).ThenByDescending(keySelector);
+
+            LeftFilteredContents.Clear();
+            foreach (var item in sortedItems) LeftFilteredContents.Add(item);
+
+            UpdateSelectionStatus();
         }
-        catch (Exception) { /* Handle errors */ }
-
-        Func<ContentItem, object> keySelector = _currentSortColumn switch
+        catch (Exception ex)
         {
-            "Date" => i => i.ModifiedDate,
-            "Size" => i => i.Size,
-            _ => i => i.Name
-        };
-        var sortedItems = _isSortAscending
-            ? tempItems.OrderBy(i => !i.IsFolder).ThenBy(keySelector)
-            : tempItems.OrderBy(i => !i.IsFolder).ThenByDescending(keySelector);
-
-        LeftFilteredContents.Clear();
-        foreach (var item in sortedItems) LeftFilteredContents.Add(item);
-
-        UpdateSelectionStatus();
+            HasLeftPanelError = true;
+            LeftPanelErrorMessage = ex.Message;
+            LeftFilteredContents.Clear();
+        }
+        finally
+        {
+            IsLeftPanelLoading = false;
+        }
     }
 
-    private void UpdateRightFilteredContents()
+    private async Task UpdateRightFilteredContentsAsync()
     {
-        RightFilteredContents.Clear();
         var dir = SelectedRightDirectory;
         if (dir == null) return;
+
+        HasRightPanelError = false;
+        RightPanelErrorMessage = string.Empty;
+        IsRightPanelLoading = true;
+        RightPanelLoadingText = $"Loading {dir.Name}...";
+
         UpdateRightBreadcrumbs(dir.FullPath);
+
         try
         {
-            foreach (var subDirPath in Directory.GetDirectories(dir.FullPath))
-                RightFilteredContents.Add(new ContentItem { Name = Path.GetFileName(subDirPath), IsFolder = true, FullPath = subDirPath });
-            foreach (var file in Directory.GetFiles(dir.FullPath))
-                RightFilteredContents.Add(new ContentItem { Name = Path.GetFileName(file), IsFolder = false, FullPath = file });
+            var tempItems = new List<ContentItem>();
+
+            await Task.Run(() =>
+            {
+                try
+                {
+                    foreach (var subDirPath in Directory.GetDirectories(dir.FullPath))
+                        tempItems.Add(new ContentItem { Name = Path.GetFileName(subDirPath), IsFolder = true, FullPath = subDirPath });
+                    foreach (var file in Directory.GetFiles(dir.FullPath))
+                        tempItems.Add(new ContentItem { Name = Path.GetFileName(file), IsFolder = false, FullPath = file });
+                }
+                catch (UnauthorizedAccessException)
+                {
+                    throw new Exception($"Access denied to '{dir.Name}'. You don't have permission to view this folder.");
+                }
+                catch (DirectoryNotFoundException)
+                {
+                    throw new Exception($"Folder '{dir.Name}' no longer exists. It may have been moved or deleted.");
+                }
+                catch (IOException ex)
+                {
+                    throw new Exception($"Unable to read '{dir.Name}': {ex.Message}");
+                }
+            });
+
+            RightFilteredContents.Clear();
+            foreach (var item in tempItems) RightFilteredContents.Add(item);
         }
-        catch (Exception) { /* Handle errors */ }
+        catch (Exception ex)
+        {
+            HasRightPanelError = true;
+            RightPanelErrorMessage = ex.Message;
+            RightFilteredContents.Clear();
+        }
+        finally
+        {
+            IsRightPanelLoading = false;
+        }
+    }
+
+    [RelayCommand]
+    private async Task RetryLeftPanel()
+    {
+        await UpdateAndSortLeftFilteredContentsAsync();
+    }
+
+    [RelayCommand]
+    private async Task RetryRightPanel()
+    {
+        await UpdateRightFilteredContentsAsync();
     }
     #endregion
 
@@ -409,6 +530,42 @@ public partial class BrowseViewModel : ObservableObject
         }
         return SelectedLeftItems.Cast<ContentItem>().Where(i => !i.IsFolder).ToList();
     }
+
+    /// <summary>
+    /// Builds a detailed confirmation message for file operations
+    /// </summary>
+    private string BuildConfirmationMessage(string operation, List<ContentItem> files, string destination = null)
+    {
+        var message = new List<string>();
+
+        message.Add($"You are about to {operation.ToLower()} {files.Count} file(s):");
+        message.Add("");
+
+        // Show up to 5 files
+        var displayFiles = files.Take(5).ToList();
+        foreach (var file in displayFiles)
+        {
+            var folder = GetRelativePathForDisplay(Path.GetDirectoryName(file.FullPath));
+            message.Add($"  • {file.Name}");
+            message.Add($"    From: {folder}");
+        }
+
+        if (files.Count > 5)
+        {
+            message.Add($"  ... and {files.Count - 5} more file(s)");
+        }
+
+        if (!string.IsNullOrEmpty(destination))
+        {
+            message.Add("");
+            message.Add($"Destination: {destination}");
+        }
+
+        message.Add("");
+        message.Add("Do you want to continue?");
+
+        return string.Join("\n", message);
+    }
     #endregion
 
     #region Commands
@@ -418,7 +575,7 @@ public partial class BrowseViewModel : ObservableObject
         if (string.IsNullOrEmpty(newSortColumn)) return;
         if (_currentSortColumn == newSortColumn) _isSortAscending = !_isSortAscending;
         else { _currentSortColumn = newSortColumn; _isSortAscending = true; }
-        UpdateAndSortLeftFilteredContents();
+        _ = UpdateAndSortLeftFilteredContentsAsync();
     }
 
     [RelayCommand(CanExecute = nameof(CanGoUpLeft))]
@@ -435,7 +592,6 @@ public partial class BrowseViewModel : ObservableObject
         if (parent != null)
         {
             SelectedRightDirectory = new DirectoryItem { FullPath = parent.FullPath, Name = parent.Name };
-            UpdateRightFilteredContents();
         }
     }
 
@@ -512,8 +668,25 @@ public partial class BrowseViewModel : ObservableObject
         var fileToRename = SelectedLeftItems.Cast<ContentItem>().First();
         var newName = await _dialogService.ShowRenameDialogAsync(fileToRename.Name);
         if (string.IsNullOrWhiteSpace(newName) || newName == fileToRename.Name) return;
+
         var oldPath = fileToRename.FullPath;
-        var newPath = Path.Combine(Path.GetDirectoryName(oldPath)!, newName);
+        var directory = Path.GetDirectoryName(oldPath)!;
+        var newPath = Path.Combine(directory, newName);
+
+        // Validate new name
+        if (newName.IndexOfAny(Path.GetInvalidFileNameChars()) >= 0)
+        {
+            await _dialogService.ShowErrorDialogAsync("Invalid Name",
+                "The file name contains invalid characters.  Please use a different name.");
+            return;
+        }
+
+        if (File.Exists(newPath))
+        {
+            await _dialogService.ShowErrorDialogAsync("File Exists",
+                $"A file named '{newName}' already exists in this location. Please use a different name.");
+            return;
+        }
 
         try
         {
@@ -524,13 +697,26 @@ public partial class BrowseViewModel : ObservableObject
             _auditLoggingService.LogRenameOperation(oldPath, fileToRename.Name, newName);
             _undoStack.Push(new UndoAction("Rename", new List<FileOp> { new(newPath, oldPath) }));
             UndoCommand.NotifyCanExecuteChanged();
-            UpdateAndSortLeftFilteredContents();
+            await UpdateAndSortLeftFilteredContentsAsync();
 
             SetOperationStatus($"Renamed '{fileToRename.Name}' to '{newName}'");
         }
+        catch (UnauthorizedAccessException)
+        {
+            await _dialogService.ShowErrorDialogAsync("Access Denied",
+                $"You don't have permission to rename '{fileToRename.Name}'. The file may be read-only or in use.");
+            SetOperationStatus("Rename failed - access denied");
+        }
+        catch (IOException ex) when (ex.Message.Contains("being used"))
+        {
+            await _dialogService.ShowErrorDialogAsync("File In Use",
+                $"Cannot rename '{fileToRename.Name}' because it is currently open in another program. Please close the file and try again.");
+            SetOperationStatus("Rename failed - file in use");
+        }
         catch (Exception ex)
         {
-            await _dialogService.ShowErrorDialogAsync("Rename Failed", ex.Message);
+            await _dialogService.ShowErrorDialogAsync("Rename Failed",
+                $"Could not rename '{fileToRename.Name}'.\n\nError: {ex.Message}");
             _auditLoggingService.LogFileOperation(
                 "FILE_RENAME_FAILED",
                 oldPath,
@@ -555,18 +741,22 @@ public partial class BrowseViewModel : ObservableObject
     private async Task ArchiveFile()
     {
         var filesToMove = GetFilesToOperate();
-        if (!await _dialogService.ShowConfirmationDialogAsync("Archive Files", $"Move {filesToMove.Count} item(s) to archive?")) return;
-
         var archivePath = _appSettings.ArchivePath;
+
         if (string.IsNullOrEmpty(archivePath))
         {
-            await _dialogService.ShowErrorDialogAsync("Error", "Archive path is not configured.");
+            await _dialogService.ShowErrorDialogAsync("Not Configured",
+                "Archive path is not configured. Please set the archive folder in Settings.");
             return;
         }
+
+        var confirmMessage = BuildConfirmationMessage("Archive", filesToMove, archivePath);
+        if (!await _dialogService.ShowConfirmationDialogAsync("Archive Files", confirmMessage)) return;
 
         Directory.CreateDirectory(archivePath);
         var ops = new List<FileOp>();
         var successCount = 0;
+        var failedFiles = new List<(string Name, string Error)>();
 
         try
         {
@@ -576,8 +766,22 @@ public partial class BrowseViewModel : ObservableObject
             {
                 SetOperationStatus($"Archiving '{file.Name}'...  ({successCount + 1}/{filesToMove.Count})", false);
                 var destPath = Path.Combine(archivePath, file.Name);
+
                 try
                 {
+                    if (File.Exists(destPath))
+                    {
+                        // Generate unique name
+                        var baseName = Path.GetFileNameWithoutExtension(file.Name);
+                        var ext = Path.GetExtension(file.Name);
+                        var counter = 1;
+                        while (File.Exists(destPath))
+                        {
+                            destPath = Path.Combine(archivePath, $"{baseName} ({counter}){ext}");
+                            counter++;
+                        }
+                    }
+
                     File.Move(file.FullPath, destPath);
                     _auditLoggingService.LogMoveOperation(file.FullPath, destPath, file.Name);
                     ops.Add(new FileOp(destPath, file.FullPath));
@@ -586,7 +790,7 @@ public partial class BrowseViewModel : ObservableObject
                 }
                 catch (Exception ex)
                 {
-                    await _dialogService.ShowErrorDialogAsync("Archive Failed", $"Could not archive '{file.Name}': {ex.Message}");
+                    failedFiles.Add((file.Name, ex.Message));
                     _auditLoggingService.LogFileOperation(
                         "FILE_ARCHIVE_FAILED",
                         file.FullPath,
@@ -604,7 +808,14 @@ public partial class BrowseViewModel : ObservableObject
             {
                 _undoStack.Push(new UndoAction("Archive", ops));
                 UndoCommand.NotifyCanExecuteChanged();
-                UpdateAndSortLeftFilteredContents();
+                await UpdateAndSortLeftFilteredContentsAsync();
+            }
+
+            if (failedFiles.Any())
+            {
+                var errorMessage = $"Archived {successCount} of {filesToMove.Count} file(s).\n\nFailed files:\n" +
+                    string.Join("\n", failedFiles.Select(f => $"  • {f.Name}: {f.Error}"));
+                await _dialogService.ShowErrorDialogAsync("Partial Success", errorMessage);
             }
 
             SetOperationStatus($"Archived {successCount} file(s)");
@@ -620,18 +831,22 @@ public partial class BrowseViewModel : ObservableObject
     private async Task ShipFile()
     {
         var filesToMove = GetFilesToOperate();
-        if (!await _dialogService.ShowConfirmationDialogAsync("Ship Files", $"Move {filesToMove.Count} item(s) to shipped folder?")) return;
-
         var shippedPath = _appSettings.ShippedDirectory;
+
         if (string.IsNullOrEmpty(shippedPath))
         {
-            await _dialogService.ShowErrorDialogAsync("Error", "Shipped path is not configured.");
+            await _dialogService.ShowErrorDialogAsync("Not Configured",
+                "Shipped folder path is not configured. Please set the shipped folder in Settings.");
             return;
         }
+
+        var confirmMessage = BuildConfirmationMessage("Ship", filesToMove, shippedPath);
+        if (!await _dialogService.ShowConfirmationDialogAsync("Ship Files", confirmMessage)) return;
 
         Directory.CreateDirectory(shippedPath);
         var ops = new List<FileOp>();
         var successCount = 0;
+        var failedFiles = new List<(string Name, string Error)>();
 
         try
         {
@@ -641,8 +856,21 @@ public partial class BrowseViewModel : ObservableObject
             {
                 SetOperationStatus($"Shipping '{file.Name}'... ({successCount + 1}/{filesToMove.Count})", false);
                 var destPath = Path.Combine(shippedPath, file.Name);
+
                 try
                 {
+                    if (File.Exists(destPath))
+                    {
+                        var baseName = Path.GetFileNameWithoutExtension(file.Name);
+                        var ext = Path.GetExtension(file.Name);
+                        var counter = 1;
+                        while (File.Exists(destPath))
+                        {
+                            destPath = Path.Combine(shippedPath, $"{baseName} ({counter}){ext}");
+                            counter++;
+                        }
+                    }
+
                     File.Move(file.FullPath, destPath);
                     _auditLoggingService.LogMoveOperation(file.FullPath, destPath, file.Name);
                     ops.Add(new FileOp(destPath, file.FullPath));
@@ -651,7 +879,7 @@ public partial class BrowseViewModel : ObservableObject
                 }
                 catch (Exception ex)
                 {
-                    await _dialogService.ShowErrorDialogAsync("Ship Failed", $"Could not ship '{file.Name}': {ex.Message}");
+                    failedFiles.Add((file.Name, ex.Message));
                     _auditLoggingService.LogFileOperation(
                         "FILE_SHIP_FAILED",
                         file.FullPath,
@@ -669,7 +897,14 @@ public partial class BrowseViewModel : ObservableObject
             {
                 _undoStack.Push(new UndoAction("Ship", ops));
                 UndoCommand.NotifyCanExecuteChanged();
-                UpdateAndSortLeftFilteredContents();
+                await UpdateAndSortLeftFilteredContentsAsync();
+            }
+
+            if (failedFiles.Any())
+            {
+                var errorMessage = $"Shipped {successCount} of {filesToMove.Count} file(s).\n\nFailed files:\n" +
+                    string.Join("\n", failedFiles.Select(f => $"  • {f.Name}: {f.Error}"));
+                await _dialogService.ShowErrorDialogAsync("Partial Success", errorMessage);
             }
 
             SetOperationStatus($"Shipped {successCount} file(s)");
@@ -685,8 +920,15 @@ public partial class BrowseViewModel : ObservableObject
     private async Task MoveFile()
     {
         var filesToMove = GetFilesToOperate();
+        var destination = SelectedRightDirectory!.FullPath;
+        var destinationName = GetRelativePathForDisplay(destination);
+
+        var confirmMessage = BuildConfirmationMessage("Move", filesToMove, destinationName);
+        if (!await _dialogService.ShowConfirmationDialogAsync("Move Files", confirmMessage)) return;
+
         var ops = new List<FileOp>();
         var successCount = 0;
+        var failedFiles = new List<(string Name, string Error)>();
 
         try
         {
@@ -694,10 +936,23 @@ public partial class BrowseViewModel : ObservableObject
 
             foreach (var file in filesToMove)
             {
-                SetOperationStatus($"Moving '{file.Name}'... ({successCount + 1}/{filesToMove.Count})", false);
-                var destPath = Path.Combine(SelectedRightDirectory!.FullPath, file.Name);
+                SetOperationStatus($"Moving '{file.Name}'...  ({successCount + 1}/{filesToMove.Count})", false);
+                var destPath = Path.Combine(destination, file.Name);
+
                 try
                 {
+                    if (File.Exists(destPath))
+                    {
+                        var baseName = Path.GetFileNameWithoutExtension(file.Name);
+                        var ext = Path.GetExtension(file.Name);
+                        var counter = 1;
+                        while (File.Exists(destPath))
+                        {
+                            destPath = Path.Combine(destination, $"{baseName} ({counter}){ext}");
+                            counter++;
+                        }
+                    }
+
                     File.Move(file.FullPath, destPath);
                     _auditLoggingService.LogMoveOperation(file.FullPath, destPath, file.Name);
                     ops.Add(new FileOp(destPath, file.FullPath));
@@ -706,7 +961,7 @@ public partial class BrowseViewModel : ObservableObject
                 }
                 catch (Exception ex)
                 {
-                    await _dialogService.ShowErrorDialogAsync("Move Failed", $"Could not move '{file.Name}': {ex.Message}");
+                    failedFiles.Add((file.Name, ex.Message));
                     _auditLoggingService.LogFileOperation(
                         "FILE_MOVE_FAILED",
                         file.FullPath,
@@ -724,8 +979,15 @@ public partial class BrowseViewModel : ObservableObject
             {
                 _undoStack.Push(new UndoAction("Move", ops));
                 UndoCommand.NotifyCanExecuteChanged();
-                UpdateAndSortLeftFilteredContents();
-                UpdateRightFilteredContents();
+                await UpdateAndSortLeftFilteredContentsAsync();
+                await UpdateRightFilteredContentsAsync();
+            }
+
+            if (failedFiles.Any())
+            {
+                var errorMessage = $"Moved {successCount} of {filesToMove.Count} file(s).\n\nFailed files:\n" +
+                    string.Join("\n", failedFiles.Select(f => $"  • {f.Name}: {f.Error}"));
+                await _dialogService.ShowErrorDialogAsync("Partial Success", errorMessage);
             }
 
             SetOperationStatus($"Moved {successCount} file(s) to {SelectedRightDirectory!.Name}");
@@ -740,42 +1002,56 @@ public partial class BrowseViewModel : ObservableObject
     [RelayCommand(CanExecute = nameof(CanCopyFromScans))]
     private async Task CopyFromScans()
     {
+        var files = _mainViewModel.SelectedScanFiles.ToList();
+        var destination = SelectedRightDirectory!.FullPath;
+        var destinationName = GetRelativePathForDisplay(destination);
+
+        var confirmMessage = $"Copy {files.Count} file(s) from Scans to:\n{destinationName}\n\nDo you want to continue?";
+        if (!await _dialogService.ShowConfirmationDialogAsync("Copy from Scans", confirmMessage)) return;
+
         var successCount = 0;
-        var totalCount = _mainViewModel.SelectedScanFiles.Count;
+        var failedFiles = new List<(string Name, string Error)>();
 
         try
         {
             IsOperationInProgress = true;
 
-            foreach (var file in _mainViewModel.SelectedScanFiles.ToList())
+            foreach (var file in files)
             {
-                SetOperationStatus($"Copying '{file.Name}'... ({successCount + 1}/{totalCount})", false);
+                SetOperationStatus($"Copying '{file.Name}'... ({successCount + 1}/{files.Count})", false);
                 try
                 {
-                    var destPath = Path.Combine(SelectedRightDirectory!.FullPath, file.Name);
+                    var destPath = Path.Combine(destination, file.Name);
                     File.Copy(file.FullPath, destPath, true);
                     _auditLoggingService.LogCopyOperation(file.FullPath, destPath, file.Name);
                     successCount++;
                 }
                 catch (Exception ex)
                 {
-                    await _dialogService.ShowErrorDialogAsync("Copy Failed", $"Could not copy '{file.Name}'.\nError: {ex.Message}");
+                    failedFiles.Add((file.Name, ex.Message));
                     _auditLoggingService.LogFileOperation(
                         "FILE_COPY_FAILED",
                         file.FullPath,
                         $"Failed to copy '{file.Name}' from Scans: {ex.Message}",
                         new Dictionary<string, string>
                         {
-                            { "destination", Path.Combine(SelectedRightDirectory!.FullPath, file.Name) },
-                            { "error", ex.Message }
+                            { "destination", Path.Combine(destination, file.Name) },
+                            { "error", ex. Message }
                         }
                     );
                 }
             }
 
             _mainViewModel.SelectedScanFiles.Clear();
-            UpdateRightFilteredContents();
+            await UpdateRightFilteredContentsAsync();
             CopyFromScansCommand.NotifyCanExecuteChanged();
+
+            if (failedFiles.Any())
+            {
+                var errorMessage = $"Copied {successCount} of {files.Count} file(s).\n\nFailed files:\n" +
+                    string.Join("\n", failedFiles.Select(f => $"  • {f.Name}: {f.Error}"));
+                await _dialogService.ShowErrorDialogAsync("Partial Success", errorMessage);
+            }
 
             SetOperationStatus($"Copied {successCount} file(s) from Scans");
         }
@@ -790,7 +1066,17 @@ public partial class BrowseViewModel : ObservableObject
     {
         var lastAction = _undoStack.Pop();
         UndoCommand.NotifyCanExecuteChanged();
+
+        var confirmMessage = $"Undo {lastAction.Type} operation?\n\nThis will restore {lastAction.Ops.Count} file(s) to their original locations.";
+        if (!await _dialogService.ShowConfirmationDialogAsync("Undo", confirmMessage))
+        {
+            _undoStack.Push(lastAction); // Put it back
+            UndoCommand.NotifyCanExecuteChanged();
+            return;
+        }
+
         var successCount = 0;
+        var failedFiles = new List<(string Name, string Error)>();
 
         try
         {
@@ -798,7 +1084,7 @@ public partial class BrowseViewModel : ObservableObject
 
             foreach (var op in lastAction.Ops)
             {
-                SetOperationStatus($"Undoing {lastAction.Type}... ({successCount + 1}/{lastAction.Ops.Count})", false);
+                SetOperationStatus($"Undoing {lastAction.Type}...  ({successCount + 1}/{lastAction.Ops.Count})", false);
                 try
                 {
                     File.Move(op.FromPath, op.ToPath);
@@ -814,7 +1100,7 @@ public partial class BrowseViewModel : ObservableObject
                 }
                 catch (Exception ex)
                 {
-                    await _dialogService.ShowErrorDialogAsync("Undo Failed", $"Could not move '{Path.GetFileName(op.ToPath)}' back.");
+                    failedFiles.Add((Path.GetFileName(op.ToPath), ex.Message));
                     _auditLoggingService.LogFileOperation(
                         "UNDO_FAILED",
                         op.FromPath,
@@ -828,8 +1114,15 @@ public partial class BrowseViewModel : ObservableObject
                 }
             }
 
-            UpdateAndSortLeftFilteredContents();
-            UpdateRightFilteredContents();
+            await UpdateAndSortLeftFilteredContentsAsync();
+            await UpdateRightFilteredContentsAsync();
+
+            if (failedFiles.Any())
+            {
+                var errorMessage = $"Restored {successCount} of {lastAction.Ops.Count} file(s).\n\nFailed files:\n" +
+                    string.Join("\n", failedFiles.Select(f => $"  • {f.Name}: {f.Error}"));
+                await _dialogService.ShowErrorDialogAsync("Partial Undo", errorMessage);
+            }
 
             SetOperationStatus($"Undid {lastAction.Type} ({successCount} file(s))");
         }
@@ -861,7 +1154,6 @@ public partial class BrowseViewModel : ObservableObject
         if (item != null)
         {
             SelectedRightDirectory = new DirectoryItem { FullPath = item.FullPath, Name = item.Name };
-            UpdateRightFilteredContents();
         }
     }
 
@@ -870,14 +1162,14 @@ public partial class BrowseViewModel : ObservableObject
     {
         if (dropData == null) return;
 
-        var sourceFilePaths = dropData.Item1;
+        var sourceFilePaths = dropData.Item1.ToList();
         var destinationFolderPath = dropData.Item2;
         List<FileOp>? completedOps = null;
 
         try
         {
             IsOperationInProgress = true;
-            SetOperationStatus("Moving files...", false);
+            SetOperationStatus($"Moving {sourceFilePaths.Count} file(s)...", false);
 
             await Task.Run(() =>
             {
@@ -888,7 +1180,19 @@ public partial class BrowseViewModel : ObservableObject
                     var destPath = Path.Combine(destinationFolderPath, fileName);
                     try
                     {
-                        File.Move(sourcePath, destPath, true);
+                        if (File.Exists(destPath))
+                        {
+                            var baseName = Path.GetFileNameWithoutExtension(fileName);
+                            var ext = Path.GetExtension(fileName);
+                            var counter = 1;
+                            while (File.Exists(destPath))
+                            {
+                                destPath = Path.Combine(destinationFolderPath, $"{baseName} ({counter}){ext}");
+                                counter++;
+                            }
+                        }
+
+                        File.Move(sourcePath, destPath);
                         _auditLoggingService.LogMoveOperation(sourcePath, destPath, fileName);
                         ops.Add(new FileOp(destPath, sourcePath));
                     }
@@ -901,7 +1205,7 @@ public partial class BrowseViewModel : ObservableObject
                             new Dictionary<string, string>
                             {
                                 { "destination", destPath },
-                                { "error", ex.Message }
+                                { "error", ex. Message }
                             }
                         );
                     }
@@ -911,10 +1215,16 @@ public partial class BrowseViewModel : ObservableObject
 
             if (completedOps != null && completedOps.Any())
             {
+                // Clear moved files from persistent selection
+                foreach (var op in completedOps)
+                {
+                    PersistentSelectedPaths.Remove(op.ToPath);
+                }
+
                 _undoStack.Push(new UndoAction("Move", completedOps));
                 UndoCommand.NotifyCanExecuteChanged();
-                UpdateAndSortLeftFilteredContents();
-                UpdateRightFilteredContents();
+                await UpdateAndSortLeftFilteredContentsAsync();
+                await UpdateRightFilteredContentsAsync();
                 SetOperationStatus($"Moved {completedOps.Count} file(s)");
             }
         }
@@ -923,14 +1233,6 @@ public partial class BrowseViewModel : ObservableObject
             IsOperationInProgress = false;
             UpdateButtonStates();
         }
-    }
-
-    /// <summary>
-    /// Public method to set operation status from code-behind
-    /// </summary>
-    public void SetOperationStatusPublic(string message, bool autoClear = true, int delayMs = 3000)
-    {
-        SetOperationStatus(message, autoClear, delayMs);
     }
     #endregion
 }
