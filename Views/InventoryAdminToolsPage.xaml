@@ -5,36 +5,66 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:admintools="using:AIM.Views.AdminTools"
-    mc:Ignorable="d"
-    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+    mc:Ignorable="d">
 
-    <Grid Margin="24">
-        <TabView>
-            <TabView.TabItems>
-                <!-- Dir Archiver - Orange Icon -->
-                <TabViewItem Header="Dir Archiver">
-                    <TabViewItem.IconSource>
-                        <FontIconSource Glyph="&#xE7B8;" FontWeight="Bold" Foreground="#EA6100"/>
-                    </TabViewItem.IconSource>
-                    <admintools:DirArchiverView/>
-                </TabViewItem>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
 
-                <!-- Dir Cloner - Green Icon -->
-                <TabViewItem Header="Dir Cloner">
-                    <TabViewItem.IconSource>
-                        <FontIconSource Glyph="&#xE8C8;" FontWeight="Bold" Foreground="#107C10"/>
-                    </TabViewItem.IconSource>
-                    <admintools:DirClonerView/>
-                </TabViewItem>
+            <!-- Header -->
+            <Border Grid.Row="0"
+                Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                BorderThickness="0,0,0,1"
+                Padding="24,16">
+                <StackPanel Orientation="Horizontal" Spacing="12">
+                    <FontIcon Glyph="&#xE90F;" FontSize="28" Foreground="#8764B8"/>
+                    <StackPanel>
+                        <TextBlock Text="Admin Tools" Style="{ThemeResource TitleTextBlockStyle}"/>
+                        <TextBlock Text="Directory management and batch operations" 
+                               Style="{ThemeResource CaptionTextBlockStyle}" 
+                               Opacity="0.7"/>
+                    </StackPanel>
+                </StackPanel>
+            </Border>
 
-                <!-- Batch Renamer - Blue Icon -->
-                <TabViewItem Header="Batch Renamer">
-                    <TabViewItem.IconSource>
-                        <FontIconSource Glyph="&#xE8AC;" FontWeight="Bold" Foreground="#0078D4"/>
+            <!-- Tab Content -->
+            <TabView Grid.Row="1" 
+                 Margin="24,16,24,24"
+                 IsAddTabButtonVisible="False"
+                 TabWidthMode="SizeToContent"
+                 CloseButtonOverlayMode="Auto">
+                <TabView.Resources>
+                    <Thickness x:Key="TabViewItemHeaderPadding">16,8,16,8</Thickness>
+                </TabView.Resources>
+
+                <TabView.TabItems>
+                    <!-- Dir Archiver -->
+                    <TabViewItem Header="Dir Archiver" IsClosable="False">
+                        <TabViewItem.IconSource>
+                            <FontIconSource Glyph="&#xE7B8;" Foreground="#EA6100"/>
+                        </TabViewItem.IconSource>
+                        <admintools:DirArchiverView/>
+                    </TabViewItem>
+
+                    <!-- Dir Cloner -->
+                    <TabViewItem Header="Dir Cloner" IsClosable="False">
+                        <TabViewItem.IconSource>
+                            <FontIconSource Glyph="&#xE8C8;" Foreground="#107C10"/>
+                        </TabViewItem.IconSource>
+                        <admintools:DirClonerView/>
+                    </TabViewItem>
+
+                    <!-- Batch Renamer -->
+                    <TabViewItem Header="Batch Renamer" IsClosable="False">
+                        <TabViewItem.IconSource>
+                            <FontIconSource Glyph="&#xE8AC;" Foreground="#0078D4"/>
                         </TabViewItem.IconSource>
                         <admintools:BatchRenamerView/>
-                </TabViewItem>
-                </TabView.TabItems>
-        </TabView>
+                    </TabViewItem>
+                    </TabView.TabItems>
+            </TabView>
     </Grid>
 </Page>

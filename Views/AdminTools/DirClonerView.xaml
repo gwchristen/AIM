@@ -4,25 +4,259 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:converters="using:AIM.Converters"
     mc:Ignorable="d">
-    <!-- The DataContext is now set in the code-behind -->
 
-    <StackPanel Spacing="12">
-        <TextBlock Text="Directory Cloner" Style="{StaticResource TitleTextBlockStyle}"/>
-        <TextBlock Text="Copies the folder structure from a source directory to a new folder in the destination, without copying any files." TextWrapping="Wrap"/>
+    <UserControl.Resources>
+        <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
+        <converters:InverseBoolToVisibilityConverter x:Key="InverseBoolToVisibilityConverter"/>
 
-        <TextBlock Text="1. Select Source Directory" Style="{StaticResource SubtitleTextBlockStyle}" Margin="0,10,0,0"/>
-        <StackPanel Orientation="Horizontal" Spacing="8">
-            <TextBox Text="{Binding SourceDirectory, Mode=OneWay}" IsReadOnly="True" PlaceholderText="Select the source folder..." MinWidth="300"/>
-            <Button Content="Browse..." Command="{Binding SelectSourceCommand}"/>
+        <SolidColorBrush x:Key="ClonerAccentColor" Color="#107C10"/>
+    </UserControl.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <!-- Header Card -->
+            <Border Grid.Row="0" 
+                Background="{ThemeResource CardBackgroundFillColorSecondaryBrush}"
+                BorderBrush="{StaticResource ClonerAccentColor}"
+                BorderThickness="0,0,0,3"
+                CornerRadius="8"
+                Padding="20"
+                Margin="0,0,0,16">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <Border Grid.Column="0" 
+                        Background="{StaticResource ClonerAccentColor}" 
+                        CornerRadius="8" 
+                        Width="48" Height="48"
+                        Margin="0,0,16,0">
+            <FontIcon Glyph="&#xE8C8;" FontSize="24" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+        </Border>
+
+        <StackPanel Grid.Column="1" VerticalAlignment="Center">
+            <TextBlock Text="Directory Cloner" Style="{ThemeResource SubtitleTextBlockStyle}" FontWeight="SemiBold"/>
+            <TextBlock Text="Copy the folder structure from a source directory to a new location without copying any files.  Perfect for setting up new inventory periods." 
+                               TextWrapping="Wrap" 
+                               Opacity="0.7"
+                               Margin="0,4,0,0"/>
         </StackPanel>
+    </Grid>
+    </Border>
 
-        <TextBlock Text="2. Select Destination" Style="{StaticResource SubtitleTextBlockStyle}" Margin="0,10,0,0"/>
-        <StackPanel Orientation="Horizontal" Spacing="8">
-            <TextBox Text="{Binding DestinationDirectory, Mode=OneWay}" IsReadOnly="True" PlaceholderText="Select the destination folder..." MinWidth="300"/>
-            <Button Content="Browse..." Command="{Binding SelectDestinationCommand}"/>
+    <!-- Steps Card -->
+    <Border Grid.Row="1"
+                Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                BorderThickness="1"
+                CornerRadius="8"
+                Padding="20"
+                Margin="0,0,0,16">
+        <StackPanel Spacing="24">
+            <!-- Step 1: Source -->
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <!-- Step Number -->
+                    <Border Grid.Column="0" 
+                            Background="{StaticResource ClonerAccentColor}" 
+                            CornerRadius="16" 
+                            Width="32" Height="32"
+                            Margin="0,0,16,0"
+                            VerticalAlignment="Top">
+                        <TextBlock Text="1" 
+                                   FontWeight="Bold" 
+                                   Foreground="White" 
+                                   HorizontalAlignment="Center" 
+                                   VerticalAlignment="Center"/>
+                    </Border>
+
+                    <StackPanel Grid.Column="1" Spacing="8">
+                        <TextBlock Text="Select Source Directory" FontWeight="SemiBold" FontSize="15"/>
+                        <TextBlock Text="Choose the folder whose structure you want to copy" Opacity="0.6" FontSize="13"/>
+
+                        <Grid Margin="0,8,0,0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+
+                                <TextBox Grid.Column="0" 
+                                     Text="{Binding SourceDirectory, Mode=OneWay}" 
+                                     IsReadOnly="True" 
+                                     PlaceholderText="No source selected..."
+                                     Margin="0,0,8,0"/>
+                                <Button Grid.Column="1" Command="{Binding SelectSourceCommand}">
+                                    <StackPanel Orientation="Horizontal" Spacing="8">
+                                        <FontIcon Glyph="&#xE8DA;" FontSize="14"/>
+                                        <TextBlock Text="Browse"/>
+                                    </StackPanel>
+                                </Button>
+                        </Grid>
+
+                        <!-- Source Preview -->
+                        <Border Background="{ThemeResource CardBackgroundFillColorSecondaryBrush}"
+                                CornerRadius="6"
+                                Padding="12"
+                                Margin="0,8,0,0"
+                                Visibility="{Binding HasSourcePreview, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+                            <StackPanel>
+                                <TextBlock Text="Structure Preview:" FontWeight="SemiBold" FontSize="12" Margin="0,0,0,8"/>
+                                <ItemsRepeater ItemsSource="{Binding SourcePreviewFolders}">
+                                    <ItemsRepeater.Layout>
+                                        <StackLayout Orientation="Vertical" Spacing="4"/>
+                                    </ItemsRepeater.Layout>
+                                    <ItemsRepeater.ItemTemplate>
+                                        <DataTemplate>
+                                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                                <FontIcon Glyph="&#xE8B7;" FontSize="12" Foreground="{StaticResource ClonerAccentColor}"/>
+                                                <TextBlock Text="{Binding}" FontSize="12"/>
+                                            </StackPanel>
+                                        </DataTemplate>
+                                        </ItemsRepeater.ItemTemplate>
+                                </ItemsRepeater>
+                                <TextBlock Text="{Binding SourcePreviewMore}" 
+                                           FontSize="12" 
+                                           Opacity="0.6" 
+                                           Margin="0,4,0,0"
+                                           Visibility="{Binding HasMoreFolders, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+            </Grid>
+
+            <!-- Divider -->
+            <Border Height="1" Background="{ThemeResource DividerStrokeColorDefaultBrush}" Margin="48,0,0,0"/>
+
+            <!-- Step 2: Destination -->
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <Border Grid.Column="0" 
+                            Background="{Binding Step2Color, Mode=OneWay}" 
+                            CornerRadius="16" 
+                            Width="32" Height="32"
+                            Margin="0,0,16,0"
+                            VerticalAlignment="Top">
+                    <TextBlock Text="2" 
+                                   FontWeight="Bold" 
+                                   Foreground="White" 
+                                   HorizontalAlignment="Center" 
+                                   VerticalAlignment="Center"/>
+                </Border>
+
+                <StackPanel Grid.Column="1" Spacing="8">
+                    <TextBlock Text="Select Destination" FontWeight="SemiBold" FontSize="15"/>
+                    <TextBlock Text="Choose where the new folder structure will be created" Opacity="0.6" FontSize="13"/>
+
+                    <Grid Margin="0,8,0,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+
+                        <TextBox Grid.Column="0" 
+                                     Text="{Binding DestinationDirectory, Mode=OneWay}" 
+                                     IsReadOnly="True" 
+                                     PlaceholderText="No destination selected..."
+                                     Margin="0,0,8,0"/>
+                        <Button Grid.Column="1" Command="{Binding SelectDestinationCommand}">
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <FontIcon Glyph="&#xE8DA;" FontSize="14"/>
+                                <TextBlock Text="Browse"/>
+                            </StackPanel>
+                        </Button>
+                    </Grid>
+                </StackPanel>
+            </Grid>
+
+            <!-- Divider -->
+            <Border Height="1" Background="{ThemeResource DividerStrokeColorDefaultBrush}" Margin="48,0,0,0"/>
+
+            <!-- Step 3: Clone -->
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <Border Grid.Column="0" 
+                            Background="{Binding Step3Color, Mode=OneWay}" 
+                            CornerRadius="16" 
+                            Width="32" Height="32"
+                            Margin="0,0,16,0"
+                            VerticalAlignment="Top">
+                    <TextBlock Text="3" 
+                                   FontWeight="Bold" 
+                                   Foreground="White" 
+                                   HorizontalAlignment="Center" 
+                                   VerticalAlignment="Center"/>
+                </Border>
+
+                <StackPanel Grid.Column="1" Spacing="8">
+                    <TextBlock Text="Clone Structure" FontWeight="SemiBold" FontSize="15"/>
+                    <TextBlock Text="Create the new folder structure at the destination" Opacity="0.6" FontSize="13"/>
+
+                    <StackPanel Orientation="Horizontal" Spacing="12" Margin="0,8,0,0">
+                        <Button Command="{Binding CreateStructureCommand}" 
+                                    Style="{ThemeResource AccentButtonStyle}"
+                                    IsEnabled="{Binding CanClone, Mode=OneWay}">
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <FontIcon Glyph="&#xE8C8;" FontSize="14"/>
+                                <TextBlock Text="Clone Directory Structure"/>
+                            </StackPanel>
+                        </Button>
+
+                        <StackPanel Orientation="Horizontal" 
+                                        Spacing="8"
+                                        Visibility="{Binding IsCloning, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+                            <ProgressRing IsActive="True" Width="20" Height="20"/>
+                            <TextBlock Text="{Binding CloneProgressText, Mode=OneWay}" VerticalAlignment="Center" Opacity="0.8"/>
+                        </StackPanel>
+                    </StackPanel>
+                </StackPanel>
+            </Grid>
         </StackPanel>
+    </Border>
 
-        <Button Content="Clone Directory Structure" Command="{Binding CreateStructureCommand}" HorizontalAlignment="Left" Style="{StaticResource AccentButtonStyle}" Margin="0,20,0,0"/>
-    </StackPanel>
+    <!-- Results Card -->
+    <Border Grid.Row="2"
+                Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                BorderBrush="{StaticResource ClonerAccentColor}"
+                BorderThickness="1"
+                CornerRadius="8"
+                Padding="20"
+                Visibility="{Binding ShowResults, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+        <StackPanel Spacing="12">
+            <StackPanel Orientation="Horizontal" Spacing="12">
+                <FontIcon Glyph="&#xE73E;" FontSize="24" Foreground="{StaticResource ClonerAccentColor}"/>
+                <TextBlock Text="Clone Complete!" FontWeight="SemiBold" FontSize="16" VerticalAlignment="Center"/>
+            </StackPanel>
+
+            <TextBlock Text="{Binding ResultSummary, Mode=OneWay}" TextWrapping="Wrap" Opacity="0.8"/>
+
+            <Button Command="{Binding OpenResultFolderCommand}" Margin="0,8,0,0">
+                <StackPanel Orientation="Horizontal" Spacing="8">
+                    <FontIcon Glyph="&#xE8DA;" FontSize="14"/>
+                    <TextBlock Text="Open in Explorer"/>
+                </StackPanel>
+            </Button>
+        </StackPanel>
+    </Border>
+    </Grid>
 </UserControl>

@@ -55,8 +55,8 @@ public class SearchService : ISearchService
 
                 // Check file type filter
                 if (!RelevantExtensions.Contains(ext)) continue;
-                if (options.FileTypeFilter == FileTypeFilter.TextOnly && ext != ". txt") continue;
-                if (options.FileTypeFilter == FileTypeFilter.CsvOnly && ext != ". csv") continue;
+                if (options.FileTypeFilter == FileTypeFilter.TextOnly && ext != ".txt") continue;
+                if (options.FileTypeFilter == FileTypeFilter.CsvOnly && ext != ".csv") continue;
 
                 var fileInfo = new FileInfo(file);
 

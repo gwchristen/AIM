@@ -5,33 +5,255 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:converters="using:AIM.Converters"
+    xmlns:models="using:AIM.Models"
     mc:Ignorable="d">
-    <!-- The DataContext is now set in the code-behind -->
+
     <UserControl.Resources>
         <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
+        <converters:InverseBoolToVisibilityConverter x:Key="InverseBoolToVisibilityConverter"/>
+
+        <SolidColorBrush x:Key="ArchiverAccentColor" Color="#EA6100"/>
+
+        <!-- Archive Item Context Menu -->
+        <MenuFlyout x:Key="ArchiveContextMenu">
+            <MenuFlyoutItem Text="View in Inventory" Click="ContextMenu_View_Click">
+                <MenuFlyoutItem.Icon>
+                    <FontIcon Glyph="&#xE8FF;"/>
+                    </MenuFlyoutItem.Icon>
+            </MenuFlyoutItem>
+            <MenuFlyoutItem Text="Open in Explorer" Click="ContextMenu_OpenExplorer_Click">
+                <MenuFlyoutItem.Icon>
+                    <FontIcon Glyph="&#xE8DA;"/>
+                </MenuFlyoutItem.Icon>
+            </MenuFlyoutItem>
+            <MenuFlyoutSeparator/>
+            <MenuFlyoutItem Text="Rename" Click="ContextMenu_Rename_Click">
+                <MenuFlyoutItem.Icon>
+                    <FontIcon Glyph="&#xE8AC;"/>
+                </MenuFlyoutItem.Icon>
+            </MenuFlyoutItem>
+            <MenuFlyoutItem Text="Delete" Click="ContextMenu_Delete_Click" Foreground="#C42B1C">
+                <MenuFlyoutItem.Icon>
+                    <FontIcon Glyph="&#xE74D;" Foreground="#C42B1C"/>
+                    </MenuFlyoutItem.Icon>
+            </MenuFlyoutItem>
+        </MenuFlyout>
     </UserControl.Resources>
 
-    <StackPanel Spacing="12">
-        <TextBlock Text="Directory Archiver" Style="{StaticResource TitleTextBlockStyle}"/>
-        <TextBlock Text="Select a folder to move it into the designated inventory archive directory. Archived folders can be explored using the 'Arch Viewer'." TextWrapping="Wrap"/>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
 
-        <StackPanel Orientation="Horizontal" Spacing="8">
-            <TextBox Text="{Binding SelectedFolderToArchive, Mode=OneWay}" IsReadOnly="True" PlaceholderText="Select a folder to archive..." MinWidth="300"/>
-            <Button Content="Browse..." Command="{Binding SelectFolderCommand}"/>
-        </StackPanel>
+        <!-- Header Card -->
+        <Border Grid.Row="0" 
+                Background="{ThemeResource CardBackgroundFillColorSecondaryBrush}"
+                BorderBrush="{StaticResource ArchiverAccentColor}"
+                BorderThickness="0,0,0,3"
+                CornerRadius="8"
+                Padding="20"
+                Margin="0,0,0,16">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
 
-        <Button Content="Archive Selected Folder" Command="{Binding ArchiveFolderCommand}" HorizontalAlignment="Left" Style="{StaticResource AccentButtonStyle}" IsEnabled="{Binding IsFolderSelected}"/>
+                <Border Grid.Column="0" 
+                        Background="{StaticResource ArchiverAccentColor}" 
+                        CornerRadius="8" 
+                        Width="48" Height="48"
+                        Margin="0,0,16,0">
+                    <FontIcon Glyph="&#xE7B8;" FontSize="24" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                </Border>
 
-        <Border BorderThickness="0,1,0,0" BorderBrush="{ThemeResource SystemControlForegroundBaseLowBrush}" Margin="0,20,0,10"/>
+                <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                    <TextBlock Text="Directory Archiver" Style="{ThemeResource SubtitleTextBlockStyle}" FontWeight="SemiBold"/>
+                    <TextBlock Text="Move folders to the archive directory for long-term storage.  Archived folders can be browsed using the Inventory Viewer." 
+                               TextWrapping="Wrap" 
+                               Opacity="0.7"
+                               Margin="0,4,0,0"/>
+                </StackPanel>
+            </Grid>
+        </Border>
 
-        <TextBlock Text="Existing Archives" Style="{StaticResource SubtitleTextBlockStyle}"/>
-        <Button Content="Refresh List" Command="{Binding LoadArchivedDirectoriesCommand}" HorizontalAlignment="Left"/>
-        <ListView ItemsSource="{Binding ArchivedDirectories}" IsItemClickEnabled="True" ItemClick="ListView_ItemClick" Margin="0,10,0,0">
-            <ListView.ItemTemplate>
-                <DataTemplate>
-                    <TextBlock Text="{Binding}" Style="{StaticResource BodyTextBlockStyle}" Margin="5"/>
-                </DataTemplate>
-            </ListView.ItemTemplate>
-        </ListView>
-    </StackPanel>
+        <!-- Archive Action Card -->
+        <Border Grid.Row="1"
+                Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                BorderThickness="1"
+                CornerRadius="8"
+                Padding="20"
+                Margin="0,0,0,16">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <TextBlock Grid.Row="0" Text="Archive a Folder" FontWeight="SemiBold" FontSize="16" Margin="0,0,0,12"/>
+
+                    <Grid Grid.Row="1">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+
+                        <TextBox Grid.Column="0" 
+                             Text="{Binding SelectedFolderToArchive, Mode=OneWay}" 
+                             IsReadOnly="True" 
+                             PlaceholderText="Select a folder to archive..."
+                             Margin="0,0,8,0"/>
+                        <Button Grid.Column="1" 
+                            Command="{Binding SelectFolderCommand}"
+                            Margin="0,0,8,0">
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <FontIcon Glyph="&#xE8DA;" FontSize="14"/>
+                                <TextBlock Text="Browse"/>
+                            </StackPanel>
+                        </Button>
+                        <Button Grid.Column="2" 
+                            Command="{Binding ArchiveFolderCommand}" 
+                            Style="{ThemeResource AccentButtonStyle}"
+                            IsEnabled="{Binding IsFolderSelected}">
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <FontIcon Glyph="&#xE7B8;" FontSize="14"/>
+                                <TextBlock Text="Archive"/>
+                            </StackPanel>
+                        </Button>
+                    </Grid>
+
+                    <!-- Loading indicator -->
+                    <StackPanel Grid.Row="2" 
+                            Orientation="Horizontal" 
+                            Spacing="12" 
+                            Margin="0,12,0,0"
+                            Visibility="{Binding IsArchiving, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+                        <ProgressRing IsActive="True" Width="20" Height="20"/>
+                        <TextBlock Text="{Binding ArchiveProgressText, Mode=OneWay}" Opacity="0.8"/>
+                    </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- Existing Archives Section -->
+        <Border Grid.Row="2"
+                Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                BorderThickness="1"
+                CornerRadius="8"
+                Padding="20">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+
+                <!-- Section Header -->
+                <Grid Grid.Row="0" Margin="0,0,0,12">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+
+                        <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="8">
+                            <TextBlock Text="Existing Archives" FontWeight="SemiBold" FontSize="16"/>
+                            <Border Background="{ThemeResource AccentFillColorDefaultBrush}"
+                                CornerRadius="10"
+                                Padding="8,2"
+                                VerticalAlignment="Center"
+                                Visibility="{Binding HasArchives, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+                                <TextBlock Text="{Binding ArchiveCount, Mode=OneWay}" FontSize="11" Foreground="White"/>
+                            </Border>
+                        </StackPanel>
+
+                        <Button Grid.Column="1" 
+                            Command="{Binding LoadArchivedDirectoriesCommand}"
+                            ToolTipService.ToolTip="Refresh archive list">
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <FontIcon Glyph="&#xE72C;" FontSize="14"/>
+                                <TextBlock Text="Refresh"/>
+                            </StackPanel>
+                        </Button>
+                </Grid>
+
+                <!-- Archive List -->
+                <Grid Grid.Row="1">
+                    <!-- Loading State -->
+                    <StackPanel HorizontalAlignment="Center" 
+                                VerticalAlignment="Center" 
+                                Spacing="12"
+                                Visibility="{Binding IsLoadingArchives, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+                        <ProgressRing IsActive="True" Width="40" Height="40"/>
+                        <TextBlock Text="Loading archives..." Opacity="0.7"/>
+                    </StackPanel>
+
+                    <!-- Empty State -->
+                    <StackPanel HorizontalAlignment="Center" 
+                                VerticalAlignment="Center" 
+                                Spacing="12"
+                                Visibility="{Binding ShowEmptyState, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+                        <FontIcon Glyph="&#xE7B8;" FontSize="48" Opacity="0.3"/>
+                        <TextBlock Text="No archives yet" FontSize="16" FontWeight="SemiBold" Opacity="0.6" HorizontalAlignment="Center"/>
+                        <TextBlock Text="Archive a folder to see it here" FontSize="13" Opacity="0.4" HorizontalAlignment="Center"/>
+                    </StackPanel>
+
+                    <!-- Archives ListView -->
+                    <ListView x:Name="ArchivesListView"
+                              ItemsSource="{Binding ArchivedDirectories}" 
+                              IsItemClickEnabled="True"
+                              ItemClick="ArchiveItem_Click"
+                              RightTapped="ArchiveItem_RightTapped"
+                              Visibility="{Binding HasArchives, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+                        <ListView.ItemTemplate>
+                            <DataTemplate x:DataType="models:ArchiveItem">
+                                <Grid Padding="12" Margin="0,2" ToolTipService.ToolTip="{x:Bind FullPath}">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <!-- Folder Icon -->
+                                    <Border Grid.Column="0" 
+                                            Background="#FFF3E0" 
+                                            CornerRadius="6" 
+                                            Width="40" Height="40"
+                                            Margin="0,0,12,0">
+                                        <FontIcon Glyph="&#xE8B7;" FontSize="18" Foreground="#EA6100"/>
+                                    </Border>
+
+                                    <!-- Name and Path -->
+                                    <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                        <TextBlock Text="{x:Bind Name}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis"/>
+                                        <TextBlock Text="{x:Bind DateArchivedText}" FontSize="12" Opacity="0.6"/>
+                                    </StackPanel>
+
+                                    <!-- Size -->
+                                    <TextBlock Grid.Column="2" 
+                                               Text="{x:Bind SizeText}" 
+                                               FontSize="12" 
+                                               Opacity="0.6"
+                                               VerticalAlignment="Center"
+                                               Margin="16,0"/>
+
+                                    <!-- View Button -->
+                                    <Button Grid.Column="3" 
+                                            Click="ViewArchive_Click"
+                                            ToolTipService.ToolTip="View in Inventory"
+                                            Padding="8,6">
+                                        <FontIcon Glyph="&#xE8FF;" FontSize="14"/>
+                                    </Button>
+                                </Grid>
+                            </DataTemplate>
+                            </ListView.ItemTemplate>
+                    </ListView>
+                </Grid>
+            </Grid>
+        </Border>
+    </Grid>
 </UserControl>

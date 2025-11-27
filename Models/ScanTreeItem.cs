@@ -42,7 +42,7 @@ public partial class ScanTreeItem : ObservableObject
     public string FileIcon => IsFolder ? "\uE8B7" : Extension.ToLower() switch
     {
         ".csv" => "\uE9D9",
-        ". txt" => "\uE8A5",
+        ".txt" => "\uE8A5",
         _ => "\uE8A5"
     };
 
