@@ -15,187 +15,509 @@
         <converters:InverseBoolToVisibilityConverter x:Key="InverseBoolToVisibilityConverter"/>
         <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
         <converters:InverseBoolConverter x:Key="InverseBoolConverter"/>
-        <Style x:Key="DangerMenuItemStyle" TargetType="MenuFlyoutItem" BasedOn="{StaticResource DefaultMenuFlyoutItemStyle}">
-            <Setter Property="Foreground" Value="{ThemeResource SystemFillColorCriticalBrush}"/>
-        </Style>
+
+        <SolidColorBrush x:Key="ScansAccentColor" Color="#107C10"/>
+
+        <!-- Context Menu -->
+        <MenuFlyout x:Key="ItemContextMenu">
+            <MenuFlyoutItem x:Name="MenuOpen" Text="Open Folder" Click="MenuOpen_Click">
+                <MenuFlyoutItem.Icon>
+                    <FontIcon Glyph="&#xE8B7;"/>
+                </MenuFlyoutItem.Icon>
+            </MenuFlyoutItem>
+            <MenuFlyoutItem x:Name="MenuPreview" Text="Preview" Click="MenuPreview_Click">
+                <MenuFlyoutItem.Icon>
+                    <FontIcon Glyph="&#xE8FF;"/>
+                </MenuFlyoutItem.Icon>
+            </MenuFlyoutItem>
+            <MenuFlyoutSeparator/>
+            <MenuFlyoutItem x:Name="MenuAddToBrowse" Text="Add to Browse Selection" Click="MenuAddToBrowse_Click">
+                <MenuFlyoutItem.Icon>
+                    <FontIcon Glyph="&#xE710;"/>
+                </MenuFlyoutItem.Icon>
+            </MenuFlyoutItem>
+            <MenuFlyoutItem Text="Select All in Folder" Click="MenuSelectAll_Click">
+                <MenuFlyoutItem.Icon>
+                    <FontIcon Glyph="&#xE8B3;"/>
+                </MenuFlyoutItem.Icon>
+            </MenuFlyoutItem>
+            <MenuFlyoutItem Text="Clear Selection" Click="MenuClearSelection_Click">
+                <MenuFlyoutItem.Icon>
+                    <FontIcon Glyph="&#xE894;"/>
+                </MenuFlyoutItem.Icon>
+            </MenuFlyoutItem>
+            <MenuFlyoutSeparator/>
+            <MenuFlyoutItem Text="Open File Location" Click="MenuOpenFileLocation_Click">
+                <MenuFlyoutItem.Icon>
+                    <FontIcon Glyph="&#xE8DA;"/>
+                    </MenuFlyoutItem.Icon>
+            </MenuFlyoutItem>
+            <MenuFlyoutItem Text="Copy Path" Click="MenuCopyPath_Click">
+                <MenuFlyoutItem.Icon>
+                    <FontIcon Glyph="&#xE8C8;"/>
+                </MenuFlyoutItem.Icon>
+            </MenuFlyoutItem>
+            <MenuFlyoutSeparator/>
+            <MenuFlyoutItem Text="Rename" Click="MenuRename_Click">
+                <MenuFlyoutItem.Icon>
+                    <FontIcon Glyph="&#xE8AC;"/>
+                </MenuFlyoutItem.Icon>
+            </MenuFlyoutItem>
+            <MenuFlyoutItem Text="Delete" Click="MenuDelete_Click" Foreground="#C42B1C">
+                <MenuFlyoutItem.Icon>
+                    <FontIcon Glyph="&#xE74D;" Foreground="#C42B1C"/>
+                    </MenuFlyoutItem.Icon>
+            </MenuFlyoutItem>
+        </MenuFlyout>
     </Page.Resources>
 
-    <Grid Margin="24">
+    <Page.KeyboardAccelerators>
+        <KeyboardAccelerator Key="A" Modifiers="Control" Invoked="SelectAllAccelerator_Invoked"/>
+        <KeyboardAccelerator Key="Delete" Invoked="DeleteAccelerator_Invoked"/>
+        <KeyboardAccelerator Key="F2" Invoked="RenameAccelerator_Invoked"/>
+        <KeyboardAccelerator Key="Enter" Invoked="EnterAccelerator_Invoked"/>
+        <KeyboardAccelerator Key="Escape" Invoked="EscapeAccelerator_Invoked"/>
+        <KeyboardAccelerator Key="F5" Invoked="RefreshAccelerator_Invoked"/>
+    </Page.KeyboardAccelerators>
+
+    <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <StackPanel Grid.Row="0" Orientation="Horizontal" Spacing="16" VerticalAlignment="Center" Margin="0,0,0,8">
-            <TextBlock Text="Scans" Style="{ThemeResource TitleTextBlockStyle}"/>
-            <Button Command="{x:Bind ViewModel.GoUpCommand}" IsEnabled="{x:Bind ViewModel.IsGoUpEnabled, Mode=OneWay}">
-                <StackPanel Orientation="Horizontal" Spacing="8">
-                    <FontIcon Glyph="&#xE74A;" FontSize="16"/>
-                    <TextBlock Text="Up"/>
-                </StackPanel>
-            </Button>
-            <Button Command="{x:Bind ViewModel.RefreshCommand}">
-                <StackPanel Orientation="Horizontal" Spacing="8">
-                    <FontIcon Glyph="&#xE72C;" FontSize="16"/>
-                    <TextBlock Text="Refresh"/>
-                </StackPanel>
-            </Button>
-            <Button Command="{x:Bind ViewModel.CreateNewFolderCommand}">
-                <StackPanel Orientation="Horizontal" Spacing="8">
-                    <FontIcon Glyph="&#xE8F4;" FontSize="16"/>
-                    <TextBlock Text="New Folder"/>
-                </StackPanel>
-            </Button>
-        </StackPanel>
-
-        <ItemsRepeater Grid.Row="1" ItemsSource="{x:Bind ViewModel.Breadcrumbs}" Margin="0,0,0,8">
-            <ItemsRepeater.Layout>
-                <StackLayout Orientation="Horizontal"/>
-            </ItemsRepeater.Layout>
-            <ItemsRepeater.ItemTemplate>
-                <DataTemplate x:DataType="models:BreadcrumbItem">
-                    <StackPanel Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
-                        <Button DataContext="{x:Bind}" Click="BreadcrumbButton_Click" Style="{ThemeResource TextBlockButtonStyle}" Visibility="{x:Bind (x:Boolean)IsLast, Converter={StaticResource InverseBoolToVisibilityConverter}, Mode=OneWay}">
-                            <TextBlock Text="{x:Bind Name}" FontWeight="SemiBold"/>
-                        </Button>
-                        <TextBlock Text="{x:Bind Name}" FontWeight="SemiBold" Visibility="{x:Bind IsLast, Mode=OneWay}" VerticalAlignment="Center" Padding="8,4"/>
-                        <TextBlock Text="/" VerticalAlignment="Center" FontWeight="SemiBold" Visibility="{x:Bind (x:Boolean)IsLast, Converter={StaticResource InverseBoolToVisibilityConverter}, Mode=OneWay}"/>
+        <!-- Header -->
+        <Border Grid.Row="0"
+                Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                BorderThickness="0,0,0,1"
+                Padding="24,16">
+            <StackPanel Orientation="Horizontal" Spacing="12">
+                <FontIcon Glyph="&#xE8F1;" FontSize="28" Foreground="{StaticResource ScansAccentColor}"/>
+                <StackPanel>
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <TextBlock Text="Scans" Style="{ThemeResource TitleTextBlockStyle}"/>
+                        <ProgressRing IsActive="{x:Bind ViewModel.IsLoading, Mode=OneWay}" 
+                                      Width="20" Height="20"
+                                      Visibility="{x:Bind ViewModel.IsLoading, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}"/>
                     </StackPanel>
-                </DataTemplate>
-            </ItemsRepeater.ItemTemplate>
-        </ItemsRepeater>
+                    <TextBlock Text="Manage scanned files and select for import" 
+                               Style="{ThemeResource CaptionTextBlockStyle}" 
+                               Opacity="0.7"/>
+                </StackPanel>
+            </StackPanel>
+        </Border>
 
-        <TextBox Grid.Row="2" Text="{x:Bind ViewModel.FilterText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" PlaceholderText="Type to filter files..." Margin="0,0,0,8"/>
+        <!-- Breadcrumbs, Filter, and Actions Row -->
+        <Border Grid.Row="1"
+                Background="{ThemeResource CardBackgroundFillColorSecondaryBrush}"
+                Padding="24,12">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
 
-        <Grid Grid.Row="3">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*" />
-                <ColumnDefinition Width="150" />
-                <ColumnDefinition Width="100" />
-            </Grid.ColumnDefinitions>
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="*" />
-            </Grid.RowDefinitions>
-            <Grid Grid.Row="0" Grid.ColumnSpan="3" Padding="12,8" Background="{ThemeResource LayerFillColorDefaultBrush}" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="0,1">
-                <Grid>
+                <!-- Breadcrumbs -->
+                <ScrollViewer Grid.Row="0" 
+                              HorizontalScrollBarVisibility="Auto" 
+                              VerticalScrollBarVisibility="Disabled"
+                              Margin="0,0,0,12">
+                    <ItemsRepeater ItemsSource="{x:Bind ViewModel.Breadcrumbs}">
+                        <ItemsRepeater.Layout>
+                            <StackLayout Orientation="Horizontal"/>
+                        </ItemsRepeater.Layout>
+                        <ItemsRepeater.ItemTemplate>
+                            <DataTemplate x:DataType="models:BreadcrumbItem">
+                                <StackPanel Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
+                                    <Button DataContext="{x:Bind}" 
+                                            Click="BreadcrumbButton_Click" 
+                                            Style="{ThemeResource TextBlockButtonStyle}" 
+                                            Visibility="{x:Bind (x:Boolean)IsLast, Converter={StaticResource InverseBoolToVisibilityConverter}}">
+                                        <TextBlock Text="{x:Bind Name}" FontWeight="SemiBold"/>
+                                    </Button>
+                                    <TextBlock Text="{x:Bind Name}" 
+                                               FontWeight="SemiBold" 
+                                               Visibility="{x:Bind IsLast, Mode=OneWay}" 
+                                               VerticalAlignment="Center" 
+                                               Padding="8,4"/>
+                                    <!-- Foreground="{StaticResource ScansAccentColor}"/> -->
+                                    <TextBlock Text="/" 
+                                               VerticalAlignment="Center" 
+                                               FontWeight="SemiBold" 
+                                               Opacity="0.5"
+                                               Visibility="{x:Bind (x:Boolean)IsLast, Converter={StaticResource InverseBoolToVisibilityConverter}}"/>
+                                </StackPanel>
+                            </DataTemplate>
+                        </ItemsRepeater.ItemTemplate>
+                    </ItemsRepeater>
+                </ScrollViewer>
+
+                <!-- Filter and Actions Row -->
+                <Grid Grid.Row="1">
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="150" />
-                        <ColumnDefinition Width="100" />
+                        <ColumnDefinition Width="300"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
-                    <Button Grid.Column="0" Command="{x:Bind ViewModel.SortCommand}" CommandParameter="Name" Style="{ThemeResource TextBlockButtonStyle}" HorizontalAlignment="Left">
-                        <TextBlock Text="Name" FontWeight="SemiBold"/>
-                    </Button>
-                    <Button Grid.Column="1" Command="{x:Bind ViewModel.SortCommand}" CommandParameter="Date" Style="{ThemeResource TextBlockButtonStyle}" HorizontalAlignment="Left">
-                        <TextBlock Text="Date Modified" FontWeight="SemiBold"/>
-                    </Button>
-                    <Button Grid.Column="2" Command="{x:Bind ViewModel.SortCommand}" CommandParameter="Size" Style="{ThemeResource TextBlockButtonStyle}" HorizontalAlignment="Right">
-                        <TextBlock Text="Size" FontWeight="SemiBold"/>
-                    </Button>
+
+                    <!-- Filter Box -->
+                    <TextBox Grid.Column="0"
+                             Text="{x:Bind ViewModel.FilterText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                             PlaceholderText="Filter files... ">
+                        <TextBox.Header>
+                            <FontIcon Glyph="&#xE71C;" FontSize="12"/>
+                        </TextBox.Header>
+                    </TextBox>
+
+                    <!-- Folder Stats -->
+                    <TextBlock Grid.Column="1" 
+                               Text="{x:Bind ViewModel.FolderStatsText, Mode=OneWay}" 
+                               FontSize="12" 
+                               Opacity="0.7"
+                               VerticalAlignment="Bottom"
+                               HorizontalAlignment="Left"
+                               Margin="16,0,0,8"/>
+
+                    <!-- Action Buttons -->
+                    <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="8" VerticalAlignment="Bottom">
+                        <!-- Navigation -->
+                        <StackPanel Orientation="Horizontal" Spacing="4">
+                            <Button Command="{x:Bind ViewModel.GoUpCommand}" 
+                                    IsEnabled="{x:Bind ViewModel. IsGoUpEnabled, Mode=OneWay}"
+                                    ToolTipService.ToolTip="Navigate up"
+                                    Padding="8,6">
+                                <FontIcon Glyph="&#xE74A;" FontSize="14"/>
+                            </Button>
+                            <Button Command="{x:Bind ViewModel.RefreshCommand}"
+                                    ToolTipService.ToolTip="Refresh (F5)"
+                                    Padding="8,6">
+                                <FontIcon Glyph="&#xE72C;" FontSize="14"/>
+                            </Button>
+                        </StackPanel>
+
+                        <AppBarSeparator Margin="4,0"/>
+
+                        <!-- Folder Actions -->
+                        <Button Command="{x:Bind ViewModel. CreateNewFolderCommand}"
+                                ToolTipService.ToolTip="Create new folder"
+                                Padding="8,6">
+                            <StackPanel Orientation="Horizontal" Spacing="6">
+                                <FontIcon Glyph="&#xE8F4;" FontSize="14"/>
+                                <TextBlock Text="New Folder"/>
+                            </StackPanel>
+                        </Button>
+
+                        <AppBarSeparator Margin="4,0"/>
+
+                        <!-- Selection Actions -->
+                        <Button Command="{x:Bind ViewModel.SelectAllCommand}"
+                                ToolTipService.ToolTip="Select all files (Ctrl+A)"
+                                Padding="8,6">
+                            <StackPanel Orientation="Horizontal" Spacing="6">
+                                <FontIcon Glyph="&#xE8B3;" FontSize="14"/>
+                                <TextBlock Text="Select All"/>
+                            </StackPanel>
+                        </Button>
+                        <Button Command="{x:Bind ViewModel.ClearSelectionCommand}"
+                                IsEnabled="{x:Bind ViewModel. HasSelection, Mode=OneWay}"
+                                ToolTipService.ToolTip="Clear selection (Escape)"
+                                Padding="8,6">
+                            <StackPanel Orientation="Horizontal" Spacing="6">
+                                <FontIcon Glyph="&#xE894;" FontSize="14"/>
+                                <TextBlock Text="Clear"/>
+                            </StackPanel>
+                        </Button>
+
+                        <!-- Selection Badge -->
+                        <Border Background="{StaticResource ScansAccentColor}"
+                                CornerRadius="10"
+                                Padding="10,4"
+                                VerticalAlignment="Center"
+                                Visibility="{x:Bind ViewModel.HasSelection, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+                            <TextBlock Foreground="White" FontSize="12" FontWeight="SemiBold">
+                                <Run Text="{x:Bind ViewModel. SelectedFileCount, Mode=OneWay}"/>
+                                <Run Text="selected"/>
+                            </TextBlock>
+                        </Border>
+                    </StackPanel>
                 </Grid>
             </Grid>
+        </Border>
 
-            <Grid Grid.Row="1" Grid.ColumnSpan="3">
-                <ListView
-                    x:Name="ItemsListView"
-                    ItemsSource="{x:Bind ViewModel.CurrentItems}"
-                    SelectionMode="Multiple"
-                    HorizontalContentAlignment="Stretch"
-                    DoubleTapped="ItemsListView_DoubleTapped"
-                    IsItemClickEnabled="True"
-                    IsRightTapEnabled="True"  
-                    ItemClick="ItemsListView_ItemClick"
-                    Visibility="{x:Bind ViewModel.IsListVisible, Mode=OneWay}">
+        <!-- Content Area -->
+        <Grid Grid.Row="2" Margin="24,0">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
 
-                    <ListView.ItemContainerStyle>
-                        <Style TargetType="ListViewItem">
-                            <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}"/>
-                            <Setter Property="Padding" Value="0"/>
-                            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
-                        </Style>
-                    </ListView.ItemContainerStyle>
+            <!-- Column Headers -->
+            <Border Grid.Row="0" 
+                    Padding="12,10" 
+                    Background="{ThemeResource LayerFillColorDefaultBrush}" 
+                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" 
+                    BorderThickness="1,1,1,0"
+                    CornerRadius="4,4,0,0"
+                    Margin="0,12,0,0">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="40"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="80"/>
+                        <ColumnDefinition Width="150"/>
+                        <ColumnDefinition Width="100"/>
+                    </Grid.ColumnDefinitions>
 
-                    <interactivity:Interaction.Behaviors>
-                        <core:EventTriggerBehavior EventName="Loaded">
-                            <core:InvokeCommandAction Command="{x:Bind ViewModel.PageLoadedCommand}"/>
-                        </core:EventTriggerBehavior>
-                        <core:EventTriggerBehavior EventName="SelectionChanged">
-                            <core:InvokeCommandAction Command="{x:Bind ViewModel.SelectionChangedCommand}" CommandParameter="{x:Bind ItemsListView.SelectedItems, Mode=OneWay}"/>
-                        </core:EventTriggerBehavior>
-                    </interactivity:Interaction.Behaviors>
+                    <TextBlock Grid.Column="0" Text="Type" FontWeight="SemiBold" FontSize="12" Opacity="0.7"/>
 
-                    <ListView.ItemTemplate>
-                        <DataTemplate x:DataType="models:ScanTreeItem">
-                            <Grid Padding="12,8" HorizontalAlignment="Stretch" RightTapped="ItemGrid_RightTapped">
-                                <FlyoutBase.AttachedFlyout>
-                                    <MenuFlyout>
-                                        <MenuFlyoutItem Text="Open" Click="MenuOpen_Click" Visibility="{Binding IsFolder, Converter={StaticResource BoolToVisibilityConverter}}">
-                                            <MenuFlyoutItem.Icon>
-                                                <FontIcon Glyph="&#xE8B7;"/>
-                                            </MenuFlyoutItem.Icon>
-                                        </MenuFlyoutItem>
-                                        <MenuFlyoutItem Text="Preview" Click="MenuPreview_Click" Visibility="{Binding IsFolder, Converter={StaticResource InverseBoolToVisibilityConverter}}">
-                                            <MenuFlyoutItem.Icon>
-                                                <FontIcon Glyph="&#xE71E;"/>
-                                            </MenuFlyoutItem.Icon>
-                                        </MenuFlyoutItem>
-                                        <MenuFlyoutItem Text="Copy Path" Click="MenuCopyPath_Click">
-                                            <MenuFlyoutItem.Icon>
-                                                <FontIcon Glyph="&#xE8C8;"/>
-                                            </MenuFlyoutItem.Icon>
-                                        </MenuFlyoutItem>
-                                        <MenuFlyoutItem Text="Rename" Click="MenuRename_Click">
-                                            <MenuFlyoutItem.Icon>
-                                                <FontIcon Glyph="&#xE8AC;"/>
-                                            </MenuFlyoutItem.Icon>
-                                        </MenuFlyoutItem>
-                                        <MenuFlyoutSeparator/>
-                                        <MenuFlyoutItem Text="Delete" Click="MenuDelete_Click" Style="{ThemeResource DangerMenuItemStyle}">
-                                            <MenuFlyoutItem.Icon>
-                                                <FontIcon Glyph="&#xE74D;"/>
-                                            </MenuFlyoutItem.Icon>
-                                        </MenuFlyoutItem>
-                                    </MenuFlyout>
-                                </FlyoutBase.AttachedFlyout>
+                    <Button Grid.Column="1" 
+                            Command="{x:Bind ViewModel. SortCommand}" 
+                            CommandParameter="Name" 
+                            Style="{ThemeResource TextBlockButtonStyle}" 
+                            HorizontalAlignment="Left">
+                        <StackPanel Orientation="Horizontal" Spacing="4">
+                            <TextBlock Text="Name" FontWeight="SemiBold"/>
+                            <FontIcon Glyph="{x:Bind ViewModel. NameSortIcon, Mode=OneWay}" 
+                                      FontSize="10" 
+                                      Visibility="{x:Bind ViewModel.IsNameSorted, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                        </StackPanel>
+                    </Button>
 
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*" />
-                                    <ColumnDefinition Width="150" />
-                                    <ColumnDefinition Width="100" />
-                                </Grid.ColumnDefinitions>
+                    <TextBlock Grid.Column="2" Text="Ext" FontWeight="SemiBold" FontSize="12" Opacity="0.7"/>
 
-                                <Grid Grid.Column="0">
-                                    <!-- FIX: Replaced broken Opacity binding with a correct Visibility binding -->
-                                    <StackPanel Orientation="Horizontal" Spacing="4" Visibility="{x:Bind IsRenaming, Converter={StaticResource InverseBoolToVisibilityConverter}, Mode=OneWay}">
-                                        <FontIcon Glyph="{x:Bind IsFolder, Converter={StaticResource BoolToSymbolConverter}}" FontSize="16"/>
-                                        <TextBlock Text="{x:Bind Name}" ToolTipService.ToolTip="{x:Bind FullPath}" TextTrimming="CharacterEllipsis"/>
-                                    </StackPanel>
-                                    <TextBox
-                                        Text="{x:Bind Name, Mode=OneWay}"
-                                        Visibility="{x:Bind IsRenaming, Mode=OneWay}"
-                                        KeyDown="RenameTextBox_KeyDown"
-                                        LostFocus="RenameTextBox_LostFocus"
-                                        Loaded="RenameTextBox_Loaded"
-                                        Padding="2,0"
-                                        BorderThickness="1"/>
+                    <Button Grid.Column="3" 
+                            Command="{x:Bind ViewModel.SortCommand}" 
+                            CommandParameter="Date" 
+                            Style="{ThemeResource TextBlockButtonStyle}" 
+                            HorizontalAlignment="Left">
+                        <StackPanel Orientation="Horizontal" Spacing="4">
+                            <TextBlock Text="Date Modified" FontWeight="SemiBold"/>
+                            <FontIcon Glyph="{x:Bind ViewModel.DateSortIcon, Mode=OneWay}" 
+                                      FontSize="10"
+                                      Visibility="{x:Bind ViewModel. IsDateSorted, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                        </StackPanel>
+                    </Button>
+
+                    <Button Grid.Column="4" 
+                            Command="{x:Bind ViewModel. SortCommand}" 
+                            CommandParameter="Size" 
+                            Style="{ThemeResource TextBlockButtonStyle}" 
+                            HorizontalAlignment="Right">
+                        <StackPanel Orientation="Horizontal" Spacing="4">
+                            <TextBlock Text="Size" FontWeight="SemiBold"/>
+                            <FontIcon Glyph="{x:Bind ViewModel.SizeSortIcon, Mode=OneWay}" 
+                                      FontSize="10"
+                                      Visibility="{x:Bind ViewModel. IsSizeSorted, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                        </StackPanel>
+                    </Button>
+                </Grid>
+            </Border>
+
+            <!-- List Content -->
+            <Border Grid.Row="1" 
+                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" 
+                    BorderThickness="1"
+                    CornerRadius="0,0,4,4">
+                <Grid>
+                    <!-- Items List -->
+                    <ListView
+                        x:Name="ItemsListView"
+                        ItemsSource="{x:Bind ViewModel. CurrentItems}"
+                        SelectionMode="Multiple"
+                        HorizontalContentAlignment="Stretch"
+                        IsItemClickEnabled="True"
+                        ItemClick="ItemsListView_ItemClick"
+                        DoubleTapped="ItemsListView_DoubleTapped"
+                        RightTapped="ItemsListView_RightTapped"
+                        Visibility="{x:Bind ViewModel.IsListVisible, Mode=OneWay}">
+
+                        <ListView.ItemContainerStyle>
+                            <Style TargetType="ListViewItem">
+                                <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}"/>
+                                <Setter Property="Padding" Value="0"/>
+                                <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                            </Style>
+                        </ListView.ItemContainerStyle>
+
+                        <interactivity:Interaction.Behaviors>
+                            <core:EventTriggerBehavior EventName="Loaded">
+                                <core:InvokeCommandAction Command="{x:Bind ViewModel.PageLoadedCommand}"/>
+                            </core:EventTriggerBehavior>
+                            <core:EventTriggerBehavior EventName="SelectionChanged">
+                                <core:InvokeCommandAction Command="{x:Bind ViewModel.SelectionChangedCommand}" 
+                                                          CommandParameter="{x:Bind ItemsListView. SelectedItems, Mode=OneWay}"/>
+                            </core:EventTriggerBehavior>
+                        </interactivity:Interaction.Behaviors>
+
+                        <ListView.ItemTemplate>
+                            <DataTemplate x:DataType="models:ScanTreeItem">
+                                <Grid Padding="12,10" 
+                                      HorizontalAlignment="Stretch"
+                                      Background="Transparent"
+                                      ToolTipService.ToolTip="{x:Bind PreviewTooltip, Mode=OneWay}">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="40"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="80"/>
+                                        <ColumnDefinition Width="150"/>
+                                        <ColumnDefinition Width="100"/>
+                                        </Grid.ColumnDefinitions>
+
+                                        <!-- Type Icon -->
+                                        <FontIcon Grid.Column="0" 
+                                              Glyph="{x:Bind FileIcon, Mode=OneWay}" 
+                                              FontSize="16"
+                                              Foreground="{x:Bind IconColor, Mode=OneWay}"/>
+
+                                        <!-- Name / Rename -->
+                                        <Grid Grid.Column="1">
+                                            <StackPanel Orientation="Horizontal" 
+                                                    Spacing="8" 
+                                                    Visibility="{x:Bind IsRenaming, Converter={StaticResource InverseBoolToVisibilityConverter}, Mode=OneWay}">
+                                                <TextBlock Text="{x:Bind Name}" 
+                                                       TextTrimming="CharacterEllipsis"
+                                                       VerticalAlignment="Center"/>
+                                                <!-- Persistent Selection Indicator -->
+                                                <Border Background="{ThemeResource AccentFillColorDefaultBrush}"
+                                                    CornerRadius="4"
+                                                    Padding="6,2"
+                                                    Visibility="{x:Bind IsPersistentlySelected, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+                                                    <TextBlock Text="Selected" FontSize="10" Foreground="#696969"/>
+                                                </Border>
+                                            </StackPanel>
+                                            <TextBox
+                                            x:Name="RenameBox"
+                                            Text="{x:Bind Name, Mode=OneWay}"
+                                            Visibility="{x:Bind IsRenaming, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}"
+                                            KeyDown="RenameTextBox_KeyDown"
+                                            LostFocus="RenameTextBox_LostFocus"
+                                            Loaded="RenameTextBox_Loaded"
+                                            Padding="4,2"
+                                            BorderThickness="1"/>
+                                        </Grid>
+
+                                        <!-- Extension -->
+                                        <TextBlock Grid.Column="2" 
+                                               Text="{x:Bind Extension}" 
+                                               Opacity="0.6"
+                                               FontSize="12"/>
+
+                                        <!-- Date Modified -->
+                                        <TextBlock Grid.Column="3" 
+                                               Text="{x:Bind ModifiedDateString}"
+                                               FontSize="12"/>
+
+                                        <!-- Size -->
+                                        <TextBlock Grid.Column="4" 
+                                               Text="{x:Bind SizeString}" 
+                                               HorizontalAlignment="Right"
+                                               FontSize="12"/>
                                 </Grid>
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+                    </ListView>
 
-                                <TextBlock Grid.Column="1" Text="{x:Bind ModifiedDateString}"/>
-                                <TextBlock Grid.Column="2" Text="{x:Bind SizeString}" HorizontalAlignment="Right"/>
-                            </Grid>
-                        </DataTemplate>
-                    </ListView.ItemTemplate>
-                </ListView>
+                    <!-- Loading Overlay -->
+                    <Border Background="{ThemeResource LayerOnMicaBaseAltFillColorDefaultBrush}"
+                            Visibility="{x:Bind ViewModel.IsLoading, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+                        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="12">
+                            <ProgressRing IsActive="True" Width="40" Height="40"/>
+                            <TextBlock Text="{x:Bind ViewModel.LoadingText, Mode=OneWay}" FontSize="14" Opacity="0.8"/>
+                        </StackPanel>
+                    </Border>
 
-                <ProgressRing IsActive="{x:Bind ViewModel.IsLoading, Mode=OneWay}" HorizontalAlignment="Center" VerticalAlignment="Center" Width="60" Height="60"/>
-                <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Spacing="12" Visibility="{x:Bind ViewModel.IsEmptyMessageVisible, Mode=OneWay}">
-                    <FontIcon Glyph="&#xE7C3;" FontSize="48" HorizontalAlignment="Center" Opacity="0.5"/>
-                    <TextBlock Text="This folder is empty." Style="{ThemeResource SubtitleTextBlockStyle}" HorizontalAlignment="Center" />
+                    <!-- Error State -->
+                    <Border Background="{ThemeResource LayerOnMicaBaseAltFillColorDefaultBrush}"
+                            Visibility="{x:Bind ViewModel.HasError, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+                        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="12" Padding="24">
+                            <FontIcon Glyph="&#xE783;" FontSize="48" Foreground="#C42B1C"/>
+                            <TextBlock Text="Unable to load folder" FontSize="16" FontWeight="SemiBold" HorizontalAlignment="Center"/>
+                            <TextBlock Text="{x:Bind ViewModel.ErrorMessage, Mode=OneWay}" 
+                                       FontSize="13" Opacity="0.8" TextWrapping="Wrap"
+                                       MaxWidth="300" HorizontalAlignment="Center" TextAlignment="Center"/>
+                            <Button Content="Retry" Command="{x:Bind ViewModel.RefreshCommand}" HorizontalAlignment="Center" Margin="0,8,0,0"/>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Empty State -->
+                    <StackPanel VerticalAlignment="Center" 
+                                HorizontalAlignment="Center" 
+                                Spacing="12" 
+                                Visibility="{x:Bind ViewModel.IsEmptyMessageVisible, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+                        <FontIcon Glyph="&#xE7C3;" FontSize="64" Opacity="0.3"/>
+                        <TextBlock Text="This folder is empty" 
+                                   FontSize="18" 
+                                   FontWeight="SemiBold"
+                                   Opacity="0.6"
+                                   HorizontalAlignment="Center"/>
+                        <TextBlock Text="Add files to this folder or navigate to a different location" 
+                                   FontSize="13" 
+                                   Opacity="0.4"
+                                   HorizontalAlignment="Center"/>
+                        <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Center" Margin="0,8,0,0">
+                            <Button Command="{x:Bind ViewModel.CreateNewFolderCommand}">
+                                <StackPanel Orientation="Horizontal" Spacing="8">
+                                    <FontIcon Glyph="&#xE8F4;" FontSize="14"/>
+                                    <TextBlock Text="Create Folder"/>
+                                </StackPanel>
+                            </Button>
+                            <Button Command="{x:Bind ViewModel.GoUpCommand}" 
+                                    IsEnabled="{x:Bind ViewModel. IsGoUpEnabled, Mode=OneWay}">
+                                <StackPanel Orientation="Horizontal" Spacing="8">
+                                    <FontIcon Glyph="&#xE74A;" FontSize="14"/>
+                                    <TextBlock Text="Go Up"/>
+                                </StackPanel>
+                            </Button>
+                        </StackPanel>
+                    </StackPanel>
+                </Grid>
+            </Border>
+        </Grid>
+
+        <!-- Status Bar -->
+        <Border Grid.Row="3"
+                Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                BorderThickness="0,1,0,0"
+                Padding="24,8">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- Left - Folder info -->
+                <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="16">
+                    <TextBlock FontSize="12" Opacity="0.7" VerticalAlignment="Center">
+                        <Run Text="{x:Bind ViewModel.FileCount, Mode=OneWay}"/>
+                        <Run Text="file(s),"/>
+                        <Run Text="{x:Bind ViewModel.FolderCount, Mode=OneWay}"/>
+                        <Run Text="folder(s)"/>
+                    </TextBlock>
+                    <TextBlock FontSize="12" Opacity="0.5" VerticalAlignment="Center"
+                               Visibility="{x:Bind ViewModel.TotalSizeText, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+                        <Run Text="•"/>
+                        <Run Text="{x:Bind ViewModel.TotalSizeText, Mode=OneWay}"/>
+                        <Run Text="total"/>
+                    </TextBlock>
+                </StackPanel>
+
+                <!-- Right - Selection info -->
+                <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8"
+                            Visibility="{x:Bind ViewModel.HasSelection, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+                    <FontIcon Glyph="&#xE762;" FontSize="12" Foreground="{StaticResource ScansAccentColor}"/>
+                    <TextBlock FontSize="12" Foreground="{StaticResource ScansAccentColor}" VerticalAlignment="Center">
+                        <Run Text="{x:Bind ViewModel.SelectedFileCount, Mode=OneWay}"/>
+                        <Run Text="selected"/>
+                        <Run Text="("/>
+                        <Run Text="{x:Bind ViewModel. SelectedSizeText, Mode=OneWay}"/>
+                        <Run Text=")"/>
+                    </TextBlock>
                 </StackPanel>
             </Grid>
-        </Grid>
+        </Border>
     </Grid>
 </Page>
