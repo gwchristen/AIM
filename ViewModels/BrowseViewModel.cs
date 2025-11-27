@@ -248,6 +248,12 @@ public partial class BrowseViewModel : ObservableObject
     {
         MoveFileCommand.NotifyCanExecuteChanged();
         CopyFromScansCommand.NotifyCanExecuteChanged();
+
+        // Load the directory contents when the selected directory changes
+        if (value != null)
+        {
+            _ = UpdateRightFilteredContentsAsync();
+        }
     }
 
     partial void OnSelectedLeftDirectoryChanged(DirectoryItem value)
@@ -264,10 +270,11 @@ public partial class BrowseViewModel : ObservableObject
 
     partial void OnSelectedRightContentChanged(ContentItem value)
     {
+        // When clicking a folder in the ListView, navigate into it
         if (value?.IsFolder == true)
         {
             SelectedRightDirectory = new DirectoryItem { FullPath = value.FullPath, Name = value.Name };
-            _ = UpdateRightFilteredContentsAsync();
+            // Note: UpdateRightFilteredContentsAsync will be called by OnSelectedRightDirectoryChanged
         }
     }
     #endregion
