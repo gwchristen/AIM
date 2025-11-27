@@ -924,5 +924,13 @@ public partial class BrowseViewModel : ObservableObject
             UpdateButtonStates();
         }
     }
+
+    /// <summary>
+    /// Public method to set operation status from code-behind
+    /// </summary>
+    public void SetOperationStatusPublic(string message, bool autoClear = true, int delayMs = 3000)
+    {
+        SetOperationStatus(message, autoClear, delayMs);
+    }
     #endregion
 }

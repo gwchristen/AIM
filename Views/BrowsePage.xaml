@@ -20,9 +20,62 @@
 
         <!-- Destination Colors (Green) -->
         <SolidColorBrush x:Key="DestinationAccentColor" Color="#107C10"/>
+
+        <!-- Source Column Context Menu (for files) -->
+        <MenuFlyout x:Key="SourceFileContextMenu">
+            <MenuFlyoutItem Text="Rename" Icon="Rename" Click="ContextMenu_Rename_Click"/>
+            <MenuFlyoutItem Text="Add to Selection" Click="ContextMenu_AddToSelection_Click">
+                <MenuFlyoutItem.Icon>
+                    <FontIcon Glyph="&#xE710;"/>
+                </MenuFlyoutItem.Icon>
+            </MenuFlyoutItem>
+            <MenuFlyoutItem Text="Edit" Icon="Edit" Click="ContextMenu_Edit_Click"/>
+            <MenuFlyoutSeparator/>
+            <MenuFlyoutItem Text="Archive" Click="ContextMenu_Archive_Click">
+                <MenuFlyoutItem.Icon>
+                    <FontIcon Glyph="&#xE7B8;" Foreground="#EA6100"/>
+                </MenuFlyoutItem.Icon>
+            </MenuFlyoutItem>
+            <MenuFlyoutItem Text="Shipped" Click="ContextMenu_Shipped_Click">
+                <MenuFlyoutItem.Icon>
+                    <FontIcon Glyph="&#xE8E1;" Foreground="#107C10"/>
+                </MenuFlyoutItem.Icon>
+            </MenuFlyoutItem>
+            <MenuFlyoutItem Text="Move to Destination" Click="ContextMenu_Move_Click">
+                <MenuFlyoutItem.Icon>
+                    <FontIcon Glyph="&#xE8DE;"/>
+                </MenuFlyoutItem.Icon>
+            </MenuFlyoutItem>
+        </MenuFlyout>
+
+        <!-- General Context Menu (everywhere else) -->
+        <MenuFlyout x:Key="GeneralContextMenu">
+            <MenuFlyoutItem Text="Clear Selection" Click="ContextMenu_ClearSelection_Click">
+                <MenuFlyoutItem.Icon>
+                    <FontIcon Glyph="&#xE894;" Foreground="#C42B1C"/>
+                </MenuFlyoutItem.Icon>
+            </MenuFlyoutItem>
+            <MenuFlyoutItem Text="Copy from Scans" Click="ContextMenu_CopyFromScans_Click">
+                <MenuFlyoutItem.Icon>
+                    <FontIcon Glyph="&#xE8C8;"/>
+                </MenuFlyoutItem.Icon>
+            </MenuFlyoutItem>
+            <MenuFlyoutSeparator/>
+            <MenuFlyoutItem Text="Copy Filepath" Click="ContextMenu_CopyFilepath_Click">
+                <MenuFlyoutItem.Icon>
+                    <FontIcon Glyph="&#xE8C8;"/>
+                    </MenuFlyoutItem.Icon>
+            </MenuFlyoutItem>
+            <MenuFlyoutSeparator/>
+            <MenuFlyoutItem Text="Undo" Click="ContextMenu_Undo_Click">
+                <MenuFlyoutItem.Icon>
+                    <FontIcon Glyph="&#xE7A7;"/>
+                </MenuFlyoutItem.Icon>
+            </MenuFlyoutItem>
+        </MenuFlyout>
     </Page.Resources>
 
-    <Grid>
+    <Grid RightTapped="Page_RightTapped">
         <Grid.RowDefinitions>
             <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
@@ -109,6 +162,7 @@
                     SelectionChanged="LeftDataGrid_SelectionChanged"
                     DoubleTapped="LeftDataGrid_DoubleTapped"
                     PointerPressed="LeftDataGrid_PointerPressed"
+                    RightTapped="LeftDataGrid_RightTapped"
                     CanDrag="True"
                     DragStarting="LeftDataGrid_DragStarting"
                     BorderBrush="{StaticResource SourceAccentColor}"

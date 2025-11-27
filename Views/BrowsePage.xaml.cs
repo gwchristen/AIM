@@ -4,18 +4,19 @@ using CommunityToolkit.Mvvm.DependencyInjection;
 using CommunityToolkit.WinUI.UI.Controls;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Controls.Primitives;
 using Microsoft.UI.Xaml.Input;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using Windows.ApplicationModel.DataTransfer;
-using Windows.System;
 
 namespace AIM.Views;
 
 public sealed partial class BrowsePage : Page
 {
     private readonly BrowseViewModel ViewModel;
+    private ContentItem _rightClickedItem;
 
     public BrowsePage()
     {
@@ -24,6 +25,7 @@ public sealed partial class BrowsePage : Page
         this.DataContext = ViewModel;
     }
 
+    #region Breadcrumb Navigation
     private void LeftBreadcrumbButton_Click(object sender, RoutedEventArgs e)
     {
         if ((sender as FrameworkElement)?.DataContext is BreadcrumbItem b)
@@ -35,7 +37,9 @@ public sealed partial class BrowsePage : Page
         if ((sender as FrameworkElement)?.DataContext is BreadcrumbItem b)
             ViewModel.NavigateRightBreadcrumbCommand.Execute(b);
     }
+    #endregion
 
+    #region DataGrid Events
     private void LeftDataGrid_Sorting(object sender, DataGridColumnEventArgs e)
     {
         if (e.Column.Tag is string sortPath)
@@ -46,7 +50,6 @@ public sealed partial class BrowsePage : Page
 
     private void LeftDataGrid_DragStarting(UIElement sender, DragStartingEventArgs e)
     {
-        // Get files from persistent selection if any, otherwise from current DataGrid selection
         List<ContentItem> filesToDrag;
 
         if (ViewModel.PersistentSelectedPaths.Any())
@@ -96,7 +99,6 @@ public sealed partial class BrowsePage : Page
         var dataGrid = sender as DataGrid;
         if (dataGrid == null) return;
 
-        // Update ViewModel's SelectedLeftItems to match DataGrid
         ViewModel.SelectedLeftItems.Clear();
         foreach (var item in dataGrid.SelectedItems)
         {
@@ -104,27 +106,31 @@ public sealed partial class BrowsePage : Page
         }
     }
 
-    /// <summary>
-    /// Handle keyboard shortcuts for persistent selection
-    /// </summary>
-    private void LeftDataGrid_KeyDown(object sender, KeyRoutedEventArgs e)
+    private void LeftDataGrid_RightTapped(object sender, RightTappedRoutedEventArgs e)
     {
-        // Ctrl+A to add current selection to persistent
-        if (e.Key == VirtualKey.A &&
-            Microsoft.UI.Input.InputKeyboardSource.GetKeyStateForCurrentThread(VirtualKey.Control)
-                .HasFlag(Windows.UI.Core.CoreVirtualKeyStates.Down))
+        // Get the item that was right-clicked
+        if ((e.OriginalSource as FrameworkElement)?.DataContext is ContentItem item)
         {
-            foreach (var item in LeftDataGrid.SelectedItems.Cast<ContentItem>())
+            _rightClickedItem = item;
+
+            // If clicking on a file (not folder), show source context menu
+            if (!item.IsFolder)
             {
-                if (!item.IsFolder)
+                // Select the item if not already selected
+                if (!LeftDataGrid.SelectedItems.Contains(item))
                 {
-                    ViewModel.AddToPersistentSelection(item);
+                    LeftDataGrid.SelectedItem = item;
                 }
+
+                var flyout = Resources["SourceFileContextMenu"] as MenuFlyout;
+                flyout?.ShowAt(sender as FrameworkElement, e.GetPosition(sender as UIElement));
+                e.Handled = true;
             }
-            e.Handled = true;
         }
     }
+    #endregion
 
+    #region Right ListView Events
     private void RightListView_DragOver(object sender, DragEventArgs e)
     {
         e.AcceptedOperation = DataPackageOperation.None;
@@ -172,4 +178,130 @@ public sealed partial class BrowsePage : Page
             }
         }
     }
+    #endregion
+
+    #region General Context Menu (Page level - everywhere else)
+    private void Page_RightTapped(object sender, RightTappedRoutedEventArgs e)
+    {
+        // Don't show if already handled by DataGrid
+        if (e.Handled) return;
+
+        // Don't show general menu if clicking on Source DataGrid area
+        var position = e.GetPosition(LeftDataGrid);
+        if (position.X >= 0 && position.X <= LeftDataGrid.ActualWidth &&
+            position.Y >= 0 && position.Y <= LeftDataGrid.ActualHeight)
+        {
+            return;
+        }
+
+        var flyout = Resources["GeneralContextMenu"] as MenuFlyout;
+        flyout?.ShowAt(sender as FrameworkElement, e.GetPosition(sender as UIElement));
+        e.Handled = true;
+    }
+    #endregion
+
+    #region Source Context Menu Handlers
+    private void ContextMenu_Rename_Click(object sender, RoutedEventArgs e)
+    {
+        if (ViewModel.RenameFileCommand.CanExecute(null))
+        {
+            ViewModel.RenameFileCommand.Execute(null);
+        }
+    }
+
+    private void ContextMenu_AddToSelection_Click(object sender, RoutedEventArgs e)
+    {
+        if (ViewModel.AddToSelectionCommand.CanExecute(null))
+        {
+            ViewModel.AddToSelectionCommand.Execute(null);
+        }
+    }
+
+    private void ContextMenu_Edit_Click(object sender, RoutedEventArgs e)
+    {
+        if (ViewModel.NavigateToPreviewCommand.CanExecute(null))
+        {
+            ViewModel.NavigateToPreviewCommand.Execute(null);
+        }
+    }
+
+    private void ContextMenu_Archive_Click(object sender, RoutedEventArgs e)
+    {
+        if (ViewModel.ArchiveFileCommand.CanExecute(null))
+        {
+            ViewModel.ArchiveFileCommand.Execute(null);
+        }
+    }
+
+    private void ContextMenu_Shipped_Click(object sender, RoutedEventArgs e)
+    {
+        if (ViewModel.ShipFileCommand.CanExecute(null))
+        {
+            ViewModel.ShipFileCommand.Execute(null);
+        }
+    }
+
+    private void ContextMenu_Move_Click(object sender, RoutedEventArgs e)
+    {
+        if (ViewModel.MoveFileCommand.CanExecute(null))
+        {
+            ViewModel.MoveFileCommand.Execute(null);
+        }
+    }
+    #endregion
+
+    #region General Context Menu Handlers
+    private void ContextMenu_ClearSelection_Click(object sender, RoutedEventArgs e)
+    {
+        if (ViewModel.ClearSelectionCommand.CanExecute(null))
+        {
+            ViewModel.ClearSelectionCommand.Execute(null);
+        }
+    }
+
+    private void ContextMenu_CopyFromScans_Click(object sender, RoutedEventArgs e)
+    {
+        if (ViewModel.CopyFromScansCommand.CanExecute(null))
+        {
+            ViewModel.CopyFromScansCommand.Execute(null);
+        }
+    }
+
+    private async void ContextMenu_CopyFilepath_Click(object sender, RoutedEventArgs e)
+    {
+        // Copy filepath of selected items or persistent selection
+        var paths = new List<string>();
+
+        if (ViewModel.PersistentSelectedPaths.Any())
+        {
+            paths.AddRange(ViewModel.PersistentSelectedPaths);
+        }
+        else if (ViewModel.SelectedLeftItems.Any())
+        {
+            paths.AddRange(ViewModel.SelectedLeftItems.Cast<ContentItem>().Select(i => i.FullPath));
+        }
+        else if (ViewModel.SelectedLeftDirectory != null)
+        {
+            paths.Add(ViewModel.SelectedLeftDirectory.FullPath);
+        }
+
+        if (paths.Any())
+        {
+            var dataPackage = new DataPackage();
+            dataPackage.SetText(string.Join(Environment.NewLine, paths));
+            Clipboard.SetContent(dataPackage);
+
+            // Show feedback via status
+            ViewModel.SetOperationStatusPublic($"Copied {paths.Count} path(s) to clipboard");
+        }
+    }
+
+    private void ContextMenu_Undo_Click(object sender, RoutedEventArgs e)
+    {
+        if (ViewModel.UndoCommand.CanExecute(null))
+        {
+            ViewModel.UndoCommand.Execute(null);
+        }
+    }
+    #endregion
 }
