@@ -1,4 +1,4 @@
-<Page
+﻿<Page
     x:Class="AIM.Views.PreviewPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -10,61 +10,269 @@
 
     <Page.Resources>
         <converters:BoolToTextWrappingConverter x:Key="BoolToTextWrappingConverter"/>
+        <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
+        <converters:InverseBoolToVisibilityConverter x:Key="InverseBoolToVisibilityConverter"/>
     </Page.Resources>
 
-    <Grid Margin="24">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
-        </Grid.RowDefinitions>
+    <Page.KeyboardAccelerators>
+        <KeyboardAccelerator Key="S" Modifiers="Control" Invoked="SaveAccelerator_Invoked"/>
+        <KeyboardAccelerator Key="F" Modifiers="Control" Invoked="FindAccelerator_Invoked"/>
+        <KeyboardAccelerator Key="Escape" Invoked="EscapeAccelerator_Invoked"/>
+        </Page.KeyboardAccelerators>
 
-        <Grid Grid.Row="0" Margin="0,0,0,16">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="Auto"/>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="Auto"/>
-            </Grid.ColumnDefinitions>
-            <Button x:Name="GoBackButton" Grid.Column="0" VerticalAlignment="Top" Margin="0,0,16,0" Click="GoBackButton_Click" IsEnabled="{x:Bind Frame.CanGoBack, Mode=OneWay}">
-                <StackPanel Orientation="Horizontal" Spacing="8">
-                    <FontIcon Glyph="&#xE72B;" FontSize="16"/>
-                    <TextBlock Text="Go Back"/>
-                </StackPanel>
-            </Button>
-            <StackPanel Grid.Column="1">
-                <TextBlock Text="{x:Bind ViewModel.FileItem.Name, Mode=OneWay}" Style="{ThemeResource TitleTextBlockStyle}" Margin="0,0,0,8"/>
-                <TextBlock Text="{x:Bind ViewModel.FileItem.FullPath, Mode=OneWay}" Style="{ThemeResource CaptionTextBlockStyle}"/>
-            </StackPanel>
-            <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="12" VerticalAlignment="Top">
-                <Button Command="{x:Bind ViewModel.SaveContentCommand}" Visibility="{x:Bind ViewModel.IsDirty, Mode=OneWay}" Style="{ThemeResource AccentButtonStyle}">
-                    <StackPanel Orientation="Horizontal" Spacing="8">
-                        <FontIcon Glyph="&#xE74E;" FontSize="16"/>
-                        <TextBlock Text="Save Changes"/>
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <!-- Header -->
+                <Border Grid.Row="0" 
+                Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                BorderThickness="0,0,0,1"
+                Padding="24,16">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+
+                            <!-- Back Button -->
+                            <Button x:Name="GoBackButton" 
+                        Grid.Column="0" 
+                        VerticalAlignment="Center" 
+                        Margin="0,0,16,0" 
+                        Click="GoBackButton_Click"
+                        ToolTipService.ToolTip="Go back (or press Escape)">
+                                <StackPanel Orientation="Horizontal" Spacing="8">
+                                    <FontIcon Glyph="&#xE72B;" FontSize="16"/>
+                                    <TextBlock Text="Back"/>
+                                </StackPanel>
+                            </Button>
+
+                            <!-- File Info -->
+                            <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                <StackPanel Orientation="Horizontal" Spacing="12">
+                                    <FontIcon Glyph="{x:Bind ViewModel.FileIcon, Mode=OneWay}" 
+                                  FontSize="24" 
+                                  Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}"/>
+                                    <StackPanel>
+                                        <StackPanel Orientation="Horizontal" Spacing="8">
+                                            <TextBlock Text="{x:Bind ViewModel.FileItem. Name, Mode=OneWay}" 
+                                           Style="{ThemeResource SubtitleTextBlockStyle}"/>
+                                            <!-- Dirty indicator -->
+                                            <TextBlock Text="●" 
+                                           Foreground="{ThemeResource SystemAccentColor}"
+                                           FontSize="16"
+                                           VerticalAlignment="Center"
+                                           ToolTipService.ToolTip="Unsaved changes"
+                                           Visibility="{x:Bind ViewModel.IsDirty, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                                            <!-- Read-only indicator -->
+                                            <Border Background="{ThemeResource SystemFillColorCautionBackgroundBrush}"
+                                        CornerRadius="4"
+                                        Padding="8,2"
+                                        Visibility="{x:Bind ViewModel.IsReadOnly, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+                                                <TextBlock Text="Read Only" FontSize="11"/>
+                                            </Border>
+                                        </StackPanel>
+                                        <StackPanel Orientation="Horizontal" Spacing="16">
+                                            <TextBlock Text="{x:Bind ViewModel.FileItem. FullPath, Mode=OneWay}" 
+                                           Style="{ThemeResource CaptionTextBlockStyle}"
+                                           Opacity="0.7"
+                                           MaxWidth="500"
+                                           TextTrimming="CharacterEllipsis"/>
+                                            <TextBlock Style="{ThemeResource CaptionTextBlockStyle}" Opacity="0.5">
+                                    <Run Text="{x:Bind ViewModel.FileSizeText, Mode=OneWay}"/>
+                                    <Run Text="  •  "/>
+                                    <Run Text="{x:Bind ViewModel.FileModifiedText, Mode=OneWay}"/>
+                                            </TextBlock>
+                                        </StackPanel>
+                                    </StackPanel>
+                                </StackPanel>
+                            </StackPanel>
+
+                            <!-- Actions -->
+                            <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+                                <!-- Find Button (Text only) -->
+                                <Button Click="FindButton_Click"
+                            ToolTipService.ToolTip="Find (Ctrl+F)"
+                            Visibility="{x:Bind ViewModel.IsTextVisible, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+                                    <FontIcon Glyph="&#xE721;" FontSize="16"/>
+                                </Button>
+
+                                <!-- Word Wrap Toggle -->
+                                <ToggleButton IsChecked="{x:Bind ViewModel.IsWordWrapEnabled, Mode=TwoWay}"
+                                  ToolTipService.ToolTip="Toggle word wrap"
+                                  Visibility="{x:Bind ViewModel.IsTextVisible, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+                                    <FontIcon Glyph="&#xE8B8;" FontSize="16"/>
+                                </ToggleButton>
+
+                                <AppBarSeparator Visibility="{x:Bind ViewModel. IsTextVisible, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}"/>
+
+                                <!-- Copy Button -->
+                                <Button Command="{x:Bind ViewModel.CopyContentCommand}"
+                            ToolTipService.ToolTip="Copy content to clipboard">
+                                    <StackPanel Orientation="Horizontal" Spacing="8">
+                                        <FontIcon Glyph="&#xE8C8;" FontSize="16"/>
+                                        <TextBlock Text="Copy"/>
+                                    </StackPanel>
+                                </Button>
+
+                                <!-- Save Button -->
+                                <Button Command="{x:Bind ViewModel.SaveContentCommand}" 
+                            Style="{ThemeResource AccentButtonStyle}"
+                            ToolTipService.ToolTip="Save changes (Ctrl+S)"
+                            Visibility="{x:Bind ViewModel.IsDirty, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+                                    <StackPanel Orientation="Horizontal" Spacing="8">
+                                        <FontIcon Glyph="&#xE74E;" FontSize="16"/>
+                                        <TextBlock Text="Save"/>
+                                    </StackPanel>
+                                </Button>
+                            </StackPanel>
+                    </Grid>
+                </Border>
+
+                <!-- Find Bar (initially hidden) -->
+                <Border x:Name="FindBar"
+                Grid.Row="1"
+                Background="{ThemeResource CardBackgroundFillColorSecondaryBrush}"
+                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                BorderThickness="0,0,0,1"
+                Padding="24,8"
+                Visibility="Collapsed">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="300"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+
+                            <TextBlock Grid.Column="0" Text="Find:" VerticalAlignment="Center" Margin="0,0,12,0"/>
+
+                            <TextBox x:Name="FindTextBox"
+                         Grid.Column="1"
+                         PlaceholderText="Search text..."
+                         TextChanged="FindTextBox_TextChanged"
+                         KeyDown="FindTextBox_KeyDown"/>
+
+                            <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="4" Margin="8,0,0,0">
+                                <Button Click="FindPrevious_Click" ToolTipService.ToolTip="Previous match">
+                                    <FontIcon Glyph="&#xE74A;" FontSize="12"/>
+                                </Button>
+                                <Button Click="FindNext_Click" ToolTipService.ToolTip="Next match (Enter)">
+                                    <FontIcon Glyph="&#xE74B;" FontSize="12"/>
+                                </Button>
+                            </StackPanel>
+
+                            <TextBlock x:Name="FindResultsText"
+                           Grid.Column="3"
+                           VerticalAlignment="Center"
+                           Margin="16,0,0,0"
+                           Opacity="0.7"
+                           FontSize="12"/>
+
+                            <Button Grid.Column="4" 
+                        Click="CloseFindBar_Click"
+                        Style="{ThemeResource TextBlockButtonStyle}"
+                        ToolTipService.ToolTip="Close (Escape)">
+                                <FontIcon Glyph="&#xE711;" FontSize="12"/>
+                            </Button>
+                    </Grid>
+                </Border>
+
+                <!-- Content Area -->
+                <Grid Grid.Row="2" Margin="24,16,24,0">
+                    <!-- Loading -->
+                    <StackPanel HorizontalAlignment="Center" 
+                        VerticalAlignment="Center" 
+                        Spacing="12"
+                        Visibility="{x:Bind ViewModel.IsLoading, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+                        <ProgressRing IsActive="True" Width="48" Height="48"/>
+                        <TextBlock Text="Loading file..." Opacity="0.7"/>
                     </StackPanel>
-                </Button>
-                <Button Command="{x:Bind ViewModel.CopyContentCommand}">
-                    <StackPanel Orientation="Horizontal" Spacing="8">
-                        <FontIcon Glyph="&#xE8C8;" FontSize="16"/>
-                        <TextBlock Text="Copy Content"/>
+
+                    <!-- Error State -->
+                    <StackPanel HorizontalAlignment="Center" 
+                        VerticalAlignment="Center" 
+                        Spacing="12"
+                        Visibility="{x:Bind ViewModel.HasError, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+                        <FontIcon Glyph="&#xE783;" FontSize="48" Foreground="#C42B1C"/>
+                        <TextBlock Text="Unable to load file" FontSize="16" FontWeight="SemiBold"/>
+                        <TextBlock Text="{x:Bind ViewModel.ErrorMessage, Mode=OneWay}" 
+                           Opacity="0.7" 
+                           TextWrapping="Wrap"
+                           MaxWidth="400"
+                           TextAlignment="Center"/>
+                        <Button Content="Go Back" Click="GoBackButton_Click" Margin="0,8,0,0"/>
                     </StackPanel>
-                </Button>
-                <ToggleSwitch Header="Word Wrap" IsOn="{x:Bind ViewModel.IsWordWrapEnabled, Mode=TwoWay}" Visibility="{x:Bind ViewModel.IsTextVisible, Mode=OneWay}"/>
-            </StackPanel>
-        </Grid>
 
-        <Grid Grid.Row="1">
-            <ProgressRing IsActive="{x:Bind ViewModel.IsLoading, Mode=OneWay}" HorizontalAlignment="Center" VerticalAlignment="Center" Width="60" Height="60"/>
-            <controls:DataGrid Visibility="{x:Bind ViewModel.IsCsvVisible, Mode=OneWay}" ItemsSource="{x:Bind ViewModel.CsvData.DefaultView, Mode=OneWay}" AutoGenerateColumns="True" IsReadOnly="True" CanUserSortColumns="True" CanUserResizeColumns="True"/>
+                    <!-- CSV DataGrid -->
+                    <controls:DataGrid Visibility="{x:Bind ViewModel.IsCsvVisible, Mode=OneWay}" 
+                               ItemsSource="{x:Bind ViewModel.CsvData. DefaultView, Mode=OneWay}" 
+                               AutoGenerateColumns="True" 
+                               IsReadOnly="True"
+                               CornerRadius="4"
+                               BorderBrush="{ThemeResource ControlStrokeColorDefault}"
+                               BorderThickness="1"/>
 
-            <!-- The Grid and two TextBoxes have been replaced with a single TextBox -->
-            <TextBox
+                    <!-- Text Editor -->
+                    <TextBox
                 x:Name="ContentTextBox"
-                Visibility="{x:Bind ViewModel.IsTextVisible, Mode=OneWay}"
-                BorderBrush="{ThemeResource ControlStrokeColorDefault}" BorderThickness="1"
+                Visibility="{x:Bind ViewModel. IsTextVisible, Mode=OneWay}"
+                BorderBrush="{ThemeResource ControlStrokeColorDefault}" 
+                BorderThickness="1"
+                CornerRadius="4"
                 Text="{x:Bind ViewModel.TextContent, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                 TextWrapping="{x:Bind ViewModel.IsWordWrapEnabled, Mode=OneWay, Converter={StaticResource BoolToTextWrappingConverter}}"
-                AcceptsReturn="True" FontFamily="Consolas" Padding="8,7,8,7"
-                ScrollViewer.VerticalScrollMode="Enabled" ScrollViewer.VerticalScrollBarVisibility="Visible"
+                AcceptsReturn="True" 
+                FontFamily="Cascadia Code, Consolas, Courier New" 
+                FontSize="13"
+                Padding="12"
+                IsReadOnly="{x:Bind ViewModel.IsReadOnly, Mode=OneWay}"
+                SelectionChanged="ContentTextBox_SelectionChanged"
+                ScrollViewer.VerticalScrollMode="Enabled" 
+                ScrollViewer.VerticalScrollBarVisibility="Auto"
                 ScrollViewer.HorizontalScrollBarVisibility="Auto"/>
+                </Grid>
+
+                <!-- Status Bar -->
+                <Border Grid.Row="3"
+                Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                BorderThickness="0,1,0,0"
+                Padding="24,6"
+                Visibility="{x:Bind ViewModel.IsTextVisible, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+
+                        <!-- Left side info -->
+                        <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="24">
+                            <TextBlock FontSize="12" Opacity="0.7">
+                        <Run Text="Lines:"/>
+                        <Run Text="{x:Bind ViewModel.LineCount, Mode=OneWay}"/>
+                            </TextBlock>
+                            <TextBlock FontSize="12" Opacity="0.7">
+                        <Run Text="Characters:"/>
+                        <Run Text="{x:Bind ViewModel.CharacterCount, Mode=OneWay}"/>
+                            </TextBlock>
+                        </StackPanel>
+
+                        <!-- Right side - cursor position -->
+                        <TextBlock x:Name="CursorPositionText"
+                           Grid.Column="1" 
+                           FontSize="12" 
+                           Opacity="0.7"
+                           Text="Ln 1, Col 1"/>
+                    </Grid>
+                </Border>
         </Grid>
-    </Grid>
 </Page>
