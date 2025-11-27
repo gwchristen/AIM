@@ -1,3 +1,4 @@
+using AIM.Services;
 using AIM.ViewModels;
 using CommunityToolkit.Mvvm.DependencyInjection;
 using Microsoft.UI.Xaml.Controls;
@@ -8,11 +9,13 @@ namespace AIM.Views;
 public sealed partial class PreviewPage : Page
 {
     public PreviewViewModel ViewModel { get; }
+    private readonly INavigationService _navigationService;
 
     public PreviewPage()
     {
         this.InitializeComponent();
         ViewModel = Ioc.Default.GetRequiredService<PreviewViewModel>();
+        _navigationService = Ioc.Default.GetRequiredService<INavigationService>();
     }
 
     protected override async void OnNavigatedTo(NavigationEventArgs e)
@@ -23,9 +26,9 @@ public sealed partial class PreviewPage : Page
 
     private void GoBackButton_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
     {
-        if (Frame.CanGoBack)
+        if (_navigationService.CanGoBack)
         {
-            Frame.GoBack();
+            _navigationService.GoBack();
         }
     }
 }

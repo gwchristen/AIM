@@ -9,6 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Windows.ApplicationModel.DataTransfer;
+using Windows.System;
 
 namespace AIM.Views;
 
@@ -23,8 +24,17 @@ public sealed partial class BrowsePage : Page
         this.DataContext = ViewModel;
     }
 
-    private void LeftBreadcrumbButton_Click(object sender, RoutedEventArgs e) { if ((sender as FrameworkElement)?.DataContext is BreadcrumbItem b) ViewModel.NavigateLeftBreadcrumbCommand.Execute(b); }
-    private void RightBreadcrumbButton_Click(object sender, RoutedEventArgs e) { if ((sender as FrameworkElement)?.DataContext is BreadcrumbItem b) ViewModel.NavigateRightBreadcrumbCommand.Execute(b); }
+    private void LeftBreadcrumbButton_Click(object sender, RoutedEventArgs e)
+    {
+        if ((sender as FrameworkElement)?.DataContext is BreadcrumbItem b)
+            ViewModel.NavigateLeftBreadcrumbCommand.Execute(b);
+    }
+
+    private void RightBreadcrumbButton_Click(object sender, RoutedEventArgs e)
+    {
+        if ((sender as FrameworkElement)?.DataContext is BreadcrumbItem b)
+            ViewModel.NavigateRightBreadcrumbCommand.Execute(b);
+    }
 
     private void LeftDataGrid_Sorting(object sender, DataGridColumnEventArgs e)
     {
@@ -36,7 +46,18 @@ public sealed partial class BrowsePage : Page
 
     private void LeftDataGrid_DragStarting(UIElement sender, DragStartingEventArgs e)
     {
-        var filesToDrag = ViewModel.SelectedLeftItems.Cast<ContentItem>().Where(i => !i.IsFolder).ToList();
+        // Get files from persistent selection if any, otherwise from current DataGrid selection
+        List<ContentItem> filesToDrag;
+
+        if (ViewModel.PersistentSelectedPaths.Any())
+        {
+            filesToDrag = ViewModel.GetPersistentSelectedFiles().ToList();
+        }
+        else
+        {
+            filesToDrag = LeftDataGrid.SelectedItems.Cast<ContentItem>().Where(i => !i.IsFolder).ToList();
+        }
+
         if (!filesToDrag.Any())
         {
             e.Cancel = true;
@@ -45,9 +66,6 @@ public sealed partial class BrowsePage : Page
 
         e.Data.SetText(string.Join("|", filesToDrag.Select(i => i.FullPath)));
         e.Data.RequestedOperation = DataPackageOperation.Move;
-
-        var dragVisual = new ItemsStackPanel();
-        dragVisual.Children.Add(new TextBlock { Text = $"{filesToDrag.Count} file(s)" });
         e.DragUI.SetContentFromDataPackage();
     }
 
@@ -75,10 +93,35 @@ public sealed partial class BrowsePage : Page
 
     private void LeftDataGrid_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
+        var dataGrid = sender as DataGrid;
+        if (dataGrid == null) return;
+
+        // Update ViewModel's SelectedLeftItems to match DataGrid
         ViewModel.SelectedLeftItems.Clear();
-        foreach (var item in (sender as DataGrid).SelectedItems)
+        foreach (var item in dataGrid.SelectedItems)
         {
             ViewModel.SelectedLeftItems.Add(item);
+        }
+    }
+
+    /// <summary>
+    /// Handle keyboard shortcuts for persistent selection
+    /// </summary>
+    private void LeftDataGrid_KeyDown(object sender, KeyRoutedEventArgs e)
+    {
+        // Ctrl+A to add current selection to persistent
+        if (e.Key == VirtualKey.A &&
+            Microsoft.UI.Input.InputKeyboardSource.GetKeyStateForCurrentThread(VirtualKey.Control)
+                .HasFlag(Windows.UI.Core.CoreVirtualKeyStates.Down))
+        {
+            foreach (var item in LeftDataGrid.SelectedItems.Cast<ContentItem>())
+            {
+                if (!item.IsFolder)
+                {
+                    ViewModel.AddToPersistentSelection(item);
+                }
+            }
+            e.Handled = true;
         }
     }
 
@@ -104,19 +147,15 @@ public sealed partial class BrowsePage : Page
     {
         string destinationFolderPath = null;
 
-        // Case 1: We dropped on a specific folder item.
-        // THE FIX: Corrected typo "IisFolder" to "IsFolder"
         if ((e.OriginalSource as FrameworkElement)?.DataContext is ContentItem targetFolder && targetFolder.IsFolder)
         {
             destinationFolderPath = targetFolder.FullPath;
         }
-        // Case 2: We dropped on the ListView's empty area. Use the currently selected directory.
         else if (ViewModel.SelectedRightDirectory != null)
         {
             destinationFolderPath = ViewModel.SelectedRightDirectory.FullPath;
         }
 
-        // If we have a valid destination, proceed with the move.
         if (destinationFolderPath != null && e.DataView.Contains(StandardDataFormats.Text))
         {
             var deferral = e.GetDeferral();

@@ -109,4 +109,25 @@ public class DialogService : IDialogService
         var result = await dialog.ShowAsync();
         return (result, inputTextBox.Text);
     }
+
+    public async Task ShowInfoDialogAsync(string title, string message)
+    {
+        var dialog = new ContentDialog
+        {
+            Title = title,
+            Content = new ScrollViewer
+            {
+                Content = new TextBlock
+                {
+                    Text = message,
+                    TextWrapping = TextWrapping.Wrap,
+                    IsTextSelectionEnabled = true
+                },
+                MaxHeight = 400
+            },
+            CloseButtonText = "OK",
+            XamlRoot = App.MainWindow.Content.XamlRoot
+        };
+        await dialog.ShowAsync();
+    }
 }

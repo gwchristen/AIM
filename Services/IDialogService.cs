@@ -14,4 +14,5 @@ public interface IDialogService
     Task ShowInfoDialog(string title, string message);
     Task ShowSuccessDialog(string title, string message);
     Task<(ContentDialogResult, string)> ShowTextInputDialog(string title, string message, string defaultText = "");
+    Task ShowInfoDialogAsync(string title, string message);
 }

@@ -3,7 +3,6 @@ using AIM.Services;
 using AIM.Views;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using Microsoft.UI.Xaml.Controls;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -15,7 +14,6 @@ namespace AIM.ViewModels;
 
 public record FileOp(string FromPath, string ToPath);
 public record UndoAction(string Type, List<FileOp> Ops);
-
 
 public partial class BrowseViewModel : ObservableObject
 {
@@ -36,14 +34,43 @@ public partial class BrowseViewModel : ObservableObject
     public ObservableCollection<BreadcrumbItem> RightBreadcrumbs { get; } = new();
     public ObservableCollection<ContentItem> LeftFilteredContents { get; } = new();
     public ObservableCollection<ContentItem> RightFilteredContents { get; } = new();
-    [ObservableProperty] private ObservableCollection<object> _selectedLeftItems = new();
+
+    [ObservableProperty]
+    private ObservableCollection<object> _selectedLeftItems = new();
+
+    public ObservableCollection<string> PersistentSelectedPaths { get; } = new();
     #endregion
 
     #region Observable Properties
-    [ObservableProperty] private ContentItem _selectedRightContent;
-    [ObservableProperty] private DirectoryItem _selectedLeftDirectory;
-    [ObservableProperty] private DirectoryItem _selectedRightDirectory;
-    [ObservableProperty] private string _rootName = string.Empty;
+    [ObservableProperty]
+    private ContentItem _selectedRightContent;
+
+    [ObservableProperty]
+    private DirectoryItem _selectedLeftDirectory;
+
+    [ObservableProperty]
+    private DirectoryItem _selectedRightDirectory;
+
+    [ObservableProperty]
+    private string _rootName = string.Empty;
+
+    [ObservableProperty]
+    private int _selectedFileCount;
+
+    [ObservableProperty]
+    private int _selectedFolderCount;
+
+    [ObservableProperty]
+    private string _selectionStatusText = "No items selected";
+
+    [ObservableProperty]
+    private string _operationStatusText = string.Empty;
+
+    [ObservableProperty]
+    private bool _isOperationInProgress;
+
+    [ObservableProperty]
+    private int _undoStackCount;
     #endregion
 
     public BrowseViewModel(MainViewModel mainViewModel, IFileService fileService, ISettingsService settingsService, IDialogService dialogService, INavigationService navigationService, AuditLoggingService auditLoggingService)
@@ -55,16 +82,139 @@ public partial class BrowseViewModel : ObservableObject
         _appSettings = settingsService.LoadSettings();
         _mainViewModel.LeftTree.CollectionChanged += (s, e) => InitializePaths();
         _mainViewModel.SelectedScanFiles.CollectionChanged += (s, e) => CopyFromScansCommand.NotifyCanExecuteChanged();
-        SelectedLeftItems.CollectionChanged += (s, e) => UpdateButtonStates();
+        SelectedLeftItems.CollectionChanged += (s, e) => OnLocalSelectionChanged();
+        PersistentSelectedPaths.CollectionChanged += (s, e) =>
+        {
+            UpdateSelectionStatus();
+            UpdateButtonStates();
+        };
         InitializePaths();
         UpdateButtonStates();
     }
 
+    #region Selection Management
+
+    private void OnLocalSelectionChanged()
+    {
+        UpdateSelectionStatus();
+        UpdateButtonStates();
+    }
+
+    public void AddToPersistentSelection(ContentItem item)
+    {
+        if (item != null && !item.IsFolder && !PersistentSelectedPaths.Contains(item.FullPath))
+        {
+            PersistentSelectedPaths.Add(item.FullPath);
+        }
+    }
+
+    public void RemoveFromPersistentSelection(ContentItem item)
+    {
+        if (item != null)
+        {
+            PersistentSelectedPaths.Remove(item.FullPath);
+        }
+    }
+
+    public void TogglePersistentSelection(ContentItem item)
+    {
+        if (item == null || item.IsFolder) return;
+
+        if (PersistentSelectedPaths.Contains(item.FullPath))
+        {
+            PersistentSelectedPaths.Remove(item.FullPath);
+        }
+        else
+        {
+            PersistentSelectedPaths.Add(item.FullPath);
+        }
+    }
+
+    public IEnumerable<ContentItem> GetPersistentSelectedFiles()
+    {
+        return PersistentSelectedPaths
+            .Where(File.Exists)
+            .Select(path => new ContentItem
+            {
+                Name = Path.GetFileName(path),
+                FullPath = path,
+                IsFolder = false,
+                Size = new FileInfo(path).Length,
+                ModifiedDate = new FileInfo(path).LastWriteTime
+            });
+    }
+
+    public bool IsInPersistentSelection(string fullPath)
+    {
+        return PersistentSelectedPaths.Contains(fullPath);
+    }
+
+    private void UpdateSelectionStatus()
+    {
+        var persistentCount = PersistentSelectedPaths.Count;
+        var localFiles = SelectedLeftItems.Cast<ContentItem>().Count(i => !i.IsFolder);
+        var localFolders = SelectedLeftItems.Cast<ContentItem>().Count(i => i.IsFolder);
+
+        SelectedFileCount = persistentCount > 0 ? persistentCount : localFiles;
+        SelectedFolderCount = localFolders;
+
+        if (persistentCount > 0)
+        {
+            var dirCount = PersistentSelectedPaths.Select(p => Path.GetDirectoryName(p)).Distinct().Count();
+            SelectionStatusText = $"{persistentCount} file(s) selected from {dirCount} folder(s)";
+        }
+        else if (localFiles > 0 || localFolders > 0)
+        {
+            var parts = new List<string>();
+            if (localFiles > 0) parts.Add($"{localFiles} file(s)");
+            if (localFolders > 0) parts.Add($"{localFolders} folder(s)");
+            SelectionStatusText = string.Join(", ", parts) + " selected";
+        }
+        else
+        {
+            SelectionStatusText = "No items selected";
+        }
+    }
+
+    private async void SetOperationStatus(string message, bool autoClear = true, int delayMs = 3000)
+    {
+        OperationStatusText = message;
+
+        if (autoClear)
+        {
+            await Task.Delay(delayMs);
+            if (OperationStatusText == message)
+            {
+                OperationStatusText = string.Empty;
+            }
+        }
+    }
+
+    private string GetRelativePathForDisplay(string fullPath)
+    {
+        if (string.IsNullOrEmpty(_rootPath) || string.IsNullOrEmpty(fullPath))
+            return fullPath ?? "";
+
+        if (fullPath.StartsWith(_rootPath, StringComparison.OrdinalIgnoreCase))
+        {
+            var relative = Path.GetRelativePath(_rootPath, fullPath);
+            return string.IsNullOrEmpty(relative) || relative == "." ? RootName : $"{RootName}\\{relative}";
+        }
+
+        return fullPath;
+    }
+
+    #endregion
+
     #region Property Changed Handlers
-    partial void OnSelectedRightDirectoryChanged(DirectoryItem value) { MoveFileCommand.NotifyCanExecuteChanged(); CopyFromScansCommand.NotifyCanExecuteChanged(); }
+    partial void OnSelectedRightDirectoryChanged(DirectoryItem value)
+    {
+        MoveFileCommand.NotifyCanExecuteChanged();
+        CopyFromScansCommand.NotifyCanExecuteChanged();
+    }
+
     partial void OnSelectedLeftDirectoryChanged(DirectoryItem value)
     {
-        // Log directory access
         _auditLoggingService.LogDirectoryOperation(
             AuditActionTypes.DIR_ACCESS,
             value?.FullPath,
@@ -74,6 +224,7 @@ public partial class BrowseViewModel : ObservableObject
         UpdateLeftBreadcrumbs(value?.FullPath);
         UpdateAndSortLeftFilteredContents();
     }
+
     partial void OnSelectedRightContentChanged(ContentItem value)
     {
         if (value?.IsFolder == true)
@@ -95,8 +246,10 @@ public partial class BrowseViewModel : ObservableObject
         SelectedRightDirectory = root;
         UpdateRightFilteredContents();
     }
+
     private void UpdateLeftBreadcrumbs(string currentPath) => UpdateBreadcrumbs(currentPath, LeftBreadcrumbs, GoUpLeftCommand, RootName, _rootPath);
     private void UpdateRightBreadcrumbs(string currentPath) => UpdateBreadcrumbs(currentPath, RightBreadcrumbs, GoUpRightCommand, RootName, _rootPath);
+
     private void UpdateBreadcrumbs(string currentPath, ObservableCollection<BreadcrumbItem> breadcrumbs, IRelayCommand goUpCommand, string rootName, string rootPath)
     {
         breadcrumbs.Clear();
@@ -106,12 +259,17 @@ public partial class BrowseViewModel : ObservableObject
         {
             var relativePath = Path.GetRelativePath(rootPath, currentPath);
             var currentFullPath = rootPath;
-            foreach (var part in relativePath.Split(Path.DirectorySeparatorChar)) { currentFullPath = Path.Combine(currentFullPath, part); pathSegments.Add(new BreadcrumbItem { Name = part, FullPath = currentFullPath }); }
+            foreach (var part in relativePath.Split(Path.DirectorySeparatorChar))
+            {
+                currentFullPath = Path.Combine(currentFullPath, part);
+                pathSegments.Add(new BreadcrumbItem { Name = part, FullPath = currentFullPath });
+            }
         }
         if (pathSegments.Any()) pathSegments.Last().IsLast = true;
         foreach (var segment in pathSegments) breadcrumbs.Add(segment);
         goUpCommand.NotifyCanExecuteChanged();
     }
+
     private bool DoesContainRelevantFiles(string path)
     {
         try
@@ -122,7 +280,14 @@ public partial class BrowseViewModel : ObservableObject
         }
         catch { return false; }
     }
-    private FileType GetFileType(string path) => Path.GetExtension(path).ToLowerInvariant() switch { ".txt" => FileType.Text, ".csv" => FileType.Csv, _ => FileType.Other };
+
+    private FileType GetFileType(string path) => Path.GetExtension(path).ToLowerInvariant() switch
+    {
+        ".txt" => FileType.Text,
+        ".csv" => FileType.Csv,
+        _ => FileType.Other
+    };
+
     private void UpdateAndSortLeftFilteredContents()
     {
         var dir = SelectedLeftDirectory;
@@ -130,19 +295,52 @@ public partial class BrowseViewModel : ObservableObject
         var tempItems = new List<ContentItem>();
         try
         {
-            var subDirs = Directory.GetDirectories(dir.FullPath).Where(DoesContainRelevantFiles).Select(d => new ContentItem { Name = Path.GetFileName(d), FullPath = d, IsFolder = true, ModifiedDate = new DirectoryInfo(d).LastWriteTime });
+            var subDirs = Directory.GetDirectories(dir.FullPath)
+                .Where(DoesContainRelevantFiles)
+                .Select(d => new ContentItem
+                {
+                    Name = Path.GetFileName(d),
+                    FullPath = d,
+                    IsFolder = true,
+                    ModifiedDate = Directory.GetLastWriteTime(d)
+                });
             tempItems.AddRange(subDirs);
+
             var relevantExtensions = new HashSet<string> { ".txt", ".csv" };
-            var files = Directory.GetFiles(dir.FullPath).Where(f => relevantExtensions.Contains(Path.GetExtension(f).ToLowerInvariant()))
-                .Select(f => { var info = new FileInfo(f); return new ContentItem { Name = info.Name, FullPath = info.FullName, IsFolder = false, Size = info.Length, ModifiedDate = info.LastWriteTime }; });
+            var files = Directory.GetFiles(dir.FullPath)
+                .Where(f => relevantExtensions.Contains(Path.GetExtension(f).ToLowerInvariant()))
+                .Select(f =>
+                {
+                    var info = new FileInfo(f);
+                    return new ContentItem
+                    {
+                        Name = info.Name,
+                        FullPath = info.FullName,
+                        IsFolder = false,
+                        Size = info.Length,
+                        ModifiedDate = info.LastWriteTime
+                    };
+                });
             tempItems.AddRange(files);
         }
         catch (Exception) { /* Handle errors */ }
-        Func<ContentItem, object> keySelector = _currentSortColumn switch { "Date" => i => i.ModifiedDate, "Size" => i => i.Size, _ => i => i.Name, };
-        var sortedItems = _isSortAscending ? tempItems.OrderBy(i => !i.IsFolder).ThenBy(keySelector) : tempItems.OrderBy(i => !i.IsFolder).ThenByDescending(keySelector);
+
+        Func<ContentItem, object> keySelector = _currentSortColumn switch
+        {
+            "Date" => i => i.ModifiedDate,
+            "Size" => i => i.Size,
+            _ => i => i.Name
+        };
+        var sortedItems = _isSortAscending
+            ? tempItems.OrderBy(i => !i.IsFolder).ThenBy(keySelector)
+            : tempItems.OrderBy(i => !i.IsFolder).ThenByDescending(keySelector);
+
         LeftFilteredContents.Clear();
         foreach (var item in sortedItems) LeftFilteredContents.Add(item);
+
+        UpdateSelectionStatus();
     }
+
     private void UpdateRightFilteredContents()
     {
         RightFilteredContents.Clear();
@@ -151,30 +349,43 @@ public partial class BrowseViewModel : ObservableObject
         UpdateRightBreadcrumbs(dir.FullPath);
         try
         {
-            foreach (var subDirPath in Directory.GetDirectories(dir.FullPath)) RightFilteredContents.Add(new ContentItem { Name = Path.GetFileName(subDirPath), IsFolder = true, FullPath = subDirPath });
-            foreach (var file in Directory.GetFiles(dir.FullPath)) RightFilteredContents.Add(new ContentItem { Name = Path.GetFileName(file), IsFolder = false, FullPath = file });
+            foreach (var subDirPath in Directory.GetDirectories(dir.FullPath))
+                RightFilteredContents.Add(new ContentItem { Name = Path.GetFileName(subDirPath), IsFolder = true, FullPath = subDirPath });
+            foreach (var file in Directory.GetFiles(dir.FullPath))
+                RightFilteredContents.Add(new ContentItem { Name = Path.GetFileName(file), IsFolder = false, FullPath = file });
         }
         catch (Exception) { /* Handle errors */ }
     }
     #endregion
 
     #region CanExecute Predicates & Commands
-    private bool CanPerformMultiFileAction() => SelectedLeftItems.Cast<ContentItem>().Any(item => !item.IsFolder);
-    private bool CanPerformSingleFileAction() => SelectedLeftItems.Count == 1 && !SelectedLeftItems.Cast<ContentItem>().First().IsFolder;
-    private bool CanMoveFile() => CanPerformMultiFileAction() && SelectedRightDirectory != null;
+    private bool HasSelectedFiles()
+    {
+        if (PersistentSelectedPaths.Any()) return true;
+        return SelectedLeftItems.Cast<ContentItem>().Any(item => !item.IsFolder);
+    }
+
+    private bool CanPerformMultiFileAction() => HasSelectedFiles();
+
+    private bool CanPerformSingleFileAction()
+    {
+        return SelectedLeftItems.Count == 1 && !SelectedLeftItems.Cast<ContentItem>().First().IsFolder;
+    }
+
+    private bool CanMoveFile() => HasSelectedFiles() && SelectedRightDirectory != null;
+
     private bool CanCopyFromScans()
     {
         var hasRightDir = SelectedRightDirectory != null;
         var hasScanFiles = _mainViewModel.SelectedScanFiles.Any();
-        var result = hasRightDir && hasScanFiles;
-
-        System.Diagnostics.Debug.WriteLine($"[CanCopyFromScans] HasRightDir: {hasRightDir}, HasScanFiles: {hasScanFiles}, Result: {result}, ScanFilesCount: {_mainViewModel.SelectedScanFiles.Count}");
-
-        return result;
+        return hasRightDir && hasScanFiles;
     }
+
     private bool CanUndo() => _undoStack.Any();
     private bool CanGoUpLeft() => LeftBreadcrumbs.Count > 1;
     private bool CanGoUpRight() => RightBreadcrumbs.Count > 1;
+    private bool CanAddToSelection() => SelectedLeftItems.Cast<ContentItem>().Any(i => !i.IsFolder);
+    private bool HasPersistentSelections() => PersistentSelectedPaths.Any();
 
     private void UpdateButtonStates()
     {
@@ -184,8 +395,23 @@ public partial class BrowseViewModel : ObservableObject
         MoveFileCommand.NotifyCanExecuteChanged();
         NavigateToPreviewCommand.NotifyCanExecuteChanged();
         CopyFromScansCommand.NotifyCanExecuteChanged();
+        ClearSelectionCommand.NotifyCanExecuteChanged();
+        AddToSelectionCommand.NotifyCanExecuteChanged();
+        PreviewSelectionCommand.NotifyCanExecuteChanged();
+        UndoStackCount = _undoStack.Count;
     }
 
+    private List<ContentItem> GetFilesToOperate()
+    {
+        if (PersistentSelectedPaths.Any())
+        {
+            return GetPersistentSelectedFiles().ToList();
+        }
+        return SelectedLeftItems.Cast<ContentItem>().Where(i => !i.IsFolder).ToList();
+    }
+    #endregion
+
+    #region Commands
     [RelayCommand]
     private void Sort(string newSortColumn)
     {
@@ -213,6 +439,73 @@ public partial class BrowseViewModel : ObservableObject
         }
     }
 
+    [RelayCommand]
+    private void ClearSelection()
+    {
+        PersistentSelectedPaths.Clear();
+        SelectedLeftItems.Clear();
+        UpdateSelectionStatus();
+        SetOperationStatus("Selection cleared");
+    }
+
+    [RelayCommand(CanExecute = nameof(CanAddToSelection))]
+    private void AddToSelection()
+    {
+        int addedCount = 0;
+        foreach (var item in SelectedLeftItems.Cast<ContentItem>())
+        {
+            if (!item.IsFolder && !PersistentSelectedPaths.Contains(item.FullPath))
+            {
+                PersistentSelectedPaths.Add(item.FullPath);
+                addedCount++;
+            }
+        }
+
+        if (addedCount > 0)
+        {
+            SetOperationStatus($"Added {addedCount} file(s) to selection");
+        }
+        else
+        {
+            SetOperationStatus("Files already in selection");
+        }
+    }
+
+    [RelayCommand(CanExecute = nameof(HasPersistentSelections))]
+    private async Task PreviewSelection()
+    {
+        var files = GetPersistentSelectedFiles().ToList();
+
+        if (!files.Any())
+        {
+            await _dialogService.ShowErrorDialogAsync("No Selection", "No files are currently selected.");
+            return;
+        }
+
+        var groupedFiles = files
+            .GroupBy(f => Path.GetDirectoryName(f.FullPath))
+            .OrderBy(g => g.Key);
+
+        var messageLines = new List<string>
+        {
+            $"{files.Count} file(s) selected:",
+            ""
+        };
+
+        foreach (var group in groupedFiles)
+        {
+            var relativePath = GetRelativePathForDisplay(group.Key);
+            messageLines.Add($"📁 {relativePath}");
+            foreach (var file in group.OrderBy(f => f.Name))
+            {
+                messageLines.Add($"    📄 {file.Name}");
+            }
+            messageLines.Add("");
+        }
+
+        await _dialogService.ShowInfoDialogAsync("Selection Preview", string.Join("\n", messageLines));
+    }
+
     [RelayCommand(CanExecute = nameof(CanPerformSingleFileAction))]
     private async Task RenameFile()
     {
@@ -220,23 +513,24 @@ public partial class BrowseViewModel : ObservableObject
         var newName = await _dialogService.ShowRenameDialogAsync(fileToRename.Name);
         if (string.IsNullOrWhiteSpace(newName) || newName == fileToRename.Name) return;
         var oldPath = fileToRename.FullPath;
-        var newPath = Path.Combine(Path.GetDirectoryName(oldPath), newName);
+        var newPath = Path.Combine(Path.GetDirectoryName(oldPath)!, newName);
+
         try
         {
+            IsOperationInProgress = true;
+            SetOperationStatus($"Renaming '{fileToRename.Name}'.. .", false);
+
             File.Move(oldPath, newPath);
-
-            // Log rename operation with detailed info
             _auditLoggingService.LogRenameOperation(oldPath, fileToRename.Name, newName);
-
             _undoStack.Push(new UndoAction("Rename", new List<FileOp> { new(newPath, oldPath) }));
             UndoCommand.NotifyCanExecuteChanged();
             UpdateAndSortLeftFilteredContents();
+
+            SetOperationStatus($"Renamed '{fileToRename.Name}' to '{newName}'");
         }
         catch (Exception ex)
         {
             await _dialogService.ShowErrorDialogAsync("Rename Failed", ex.Message);
-
-            // Log failed rename
             _auditLoggingService.LogFileOperation(
                 "FILE_RENAME_FAILED",
                 oldPath,
@@ -248,162 +542,247 @@ public partial class BrowseViewModel : ObservableObject
                     { "error", ex.Message }
                 }
             );
+            SetOperationStatus($"Failed to rename '{fileToRename.Name}'");
+        }
+        finally
+        {
+            IsOperationInProgress = false;
+            UpdateButtonStates();
         }
     }
 
     [RelayCommand(CanExecute = nameof(CanPerformMultiFileAction))]
     private async Task ArchiveFile()
     {
-        var filesToMove = SelectedLeftItems.Cast<ContentItem>().Where(i => !i.IsFolder).ToList();
+        var filesToMove = GetFilesToOperate();
         if (!await _dialogService.ShowConfirmationDialogAsync("Archive Files", $"Move {filesToMove.Count} item(s) to archive?")) return;
+
         var archivePath = _appSettings.ArchivePath;
-        if (string.IsNullOrEmpty(archivePath)) { await _dialogService.ShowErrorDialogAsync("Error", "Archive path is not configured."); return; }
+        if (string.IsNullOrEmpty(archivePath))
+        {
+            await _dialogService.ShowErrorDialogAsync("Error", "Archive path is not configured.");
+            return;
+        }
+
         Directory.CreateDirectory(archivePath);
         var ops = new List<FileOp>();
-        foreach (var file in filesToMove)
+        var successCount = 0;
+
+        try
         {
-            var destPath = Path.Combine(archivePath, file.Name);
-            try
+            IsOperationInProgress = true;
+
+            foreach (var file in filesToMove)
             {
-                File.Move(file.FullPath, destPath);
-
-                // Log archive operation with detailed info
-                _auditLoggingService.LogMoveOperation(file.FullPath, destPath, file.Name);
-
-                ops.Add(new FileOp(destPath, file.FullPath));
+                SetOperationStatus($"Archiving '{file.Name}'...  ({successCount + 1}/{filesToMove.Count})", false);
+                var destPath = Path.Combine(archivePath, file.Name);
+                try
+                {
+                    File.Move(file.FullPath, destPath);
+                    _auditLoggingService.LogMoveOperation(file.FullPath, destPath, file.Name);
+                    ops.Add(new FileOp(destPath, file.FullPath));
+                    PersistentSelectedPaths.Remove(file.FullPath);
+                    successCount++;
+                }
+                catch (Exception ex)
+                {
+                    await _dialogService.ShowErrorDialogAsync("Archive Failed", $"Could not archive '{file.Name}': {ex.Message}");
+                    _auditLoggingService.LogFileOperation(
+                        "FILE_ARCHIVE_FAILED",
+                        file.FullPath,
+                        $"Failed to archive '{file.Name}': {ex.Message}",
+                        new Dictionary<string, string>
+                        {
+                            { "destination", destPath },
+                            { "error", ex.Message }
+                        }
+                    );
+                }
             }
-            catch (Exception ex)
+
+            if (ops.Any())
             {
-                await _dialogService.ShowErrorDialogAsync("Archive Failed", $"Could not archive '{file.Name}': {ex.Message}");
-
-                // Log failed archive
-                _auditLoggingService.LogFileOperation(
-                    "FILE_ARCHIVE_FAILED",
-                    file.FullPath,
-                    $"Failed to archive '{file.Name}': {ex.Message}",
-                    new Dictionary<string, string>
-                    {
-                        { "destination", destPath },
-                        { "error", ex.Message }
-                    }
-                );
+                _undoStack.Push(new UndoAction("Archive", ops));
+                UndoCommand.NotifyCanExecuteChanged();
+                UpdateAndSortLeftFilteredContents();
             }
+
+            SetOperationStatus($"Archived {successCount} file(s)");
         }
-        if (ops.Any()) { _undoStack.Push(new UndoAction("Archive", ops)); UndoCommand.NotifyCanExecuteChanged(); UpdateAndSortLeftFilteredContents(); }
+        finally
+        {
+            IsOperationInProgress = false;
+            UpdateButtonStates();
+        }
     }
 
     [RelayCommand(CanExecute = nameof(CanPerformMultiFileAction))]
     private async Task ShipFile()
     {
-        var filesToMove = SelectedLeftItems.Cast<ContentItem>().Where(i => !i.IsFolder).ToList();
+        var filesToMove = GetFilesToOperate();
         if (!await _dialogService.ShowConfirmationDialogAsync("Ship Files", $"Move {filesToMove.Count} item(s) to shipped folder?")) return;
+
         var shippedPath = _appSettings.ShippedDirectory;
-        if (string.IsNullOrEmpty(shippedPath)) { await _dialogService.ShowErrorDialogAsync("Error", "Shipped path is not configured."); return; }
+        if (string.IsNullOrEmpty(shippedPath))
+        {
+            await _dialogService.ShowErrorDialogAsync("Error", "Shipped path is not configured.");
+            return;
+        }
+
         Directory.CreateDirectory(shippedPath);
         var ops = new List<FileOp>();
-        foreach (var file in filesToMove)
+        var successCount = 0;
+
+        try
         {
-            var destPath = Path.Combine(shippedPath, file.Name);
-            try
+            IsOperationInProgress = true;
+
+            foreach (var file in filesToMove)
             {
-                File.Move(file.FullPath, destPath);
-
-                // Log ship operation with detailed info
-                _auditLoggingService.LogMoveOperation(file.FullPath, destPath, file.Name);
-
-                ops.Add(new FileOp(destPath, file.FullPath));
+                SetOperationStatus($"Shipping '{file.Name}'... ({successCount + 1}/{filesToMove.Count})", false);
+                var destPath = Path.Combine(shippedPath, file.Name);
+                try
+                {
+                    File.Move(file.FullPath, destPath);
+                    _auditLoggingService.LogMoveOperation(file.FullPath, destPath, file.Name);
+                    ops.Add(new FileOp(destPath, file.FullPath));
+                    PersistentSelectedPaths.Remove(file.FullPath);
+                    successCount++;
+                }
+                catch (Exception ex)
+                {
+                    await _dialogService.ShowErrorDialogAsync("Ship Failed", $"Could not ship '{file.Name}': {ex.Message}");
+                    _auditLoggingService.LogFileOperation(
+                        "FILE_SHIP_FAILED",
+                        file.FullPath,
+                        $"Failed to ship '{file.Name}': {ex.Message}",
+                        new Dictionary<string, string>
+                        {
+                            { "destination", destPath },
+                            { "error", ex.Message }
+                        }
+                    );
+                }
             }
-            catch (Exception ex)
+
+            if (ops.Any())
             {
-                await _dialogService.ShowErrorDialogAsync("Ship Failed", $"Could not ship '{file.Name}': {ex.Message}");
-
-                // Log failed ship
-                _auditLoggingService.LogFileOperation(
-                    "FILE_SHIP_FAILED",
-                    file.FullPath,
-                    $"Failed to ship '{file.Name}': {ex.Message}",
-                    new Dictionary<string, string>
-                    {
-                        { "destination", destPath },
-                        { "error", ex.Message }
-                    }
-                );
+                _undoStack.Push(new UndoAction("Ship", ops));
+                UndoCommand.NotifyCanExecuteChanged();
+                UpdateAndSortLeftFilteredContents();
             }
+
+            SetOperationStatus($"Shipped {successCount} file(s)");
         }
-        if (ops.Any()) { _undoStack.Push(new UndoAction("Ship", ops)); UndoCommand.NotifyCanExecuteChanged(); UpdateAndSortLeftFilteredContents(); }
+        finally
+        {
+            IsOperationInProgress = false;
+            UpdateButtonStates();
+        }
     }
 
     [RelayCommand(CanExecute = nameof(CanMoveFile))]
     private async Task MoveFile()
     {
-        var filesToMove = SelectedLeftItems.Cast<ContentItem>().Where(i => !i.IsFolder).ToList();
+        var filesToMove = GetFilesToOperate();
         var ops = new List<FileOp>();
-        foreach (var file in filesToMove)
+        var successCount = 0;
+
+        try
         {
-            var destPath = Path.Combine(SelectedRightDirectory.FullPath, file.Name);
-            try
+            IsOperationInProgress = true;
+
+            foreach (var file in filesToMove)
             {
-                File.Move(file.FullPath, destPath);
-
-                // Log move operation with detailed info
-                _auditLoggingService.LogMoveOperation(file.FullPath, destPath, file.Name);
-
-                ops.Add(new FileOp(destPath, file.FullPath));
+                SetOperationStatus($"Moving '{file.Name}'... ({successCount + 1}/{filesToMove.Count})", false);
+                var destPath = Path.Combine(SelectedRightDirectory!.FullPath, file.Name);
+                try
+                {
+                    File.Move(file.FullPath, destPath);
+                    _auditLoggingService.LogMoveOperation(file.FullPath, destPath, file.Name);
+                    ops.Add(new FileOp(destPath, file.FullPath));
+                    PersistentSelectedPaths.Remove(file.FullPath);
+                    successCount++;
+                }
+                catch (Exception ex)
+                {
+                    await _dialogService.ShowErrorDialogAsync("Move Failed", $"Could not move '{file.Name}': {ex.Message}");
+                    _auditLoggingService.LogFileOperation(
+                        "FILE_MOVE_FAILED",
+                        file.FullPath,
+                        $"Failed to move '{file.Name}': {ex.Message}",
+                        new Dictionary<string, string>
+                        {
+                            { "destination", destPath },
+                            { "error", ex.Message }
+                        }
+                    );
+                }
             }
-            catch (Exception ex)
+
+            if (ops.Any())
             {
-                await _dialogService.ShowErrorDialogAsync("Move Failed", $"Could not move '{file.Name}': {ex.Message}");
-
-                // Log failed move
-                _auditLoggingService.LogFileOperation(
-                    "FILE_MOVE_FAILED",
-                    file.FullPath,
-                    $"Failed to move '{file.Name}': {ex.Message}",
-                    new Dictionary<string, string>
-                    {
-                        { "destination", destPath },
-                        { "error", ex.Message }
-                    }
-                );
+                _undoStack.Push(new UndoAction("Move", ops));
+                UndoCommand.NotifyCanExecuteChanged();
+                UpdateAndSortLeftFilteredContents();
+                UpdateRightFilteredContents();
             }
+
+            SetOperationStatus($"Moved {successCount} file(s) to {SelectedRightDirectory!.Name}");
         }
-        if (ops.Any()) { _undoStack.Push(new UndoAction("Move", ops)); UndoCommand.NotifyCanExecuteChanged(); UpdateAndSortLeftFilteredContents(); UpdateRightFilteredContents(); }
+        finally
+        {
+            IsOperationInProgress = false;
+            UpdateButtonStates();
+        }
     }
 
     [RelayCommand(CanExecute = nameof(CanCopyFromScans))]
     private async Task CopyFromScans()
     {
-        foreach (var file in _mainViewModel.SelectedScanFiles)
+        var successCount = 0;
+        var totalCount = _mainViewModel.SelectedScanFiles.Count;
+
+        try
         {
-            try
-            {
-                var destPath = Path.Combine(SelectedRightDirectory.FullPath, file.Name);
-                File.Copy(file.FullPath, destPath, true);
+            IsOperationInProgress = true;
 
-                // Log copy operation with detailed info
-                _auditLoggingService.LogCopyOperation(file.FullPath, destPath, file.Name);
-            }
-            catch (Exception ex)
+            foreach (var file in _mainViewModel.SelectedScanFiles.ToList())
             {
-                await _dialogService.ShowErrorDialogAsync("Copy Failed", $"Could not copy '{file.Name}'.\nError: {ex.Message}");
-
-                // Log failed copy
-                _auditLoggingService.LogFileOperation(
-                    "FILE_COPY_FAILED",
-                    file.FullPath,
-                    $"Failed to copy '{file.Name}' from Scans: {ex.Message}",
-                    new Dictionary<string, string>
-                    {
-                    { "destination", Path.Combine(SelectedRightDirectory.FullPath, file. Name) },
-                    { "error", ex.Message }
-                    }
-                );
+                SetOperationStatus($"Copying '{file.Name}'... ({successCount + 1}/{totalCount})", false);
+                try
+                {
+                    var destPath = Path.Combine(SelectedRightDirectory!.FullPath, file.Name);
+                    File.Copy(file.FullPath, destPath, true);
+                    _auditLoggingService.LogCopyOperation(file.FullPath, destPath, file.Name);
+                    successCount++;
+                }
+                catch (Exception ex)
+                {
+                    await _dialogService.ShowErrorDialogAsync("Copy Failed", $"Could not copy '{file.Name}'.\nError: {ex.Message}");
+                    _auditLoggingService.LogFileOperation(
+                        "FILE_COPY_FAILED",
+                        file.FullPath,
+                        $"Failed to copy '{file.Name}' from Scans: {ex.Message}",
+                        new Dictionary<string, string>
+                        {
+                            { "destination", Path.Combine(SelectedRightDirectory!.FullPath, file.Name) },
+                            { "error", ex.Message }
+                        }
+                    );
+                }
             }
+
+            _mainViewModel.SelectedScanFiles.Clear();
+            UpdateRightFilteredContents();
+            CopyFromScansCommand.NotifyCanExecuteChanged();
+
+            SetOperationStatus($"Copied {successCount} file(s) from Scans");
         }
-        // Clear the selected scan files after copying
-        _mainViewModel.SelectedScanFiles.Clear();
-        UpdateRightFilteredContents();
-        CopyFromScansCommand.NotifyCanExecuteChanged();
+        finally
+        {
+            IsOperationInProgress = false;
+        }
     }
 
     [RelayCommand(CanExecute = nameof(CanUndo))]
@@ -411,41 +790,54 @@ public partial class BrowseViewModel : ObservableObject
     {
         var lastAction = _undoStack.Pop();
         UndoCommand.NotifyCanExecuteChanged();
-        foreach (var op in lastAction.Ops)
+        var successCount = 0;
+
+        try
         {
-            try
-            {
-                File.Move(op.FromPath, op.ToPath);
+            IsOperationInProgress = true;
 
-                // Log undo operation
-                _auditLoggingService.LogAction(new AuditLogEntry
+            foreach (var op in lastAction.Ops)
+            {
+                SetOperationStatus($"Undoing {lastAction.Type}... ({successCount + 1}/{lastAction.Ops.Count})", false);
+                try
                 {
-                    ActionType = "ACTION_UNDONE",
-                    Description = $"Undid {lastAction.Type} operation",
-                    TargetPath = op.FromPath,
-                    UserId = Environment.UserName,
-                    Details = $"Moved from {op.FromPath} back to {op.ToPath}"
-                });
-            }
-            catch (Exception ex)
-            {
-                await _dialogService.ShowErrorDialogAsync("Undo Failed", $"Could not move '{Path.GetFileName(op.ToPath)}' back.");
-
-                // Log failed undo
-                _auditLoggingService.LogFileOperation(
-                    "UNDO_FAILED",
-                    op.FromPath,
-                    $"Failed to undo {lastAction.Type} operation: {ex.Message}",
-                    new Dictionary<string, string>
+                    File.Move(op.FromPath, op.ToPath);
+                    _auditLoggingService.LogAction(new AuditLogEntry
                     {
-                        { "originalPath", op.ToPath },
-                        { "error", ex.Message }
-                    }
-                );
+                        ActionType = "ACTION_UNDONE",
+                        Description = $"Undid {lastAction.Type} operation",
+                        TargetPath = op.FromPath,
+                        UserId = Environment.UserName,
+                        Details = $"Moved from {op.FromPath} back to {op.ToPath}"
+                    });
+                    successCount++;
+                }
+                catch (Exception ex)
+                {
+                    await _dialogService.ShowErrorDialogAsync("Undo Failed", $"Could not move '{Path.GetFileName(op.ToPath)}' back.");
+                    _auditLoggingService.LogFileOperation(
+                        "UNDO_FAILED",
+                        op.FromPath,
+                        $"Failed to undo {lastAction.Type} operation: {ex.Message}",
+                        new Dictionary<string, string>
+                        {
+                            { "originalPath", op.ToPath },
+                            { "error", ex.Message }
+                        }
+                    );
+                }
             }
+
+            UpdateAndSortLeftFilteredContents();
+            UpdateRightFilteredContents();
+
+            SetOperationStatus($"Undid {lastAction.Type} ({successCount} file(s))");
         }
-        UpdateAndSortLeftFilteredContents();
-        UpdateRightFilteredContents();
+        finally
+        {
+            IsOperationInProgress = false;
+            UpdateButtonStates();
+        }
     }
 
     [RelayCommand(CanExecute = nameof(CanPerformSingleFileAction))]
@@ -453,10 +845,7 @@ public partial class BrowseViewModel : ObservableObject
     {
         var fileToPreview = SelectedLeftItems.Cast<ContentItem>().First();
         var fileItem = new FileItem { Name = fileToPreview.Name, FullPath = fileToPreview.FullPath, Type = GetFileType(fileToPreview.FullPath) };
-
-        // Log preview navigation
         _auditLoggingService.LogPreviewOperation(fileToPreview.FullPath, fileToPreview.Name);
-
         _navigationService.NavigateTo(typeof(PreviewPage), fileItem);
     }
 
@@ -483,49 +872,56 @@ public partial class BrowseViewModel : ObservableObject
 
         var sourceFilePaths = dropData.Item1;
         var destinationFolderPath = dropData.Item2;
+        List<FileOp>? completedOps = null;
 
-        List<FileOp> completedOps = null;
-
-        await Task.Run(async () =>
+        try
         {
-            var ops = new List<FileOp>();
-            foreach (var sourcePath in sourceFilePaths)
+            IsOperationInProgress = true;
+            SetOperationStatus("Moving files...", false);
+
+            await Task.Run(() =>
             {
-                var fileName = Path.GetFileName(sourcePath);
-                var destPath = Path.Combine(destinationFolderPath, fileName);
-                try
+                var ops = new List<FileOp>();
+                foreach (var sourcePath in sourceFilePaths)
                 {
-                    File.Move(sourcePath, destPath, true);
-
-                    // Log drag-drop move operation
-                    _auditLoggingService.LogMoveOperation(sourcePath, destPath, fileName);
-
-                    ops.Add(new FileOp(destPath, sourcePath));
+                    var fileName = Path.GetFileName(sourcePath);
+                    var destPath = Path.Combine(destinationFolderPath, fileName);
+                    try
+                    {
+                        File.Move(sourcePath, destPath, true);
+                        _auditLoggingService.LogMoveOperation(sourcePath, destPath, fileName);
+                        ops.Add(new FileOp(destPath, sourcePath));
+                    }
+                    catch (Exception ex)
+                    {
+                        _auditLoggingService.LogFileOperation(
+                            "FILE_MOVE_FAILED",
+                            sourcePath,
+                            $"Failed to move '{fileName}' via drag-drop: {ex.Message}",
+                            new Dictionary<string, string>
+                            {
+                                { "destination", destPath },
+                                { "error", ex.Message }
+                            }
+                        );
+                    }
                 }
-                catch (Exception ex)
-                {
-                    // Log failed drag-drop move
-                    _auditLoggingService.LogFileOperation(
-                        "FILE_MOVE_FAILED",
-                        sourcePath,
-                        $"Failed to move '{fileName}' via drag-drop: {ex.Message}",
-                        new Dictionary<string, string>
-                        {
-                            { "destination", destPath },
-                            { "error", ex.Message }
-                        }
-                    );
-                }
+                completedOps = ops;
+            });
+
+            if (completedOps != null && completedOps.Any())
+            {
+                _undoStack.Push(new UndoAction("Move", completedOps));
+                UndoCommand.NotifyCanExecuteChanged();
+                UpdateAndSortLeftFilteredContents();
+                UpdateRightFilteredContents();
+                SetOperationStatus($"Moved {completedOps.Count} file(s)");
             }
-            completedOps = ops;
-        });
-
-        if (completedOps != null && completedOps.Any())
+        }
+        finally
         {
-            _undoStack.Push(new UndoAction("Move", completedOps));
-            UndoCommand.NotifyCanExecuteChanged();
-            UpdateAndSortLeftFilteredContents();
-            UpdateRightFilteredContents();
+            IsOperationInProgress = false;
+            UpdateButtonStates();
         }
     }
     #endregion

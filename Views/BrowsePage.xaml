@@ -14,134 +14,283 @@
     <Page.Resources>
         <converters:InverseBoolToVisibilityConverter x:Key="InverseBoolToVisibilityConverter"/>
         <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
-        </Page.Resources>
 
-        <Grid Margin="8" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+        <!-- Source Colors (Blue) -->
+        <SolidColorBrush x:Key="SourceAccentColor" Color="#0078D4"/>
+
+        <!-- Destination Colors (Green) -->
+        <SolidColorBrush x:Key="DestinationAccentColor" Color="#107C10"/>
+    </Page.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Main Content -->
+        <Grid Grid.Row="0" Margin="16,16,16,8" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="Auto"/>
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
 
-            <!-- Left Side -->
-            <Grid Grid.Column="0" Margin="8">
+            <!-- Left Side - Source Panel -->
+            <Grid Grid.Column="0" Margin="0,0,8,0">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="*"/>
-                </Grid.RowDefinitions>
+                    </Grid.RowDefinitions>
 
-                <!-- Left Header -->
-                <TextBlock Grid.Row="0" Text="Source" FontSize="20" FontWeight="Bold" Margin="0,0,0,8" HorizontalTextAlignment="Center" Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}"/>
+                    <!-- Left Header -->
+                    <StackPanel Grid.Row="0" Orientation="Horizontal" Spacing="8" Margin="0,0,0,12">
+                        <FontIcon Glyph="&#xE8B7;" FontSize="20" Foreground="{StaticResource SourceAccentColor}"/>
+                        <TextBlock Text="Source" FontSize="20" FontWeight="SemiBold" Foreground="{StaticResource SourceAccentColor}"/>
+                    </StackPanel>
 
-                <!-- Left Breadcrumbs -->
-                <Grid Grid.Row="1" Margin="0,0,0,8">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="Auto"/>
-                    </Grid.ColumnDefinitions>
-                    <ItemsRepeater Grid.Column="0" ItemsSource="{Binding LeftBreadcrumbs}">
-                        <ItemsRepeater.Layout>
-                            <StackLayout Orientation="Horizontal"/>
-                        </ItemsRepeater.Layout>
-                        <ItemsRepeater.ItemTemplate>
-                            <DataTemplate x:DataType="models:BreadcrumbItem">
-                                <StackPanel Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
-                                    <Button DataContext="{x:Bind}" Click="LeftBreadcrumbButton_Click" Style="{ThemeResource TextBlockButtonStyle}" Visibility="{x:Bind (x:Boolean)IsLast, Converter={StaticResource InverseBoolToVisibilityConverter}}">
-                                        <TextBlock Text="{x:Bind Name}" FontWeight="SemiBold"/>
-                                    </Button>
-                                    <TextBlock Text="{x:Bind Name}" FontWeight="SemiBold" Visibility="{x:Bind IsLast, Mode=OneWay}" VerticalAlignment="Center" Padding="8,4"/>
-                                    <TextBlock Text="/" VerticalAlignment="Center" FontWeight="SemiBold" Visibility="{x:Bind (x:Boolean)IsLast, Converter={StaticResource InverseBoolToVisibilityConverter}}"/>
+                    <!-- Left Breadcrumbs -->
+                    <Grid Grid.Row="1" Margin="0,0,0,8">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <ScrollViewer Grid.Column="0" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled">
+                                <ItemsRepeater ItemsSource="{Binding LeftBreadcrumbs}">
+                                    <ItemsRepeater.Layout>
+                                        <StackLayout Orientation="Horizontal"/>
+                                    </ItemsRepeater.Layout>
+                                    <ItemsRepeater.ItemTemplate>
+                                        <DataTemplate x:DataType="models:BreadcrumbItem">
+                                            <StackPanel Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
+                                                <Button DataContext="{x:Bind}" 
+                                                Click="LeftBreadcrumbButton_Click" 
+                                                Style="{ThemeResource TextBlockButtonStyle}" 
+                                                Visibility="{x:Bind (x:Boolean)IsLast, Converter={StaticResource InverseBoolToVisibilityConverter}}">
+                                                    <TextBlock Text="{x:Bind Name}" FontWeight="SemiBold"/>
+                                                </Button>
+                                                <TextBlock Text="{x:Bind Name}" 
+                                                   FontWeight="SemiBold" 
+                                                   Visibility="{x:Bind IsLast, Mode=OneWay}" 
+                                                   VerticalAlignment="Center" 
+                                                   Padding="8,4"
+                                                   Foreground="{StaticResource SourceAccentColor}"/>
+                                                <TextBlock Text="/" 
+                                                   VerticalAlignment="Center" 
+                                                   FontWeight="SemiBold" 
+                                                   Opacity="0.5"
+                                                   Visibility="{x:Bind (x:Boolean)IsLast, Converter={StaticResource InverseBoolToVisibilityConverter}}"/>
+                                            </StackPanel>
+                                        </DataTemplate>
+                                    </ItemsRepeater.ItemTemplate>
+                                </ItemsRepeater>
+                            </ScrollViewer>
+                            <Button Grid.Column="1" 
+                            Command="{Binding GoUpLeftCommand}" 
+                            HorizontalAlignment="Right"
+                            ToolTipService.ToolTip="Navigate to parent folder">
+                                <StackPanel Orientation="Horizontal" Spacing="8">
+                                    <FontIcon Glyph="&#xE74A;" FontSize="14"/>
+                                    <TextBlock Text="Up"/>
                                 </StackPanel>
-                            </DataTemplate>
-                        </ItemsRepeater.ItemTemplate>
-                    </ItemsRepeater>
-                    <Button Grid.Column="1" Command="{Binding GoUpLeftCommand}" HorizontalAlignment="Right">
-                        <StackPanel Orientation="Horizontal" Spacing="8">
-                            <FontIcon Glyph="&#xE74A;" FontSize="16"/>
-                            <TextBlock Text="Up"/>
-                        </StackPanel>
-                    </Button>
-                </Grid>
+                            </Button>
+                    </Grid>
 
-                <!-- Left DataGrid -->
-                <controls:DataGrid
-                x:Name="LeftDataGrid"
-                Grid.Row="2"
-                ItemsSource="{Binding LeftFilteredContents}"
-                SelectionMode="Extended"
-                AutoGenerateColumns="False"
-                CanUserSortColumns="True"
-                Sorting="LeftDataGrid_Sorting"
-                SelectionChanged="LeftDataGrid_SelectionChanged"
-                DoubleTapped="LeftDataGrid_DoubleTapped"
-                PointerPressed="LeftDataGrid_PointerPressed"
-                CanDrag="True"
-                DragStarting="LeftDataGrid_DragStarting"
-                BorderBrush="Gray"
-                BorderThickness="1"
-                IsReadOnly="True">
+                    <!-- Left DataGrid -->
+                    <controls:DataGrid
+                    x:Name="LeftDataGrid"
+                    Grid.Row="2"
+                    ItemsSource="{Binding LeftFilteredContents}"
+                    SelectionMode="Extended"
+                    AutoGenerateColumns="False"
+                    CanUserSortColumns="True"
+                    Sorting="LeftDataGrid_Sorting"
+                    SelectionChanged="LeftDataGrid_SelectionChanged"
+                    DoubleTapped="LeftDataGrid_DoubleTapped"
+                    PointerPressed="LeftDataGrid_PointerPressed"
+                    CanDrag="True"
+                    DragStarting="LeftDataGrid_DragStarting"
+                    BorderBrush="{StaticResource SourceAccentColor}"
+                    BorderThickness="2"
+                    CornerRadius="4"
+                    IsReadOnly="True">
 
-                    <controls:DataGrid.Columns>
-                        <controls:DataGridTemplateColumn Header="Name" Tag="Name" Width="*">
-                            <controls:DataGridTemplateColumn.CellTemplate>
-                                <DataTemplate x:DataType="models:ContentItem">
-                                    <StackPanel Orientation="Horizontal" Spacing="8" Padding="4,0,0,0">
-                                        <SymbolIcon Symbol="{Binding SymbolIcon}"/>
-                                        <TextBlock Text="{Binding Name}" VerticalAlignment="Center"/>
-                                    </StackPanel>
-                                </DataTemplate>
-                            </controls:DataGridTemplateColumn.CellTemplate>
-                        </controls:DataGridTemplateColumn>
-                        <controls:DataGridTextColumn Header="Date Modified" Binding="{Binding ModifiedDateString}" Tag="Date" Width="120"/>
-                        <controls:DataGridTextColumn Header="Size" Binding="{Binding SizeString}" Tag="Size" Width="100"/>
+                        <controls:DataGrid.Columns>
+                            <controls:DataGridTemplateColumn Header="Name" Tag="Name" Width="*">
+                                <controls:DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate x:DataType="models:ContentItem">
+                                        <StackPanel Orientation="Horizontal" Spacing="8" Padding="4,0,0,0">
+                                            <SymbolIcon Symbol="{Binding SymbolIcon}"/>
+                                            <TextBlock Text="{Binding Name}" VerticalAlignment="Center"/>
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </controls:DataGridTemplateColumn.CellTemplate>
+                            </controls:DataGridTemplateColumn>
+                            <controls:DataGridTextColumn Header="Date Modified" Binding="{Binding ModifiedDateString}" Tag="Date" Width="120"/>
+                            <controls:DataGridTextColumn Header="Size" Binding="{Binding SizeString}" Tag="Size" Width="100"/>
                         </controls:DataGrid.Columns>
-                </controls:DataGrid>
+                    </controls:DataGrid>
             </Grid>
 
-        <!-- Middle Column -->
-        <StackPanel Grid.Column="1" Orientation="Vertical" VerticalAlignment="Center" Spacing="8" Margin="8">
-            <Button Command="{Binding RenameFileCommand}" MinWidth="120">
-                <StackPanel Orientation="Horizontal" Spacing="8">
-                    <FontIcon Glyph="&#xE8AC;" Foreground="#0078D4"/>
-                    <TextBlock Text="Rename"/>
-                </StackPanel>
-            </Button>
-            <Button Command="{Binding ArchiveFileCommand}" MinWidth="120">
-                <StackPanel Orientation="Horizontal" Spacing="8">
-                    <FontIcon Glyph="&#xE7B8;" Foreground="#EA6100"/>
-                    <TextBlock Text="Archive"/>
-                </StackPanel>
-            </Button>
-            <Button Command="{Binding ShipFileCommand}" MinWidth="120">
-                <StackPanel Orientation="Horizontal" Spacing="8">
-                    <FontIcon Glyph="&#xE8E1;" Foreground="#107C10"/>
-                    <TextBlock Text="Shipped"/>
-                </StackPanel>
-            </Button>
-            <Button Command="{Binding MoveFileCommand}" MinWidth="120">
-                <StackPanel Orientation="Horizontal" Spacing="8">
-                    <FontIcon Glyph="&#xE8DE;" Foreground="#0078D4"/>
-                    <TextBlock Text="Move"/>
-                </StackPanel>
-            </Button>
-            <Button Command="{Binding UndoCommand}" MinWidth="120">
-                <StackPanel Orientation="Horizontal" Spacing="8">
-                    <FontIcon Glyph="&#xE7A7;" Foreground="#0078D4"/>
-                    <TextBlock Text="Undo"/>
-                </StackPanel>
-            </Button>
-            <Rectangle Height="24"/>
-            <Button Command="{Binding CopyFromScansCommand}" Style="{StaticResource AccentButtonStyle}" MinWidth="120">
-                <StackPanel Orientation="Horizontal" Spacing="8">
-                    <FontIcon Glyph="&#xE8C8;" Foreground="#107C10"/>
-                    <TextBlock Text="Copy from Scans"/>
-                </StackPanel>
-            </Button>
-        </StackPanel>
+            <!-- Middle Column - Actions Panel -->
+            <Border Grid.Column="1" 
+                    Background="{ThemeResource CardBackgroundFillColorSecondaryBrush}" 
+                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                    BorderThickness="1"
+                    CornerRadius="8"
+                    Padding="16"
+                    Margin="8,0"
+                    VerticalAlignment="Center">
+                <StackPanel Orientation="Vertical" Spacing="8">
+                    <!-- Actions Header -->
+                    <TextBlock Text="Actions" 
+                               FontSize="14" 
+                               FontWeight="SemiBold" 
+                               HorizontalAlignment="Center"
+                               Margin="0,0,0,8"
+                               Opacity="0.8"/>
 
-            <!-- Right Side -->
-            <Grid Grid.Column="2" Margin="8">
+                    <Border Height="1" Background="{ThemeResource DividerStrokeColorDefaultBrush}" Margin="-8,0,-8,8"/>
+
+                    <!-- Selection Group -->
+                    <TextBlock Text="Selection" 
+                               FontSize="11" 
+                               Opacity="0.6" 
+                               Margin="0,0,0,4"/>
+
+                    <Button Command="{Binding AddToSelectionCommand}" 
+                            MinWidth="140"
+                            HorizontalContentAlignment="Left"
+                            ToolTipService.ToolTip="Add selected files to persistent selection">
+                        <StackPanel Orientation="Horizontal" Spacing="10">
+                            <FontIcon Glyph="&#xE710;" Foreground="#0078D4" FontSize="14"/>
+                            <TextBlock Text="Add to Selection"/>
+                        </StackPanel>
+                    </Button>
+
+                    <Button Command="{Binding PreviewSelectionCommand}" 
+                            MinWidth="140"
+                            HorizontalContentAlignment="Left"
+                            ToolTipService.ToolTip="View all selected files">
+                        <StackPanel Orientation="Horizontal" Spacing="10">
+                            <FontIcon Glyph="&#xE8FF;" Foreground="#0078D4" FontSize="14"/>
+                            <TextBlock Text="Preview Selection"/>
+                        </StackPanel>
+                    </Button>
+
+                    <Button Command="{Binding ClearSelectionCommand}" 
+                            MinWidth="140"
+                            HorizontalContentAlignment="Left"
+                            ToolTipService.ToolTip="Clear all selected files">
+                        <StackPanel Orientation="Horizontal" Spacing="10">
+                            <FontIcon Glyph="&#xE894;" Foreground="#C42B1C" FontSize="14"/>
+                            <TextBlock Text="Clear Selection"/>
+                        </StackPanel>
+                    </Button>
+
+                    <Rectangle Height="12"/>
+
+                    <!-- File Actions Group -->
+                    <TextBlock Text="File Operations" 
+                               FontSize="11" 
+                               Opacity="0.6" 
+                               Margin="0,0,0,4"/>
+
+                    <Button Command="{Binding RenameFileCommand}" 
+                            MinWidth="140"
+                            HorizontalContentAlignment="Left"
+                            ToolTipService.ToolTip="Rename selected file">
+                        <StackPanel Orientation="Horizontal" Spacing="10">
+                            <FontIcon Glyph="&#xE8AC;" Foreground="#0078D4" FontSize="14"/>
+                            <TextBlock Text="Rename"/>
+                        </StackPanel>
+                    </Button>
+
+                    <Button Command="{Binding MoveFileCommand}" 
+                            MinWidth="140"
+                            HorizontalContentAlignment="Left"
+                            ToolTipService.ToolTip="Move selected files to destination">
+                        <StackPanel Orientation="Horizontal" Spacing="10">
+                            <FontIcon Glyph="&#xE8DE;" Foreground="#0078D4" FontSize="14"/>
+                            <TextBlock Text="Move"/>
+                        </StackPanel>
+                    </Button>
+
+                    <Rectangle Height="12"/>
+
+                    <!-- Quick Actions Group -->
+                    <TextBlock Text="Quick Actions" 
+                               FontSize="11" 
+                               Opacity="0.6" 
+                               Margin="0,0,0,4"/>
+
+                    <Button Command="{Binding ArchiveFileCommand}" 
+                            MinWidth="140"
+                            HorizontalContentAlignment="Left"
+                            ToolTipService.ToolTip="Move selected files to archive folder">
+                        <StackPanel Orientation="Horizontal" Spacing="10">
+                            <FontIcon Glyph="&#xE7B8;" Foreground="#EA6100" FontSize="14"/>
+                            <TextBlock Text="Archive"/>
+                        </StackPanel>
+                    </Button>
+
+                    <Button Command="{Binding ShipFileCommand}" 
+                            MinWidth="140"
+                            HorizontalContentAlignment="Left"
+                            ToolTipService.ToolTip="Move selected files to shipped folder">
+                        <StackPanel Orientation="Horizontal" Spacing="10">
+                            <FontIcon Glyph="&#xE8E1;" Foreground="#107C10" FontSize="14"/>
+                            <TextBlock Text="Shipped"/>
+                        </StackPanel>
+                    </Button>
+
+                    <Rectangle Height="12"/>
+
+                    <!-- Undo -->
+                    <Button Command="{Binding UndoCommand}" 
+                            MinWidth="140"
+                            HorizontalContentAlignment="Left"
+                            ToolTipService.ToolTip="Undo last action">
+                        <StackPanel Orientation="Horizontal" Spacing="10">
+                            <FontIcon Glyph="&#xE7A7;" Foreground="#666666" FontSize="14"/>
+                            <TextBlock Text="Undo"/>
+                            <Border Background="{ThemeResource SystemAccentColor}" 
+                                    CornerRadius="8" 
+                                    Padding="6,2"
+                                    Visibility="{Binding UndoStackCount, Converter={StaticResource BoolToVisibilityConverter}}">
+                                <TextBlock Text="{Binding UndoStackCount}" 
+                                           FontSize="10" 
+                                           Foreground="White"/>
+                            </Border>
+                        </StackPanel>
+                    </Button>
+
+                    <Rectangle Height="16"/>
+                    <Border Height="1" Background="{ThemeResource DividerStrokeColorDefaultBrush}" Margin="-8,0"/>
+                    <Rectangle Height="16"/>
+
+                    <!-- Import Section -->
+                    <TextBlock Text="Import" 
+                               FontSize="11" 
+                               Opacity="0.6" 
+                               Margin="0,0,0,4"/>
+
+                    <Button Command="{Binding CopyFromScansCommand}" 
+                            Style="{StaticResource AccentButtonStyle}" 
+                            MinWidth="140"
+                            HorizontalContentAlignment="Left"
+                            ToolTipService.ToolTip="Copy files from Scans tab to destination">
+                        <StackPanel Orientation="Horizontal" Spacing="10">
+                            <FontIcon Glyph="&#xE8C8;" FontSize="14"/>
+                            <TextBlock Text="Copy from Scans"/>
+                        </StackPanel>
+                    </Button>
+                </StackPanel>
+            </Border>
+
+            <!-- Right Side - Destination Panel -->
+            <Grid Grid.Column="2" Margin="8,0,0,0">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="Auto"/>
@@ -149,49 +298,129 @@
                 </Grid.RowDefinitions>
 
                 <!-- Right Header -->
-                <TextBlock Grid.Row="0" Text="Destination" FontSize="20" FontWeight="Bold" Margin="0,0,0,8" HorizontalTextAlignment="Center"  Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}"/>
+                <StackPanel Grid.Row="0" Orientation="Horizontal" Spacing="8" Margin="0,0,0,12">
+                    <FontIcon Glyph="&#xE8DA;" FontSize="20" Foreground="{StaticResource DestinationAccentColor}"/>
+                    <TextBlock Text="Destination" FontSize="20" FontWeight="SemiBold" Foreground="{StaticResource DestinationAccentColor}"/>
+                </StackPanel>
 
                 <!-- Right Breadcrumbs -->
                 <Grid Grid.Row="1" Margin="0,0,0,8">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="Auto"/>
-                    </Grid.ColumnDefinitions>
-                    <ItemsRepeater Grid.Column="0" ItemsSource="{Binding RightBreadcrumbs}">
-                        <ItemsRepeater.Layout>
-                            <StackLayout Orientation="Horizontal"/>
-                        </ItemsRepeater.Layout>
-                        <ItemsRepeater.ItemTemplate>
-                            <DataTemplate x:DataType="models:BreadcrumbItem">
-                                <StackPanel Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
-                                    <Button DataContext="{x:Bind}" Click="RightBreadcrumbButton_Click" Style="{ThemeResource TextBlockButtonStyle}" Visibility="{x:Bind (x:Boolean)IsLast, Converter={StaticResource InverseBoolToVisibilityConverter}}">
-                                        <TextBlock Text="{x:Bind Name}" FontWeight="SemiBold"/>
-                                    </Button>
-                                    <TextBlock Text="{x:Bind Name}" FontWeight="SemiBold" Visibility="{x:Bind IsLast, Mode=OneWay}" VerticalAlignment="Center" Padding="8,4"/>
-                                    <TextBlock Text="/" VerticalAlignment="Center" FontWeight="SemiBold" Visibility="{x:Bind (x:Boolean)IsLast, Converter={StaticResource InverseBoolToVisibilityConverter}}"/>
-                                </StackPanel>
-                            </DataTemplate>
-                        </ItemsRepeater.ItemTemplate>
-                    </ItemsRepeater>
-                    <Button Grid.Column="1" Command="{Binding GoUpRightCommand}" HorizontalAlignment="Right">
-                        <StackPanel Orientation="Horizontal" Spacing="8">
-                            <FontIcon Glyph="&#xE74A;" FontSize="16"/>
-                            <TextBlock Text="Up"/>
-                        </StackPanel>
-                    </Button>
+                        </Grid.ColumnDefinitions>
+                        <ScrollViewer Grid.Column="0" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled">
+                            <ItemsRepeater ItemsSource="{Binding RightBreadcrumbs}">
+                                <ItemsRepeater.Layout>
+                                    <StackLayout Orientation="Horizontal"/>
+                                </ItemsRepeater.Layout>
+                                <ItemsRepeater.ItemTemplate>
+                                    <DataTemplate x:DataType="models:BreadcrumbItem">
+                                        <StackPanel Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
+                                            <Button DataContext="{x:Bind}" 
+                                                Click="RightBreadcrumbButton_Click" 
+                                                Style="{ThemeResource TextBlockButtonStyle}" 
+                                                Visibility="{x:Bind (x:Boolean)IsLast, Converter={StaticResource InverseBoolToVisibilityConverter}}">
+                                                <TextBlock Text="{x:Bind Name}" FontWeight="SemiBold"/>
+                                            </Button>
+                                            <TextBlock Text="{x:Bind Name}" 
+                                                   FontWeight="SemiBold" 
+                                                   Visibility="{x:Bind IsLast, Mode=OneWay}" 
+                                                   VerticalAlignment="Center" 
+                                                   Padding="8,4"
+                                                   Foreground="{StaticResource DestinationAccentColor}"/>
+                                            <TextBlock Text="/" 
+                                                   VerticalAlignment="Center" 
+                                                   FontWeight="SemiBold" 
+                                                   Opacity="0.5"
+                                                   Visibility="{x:Bind (x:Boolean)IsLast, Converter={StaticResource InverseBoolToVisibilityConverter}}"/>
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </ItemsRepeater.ItemTemplate>
+                            </ItemsRepeater>
+                        </ScrollViewer>
+                        <Button Grid.Column="1" 
+                            Command="{Binding GoUpRightCommand}" 
+                            HorizontalAlignment="Right"
+                            ToolTipService.ToolTip="Navigate to parent folder">
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <FontIcon Glyph="&#xE74A;" FontSize="14"/>
+                                <TextBlock Text="Up"/>
+                            </StackPanel>
+                        </Button>
                 </Grid>
 
                 <!-- Right ListView -->
-                <ListView Grid.Row="2" ItemsSource="{Binding RightFilteredContents}" SelectedItem="{Binding SelectedRightContent, Mode=TwoWay}" BorderBrush="Gray" BorderThickness="1" AllowDrop="True" DragOver="RightListView_DragOver" Drop="RightListView_Drop">
+                <ListView Grid.Row="2" 
+                          ItemsSource="{Binding RightFilteredContents}" 
+                          SelectedItem="{Binding SelectedRightContent, Mode=TwoWay}" 
+                          BorderBrush="{StaticResource DestinationAccentColor}" 
+                          BorderThickness="2"
+                          CornerRadius="4"
+                          AllowDrop="True" 
+                          DragOver="RightListView_DragOver" 
+                          Drop="RightListView_Drop">
                     <ListView.ItemTemplate>
                         <DataTemplate x:DataType="models:ContentItem">
-                            <StackPanel Orientation="Horizontal" Spacing="8">
+                            <StackPanel Orientation="Horizontal" Spacing="8" Padding="4,2">
                                 <SymbolIcon Symbol="{Binding SymbolIcon}"/>
-                                <TextBlock Text="{Binding Name}" />
+                                <TextBlock Text="{Binding Name}" VerticalAlignment="Center"/>
                             </StackPanel>
                         </DataTemplate>
                     </ListView.ItemTemplate>
                 </ListView>
             </Grid>
         </Grid>
+
+        <!-- Status Bar -->
+        <Border Grid.Row="1" 
+                Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                BorderThickness="0,1,0,0"
+                Padding="16,8">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- Selection Status -->
+                <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="8">
+                    <FontIcon Glyph="&#xE762;" FontSize="14" Foreground="{StaticResource SourceAccentColor}"/>
+                    <TextBlock Text="{Binding SelectionStatusText}" 
+                               VerticalAlignment="Center"
+                               FontSize="12"/>
+                </StackPanel>
+
+                <!-- Operation Status (center) -->
+                <StackPanel Grid.Column="1" 
+                            Orientation="Horizontal" 
+                            HorizontalAlignment="Center"
+                            Spacing="8"
+                            Visibility="{Binding OperationStatusText, Converter={StaticResource BoolToVisibilityConverter}}">
+                    <ProgressRing IsActive="{Binding IsOperationInProgress}" 
+                                  Width="16" 
+                                  Height="16"
+                                  Visibility="{Binding IsOperationInProgress, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                    <TextBlock Text="{Binding OperationStatusText}" 
+                               VerticalAlignment="Center"
+                               FontSize="12"
+                               Foreground="{ThemeResource SystemAccentColor}"/>
+                </StackPanel>
+
+                <!-- Undo Info (right side) -->
+                <StackPanel Grid.Column="2" 
+                            Orientation="Horizontal" 
+                            Spacing="4"
+                            Visibility="{Binding UndoStackCount, Converter={StaticResource BoolToVisibilityConverter}}">
+                    <FontIcon Glyph="&#xE7A7;" FontSize="12" Opacity="0.6"/>
+                    <TextBlock FontSize="11" Opacity="0.6">
+                        <Run Text="{Binding UndoStackCount}"/>
+                        <Run Text="action(s) to undo"/>
+                    </TextBlock>
+                </StackPanel>
+            </Grid>
+        </Border>
+    </Grid>
 </Page>
