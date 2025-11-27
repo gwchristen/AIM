@@ -49,10 +49,7 @@ public sealed partial class PrintableFormPage : Page
 
                 try
                 {
-                    var debugInfo = $"Received PrintableForm:\n" +
-                                    $"- Header: {form.Header}\n" +
-                                    $"- Pages count: {form.Pages?.Count ?? 0}\n" +
-                                    $"- PaginationLog count: {Services.PrintPaginationService.PaginationLog.Count}";
+                    var debugInfo = string.Join("\n", Services.PrintPaginationService.PaginationLog);
 
                     if (form.Pages?.Count > 0)
                     {
