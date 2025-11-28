@@ -6,64 +6,291 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:viewmodels="using:AIM.ViewModels"
     xmlns:converters="using:AIM.Converters"
-    mc:Ignorable="d"
-    d:DataContext="{d:DesignInstance Type=viewmodels:InventoryViewerViewModel}"
-    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+    mc:Ignorable="d">
 
     <Page.Resources>
-        <!-- These converters are in your App.xaml, but for clarity and robustness,
-             we can define them here or ensure they are in App.xaml.
-             Based on your repo, they are in App.xaml, so this section is not strictly necessary
-             but doesn't hurt. For this final version, I will rely on App.xaml. -->
+        <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
+        <converters:InverseBoolToVisibilityConverter x:Key="InverseBoolToVisibilityConverter"/>
+        <converters:InverseBoolConverter x:Key="InverseBoolConverter"/>
+
+        <SolidColorBrush x:Key="ArchiveAccentColor" Color="#744DA9"/>
+
+        <!-- Context Menu -->
+        <MenuFlyout x:Key="ItemContextMenu">
+            <MenuFlyoutItem x:Name="MenuPreview" Text="Preview File" Click="ContextMenu_Preview_Click">
+                <MenuFlyoutItem.Icon>
+                    <FontIcon Glyph="&#xE8FF;"/>
+                    </MenuFlyoutItem.Icon>
+            </MenuFlyoutItem>
+            <MenuFlyoutSeparator/>
+            <MenuFlyoutItem Text="Open in Explorer" Click="ContextMenu_OpenExplorer_Click">
+                <MenuFlyoutItem.Icon>
+                    <FontIcon Glyph="&#xE8DA;"/>
+                    </MenuFlyoutItem.Icon>
+            </MenuFlyoutItem>
+            <MenuFlyoutItem Text="Copy Path" Click="ContextMenu_CopyPath_Click">
+                <MenuFlyoutItem.Icon>
+                    <FontIcon Glyph="&#xE8C8;"/>
+                </MenuFlyoutItem.Icon>
+            </MenuFlyoutItem>
+        </MenuFlyout>
     </Page.Resources>
 
-    <Grid Margin="24">
+    <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
-        </Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
 
-        <!-- THE FIX: Use your existing InverseBoolConverter for the IsEnabled property. -->
-        <Button Grid.Row="0" Command="{Binding GoBackCommand}" Margin="0,0,0,12" IsEnabled="{Binding IsLoading, Mode=OneWay, Converter={StaticResource InverseBoolConverter}}">
-            <StackPanel Orientation="Horizontal" Spacing="8">
-                <FontIcon Glyph="&#xE72B;" FontSize="14"/>
-                <TextBlock Text="Back to Archive List"/>
-            </StackPanel>
-        </Button>
+            <!-- Header -->
+            <Border Grid.Row="0"
+                Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                BorderThickness="0,0,0,1"
+                Padding="24,16">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
 
-        <TextBlock Grid.Row="1" Text="{Binding ArchivePath, Mode=OneWay, FallbackValue='Inventory Viewer'}" Style="{ThemeResource TitleTextBlockStyle}"/>
+                    <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12">
+                        <FontIcon Glyph="&#xE7B8;" FontSize="28" Foreground="{StaticResource ArchiveAccentColor}"/>
+                        <StackPanel>
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <TextBlock Text="Archive Viewer" Style="{ThemeResource TitleTextBlockStyle}"/>
+                                <ProgressRing IsActive="{x:Bind ViewModel.IsLoading, Mode=OneWay}" 
+                                          Width="20" Height="20"
+                                          Visibility="{x:Bind ViewModel.IsLoading, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                            </StackPanel>
+                            <TextBlock Text="{x:Bind ViewModel.ArchiveName, Mode=OneWay}" 
+                                   Style="{ThemeResource CaptionTextBlockStyle}" 
+                                   Opacity="0.7"/>
+                        </StackPanel>
+                    </StackPanel>
 
-        <!-- THE FIX: Use your existing InverseBoolConverter for the IsEnabled property. -->
-        <AutoSuggestBox Grid.Row="2"
-                        x:Name="FilterBox"
-                        PlaceholderText="Filter files and folders..."
-                        QueryIcon="Find"
-                        Text="{Binding SearchQuery, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                        Margin="0,12,0,0"
-                        IsEnabled="{Binding IsLoading, Mode=OneWay, Converter={StaticResource InverseBoolConverter}}"/>
+                    <!-- Action Buttons -->
+                    <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8">
+                        <Button Command="{x:Bind ViewModel. ExpandAllCommand}"
+                            ToolTipService.ToolTip="Expand all folders"
+                            IsEnabled="{x:Bind ViewModel. IsLoading, Mode=OneWay, Converter={StaticResource InverseBoolConverter}}">
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <FontIcon Glyph="&#xE70D;" FontSize="14"/>
+                                <TextBlock Text="Expand All"/>
+                            </StackPanel>
+                        </Button>
+                        <Button Command="{x:Bind ViewModel.CollapseAllCommand}"
+                            ToolTipService.ToolTip="Collapse all folders"
+                            IsEnabled="{x:Bind ViewModel.IsLoading, Mode=OneWay, Converter={StaticResource InverseBoolConverter}}">
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <FontIcon Glyph="&#xE70E;" FontSize="14"/>
+                                <TextBlock Text="Collapse All"/>
+                            </StackPanel>
+                        </Button>
 
-        <ProgressRing Grid.Row="3" 
-                      IsActive="{Binding IsLoading, Mode=OneWay}" 
-                      HorizontalAlignment="Center" 
-                      VerticalAlignment="Center" 
-                      Width="50" 
-                      Height="50"/>
+                        <AppBarSeparator Margin="4,0"/>
 
-        <!-- THE FIX: Use your existing InverseBoolToVisibilityConverter to hide the TreeView while loading. -->
-        <TreeView Grid.Row="3"
-                  ItemsSource="{Binding RootNodes, Mode=OneWay}"
-                  Margin="0,12,0,0"
-                  Visibility="{Binding IsLoading, Mode=OneWay, Converter={StaticResource InverseBoolToVisibilityConverter}}">
-            <TreeView.ItemTemplate>
-                <DataTemplate x:DataType="viewmodels:TreeViewNode">
-                    <TreeViewItem ItemsSource="{Binding Children}" 
-                                  Content="{Binding Content}" 
-                                  Visibility="{Binding Visibility, Mode=OneWay}"
-                                  IsExpanded="{Binding IsExpanded, Mode=TwoWay}"/>
-                </DataTemplate>
-            </TreeView.ItemTemplate>
-        </TreeView>
+                        <Button Command="{x:Bind ViewModel.OpenInExplorerCommand}"
+                            ToolTipService.ToolTip="Open archive folder in Explorer"
+                            IsEnabled="{x:Bind ViewModel. IsLoading, Mode=OneWay, Converter={StaticResource InverseBoolConverter}}">
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <FontIcon Glyph="&#xE8DA;" FontSize="14"/>
+                                <TextBlock Text="Open Folder"/>
+                            </StackPanel>
+                        </Button>
+
+                        <AppBarSeparator Margin="4,0"/>
+
+                        <Button Command="{x:Bind ViewModel.GoBackCommand}"
+                            IsEnabled="{x:Bind ViewModel. IsLoading, Mode=OneWay, Converter={StaticResource InverseBoolConverter}}">
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <FontIcon Glyph="&#xE72B;" FontSize="14"/>
+                                <TextBlock Text="Back to Archives"/>
+                            </StackPanel>
+                        </Button>
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <!-- Filter Bar -->
+            <Border Grid.Row="1"
+                Background="{ThemeResource CardBackgroundFillColorSecondaryBrush}"
+                Padding="24,12">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="400"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <AutoSuggestBox Grid.Column="0"
+                                x:Name="FilterBox"
+                                PlaceholderText="Filter files and folders..."
+                                QueryIcon="Find"
+                                Text="{x:Bind ViewModel.SearchQuery, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                IsEnabled="{x:Bind ViewModel.IsLoading, Mode=OneWay, Converter={StaticResource InverseBoolConverter}}"/>
+
+                        <Button Grid.Column="1" 
+                        Command="{x:Bind ViewModel.ClearFilterCommand}"
+                        Visibility="{x:Bind ViewModel.HasFilter, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}"
+                        Margin="8,0,0,0"
+                        ToolTipService.ToolTip="Clear filter">
+                            <FontIcon Glyph="&#xE894;" FontSize="12"/>
+                        </Button>
+
+                        <!-- Filter Results -->
+                        <StackPanel Grid.Column="2" 
+                            Orientation="Horizontal" 
+                            Spacing="8" 
+                            HorizontalAlignment="Right"
+                            Visibility="{x:Bind ViewModel.HasFilter, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+                            <FontIcon Glyph="&#xE71C;" FontSize="12" Opacity="0.7"/>
+                            <TextBlock FontSize="12" Opacity="0.7">
+                        <Run Text="{x:Bind ViewModel.FilterMatchCount, Mode=OneWay}"/>
+                        <Run Text="matches found"/>
+                            </TextBlock>
+                        </StackPanel>
+                </Grid>
+            </Border>
+
+            <!-- Main Content Area -->
+            <Grid Grid.Row="2" Margin="24,12">
+                <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                    BorderThickness="1"
+                    CornerRadius="8">
+                    <Grid>
+                        <!-- Loading State -->
+                        <StackPanel HorizontalAlignment="Center" 
+                                VerticalAlignment="Center" 
+                                Spacing="12"
+                                Visibility="{x:Bind ViewModel.IsLoading, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+                            <ProgressRing IsActive="True" Width="48" Height="48"/>
+                            <TextBlock Text="{x:Bind ViewModel.LoadingText, Mode=OneWay}" FontSize="14" Opacity="0.7"/>
+                        </StackPanel>
+
+                        <!-- Error State -->
+                        <StackPanel HorizontalAlignment="Center" 
+                                VerticalAlignment="Center" 
+                                Spacing="12"
+                                Visibility="{x:Bind ViewModel. HasError, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+                            <FontIcon Glyph="&#xE783;" FontSize="48" Foreground="#C42B1C"/>
+                            <TextBlock Text="Unable to load archive" FontSize="16" FontWeight="SemiBold"/>
+                            <TextBlock Text="{x:Bind ViewModel.ErrorMessage, Mode=OneWay}" 
+                                   FontSize="13" Opacity="0.7" 
+                                   TextWrapping="Wrap" 
+                                   MaxWidth="300" 
+                                   TextAlignment="Center"/>
+                            <Button Content="Retry" Command="{x:Bind ViewModel.RetryCommand}" Margin="0,8,0,0"/>
+                        </StackPanel>
+
+                        <!-- Empty State -->
+                        <StackPanel HorizontalAlignment="Center" 
+                                VerticalAlignment="Center" 
+                                Spacing="12"
+                                Visibility="{x:Bind ViewModel. IsEmpty, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+                            <FontIcon Glyph="&#xE7C3;" FontSize="48" Opacity="0.3"/>
+                            <TextBlock Text="This archive is empty" FontSize="16" FontWeight="SemiBold" Opacity="0.6"/>
+                            <TextBlock Text="No files or folders found in this archive" FontSize="13" Opacity="0.4"/>
+                        </StackPanel>
+
+                        <!-- TreeView -->
+                        <TreeView x:Name="ArchiveTreeView"
+                              ItemsSource="{x:Bind ViewModel. RootNodes, Mode=OneWay}"
+                              Margin="8"
+                              Visibility="{x:Bind ViewModel.ShowTree, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}"
+                              RightTapped="ArchiveTreeView_RightTapped">
+                            <TreeView.ItemTemplate>
+                                <DataTemplate x:DataType="viewmodels:ArchiveTreeNode">
+                                    <TreeViewItem ItemsSource="{x:Bind Children}" 
+                                              IsExpanded="{x:Bind IsExpanded, Mode=TwoWay}"
+                                              Visibility="{x:Bind Visibility, Mode=OneWay}">
+                                        <Grid Padding="4,6" ToolTipService.ToolTip="{x:Bind FullPath}">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="Auto"/>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+
+                                            <!-- Icon -->
+                                            <FontIcon Grid.Column="0" 
+                                                  Glyph="{x:Bind Icon}" 
+                                                  FontSize="16" 
+                                                  Foreground="{x:Bind IconColor}"
+                                                  Margin="0,0,10,0"/>
+
+                                            <!-- Name -->
+                                            <TextBlock Grid.Column="1" 
+                                                   Text="{x:Bind Name}" 
+                                                   VerticalAlignment="Center"
+                                                   TextTrimming="CharacterEllipsis"/>
+
+                                            <!-- Size/Count Badge -->
+                                            <Border Grid.Column="2" 
+                                                Background="{ThemeResource CardBackgroundFillColorSecondaryBrush}"
+                                                CornerRadius="4"
+                                                Padding="6,2"
+                                                Margin="8,0,0,0"
+                                                Visibility="{x:Bind HasBadge}">
+                                                <TextBlock Text="{x:Bind BadgeText}" FontSize="11" Opacity="0.7"/>
+                                            </Border>
+                                        </Grid>
+                                    </TreeViewItem>
+                                </DataTemplate>
+                            </TreeView.ItemTemplate>
+                        </TreeView>
+                    </Grid>
+                </Border>
+            </Grid>
+
+            <!-- Status Bar -->
+            <Border Grid.Row="3"
+                Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                BorderThickness="0,1,0,0"
+                Padding="24,8"
+                Visibility="{x:Bind ViewModel. ShowTree, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <!-- Left - Archive Stats -->
+                    <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="16">
+                        <StackPanel Orientation="Horizontal" Spacing="4">
+                            <FontIcon Glyph="&#xE8B7;" FontSize="12" Opacity="0.6"/>
+                            <TextBlock FontSize="12" Opacity="0.7">
+                            <Run Text="{x:Bind ViewModel.TotalFolders, Mode=OneWay}"/>
+                            <Run Text="folders"/>
+                            </TextBlock>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" Spacing="4">
+                            <FontIcon Glyph="&#xE8A5;" FontSize="12" Opacity="0.6"/>
+                            <TextBlock FontSize="12" Opacity="0.7">
+                            <Run Text="{x:Bind ViewModel.TotalFiles, Mode=OneWay}"/>
+                            <Run Text="files"/>
+                            </TextBlock>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" Spacing="4">
+                            <FontIcon Glyph="&#xE8B8;" FontSize="12" Opacity="0.6"/>
+                            <TextBlock FontSize="12" Opacity="0.7">
+                            <Run Text="{x:Bind ViewModel.TotalSizeText, Mode=OneWay}"/>
+                            <Run Text="total"/>
+                            </TextBlock>
+                        </StackPanel>
+                    </StackPanel>
+
+                    <!-- Right - Archive Path -->
+                    <TextBlock Grid.Column="1" 
+                           Text="{x:Bind ViewModel.ArchivePath, Mode=OneWay}" 
+                           FontSize="12" 
+                           Opacity="0.5"
+                           TextTrimming="CharacterEllipsis"
+                           MaxWidth="400"/>
+                </Grid>
+            </Border>
     </Grid>
 </Page>

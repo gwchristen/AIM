@@ -166,7 +166,7 @@
                                 Padding="8,2"
                                 VerticalAlignment="Center"
                                 Visibility="{Binding HasArchives, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
-                                <TextBlock Text="{Binding ArchiveCount, Mode=OneWay}" FontSize="11" Foreground="White"/>
+                                <TextBlock Text="{Binding ArchiveCount, Mode=OneWay}" FontSize="11" Foreground="#696969"/>
                             </Border>
                         </StackPanel>
 
