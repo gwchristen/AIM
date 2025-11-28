@@ -138,12 +138,22 @@ public partial class DirAnalysisViewModel : ObservableObject
         IDialogService dialogService,
         DirectoryOperationService directoryOperationService,
         INavigationService navigationService,
-        IInfoBarService infoBarService)
+        IInfoBarService infoBarService,
+        IRefreshService refreshService)
+
     {
         _dialogService = dialogService;
         _directoryOperationService = directoryOperationService;
         _navigationService = navigationService;
         _infoBarService = infoBarService;
+        refreshService.RefreshRequested += (s, e) =>
+        {
+            if (!string.IsNullOrEmpty(AnalysisDirectory))
+            {
+                RunAnalysisCommand.Execute(null);
+            }
+        };
+
 
         _opCoStats = new ObservableCollection<OpCoStatItem>();
         _imInOhioAnomalies = new ObservableCollection<FileAnomalyItem>();

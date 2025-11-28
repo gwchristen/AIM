@@ -105,7 +105,7 @@ public partial class BrowseViewModel : ObservableObject
     #endregion
 
 
-    public BrowseViewModel(MainViewModel mainViewModel, IFileService fileService, ISettingsService settingsService, IDialogService dialogService, INavigationService navigationService, AuditLoggingService auditLoggingService)
+    public BrowseViewModel(MainViewModel mainViewModel, IFileService fileService, ISettingsService settingsService, IDialogService dialogService, INavigationService navigationService, AuditLoggingService auditLoggingService, IRefreshService refreshService)
     {
         _mainViewModel = mainViewModel;
         _dialogService = dialogService;
@@ -120,6 +120,14 @@ public partial class BrowseViewModel : ObservableObject
             UpdateSelectionStatus();
             UpdateButtonStates();
         };
+
+        // Subscribe to refresh events
+        refreshService.RefreshRequested += async (s, e) =>
+        {
+            await UpdateAndSortLeftFilteredContentsAsync();
+            await UpdateRightFilteredContentsAsync();
+        };
+
         InitializePaths();
         UpdateButtonStates();
     }

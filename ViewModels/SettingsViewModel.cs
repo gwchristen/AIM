@@ -25,6 +25,9 @@ public partial class SettingsViewModel : ObservableObject
     private readonly MainViewModel _mainViewModel;
     private readonly ThemeService _themeService;
     private AppSettings _appSettings;
+    private bool _isDisposed;
+    private readonly IRefreshService _refreshService;
+
 
     // Directory Settings Properties
     [ObservableProperty]
@@ -119,7 +122,8 @@ public partial class SettingsViewModel : ObservableObject
         MainViewModel mainViewModel,
         IDialogService dialogService,
         INavigationService navigationService,
-        ThemeService themeService)
+        ThemeService themeService,
+        IRefreshService refreshService)
     {
         _settingsService = settingsService;
         _securityService = securityService;
@@ -128,6 +132,8 @@ public partial class SettingsViewModel : ObservableObject
         _dialogService = dialogService;
         _navigationService = navigationService;
         _themeService = themeService;
+        _refreshService = refreshService;
+        _refreshService.RefreshRequested += OnRefreshRequested;
 
         // Initialize collections
         AllLogs = new ObservableCollection<AuditLogEntry>();
@@ -135,6 +141,9 @@ public partial class SettingsViewModel : ObservableObject
         AvailableActionTypes = new ObservableCollection<string>();
         AvailableUsers = new ObservableCollection<string>();
         AvailableThemes = new ObservableCollection<string>();
+
+        // Subscribe to security state changes
+        _securityService.LockStateChanged += OnSecurityLockStateChanged;
 
         // Load settings and check authorization
         LoadSettings();
@@ -150,6 +159,13 @@ public partial class SettingsViewModel : ObservableObject
         Debug.WriteLine($"[Settings] Is session unlocked: {_securityService.IsFullyUnlocked}");
 
         // Load audit logs
+        LoadLogsAsync().ConfigureAwait(false);
+    }
+
+    private void OnRefreshRequested(object sender, EventArgs e)
+    {
+        Debug.WriteLine($"[Settings] Received refresh request");
+        LoadSettings();
         LoadLogsAsync().ConfigureAwait(false);
     }
 
@@ -659,5 +675,20 @@ public partial class SettingsViewModel : ObservableObject
         };
 
         _auditLoggingService.LogAction(entry);
+    }
+
+    private void OnSecurityLockStateChanged(object sender, bool isUnlocked)
+    {
+        Debug.WriteLine($"[Settings] Received LockStateChanged event - isUnlocked: {isUnlocked}");
+
+        // Update all security-related properties
+        IsSessionUnlocked = isUnlocked;
+        IsUserAuthorized = isUnlocked;
+        IsDirectoriesUnlocked = isUnlocked;
+
+        // Refresh command states
+        ChangePINCommand.NotifyCanExecuteChanged();
+
+        Debug.WriteLine($"[Settings] Security state updated from external source");
     }
 }

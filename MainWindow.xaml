@@ -29,9 +29,9 @@
             OpenPaneLength="200">
 
             <NavigationView.MenuItems>
-                <NavigationViewItem Content="Refresh Tree" Tag="RefreshTree">
+                <NavigationViewItem Content="Refresh All" Tag="RefreshTree">
                     <NavigationViewItem.Icon>
-                        <FontIcon Glyph="&#xE72C;" Foreground="#0078D4"/>
+                        <FontIcon Glyph="&#xE72C;" Foreground="Salmon"/>
                         </NavigationViewItem.Icon>
                 </NavigationViewItem>
 

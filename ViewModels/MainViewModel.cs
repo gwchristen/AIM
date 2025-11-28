@@ -12,6 +12,7 @@ public partial class MainViewModel : ObservableObject
     private readonly ISettingsService _settingsService;
     private readonly IFileService _fileService;
     private readonly SecurityService _securityService;
+    private readonly IRefreshService _refreshService;
 
     [ObservableProperty]
     private string selectedRoot;
@@ -32,11 +33,12 @@ public partial class MainViewModel : ObservableObject
     /// Constructor that accepts all required services.  
     /// The DI container will use this single constructor.
     /// </summary>
-    public MainViewModel(ISettingsService settingsService, IFileService fileService, SecurityService securityService)
+    public MainViewModel(ISettingsService settingsService, IFileService fileService, SecurityService securityService, IRefreshService refreshService)
     {
         _settingsService = settingsService;
         _fileService = fileService;
         _securityService = securityService;
+        _refreshService = refreshService;
 
         Debug.WriteLine($"[MainViewModel] Constructor starting");
 
@@ -47,16 +49,17 @@ public partial class MainViewModel : ObservableObject
         // Check inventory visibility (based on current PIN unlock status)
         UpdateInventoryTabVisibility();
 
+        // Subscribe to refresh events
+        _refreshService.RefreshRequested += (s, e) => RefreshTree();
+
         Debug.WriteLine($"[Main] MainViewModel initialized");
         Debug.WriteLine($"[Main] Current user: {_securityService.CurrentUserId}");
         Debug.WriteLine($"[Main] Is fully unlocked: {_securityService.IsFullyUnlocked}");
         Debug.WriteLine($"[Main] Inventory tab visible: {IsInventoryTabVisible}");
 
-        // Add debug logging to SelectedScanFiles collection changes
         _selectedScanFiles.CollectionChanged += (s, e) =>
         {
-            Debug.WriteLine($"[MainViewModel.SelectedScanFiles] CollectionChanged - Action: {e.Action}, Count: {_selectedScanFiles.Count}");
-            Debug.WriteLine($"[MainViewModel. SelectedScanFiles] Stack: {System.Environment.StackTrace}");
+            Debug.WriteLine($"[MainViewModel. SelectedScanFiles] CollectionChanged - Action: {e.Action}, Count: {_selectedScanFiles.Count}");
         };
     }
 
@@ -105,5 +108,22 @@ public partial class MainViewModel : ObservableObject
 
         _fileService.PopulateSubDirectories(rootNode);
         LeftTree.Add(rootNode);
+    }
+
+    /// <summary>
+    /// Refreshes the directory tree and reloads settings. 
+    /// </summary>
+    public void RefreshTree()
+    {
+        Debug.WriteLine($"[MainViewModel] RefreshTree called");
+
+        // Reload settings
+        var appSettings = _settingsService.LoadSettings();
+        SelectedRoot = appSettings.DefaultRootDirectory;
+
+        // Rebuild the tree
+        BuildTree();
+
+        Debug.WriteLine($"[MainViewModel] RefreshTree complete");
     }
 }

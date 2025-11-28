@@ -1,25 +1,23 @@
 ﻿using System;
 using System.Diagnostics;
-using System.Threading.Tasks;
 
 namespace AIM.Services;
 
 /// <summary>
 /// Manages application security using a PIN-based access control system.
-/// 
-/// This service provides:
-/// - PIN validation for accessing restricted features
-/// - Session-based unlock state (locked/unlocked)
-/// - Access control for Inventory Tab, directory selectors, and clear logs
 /// </summary>
 public class SecurityService
 {
     private readonly ISettingsService _settingsService;
 
-    // Hardcoded PIN - change this value as needed
     private const string HARDCODED_PIN = "1234";
 
     private bool _isSessionUnlocked;
+
+    /// <summary>
+    /// Event fired when the lock state changes (locked or unlocked).
+    /// </summary>
+    public event EventHandler<bool> LockStateChanged;
 
     /// <summary>
     /// Gets the current Windows username.
@@ -28,14 +26,9 @@ public class SecurityService
 
     /// <summary>
     /// Gets a value indicating whether the current session is fully unlocked.
-    /// When unlocked, users can access: Inventory Tab, directory selectors in settings, and clear logs button.
     /// </summary>
     public bool IsFullyUnlocked => _isSessionUnlocked;
 
-    /// <summary>
-    /// Initializes a new instance of the SecurityService class.
-    /// </summary>
-    /// <param name="settingsService">Service for managing application settings</param>
     public SecurityService(ISettingsService settingsService)
     {
         _settingsService = settingsService;
@@ -46,10 +39,8 @@ public class SecurityService
     }
 
     /// <summary>
-    /// Validates the provided PIN and unlocks the session if correct.
+    /// Validates the provided PIN and unlocks the session if correct. 
     /// </summary>
-    /// <param name="pin">The PIN to validate</param>
-    /// <returns>True if the PIN is correct and session is unlocked; otherwise false</returns>
     public bool ValidatePin(string pin)
     {
         if (string.IsNullOrWhiteSpace(pin))
@@ -63,6 +54,7 @@ public class SecurityService
         if (_isSessionUnlocked)
         {
             Debug.WriteLine($"[Security] Session unlocked by user: {CurrentUserId}");
+            OnLockStateChanged(true);
         }
         else
         {
@@ -75,9 +67,6 @@ public class SecurityService
     /// <summary>
     /// Changes the hardcoded PIN after validating the current one.
     /// </summary>
-    /// <param name="oldPin">The current PIN for validation</param>
-    /// <param name="newPin">The new PIN to set</param>
-    /// <returns>True if the old PIN is correct and change was successful; otherwise false</returns>
     public bool ChangePin(string oldPin, string newPin)
     {
         if (string.IsNullOrWhiteSpace(oldPin) || string.IsNullOrWhiteSpace(newPin))
@@ -109,15 +98,22 @@ public class SecurityService
     {
         _isSessionUnlocked = false;
         Debug.WriteLine($"[Security] Session locked by user: {CurrentUserId}");
+        OnLockStateChanged(false);
     }
 
     /// <summary>
-    /// Verifies if the provided PIN is correct without unlocking the session.
+    /// Verifies if the provided PIN is correct without unlocking the session. 
     /// </summary>
-    /// <param name="pin">The PIN to verify</param>
-    /// <returns>True if the PIN is correct; otherwise false</returns>
     public bool VerifyPin(string pin)
     {
         return !string.IsNullOrWhiteSpace(pin) && pin == HARDCODED_PIN;
+    }
+
+    /// <summary>
+    /// Raises the LockStateChanged event.
+    /// </summary>
+    private void OnLockStateChanged(bool isUnlocked)
+    {
+        LockStateChanged?.Invoke(this, isUnlocked);
     }
 }

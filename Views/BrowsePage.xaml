@@ -167,7 +167,7 @@
                         CanDrag="True"
                         DragStarting="LeftDataGrid_DragStarting"
                         BorderBrush="{StaticResource SourceAccentColor}"
-                        BorderThickness="2"
+                        BorderThickness="1"
                         CornerRadius="4"
                         IsReadOnly="True"
                         Visibility="{Binding HasLeftPanelError, Converter={StaticResource InverseBoolToVisibilityConverter}}">
@@ -388,7 +388,7 @@
                                   ItemsSource="{Binding RightFilteredContents}" 
                                   SelectedItem="{Binding SelectedRightContent, Mode=TwoWay}" 
                                   BorderBrush="{StaticResource DestinationAccentColor}" 
-                                  BorderThickness="2"
+                                  BorderThickness="1"
                                   CornerRadius="4"
                                   AllowDrop="True" 
                                   DragOver="RightListView_DragOver" 

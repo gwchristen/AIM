@@ -28,13 +28,14 @@ public partial class StatsViewModel : ObservableObject
 
     private static readonly SolidColorBrush GreenBrush = new(Color.FromArgb(255, 16, 124, 16));
     private static readonly SolidColorBrush RedBrush = new(Color.FromArgb(255, 196, 43, 28));
-    private static readonly SolidColorBrush OrangeBrush = new(Color.FromArgb(255, 202, 80, 16));
 
     #region Observable Properties
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(TotalFileCountText))]
     private int _totalFileCount;
 
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(TotalDeviceCountText))]
     private long _totalDeviceCount;
 
     [ObservableProperty]
@@ -98,11 +99,12 @@ public partial class StatsViewModel : ObservableObject
     public string ProblematicIcon => ProblematicFileCount == 0 ? "\uE73E" : "\uE7BA";
     #endregion
 
-    public StatsViewModel(ISettingsService settingsService, INavigationService navigationService, IInfoBarService infoBarService)
+    public StatsViewModel(ISettingsService settingsService, INavigationService navigationService, IInfoBarService infoBarService, IRefreshService refreshService)
     {
         _settingsService = settingsService;
         _navigationService = navigationService;
         _infoBarService = infoBarService;
+        refreshService.RefreshRequested += (s, e) => LoadStatsCommand.Execute(null);
     }
 
     [RelayCommand]
@@ -130,10 +132,6 @@ public partial class StatsViewModel : ObservableObject
         OpCoFileSeries.Clear();
         OpCoDeviceSeries.Clear();
         ProblematicFiles.Clear();
-        TotalFileCount = 0;
-        TotalDeviceCount = 0;
-        ProblematicFileCount = 0;
-        ChartDataCount = 0;
 
         try
         {
@@ -141,8 +139,10 @@ public partial class StatsViewModel : ObservableObject
 
             var problematicList = new List<ProblematicFile>();
             var allStats = new List<OpCoStatItem>();
+            int totalFiles = 0;
+            long totalDevices = 0;
 
-            await Task.Run(() =>
+            await Task.Run(async () =>
             {
                 var opCoDirs = Directory.GetDirectories(rootPath);
 
@@ -150,36 +150,57 @@ public partial class StatsViewModel : ObservableObject
                 {
                     var dirInfo = new DirectoryInfo(dirPath);
                     var files = dirInfo.GetFiles("*.*", SearchOption.AllDirectories);
-                    long totalSize = files.Sum(f => f.Length);
+
+                    int fileCount = files.Length;
+                    long deviceCount = 0;
+
+                    // Count lines (devices) in each file
+                    foreach (var file in files)
+                    {
+                        try
+                        {
+                            var lines = await File.ReadAllLinesAsync(file.FullName);
+                            deviceCount += lines.Length;
+
+                            // Check for problematic files (lines != 17 characters)
+                            foreach (var line in lines)
+                            {
+                                if (line.Length != 17)
+                                {
+                                    problematicList.Add(new ProblematicFile
+                                    {
+                                        Path = file.FullName,
+                                        FileName = file.Name,
+                                        Directory = file.DirectoryName ?? "",
+                                        Size = file.Length
+                                    });
+                                    break; // Only add file once
+                                }
+                            }
+                        }
+                        catch
+                        {
+                            // Skip files that can't be read
+                        }
+                    }
 
                     allStats.Add(new OpCoStatItem
                     {
                         OpCoName = dirInfo.Name,
-                        FileCount = files.Length,
-                        DeviceCount = totalSize
+                        FileCount = fileCount,
+                        DeviceCount = deviceCount
                     });
 
-                    foreach (var file in files)
-                    {
-                        if (file.Length != 17)
-                        {
-                            problematicList.Add(new ProblematicFile
-                            {
-                                Path = file.FullName,
-                                FileName = file.Name,
-                                Directory = file.DirectoryName ?? "",
-                                Size = file.Length
-                            });
-                        }
-                    }
+                    totalFiles += fileCount;
+                    totalDevices += deviceCount;
                 }
             });
 
             // Update UI on main thread
-            TotalFileCount = allStats.Sum(s => s.FileCount);
-            TotalDeviceCount = allStats.Sum(s => s.DeviceCount);
+            TotalFileCount = totalFiles;
+            TotalDeviceCount = totalDevices;
 
-            foreach (var file in problematicList)
+            foreach (var file in problematicList.DistinctBy(f => f.Path))
             {
                 ProblematicFiles.Add(file);
             }
@@ -276,7 +297,7 @@ public partial class StatsViewModel : ObservableObject
             SuggestedStartLocation = PickerLocationId.DocumentsLibrary,
             SuggestedFileName = $"ProblematicFiles_{DateTime.Now:yyyyMMdd_HHmmss}"
         };
-        savePicker.FileTypeChoices.Add("Text File", new List<string> { ". txt" });
+        savePicker.FileTypeChoices.Add("Text File", new List<string> { ".txt" });
         savePicker.FileTypeChoices.Add("CSV File", new List<string> { ".csv" });
 
         var hwnd = WinRT.Interop.WindowNative.GetWindowHandle(App.MainWindow);

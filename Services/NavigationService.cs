@@ -1,4 +1,5 @@
 ﻿using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Navigation;
 using System;
 
 namespace AIM.Services;
@@ -14,6 +15,13 @@ public class NavigationService : INavigationService
     public void Initialize(Frame frame)
     {
         _frame = frame;
+        _frame.Navigated += Frame_Navigated;
+    }
+
+    private void Frame_Navigated(object sender, NavigationEventArgs e)
+    {
+        // Fire navigation changed event for ALL navigations (including GoBack)
+        NavigationChanged?.Invoke(e.SourcePageType);
     }
 
     public void NavigateTo(Type pageType)
@@ -23,7 +31,7 @@ public class NavigationService : INavigationService
             throw new InvalidOperationException("Navigation frame has not been initialized.");
         }
         _frame.Navigate(pageType);
-        NavigationChanged?.Invoke(pageType);
+        // Event will be fired by Frame_Navigated
     }
 
     public void NavigateTo(Type pageType, object parameter)
@@ -33,7 +41,7 @@ public class NavigationService : INavigationService
             throw new InvalidOperationException("Navigation frame has not been initialized.");
         }
         _frame.Navigate(pageType, parameter);
-        NavigationChanged?.Invoke(pageType);
+        // Event will be fired by Frame_Navigated
     }
 
     public void GoBack()
@@ -41,6 +49,7 @@ public class NavigationService : INavigationService
         if (CanGoBack)
         {
             _frame?.GoBack();
+            // Event will be fired by Frame_Navigated
         }
     }
 }

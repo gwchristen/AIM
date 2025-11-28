@@ -93,13 +93,21 @@ public partial class SearchViewModel : ObservableObject
     public bool CanSearch => !string.IsNullOrWhiteSpace(SearchQuery) && !IsSearching;
     #endregion
 
-    public SearchViewModel(ISearchService searchService, INavigationService navigationService, MainViewModel mainViewModel, IInfoBarService infoBarService)
+    public SearchViewModel(ISearchService searchService, INavigationService navigationService, MainViewModel mainViewModel, IInfoBarService infoBarService, IRefreshService refreshService)
     {
         _searchService = searchService;
         _navigationService = navigationService;
         _mainViewModel = mainViewModel;
         _infoBarService = infoBarService;
         SearchDirectory = _mainViewModel.SelectedRoot;
+        refreshService.RefreshRequested += (s, e) =>
+        {
+            // Clear and re-run search if there was one
+            if (!string.IsNullOrEmpty(SearchQuery) && HasResults)
+            {
+                SearchCommand.Execute(null);
+            }
+        };
 
         LoadSearchHistory();
     }

@@ -94,12 +94,13 @@ public partial class ScansViewModel : ObservableObject
     private string _currentSortColumn = "Name";
     private bool _isSortAscending = true;
 
-    public ScansViewModel(MainViewModel mainViewModel, INavigationService navigationService, ISettingsService settingsService, IInfoBarService infoBarService)
+    public ScansViewModel(MainViewModel mainViewModel, INavigationService navigationService, ISettingsService settingsService, IInfoBarService infoBarService, IRefreshService refreshService)
     {
         _mainViewModel = mainViewModel;
         _navigationService = navigationService;
         _settingsService = settingsService;
         _infoBarService = infoBarService;
+        refreshService.RefreshRequested += (s, e) => RefreshCommand.Execute(null);
 
         _mainViewModel.SelectedScanFiles.CollectionChanged += (s, e) => UpdateSelectionStats();
     }

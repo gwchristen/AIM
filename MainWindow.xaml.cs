@@ -18,12 +18,14 @@ public sealed partial class MainWindow : Window
     //private readonly SecurityService _securityService;
     private MainViewModel _mainViewModel;
     private SecurityService _securityService;
+    private readonly IRefreshService _refreshService;
 
     public MainWindow()
     {
         this.InitializeComponent();
         _navigationService = Ioc.Default.GetRequiredService<INavigationService>();
         _securityService = Ioc.Default.GetRequiredService<SecurityService>();
+        _refreshService = Ioc.Default.GetRequiredService<IRefreshService>();
         _navigationService.Initialize(ContentFrame);
         _navigationService.NavigationChanged += NavigationService_NavigationChanged;
 
@@ -147,11 +149,29 @@ public sealed partial class MainWindow : Window
             {
                 HandleLockUnlockClick();
             }
+            else if (navItemTag == "RefreshTree")
+            {
+                HandleRefreshClick();
+            }
             else
             {
                 NavigateToPage(navItemTag);
             }
         }
+    }
+
+    private void HandleRefreshClick()
+    {
+        Debug.WriteLine($"[MainWindow] Refresh button clicked - broadcasting refresh request");
+
+        // Show a brief notification
+        var infoBarService = Ioc.Default.GetRequiredService<IInfoBarService>();
+        infoBarService.Show("Refreshing", "Refreshing all application data...", Microsoft.UI.Xaml.Controls.InfoBarSeverity.Informational, 2000);
+
+        // Broadcast refresh to all subscribed ViewModels
+        _refreshService.RequestRefresh();
+
+        Debug.WriteLine($"[MainWindow] Refresh request broadcast complete");
     }
 
     private async void HandleLockUnlockClick()
@@ -247,7 +267,7 @@ public sealed partial class MainWindow : Window
     {
         Debug.WriteLine($"[MainWindow] NavigateToPage called with tag: {navItemTag}");
 
-        Type? pageType = navItemTag switch
+        Type pageType = navItemTag switch
         {
             "RefreshTree" => null,
             "Browse" => typeof(BrowsePage),
@@ -267,15 +287,10 @@ public sealed partial class MainWindow : Window
 
         if (pageType != null && _currentPageType != pageType)
         {
-            // Get the page from the DI container instead of creating a new instance
-            var page = (Page)Ioc.Default.GetService(pageType);
-            if (page != null)
-            {
-                Debug.WriteLine($"[MainWindow] Got instance of {pageType.Name} from DI container");
-                ContentFrame.Content = page;
-                _currentPageType = pageType;
-                HighlightSidebarItem(navItemTag);
-            }
+            // Use the navigation service to properly maintain the back stack
+            _navigationService.NavigateTo(pageType);
+            _currentPageType = pageType;
+            HighlightSidebarItem(navItemTag);
         }
         else if (pageType == null)
         {
