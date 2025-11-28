@@ -6,8 +6,6 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:models="using:AIM.Models"
     xmlns:converters="using:AIM.Converters"
-    xmlns:interactivity="using:Microsoft.Xaml.Interactivity"
-    xmlns:core="using:Microsoft.Xaml.Interactions.Core"
     mc:Ignorable="d">
 
     <Page.Resources>
@@ -21,7 +19,7 @@
             <MenuFlyoutItem Text="Preview" Click="ContextMenu_Preview_Click">
                 <MenuFlyoutItem.Icon>
                     <FontIcon Glyph="&#xE8FF;"/>
-                    </MenuFlyoutItem.Icon>
+                </MenuFlyoutItem.Icon>
             </MenuFlyoutItem>
             <MenuFlyoutItem Text="Open in Browse" Click="ContextMenu_OpenInBrowse_Click">
                 <MenuFlyoutItem.Icon>
@@ -58,18 +56,18 @@
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
-            </Grid.RowDefinitions>
+        </Grid.RowDefinitions>
 
-            <!-- Header -->
-            <Border Grid.Row="0"
+        <!-- Header -->
+        <Border Grid.Row="0"
                 Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
                 BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                 BorderThickness="0,0,0,1"
                 Padding="24,16">
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="Auto"/>
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
 
                     <!-- Title -->
@@ -77,68 +75,69 @@
                         <FontIcon Glyph="&#xE721;" FontSize="28" Foreground="{StaticResource SearchAccentColor}"/>
                         <StackPanel>
                             <TextBlock Text="Search" Style="{ThemeResource TitleTextBlockStyle}"/>
-                            <TextBlock Text="Find files by name or content" 
+                            <TextBlock Text="Find files by name or content (use * and ? as wildcards)" 
                                    Style="{ThemeResource CaptionTextBlockStyle}" 
                                    Opacity="0.7"/>
                         </StackPanel>
                     </StackPanel>
 
-                    <!-- Search History -->
+                    <!-- Search History Button with Label -->
                     <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8">
                         <Button x:Name="HistoryButton"
-                            ToolTipService.ToolTip="Search history"
+                            ToolTipService.ToolTip="View recent searches"
                             Visibility="{x:Bind ViewModel.HasSearchHistory, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
-                            <FontIcon Glyph="&#xE81C;" FontSize="16"/>
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <FontIcon Glyph="&#xE81C;" FontSize="14"/>
+                                <TextBlock Text="Search History"/>
+                            </StackPanel>
                             <Button.Flyout>
-                                <MenuFlyout x:Name="HistoryFlyout" Placement="BottomEdgeAlignedRight">
-                                    <!-- Items added dynamically -->
-                                </MenuFlyout>
+                                <MenuFlyout x:Name="HistoryFlyout" Placement="BottomEdgeAlignedRight"/>
                                 </Button.Flyout>
                         </Button>
                     </StackPanel>
-                </Grid>
-            </Border>
+            </Grid>
+        </Border>
 
-            <!-- Search Options Panel -->
-            <Border Grid.Row="1"
+        <!-- Search Options Panel -->
+        <Border Grid.Row="1"
                 Background="{ThemeResource CardBackgroundFillColorSecondaryBrush}"
                 Padding="24,16">
-                <StackPanel Spacing="16">
-                    <!-- Directory Selection -->
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="Auto"/>
-                            </Grid.ColumnDefinitions>
+            <StackPanel Spacing="16">
+                <!-- Directory Selection -->
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
 
-                            <TextBlock Grid.Column="0" 
+                        <TextBlock Grid.Column="0" 
                                Text="Search in:" 
                                VerticalAlignment="Center" 
                                Width="80"
                                FontWeight="SemiBold"/>
-                            <TextBox Grid.Column="1" 
+                        <TextBox Grid.Column="1" 
                              Text="{x:Bind ViewModel.SearchDirectory, Mode=TwoWay}" 
                              PlaceholderText="Select a directory to search"
                              IsReadOnly="True"
                              Margin="0,0,8,0"/>
-                            <Button Grid.Column="2" 
+                        <Button Grid.Column="2" 
                             Command="{x:Bind ViewModel.BrowseCommand}"
                             ToolTipService.ToolTip="Browse for folder">
-                                <StackPanel Orientation="Horizontal" Spacing="8">
-                                    <FontIcon Glyph="&#xE8DA;" FontSize="14"/>
-                                    <TextBlock Text="Browse"/>
-                                </StackPanel>
-                            </Button>
-                    </Grid>
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <FontIcon Glyph="&#xE8DA;" FontSize="14"/>
+                                <TextBlock Text="Browse"/>
+                            </StackPanel>
+                        </Button>
+                </Grid>
 
-                    <!-- Search Query -->
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="Auto"/>
+                <!-- Search Query -->
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
 
                         <TextBlock Grid.Column="0" 
@@ -149,13 +148,13 @@
                         <TextBox x:Name="SearchTextBox" 
                              Grid.Column="1" 
                              Text="{x:Bind ViewModel.SearchQuery, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
-                             PlaceholderText="Enter search query..."
+                             PlaceholderText="Enter search query...  (* = any chars, ? = single char)"
                              KeyDown="SearchTextBox_KeyDown"
                              Margin="0,0,8,0"/>
                         <Button Grid.Column="2" 
                             Command="{x:Bind ViewModel.SearchCommand}" 
                             Style="{ThemeResource AccentButtonStyle}"
-                            IsEnabled="{x:Bind ViewModel. CanSearch, Mode=OneWay}"
+                            IsEnabled="{x:Bind ViewModel.CanSearch, Mode=OneWay}"
                             ToolTipService.ToolTip="Search (Enter)">
                             <StackPanel Orientation="Horizontal" Spacing="8">
                                 <FontIcon Glyph="&#xE721;" FontSize="14"/>
@@ -169,275 +168,296 @@
                             Visibility="{x:Bind ViewModel.HasResults, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
                             <FontIcon Glyph="&#xE894;" FontSize="14"/>
                         </Button>
-                    </Grid>
+                </Grid>
 
-                    <!-- Search Options Row -->
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
+                <!-- Search Options Row -->
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
 
-                        <!-- Left side options -->
-                        <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="24">
-                            <!-- Search Type -->
-                            <StackPanel Orientation="Horizontal" Spacing="8">
-                                <TextBlock Text="Search in:" VerticalAlignment="Center" Opacity="0.8"/>
-                                <ComboBox SelectedIndex="{x:Bind ViewModel.SearchTypeIndex, Mode=TwoWay}" Width="150">
-                                    <ComboBoxItem Content="File Contents"/>
-                                    <ComboBoxItem Content="File Names"/>
-                                    <ComboBoxItem Content="Both"/>
-                                </ComboBox>
-                            </StackPanel>
-
-                            <!-- File Type Filter -->
-                            <StackPanel Orientation="Horizontal" Spacing="8">
-                                <TextBlock Text="File type:" VerticalAlignment="Center" Opacity="0.8"/>
-                                <ComboBox SelectedIndex="{x:Bind ViewModel.FileTypeIndex, Mode=TwoWay}" Width="120">
-                                    <ComboBoxItem Content="All Files"/>
-                                    <ComboBoxItem Content=".txt only"/>
-                                    <ComboBoxItem Content=".csv only"/>
-                                </ComboBox>
-                            </StackPanel>
-
-                            <!-- Case Sensitive -->
-                            <CheckBox Content="Case sensitive" 
-                                  IsChecked="{x:Bind ViewModel.IsCaseSensitive, Mode=TwoWay}"/>
-                        </StackPanel>
-
-                        <!-- Right side - Date filter -->
-                        <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8" HorizontalAlignment="Right">
-                            <TextBlock Text="Modified:" VerticalAlignment="Center" Opacity="0.8"/>
-                            <ComboBox SelectedIndex="{x:Bind ViewModel.DateFilterIndex, Mode=TwoWay}" Width="140">
-                                <ComboBoxItem Content="Any time"/>
-                                <ComboBoxItem Content="Today"/>
-                                <ComboBoxItem Content="Last 7 days"/>
-                                <ComboBoxItem Content="Last 30 days"/>
-                                <ComboBoxItem Content="Last 90 days"/>
+                    <!-- Left side options -->
+                    <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="24">
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <TextBlock Text="Search in:" VerticalAlignment="Center" Opacity="0.8"/>
+                            <ComboBox SelectedIndex="{x:Bind ViewModel.SearchTypeIndex, Mode=TwoWay}" Width="150">
+                                <ComboBoxItem Content="File Contents"/>
+                                <ComboBoxItem Content="File Names"/>
+                                <ComboBoxItem Content="Both"/>
                             </ComboBox>
                         </StackPanel>
-                    </Grid>
-                </StackPanel>
-            </Border>
 
-            <!-- Results Area -->
-            <Grid Grid.Row="2" Margin="24,16,24,0">
-                <!-- Empty State - No Search Yet -->
-                <StackPanel HorizontalAlignment="Center" 
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <TextBlock Text="File type:" VerticalAlignment="Center" Opacity="0.8"/>
+                            <ComboBox SelectedIndex="{x:Bind ViewModel.FileTypeIndex, Mode=TwoWay}" Width="120">
+                                <ComboBoxItem Content="All Files"/>
+                                <ComboBoxItem Content=".txt only"/>
+                                <ComboBoxItem Content=".csv only"/>
+                            </ComboBox>
+                        </StackPanel>
+
+                        <CheckBox Content="Exact case" 
+                                  IsChecked="{x:Bind ViewModel. IsCaseSensitive, Mode=TwoWay}"
+                                  ToolTipService.ToolTip="Match exact uppercase/lowercase"/>
+                    </StackPanel>
+
+                    <!-- Right side - Date filter -->
+                    <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8" HorizontalAlignment="Right">
+                        <TextBlock Text="Modified:" VerticalAlignment="Center" Opacity="0.8"/>
+                        <ComboBox SelectedIndex="{x:Bind ViewModel.DateFilterIndex, Mode=TwoWay}" Width="140">
+                            <ComboBoxItem Content="Any time"/>
+                            <ComboBoxItem Content="Today"/>
+                            <ComboBoxItem Content="Last 7 days"/>
+                            <ComboBoxItem Content="Last 30 days"/>
+                            <ComboBoxItem Content="Last 90 days"/>
+                        </ComboBox>
+                    </StackPanel>
+                </Grid>
+            </StackPanel>
+        </Border>
+
+        <!-- Results Area - This is Row 2 with Height="*" -->
+        <Grid Grid.Row="2">
+            <!-- Empty State - No Search Yet -->
+            <StackPanel HorizontalAlignment="Center" 
                         VerticalAlignment="Center" 
                         Spacing="16"
+                        Margin="24"
                         Visibility="{x:Bind ViewModel.ShowEmptyState, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
-                    <FontIcon Glyph="&#xE721;" FontSize="64" Opacity="0.3"/>
-                    <TextBlock Text="Enter a search query to find files" 
+                <FontIcon Glyph="&#xE721;" FontSize="64" Opacity="0.3"/>
+                <TextBlock Text="Enter a search query to find files" 
                            FontSize="16" 
                            Opacity="0.6"
                            HorizontalAlignment="Center"/>
-                    <TextBlock Text="Search by file name or content using the options above" 
-                           FontSize="13" 
-                           Opacity="0.4"
-                           HorizontalAlignment="Center"/>
+                <StackPanel Spacing="4" HorizontalAlignment="Center">
+                    <TextBlock Text="Search tips:" FontSize="13" Opacity="0.5" HorizontalAlignment="Center" FontWeight="SemiBold"/>
+                    <TextBlock Text="• Use * to match any characters (e.g., test* matches test, testing)" FontSize="12" Opacity="0.4"/>
+                    <TextBlock Text="• Use ? to match a single character (e.g., te? t matches test, text)" FontSize="12" Opacity="0.4"/>
+                    <TextBlock Text="• Enable 'Exact case' for case-sensitive searches" FontSize="12" Opacity="0.4"/>
                 </StackPanel>
+            </StackPanel>
 
-                <!-- Loading State -->
-                <Grid Visibility="{x:Bind ViewModel.IsSearching, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
-                    <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="16">
-                        <ProgressRing IsActive="True" Width="48" Height="48"/>
-                        <TextBlock Text="{x:Bind ViewModel.SearchProgressText, Mode=OneWay}" 
-                               FontSize="14" 
-                               Opacity="0.8"
-                               HorizontalAlignment="Center"/>
-                        <Button Content="Cancel" 
-                            Command="{x:Bind ViewModel. CancelSearchCommand}"
-                            HorizontalAlignment="Center"/>
-                    </StackPanel>
-                </Grid>
-
-                <!-- No Results State -->
-                <StackPanel HorizontalAlignment="Center" 
+            <!-- Loading State -->
+            <StackPanel HorizontalAlignment="Center" 
                         VerticalAlignment="Center" 
                         Spacing="16"
-                        Visibility="{x:Bind ViewModel. ShowNoResults, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
-                    <FontIcon Glyph="&#xE8FB;" FontSize="64" Opacity="0.3"/>
-                    <TextBlock Text="No results found" 
+                        Visibility="{x:Bind ViewModel.IsSearching, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+                <ProgressRing IsActive="True" Width="48" Height="48"/>
+                <TextBlock Text="{x:Bind ViewModel. SearchProgressText, Mode=OneWay}" 
+                           FontSize="14" 
+                           Opacity="0.8"
+                           HorizontalAlignment="Center"/>
+                <Button Content="Cancel" 
+                        Command="{x:Bind ViewModel.CancelSearchCommand}"
+                        HorizontalAlignment="Center"/>
+            </StackPanel>
+
+            <!-- No Results State -->
+            <StackPanel HorizontalAlignment="Center" 
+                        VerticalAlignment="Center" 
+                        Spacing="16"
+                        Visibility="{x:Bind ViewModel.ShowNoResults, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+                <FontIcon Glyph="&#xE8FB;" FontSize="64" Opacity="0.3"/>
+                <TextBlock Text="No results found" 
                            FontSize="18" 
                            FontWeight="SemiBold"
                            Opacity="0.7"
                            HorizontalAlignment="Center"/>
-                    <StackPanel Spacing="4" HorizontalAlignment="Center">
-                        <TextBlock Text="Try the following:" FontSize="13" Opacity="0.5" HorizontalAlignment="Center"/>
-                        <TextBlock Text="• Check your spelling" FontSize="12" Opacity="0.4"/>
-                        <TextBlock Text="• Try different keywords" FontSize="12" Opacity="0.4"/>
-                        <TextBlock Text="• Broaden your search filters" FontSize="12" Opacity="0.4"/>
-                        <TextBlock Text="• Make sure you're searching the right directory" FontSize="12" Opacity="0.4"/>
-                    </StackPanel>
+                <StackPanel Spacing="4" HorizontalAlignment="Center">
+                    <TextBlock Text="Try the following:" FontSize="13" Opacity="0.5" HorizontalAlignment="Center"/>
+                    <TextBlock Text="• Check your spelling" FontSize="12" Opacity="0.4"/>
+                    <TextBlock Text="• Try using wildcards (e.g., test* or te? t)" FontSize="12" Opacity="0.4"/>
+                    <TextBlock Text="• Disable 'Exact case' for broader matches" FontSize="12" Opacity="0.4"/>
+                    <TextBlock Text="• Broaden your search filters" FontSize="12" Opacity="0.4"/>
                 </StackPanel>
+            </StackPanel>
 
-                <!-- Results List -->
-                <Grid Visibility="{x:Bind ViewModel.HasResults, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="*"/>
-                        </Grid.RowDefinitions>
+            <!-- Results Section -->
+            <Grid Margin="24,16,24,0"
+                  Visibility="{x:Bind ViewModel.HasResults, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
 
-                        <!-- Results Header -->
-                        <Grid Grid.Row="0" Margin="0,0,0,12">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="Auto"/>
-                                </Grid.ColumnDefinitions>
+                    <!-- Results Header -->
+                    <Grid Grid.Row="0" Margin="0,0,0,12">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
 
-                                <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="8">
-                                    <TextBlock FontSize="14" FontWeight="SemiBold">
+                            <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="8">
+                                <TextBlock FontSize="14" FontWeight="SemiBold">
                             <Run Text="Found"/>
-                            <Run Text="{x:Bind ViewModel.ResultCount, Mode=OneWay}"/>
+                            <Run Text="{x:Bind ViewModel. ResultCount, Mode=OneWay}"/>
                             <Run Text="result(s)"/>
-                                    </TextBlock>
-                                    <TextBlock Text="{x:Bind ViewModel.SearchTimeText, Mode=OneWay}" 
+                                </TextBlock>
+                                <TextBlock Text="{x:Bind ViewModel. SearchTimeText, Mode=OneWay}" 
                                    FontSize="12" 
                                    Opacity="0.6"
                                    VerticalAlignment="Center"/>
-                                </StackPanel>
+                                <Border Background="{ThemeResource CardBackgroundFillColorSecondaryBrush}"
+                                CornerRadius="4"
+                                Padding="8,2"
+                                Margin="8,0,0,0"
+                                Visibility="{x:Bind ViewModel.QueryHasWildcards, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+                                    <TextBlock Text="Wildcards" FontSize="11" Opacity="0.7"/>
+                                </Border>
+                                <Border Background="{ThemeResource CardBackgroundFillColorSecondaryBrush}"
+                                CornerRadius="4"
+                                Padding="8,2"
+                                Visibility="{x:Bind ViewModel.IsCaseSensitive, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+                                    <TextBlock Text="Exact Case" FontSize="11" Opacity="0.7"/>
+                                </Border>
+                            </StackPanel>
 
-                                <!-- Sort Options -->
-                                <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8">
-                                    <TextBlock Text="Sort by:" VerticalAlignment="Center" Opacity="0.7" FontSize="12"/>
-                                    <ComboBox SelectedIndex="{x:Bind ViewModel.SortIndex, Mode=TwoWay}" Width="130">
-                                        <ComboBoxItem Content="Name"/>
-                                        <ComboBoxItem Content="Date Modified"/>
-                                        <ComboBoxItem Content="Size"/>
-                                        <ComboBoxItem Content="Path"/>
-                                    </ComboBox>
-                                    <Button Click="ToggleSortDirection_Click" 
+                            <!-- Sort Options -->
+                            <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8">
+                                <TextBlock Text="Sort by:" VerticalAlignment="Center" Opacity="0.7" FontSize="12"/>
+                                <ComboBox SelectedIndex="{x:Bind ViewModel.SortIndex, Mode=TwoWay}" Width="130">
+                                    <ComboBoxItem Content="Name"/>
+                                    <ComboBoxItem Content="Date Modified"/>
+                                    <ComboBoxItem Content="Size"/>
+                                    <ComboBoxItem Content="Path"/>
+                                </ComboBox>
+                                <Button Click="ToggleSortDirection_Click" 
                                 ToolTipService.ToolTip="Toggle sort direction"
                                 Padding="8,6">
-                                        <FontIcon x:Name="SortDirectionIcon" Glyph="&#xE74A;" FontSize="12"/>
-                                    </Button>
-                                </StackPanel>
-                        </Grid>
+                                    <FontIcon x:Name="SortDirectionIcon" Glyph="&#xE74A;" FontSize="12"/>
+                                </Button>
+                            </StackPanel>
+                    </Grid>
 
-                        <!-- Results ListView -->
-                        <ListView Grid.Row="1"
+                    <!-- Results ListView -->
+                    <ListView Grid.Row="1"
                           x:Name="ResultsListView"
                           ItemsSource="{x:Bind ViewModel.SearchResults, Mode=OneWay}"
                           SelectionMode="Extended"
                           IsItemClickEnabled="True"
                           RightTapped="ResultsListView_RightTapped"
                           DoubleTapped="ResultsListView_DoubleTapped">
-
-                            <ListView.ItemTemplate>
-                                <DataTemplate x:DataType="models:SearchResultItem">
-                                    <Grid Padding="12" 
+                        <ListView.ItemContainerStyle>
+                            <Style TargetType="ListViewItem">
+                                <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                                <Setter Property="Padding" Value="0"/>
+                                <Setter Property="Margin" Value="0,2"/>
+                            </Style>
+                        </ListView.ItemContainerStyle>
+                        <ListView.ItemTemplate>
+                            <DataTemplate x:DataType="models:SearchResultItem">
+                                <Grid Padding="12" 
                                   Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" 
                                   CornerRadius="6"
-                                  Margin="0,4"
                                   BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                                   BorderThickness="1">
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="Auto"/>
-                                            <ColumnDefinition Width="*"/>
-                                            <ColumnDefinition Width="Auto"/>
-                                            </Grid.ColumnDefinitions>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
 
-                                            <!-- File Icon -->
-                                            <FontIcon Grid.Column="0" 
+                                    <!-- File Icon -->
+                                    <FontIcon Grid.Column="0" 
                                           Glyph="{x:Bind FileIcon}" 
                                           FontSize="24" 
                                           Foreground="{StaticResource SearchAccentColor}"
                                           Margin="0,0,16,0"
                                           VerticalAlignment="Center"/>
 
-                                            <!-- File Info -->
-                                            <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="4">
-                                                <StackPanel Orientation="Horizontal" Spacing="8">
-                                                    <TextBlock Text="{x:Bind Name}" 
+                                    <!-- File Info -->
+                                    <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="4">
+                                        <StackPanel Orientation="Horizontal" Spacing="8">
+                                            <TextBlock Text="{x:Bind Name}" 
                                                    FontWeight="SemiBold" 
                                                    FontSize="14"
                                                    TextTrimming="CharacterEllipsis"/>
-                                                    <Border Background="{ThemeResource AccentFillColorDefaultBrush}"
+                                            <Border Background="{ThemeResource AccentFillColorDefaultBrush}"
                                                 CornerRadius="4"
                                                 Padding="6,2"
                                                 Visibility="{x:Bind HasMatchPreview}">
-                                                        <TextBlock Text="Content Match" FontSize="10" Foreground="#696969"/>
-                                                    </Border>
-                                                </StackPanel>
+                                                <TextBlock Text="Content Match" FontSize="10" Foreground="#696969"/>
+                                            </Border>
+                                        </StackPanel>
 
-                                                <TextBlock Text="{x:Bind DirectoryPath}" 
+                                        <TextBlock Text="{x:Bind DirectoryPath}" 
                                                FontSize="12"
                                                Opacity="0.6"
                                                TextTrimming="CharacterEllipsis"/>
 
-                                                <!-- Match Preview -->
-                                                <Border Background="{ThemeResource CardBackgroundFillColorSecondaryBrush}"
+                                        <!-- Match Preview -->
+                                        <Border Background="{ThemeResource CardBackgroundFillColorSecondaryBrush}"
                                             CornerRadius="4"
                                             Padding="8,4"
                                             Margin="0,4,0,0"
                                             Visibility="{x:Bind HasMatchPreview}">
-                                                    <TextBlock Text="{x:Bind MatchPreview}" 
+                                            <TextBlock Text="{x:Bind MatchPreview}" 
                                                    FontSize="12"
                                                    FontFamily="Cascadia Code, Consolas"
                                                    Opacity="0.8"
                                                    TextTrimming="CharacterEllipsis"
                                                    MaxLines="2"/>
-                                                </Border>
+                                        </Border>
 
-                                                <!-- File metadata -->
-                                                <StackPanel Orientation="Horizontal" Spacing="16" Margin="0,4,0,0">
-                                                    <TextBlock FontSize="11" Opacity="0.5">
+                                        <!-- File metadata -->
+                                        <StackPanel Orientation="Horizontal" Spacing="16" Margin="0,4,0,0">
+                                            <TextBlock FontSize="11" Opacity="0.5">
                                             <Run Text="{x:Bind FileSizeText}"/>
-                                                    </TextBlock>
-                                                    <TextBlock FontSize="11" Opacity="0.5">
+                                            </TextBlock>
+                                            <TextBlock FontSize="11" Opacity="0.5">
                                             <Run Text="Modified:"/>
                                             <Run Text="{x:Bind ModifiedDateText}"/>
-                                                    </TextBlock>
-                                                </StackPanel>
-                                            </StackPanel>
+                                            </TextBlock>
+                                        </StackPanel>
+                                    </StackPanel>
 
-                                            <!-- Action Buttons -->
-                                            <StackPanel Grid.Column="2" 
+                                    <!-- Action Buttons -->
+                                    <StackPanel Grid.Column="2" 
                                             Orientation="Horizontal" 
                                             Spacing="4" 
                                             VerticalAlignment="Center"
                                             Margin="16,0,0,0">
-                                                <Button ToolTipService.ToolTip="Preview file"
+                                        <Button ToolTipService.ToolTip="Preview file"
                                             Click="PreviewButton_Click"
                                             Padding="8">
-                                        <FontIcon Glyph="&#xE8FF;" FontSize="14" Foreground="#ffff00"/>
-                                                </Button>
-                                                <Button ToolTipService.ToolTip="Open in Browse tab"
+                                            <FontIcon Glyph="&#xE8FF;" FontSize="14" Foreground="#ffff00"/>
+                                        </Button>
+                                        <Button ToolTipService.ToolTip="Open in Browse tab"
                                             Click="BrowseButton_Click"
                                             Padding="8">
-                                        <FontIcon Glyph="&#xE8F1;" FontSize="14" Foreground="#f08080"/>
-                                                </Button>
-                                                <Button ToolTipService.ToolTip="Copy file path"
+                                            <FontIcon Glyph="&#xE8F1;" FontSize="14" Foreground="#f08080"/>
+                                        </Button>
+                                        <Button ToolTipService.ToolTip="Copy file path"
                                             Click="CopyPathButton_Click"
                                             Padding="8">
-                                        <FontIcon Glyph="&#xE8C8;" FontSize="14" Foreground="#1e90ff"/>
-                                                </Button>
-                                            </StackPanel>
-                                    </Grid>
-                                </DataTemplate>
+                                            <FontIcon Glyph="&#xE8C8;" FontSize="14" Foreground="#1e90ff"/>
+                                        </Button>
+                                    </StackPanel>
+                                </Grid>
+                            </DataTemplate>
                             </ListView.ItemTemplate>
-                        </ListView>
-                </Grid>
+                    </ListView>
             </Grid>
+        </Grid>
 
-            <!-- Status Bar -->
-            <Border Grid.Row="3"
+        <!-- Status Bar -->
+        <Border Grid.Row="3"
                 Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
                 BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                 BorderThickness="0,1,0,0"
                 Padding="24,8">
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="Auto"/>
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
 
                     <!-- Left - Search status -->
                     <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="16">
                         <TextBlock FontSize="12" Opacity="0.7" VerticalAlignment="Center">
                         <Run Text="Directory:"/>
-                        <Run Text="{x:Bind ViewModel.SearchDirectory, Mode=OneWay}"/>
+                        <Run Text="{x:Bind ViewModel. SearchDirectory, Mode=OneWay}"/>
                         </TextBlock>
                     </StackPanel>
 
@@ -451,7 +471,7 @@
                         <Run Text="selected"/>
                         </TextBlock>
                     </StackPanel>
-                </Grid>
-            </Border>
+            </Grid>
+        </Border>
     </Grid>
 </Page>

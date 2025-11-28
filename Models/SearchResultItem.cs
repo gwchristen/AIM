@@ -33,7 +33,7 @@ public class SearchResultItem
                 order++;
                 size /= 1024;
             }
-            return $"{size:0.##} {sizes[order]}";
+            return $"{size:0. ##} {sizes[order]}";
         }
     }
 
@@ -61,6 +61,7 @@ public class SearchOptions
     public SearchType SearchType { get; set; } = SearchType.Content;
     public FileTypeFilter FileTypeFilter { get; set; } = FileTypeFilter.All;
     public bool IsCaseSensitive { get; set; } = false;
+    public bool UseWildcards { get; set; } = false;  // NEW
     public DateTime? DateFilter { get; set; }
     public CancellationToken CancellationToken { get; set; }
 }

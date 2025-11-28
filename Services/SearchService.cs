@@ -56,7 +56,7 @@ public class SearchService : ISearchService
                 // Check file type filter
                 if (!RelevantExtensions.Contains(ext)) continue;
                 if (options.FileTypeFilter == FileTypeFilter.TextOnly && ext != ".txt") continue;
-                if (options.FileTypeFilter == FileTypeFilter.CsvOnly && ext != ".csv") continue;
+                if (options.FileTypeFilter == FileTypeFilter.CsvOnly && ext != ". csv") continue;
 
                 var fileInfo = new FileInfo(file);
 
@@ -67,7 +67,6 @@ public class SearchService : ISearchService
                 progressData.FilesSearched++;
                 progressData.CurrentFile = file;
 
-                var comparison = options.IsCaseSensitive ? StringComparison.Ordinal : StringComparison.OrdinalIgnoreCase;
                 var fileName = Path.GetFileName(file);
                 bool isMatch = false;
                 string matchPreview = string.Empty;
@@ -75,7 +74,7 @@ public class SearchService : ISearchService
                 // Search by file name
                 if (options.SearchType == SearchType.FileName || options.SearchType == SearchType.Both)
                 {
-                    if (fileName.Contains(options.Query, comparison))
+                    if (IsMatch(fileName, options.Query, options.UseWildcards, options.IsCaseSensitive))
                     {
                         isMatch = true;
                     }
@@ -87,11 +86,12 @@ public class SearchService : ISearchService
                     try
                     {
                         var content = File.ReadAllText(file);
-                        var index = content.IndexOf(options.Query, comparison);
-                        if (index >= 0)
+                        var (contentMatch, matchIndex, matchLength) = FindMatch(content, options.Query, options.UseWildcards, options.IsCaseSensitive);
+
+                        if (contentMatch)
                         {
                             isMatch = true;
-                            matchPreview = ExtractMatchPreview(content, index, options.Query.Length);
+                            matchPreview = ExtractMatchPreview(content, matchIndex, matchLength);
                         }
                     }
                     catch
@@ -142,6 +142,78 @@ public class SearchService : ISearchService
         {
             // Skip directories that no longer exist
         }
+    }
+
+    /// <summary>
+    /// Checks if the input matches the query, with optional wildcard and case sensitivity support.
+    /// </summary>
+    private bool IsMatch(string input, string query, bool useWildcards, bool caseSensitive)
+    {
+        if (useWildcards)
+        {
+            var regex = BuildWildcardRegex(query, caseSensitive);
+            return regex.IsMatch(input);
+        }
+        else
+        {
+            var comparison = caseSensitive ? StringComparison.Ordinal : StringComparison.OrdinalIgnoreCase;
+            return input.Contains(query, comparison);
+        }
+    }
+
+    /// <summary>
+    /// Finds a match in content and returns the match info (success, index, length).
+    /// </summary>
+    private (bool IsMatch, int Index, int Length) FindMatch(string content, string query, bool useWildcards, bool caseSensitive)
+    {
+        if (useWildcards)
+        {
+            var regex = BuildWildcardRegex(query, caseSensitive, anchorToWordBoundary: false);
+            var match = regex.Match(content);
+            if (match.Success)
+            {
+                return (true, match.Index, match.Length);
+            }
+            return (false, -1, 0);
+        }
+        else
+        {
+            var comparison = caseSensitive ? StringComparison.Ordinal : StringComparison.OrdinalIgnoreCase;
+            var index = content.IndexOf(query, comparison);
+            if (index >= 0)
+            {
+                return (true, index, query.Length);
+            }
+            return (false, -1, 0);
+        }
+    }
+
+    /// <summary>
+    /// Builds a regex pattern from a wildcard query. 
+    /// * = any characters (including none)
+    /// ? = exactly one character
+    /// </summary>
+    private Regex BuildWildcardRegex(string query, bool caseSensitive, bool anchorToWordBoundary = false)
+    {
+        // Escape special regex characters, then convert wildcards
+        var pattern = Regex.Escape(query)
+            .Replace("\\*", ".*")
+            .Replace("\\?", ".");
+
+        // For file name matching, we might want to anchor the pattern
+        // For content searching, we don't anchor so it finds matches anywhere
+        if (anchorToWordBoundary)
+        {
+            pattern = "^" + pattern + "$";
+        }
+
+        var regexOptions = RegexOptions.Compiled;
+        if (!caseSensitive)
+        {
+            regexOptions |= RegexOptions.IgnoreCase;
+        }
+
+        return new Regex(pattern, regexOptions);
     }
 
     private string ExtractMatchPreview(string content, int matchIndex, int matchLength)

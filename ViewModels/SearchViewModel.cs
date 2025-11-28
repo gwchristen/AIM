@@ -10,6 +10,7 @@ using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Windows.Storage.Pickers;
@@ -48,6 +49,9 @@ public partial class SearchViewModel : ObservableObject
     private bool _isCaseSensitive = false;
 
     [ObservableProperty]
+    private bool _useWildcards = false;
+
+    [ObservableProperty]
     private int _dateFilterIndex = 0;
 
     [ObservableProperty]
@@ -57,7 +61,7 @@ public partial class SearchViewModel : ObservableObject
     private bool _sortAscending = true;
 
     [ObservableProperty]
-    private string _searchProgressText = "Searching... ";
+    private string _searchProgressText = "Searching...";
 
     [ObservableProperty]
     private int _resultCount = 0;
@@ -91,6 +95,8 @@ public partial class SearchViewModel : ObservableObject
 
     #region Computed Properties
     public bool CanSearch => !string.IsNullOrWhiteSpace(SearchQuery) && !IsSearching;
+
+    public bool QueryHasWildcards => SearchQuery.Contains('*') || SearchQuery.Contains('?');
     #endregion
 
     public SearchViewModel(ISearchService searchService, INavigationService navigationService, MainViewModel mainViewModel, IInfoBarService infoBarService, IRefreshService refreshService)
@@ -102,7 +108,6 @@ public partial class SearchViewModel : ObservableObject
         SearchDirectory = _mainViewModel.SelectedRoot;
         refreshService.RefreshRequested += (s, e) =>
         {
-            // Clear and re-run search if there was one
             if (!string.IsNullOrEmpty(SearchQuery) && HasResults)
             {
                 SearchCommand.Execute(null);
@@ -169,6 +174,7 @@ public partial class SearchViewModel : ObservableObject
     {
         var folderPicker = new FolderPicker();
         folderPicker.SuggestedStartLocation = PickerLocationId.DocumentsLibrary;
+        folderPicker.FileTypeFilter.Add("*");
         var hwnd = WinRT.Interop.WindowNative.GetWindowHandle(App.MainWindow);
         WinRT.Interop.InitializeWithWindow.Initialize(folderPicker, hwnd);
         var folder = await folderPicker.PickSingleFolderAsync();
@@ -222,13 +228,14 @@ public partial class SearchViewModel : ObservableObject
                 SearchType = (SearchType)SearchTypeIndex,
                 FileTypeFilter = (FileTypeFilter)FileTypeIndex,
                 IsCaseSensitive = IsCaseSensitive,
+                UseWildcards = QueryHasWildcards,  // Auto-detect from query
                 DateFilter = GetDateFilter(),
                 CancellationToken = _searchCancellationToken.Token
             };
 
             var progress = new Progress<SearchProgress>(p =>
             {
-                SearchProgressText = $"Searching... {p.FilesSearched} files scanned, {p.MatchesFound} matches found";
+                SearchProgressText = $"Searching...  {p.FilesSearched} files scanned, {p.MatchesFound} matches found";
             });
 
             var results = await _searchService.SearchAsync(options, progress);
@@ -256,7 +263,9 @@ public partial class SearchViewModel : ObservableObject
             if (HasResults)
             {
                 SortResults();
-                _infoBarService.Show("Search Complete", $"Found {ResultCount} result(s) in {_searchStopwatch.ElapsedMilliseconds}ms.", InfoBarSeverity.Success);
+                var modeText = UseWildcards ? " (wildcards)" : "";
+                modeText += IsCaseSensitive ? " (exact case)" : "";
+                _infoBarService.Show("Search Complete", $"Found {ResultCount} result(s) in {_searchStopwatch.ElapsedMilliseconds}ms{modeText}.", InfoBarSeverity.Success);
             }
         }
         catch (OperationCanceledException)

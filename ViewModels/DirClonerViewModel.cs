@@ -1,10 +1,11 @@
 ﻿using AIM.Services;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using Microsoft.UI;
+using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media;
 using System;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -35,6 +36,7 @@ public partial class DirClonerViewModel : ObservableObject
     private string _destinationDirectory;
 
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(CanClone))]
     private bool _isCloning;
 
     [ObservableProperty]
@@ -54,11 +56,20 @@ public partial class DirClonerViewModel : ObservableObject
 
     [ObservableProperty]
     private string _sourcePreviewMore;
+
+    [ObservableProperty]
+    private int _foldersCreated;
+
+    [ObservableProperty]
+    private string _elapsedTime;
     #endregion
 
     public ObservableCollection<string> SourcePreviewFolders { get; } = new();
 
-    public bool CanClone => !string.IsNullOrEmpty(SourceDirectory) && !string.IsNullOrEmpty(DestinationDirectory);
+    public bool CanClone => !string.IsNullOrEmpty(SourceDirectory) &&
+                            !string.IsNullOrEmpty(DestinationDirectory) &&
+                            !IsCloning;
+
     public bool HasSourcePreview => !string.IsNullOrEmpty(SourceDirectory) && SourcePreviewFolders.Count > 0;
 
     public SolidColorBrush Step2Color => !string.IsNullOrEmpty(SourceDirectory)
@@ -76,7 +87,9 @@ public partial class DirClonerViewModel : ObservableObject
         _infoBarService = infoBarService;
     }
 
-    private bool CanCreateStructure() => !string.IsNullOrEmpty(SourceDirectory) && !string.IsNullOrEmpty(DestinationDirectory);
+    private bool CanCreateStructure() => !string.IsNullOrEmpty(SourceDirectory) &&
+                                          !string.IsNullOrEmpty(DestinationDirectory) &&
+                                          !IsCloning;
 
     [RelayCommand]
     private async Task SelectSourceAsync()
@@ -120,7 +133,7 @@ public partial class DirClonerViewModel : ObservableObject
             if (folders.Count > 8)
             {
                 HasMoreFolders = true;
-                SourcePreviewMore = $"... and {folders.Count - 8} more folders";
+                SourcePreviewMore = $"...  and {folders.Count - 8} more folders";
             }
         }
         catch { }
@@ -138,7 +151,7 @@ public partial class DirClonerViewModel : ObservableObject
             $"Destination: {DestinationDirectory}",
             Path.GetFileName(SourceDirectory) + "_Clone");
 
-        if (result != Microsoft.UI.Xaml.Controls.ContentDialogResult.Primary || string.IsNullOrWhiteSpace(newName))
+        if (result != ContentDialogResult.Primary || string.IsNullOrWhiteSpace(newName))
             return;
 
         string targetPath = Path.Combine(DestinationDirectory, newName);
@@ -153,6 +166,9 @@ public partial class DirClonerViewModel : ObservableObject
         IsCloning = true;
         ShowResults = false;
         CloneProgressText = "Creating directory structure...";
+        OnPropertyChanged(nameof(CanClone));
+
+        var stopwatch = Stopwatch.StartNew();
 
         try
         {
@@ -163,19 +179,45 @@ public partial class DirClonerViewModel : ObservableObject
                 folderCount = CloneDirectoryStructure(SourceDirectory, targetPath);
             });
 
+            stopwatch.Stop();
+
             ResultPath = targetPath;
-            ResultSummary = $"Successfully created {folderCount} folders at:\n{targetPath}";
+            FoldersCreated = folderCount;
+            ElapsedTime = FormatElapsedTime(stopwatch.ElapsedMilliseconds);
+            ResultSummary = $"Successfully created {folderCount} folders in {ElapsedTime}.\nLocation: {targetPath}";
             ShowResults = true;
 
-            _infoBarService.Show("Clone Complete", $"Created {folderCount} folders.", Microsoft.UI.Xaml.Controls.InfoBarSeverity.Success);
+            // Show prominent InfoBar notification
+            _infoBarService.Show(
+                "Clone Complete!",
+                $"Successfully created {folderCount} folders in {ElapsedTime}.",
+                InfoBarSeverity.Success,
+                5000); // Show for 5 seconds
+        }
+        catch (UnauthorizedAccessException)
+        {
+            _infoBarService.Show("Access Denied",
+                "You don't have permission to create folders at the destination.",
+                InfoBarSeverity.Error);
+            await _dialogService.ShowErrorDialogAsync("Access Denied",
+                "You don't have permission to create folders at the selected destination.  Please choose a different location or run the application as administrator.");
+        }
+        catch (IOException ex)
+        {
+            _infoBarService.Show("Clone Failed", ex.Message, InfoBarSeverity.Error);
+            await _dialogService.ShowErrorDialogAsync("Clone Failed",
+                $"Could not clone directory structure: {ex.Message}");
         }
         catch (Exception ex)
         {
-            await _dialogService.ShowErrorDialogAsync("Clone Failed", $"Could not clone directory structure: {ex.Message}");
+            _infoBarService.Show("Clone Failed", ex.Message, InfoBarSeverity.Error);
+            await _dialogService.ShowErrorDialogAsync("Clone Failed",
+                $"An unexpected error occurred: {ex.Message}");
         }
         finally
         {
             IsCloning = false;
+            OnPropertyChanged(nameof(CanClone));
         }
     }
 
@@ -200,8 +242,33 @@ public partial class DirClonerViewModel : ObservableObject
     {
         if (!string.IsNullOrEmpty(ResultPath) && Directory.Exists(ResultPath))
         {
-            await Windows.System.Launcher.LaunchFolderPathAsync(ResultPath);
+            try
+            {
+                await Windows.System.Launcher.LaunchFolderPathAsync(ResultPath);
+            }
+            catch (Exception ex)
+            {
+                _infoBarService.Show("Error", $"Could not open folder: {ex.Message}", InfoBarSeverity.Error);
+            }
         }
+    }
+
+    [RelayCommand]
+    private void DismissResults()
+    {
+        ShowResults = false;
+    }
+
+    [RelayCommand]
+    private void Reset()
+    {
+        SourceDirectory = null;
+        DestinationDirectory = null;
+        SourcePreviewFolders.Clear();
+        HasMoreFolders = false;
+        ShowResults = false;
+        ResultPath = null;
+        ResultSummary = null;
     }
 
     private async Task<string> PickFolderAsync()
@@ -217,5 +284,14 @@ public partial class DirClonerViewModel : ObservableObject
 
         var folder = await folderPicker.PickSingleFolderAsync();
         return folder?.Path;
+    }
+
+    private static string FormatElapsedTime(long milliseconds)
+    {
+        if (milliseconds < 1000)
+            return $"{milliseconds}ms";
+        if (milliseconds < 60000)
+            return $"{milliseconds / 1000.0:F1}s";
+        return $"{milliseconds / 60000.0:F1}m";
     }
 }

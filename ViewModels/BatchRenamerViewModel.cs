@@ -2,6 +2,7 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Media;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -10,6 +11,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Windows.Storage.Pickers;
+using Windows.UI;
 
 namespace AIM.ViewModels;
 
@@ -24,7 +26,18 @@ public partial class BatchRenamerViewModel : ObservableObject
 
     #region Observable Properties
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(Step2Color))]
+    [NotifyPropertyChangedFor(nameof(Step3Color))]
     private string _renameDirectory;
+
+    [ObservableProperty]
+    private string _baseFileName = string.Empty;
+
+    [ObservableProperty]
+    private int _startNumber = 1;
+
+    [ObservableProperty]
+    private int _paddingIndex = 0;
 
     [ObservableProperty]
     private bool _isRenaming;
@@ -49,10 +62,29 @@ public partial class BatchRenamerViewModel : ObservableObject
 
     [ObservableProperty]
     private bool _canRename;
+
+    [ObservableProperty]
+    private bool _hasPreviewItems;
+
+    [ObservableProperty]
+    private int _previewItemCount;
     #endregion
 
     public ObservableCollection<SubfolderPreview> PreviewSubfolders { get; } = new();
     public ObservableCollection<RenameResult> RenameResults { get; } = new();
+    public ObservableCollection<RenamePreviewItem> PreviewItems { get; } = new();
+
+    private List<FilePreviewInfo> _allFiles = new();
+
+    #region Computed Properties
+    public SolidColorBrush Step2Color => !string.IsNullOrEmpty(RenameDirectory)
+        ? new SolidColorBrush(Color.FromArgb(255, 0, 120, 212))
+        : new SolidColorBrush(Color.FromArgb(255, 128, 128, 128));
+
+    public SolidColorBrush Step3Color => CanRename
+        ? new SolidColorBrush(Color.FromArgb(255, 0, 120, 212))
+        : new SolidColorBrush(Color.FromArgb(255, 128, 128, 128));
+    #endregion
 
     public BatchRenamerViewModel(IDialogService dialogService, DirectoryOperationService directoryOperationService, IInfoBarService infoBarService)
     {
@@ -60,6 +92,30 @@ public partial class BatchRenamerViewModel : ObservableObject
         _directoryOperationService = directoryOperationService;
         _infoBarService = infoBarService;
     }
+
+    private string GenerateFileName(int number, string extension)
+    {
+        string formattedNumber = PaddingIndex switch
+        {
+            1 => number.ToString("D2"),
+            2 => number.ToString("D3"),
+            3 => number.ToString("D4"),
+            _ => number.ToString()
+        };
+
+        if (string.IsNullOrEmpty(BaseFileName))
+        {
+            return $"{formattedNumber}{extension}";
+        }
+        else
+        {
+            return $"{BaseFileName}{formattedNumber}{extension}";
+        }
+    }
+
+    partial void OnBaseFileNameChanged(string value) => UpdatePreview();
+    partial void OnStartNumberChanged(int value) => UpdatePreview();
+    partial void OnPaddingIndexChanged(int value) => UpdatePreview();
 
     private bool IsValidFile(string filePath)
     {
@@ -71,146 +127,174 @@ public partial class BatchRenamerViewModel : ObservableObject
     private void UpdateState()
     {
         HasDirectoryPreview = !string.IsNullOrEmpty(RenameDirectory) && PreviewSubfolders.Count > 0;
-        CanRename = !string.IsNullOrEmpty(RenameDirectory) && !IsRenaming && PreviewSubfolders.Count > 0;
-        Debug.WriteLine($"[BatchRenamer] UpdateState: HasDirectoryPreview={HasDirectoryPreview}, CanRename={CanRename}, PreviewCount={PreviewSubfolders.Count}");
+        CanRename = !string.IsNullOrEmpty(RenameDirectory) && !IsRenaming && PreviewSubfolders.Count > 0 && TotalFileCount > 0;
+    }
+
+    private void UpdatePreview()
+    {
+        PreviewItems.Clear();
+
+        if (_allFiles.Count == 0)
+        {
+            HasPreviewItems = false;
+            PreviewItemCount = 0;
+            return;
+        }
+
+        int currentNumber = StartNumber;
+
+        foreach (var file in _allFiles)
+        {
+            var newName = GenerateFileName(currentNumber, file.Extension);
+            PreviewItems.Add(new RenamePreviewItem
+            {
+                OldName = file.FileName,
+                NewName = newName,
+                FolderPath = file.RelativePath
+            });
+            currentNumber++;
+        }
+
+        HasPreviewItems = PreviewItems.Count > 0;
+        PreviewItemCount = _allFiles.Count;
     }
 
     [RelayCommand]
     private async Task SelectRenameDirectoryAsync()
     {
-        Debug.WriteLine("[BatchRenamer] SelectRenameDirectoryAsync called");
-
         var path = await PickFolderAsync();
         if (path != null)
         {
-            Debug.WriteLine($"[BatchRenamer] Selected path: {path}");
             RenameDirectory = path;
             await LoadDirectoryPreviewAsync();
-        }
-        else
-        {
-            Debug.WriteLine("[BatchRenamer] No path selected");
         }
     }
 
     private async Task LoadDirectoryPreviewAsync()
     {
-        Debug.WriteLine($"[BatchRenamer] LoadDirectoryPreviewAsync: {RenameDirectory}");
-
         PreviewSubfolders.Clear();
+        PreviewItems.Clear();
+        _allFiles.Clear();
         TotalFileCount = 0;
         SubfolderCount = 0;
 
         if (string.IsNullOrEmpty(RenameDirectory) || !Directory.Exists(RenameDirectory))
         {
-            Debug.WriteLine("[BatchRenamer] Directory empty or doesn't exist");
             UpdateState();
+            UpdatePreview();
             return;
         }
 
         try
         {
-            var subfolders = await Task.Run(() =>
+            var (subfolders, allFiles) = await Task.Run(() =>
             {
-                var result = new List<SubfolderPreview>();
-                ScanDirectoryRecursive(RenameDirectory, result, RenameDirectory);
-                Debug.WriteLine($"[BatchRenamer] Found {result.Count} folders with files");
-                return result.OrderBy(s => s.RelativePath).ToList();
+                var folderResult = new List<SubfolderPreview>();
+                var fileResult = new List<FilePreviewInfo>();
+                ScanDirectoryRecursive(RenameDirectory, folderResult, fileResult, RenameDirectory);
+                return (folderResult.OrderBy(s => s.RelativePath).ToList(), fileResult);
             });
 
-            Debug.WriteLine($"[BatchRenamer] Adding {subfolders.Count} subfolders to collection");
+            _allFiles = allFiles;
 
-            // Calculate cumulative start numbers for preview
-            int runningTotal = 1;
+            int runningTotal = StartNumber;
             foreach (var subfolder in subfolders)
             {
                 subfolder.StartNumber = runningTotal;
                 subfolder.EndNumber = runningTotal + subfolder.FileCount - 1;
                 runningTotal += subfolder.FileCount;
-
-                Debug.WriteLine($"[BatchRenamer] Adding: {subfolder.RelativePath} ({subfolder.FileCount} files, {subfolder.StartNumber}-{subfolder.EndNumber})");
                 PreviewSubfolders.Add(subfolder);
             }
 
-            TotalFileCount = PreviewSubfolders.Sum(s => s.FileCount);
+            TotalFileCount = _allFiles.Count;
             SubfolderCount = PreviewSubfolders.Count;
 
-            Debug.WriteLine($"[BatchRenamer] Total: {TotalFileCount} files in {SubfolderCount} folders");
+            UpdatePreview();
         }
         catch (Exception ex)
         {
-            Debug.WriteLine($"[BatchRenamer] Error: {ex.Message}");
             _infoBarService.Show("Error", $"Could not load directory: {ex.Message}", InfoBarSeverity.Error);
         }
 
         UpdateState();
     }
 
-    private void ScanDirectoryRecursive(string directory, List<SubfolderPreview> result, string rootPath)
+    private void ScanDirectoryRecursive(string directory, List<SubfolderPreview> folderResult, List<FilePreviewInfo> fileResult, string rootPath)
     {
         try
         {
-            var files = Directory.GetFiles(directory).Where(IsValidFile).ToList();
-
-            Debug.WriteLine($"[BatchRenamer] Scanning: {directory} - Found {files.Count} matching files");
+            var files = Directory.GetFiles(directory)
+                .Where(IsValidFile)
+                .OrderBy(f => f)
+                .ToList();
 
             if (files.Count > 0)
             {
                 var relativePath = Path.GetRelativePath(rootPath, directory);
-                result.Add(new SubfolderPreview
+                relativePath = relativePath == "." ? "(root)" : relativePath;
+
+                folderResult.Add(new SubfolderPreview
                 {
                     Name = Path.GetFileName(directory),
                     FullPath = directory,
-                    RelativePath = relativePath == "." ? "(root)" : relativePath,
+                    RelativePath = relativePath,
                     FileCount = files.Count
                 });
+
+                foreach (var file in files)
+                {
+                    fileResult.Add(new FilePreviewInfo
+                    {
+                        FullPath = file,
+                        FileName = Path.GetFileName(file),
+                        Extension = Path.GetExtension(file),
+                        RelativePath = relativePath
+                    });
+                }
             }
 
             foreach (var subDir in Directory.GetDirectories(directory))
             {
-                ScanDirectoryRecursive(subDir, result, rootPath);
+                ScanDirectoryRecursive(subDir, folderResult, fileResult, rootPath);
             }
         }
-        catch (UnauthorizedAccessException)
-        {
-            Debug.WriteLine($"[BatchRenamer] Access denied: {directory}");
-        }
-        catch (Exception ex)
-        {
-            Debug.WriteLine($"[BatchRenamer] Error scanning {directory}: {ex.Message}");
-        }
+        catch (UnauthorizedAccessException) { }
+        catch { }
+    }
+
+    [RelayCommand]
+    private void RefreshPreview()
+    {
+        UpdatePreview();
     }
 
     [RelayCommand]
     private async Task RenameFilesAsync()
     {
-        Debug.WriteLine($"[BatchRenamer] RenameFilesAsync called.  TotalFileCount={TotalFileCount}");
-
         if (TotalFileCount == 0)
         {
-            _infoBarService.Show("No Files", "No files found to rename in the selected directory.", InfoBarSeverity.Warning);
+            _infoBarService.Show("No Files", "No files found to rename.", InfoBarSeverity.Warning);
             return;
         }
+
+        string patternExample = GenerateFileName(StartNumber, ". txt") + ", " +
+                               GenerateFileName(StartNumber + 1, ".txt") + ", ... ";
 
         bool confirmed = await _dialogService.ShowConfirmationDialogAsync(
             "Confirm Batch Rename",
             $"Are you sure you want to rename {TotalFileCount} files in {SubfolderCount} folders?\n\n" +
-            $"Files will be renamed sequentially (1, 2, 3, etc.) across ALL folders.\n\n" +
+            $"Naming Pattern: {patternExample}\n\n" +
             "⚠️ This action is PERMANENT and cannot be undone!");
 
-        if (!confirmed)
-        {
-            Debug.WriteLine("[BatchRenamer] User cancelled");
-            return;
-        }
-
-        Debug.WriteLine("[BatchRenamer] Starting rename operation");
+        if (!confirmed) return;
 
         IsRenaming = true;
         UpdateState();
         ShowResults = false;
         RenameResults.Clear();
         RenameProgressText = "Starting batch rename...";
+
+        var stopwatch = Stopwatch.StartNew();
 
         try
         {
@@ -224,15 +308,12 @@ public partial class BatchRenamerViewModel : ObservableObject
             var summary = new Dictionary<string, (int FilesRenamed, int StartNum, int EndNum)>();
             int processedFolders = 0;
             int totalFolders = foldersToProcess.Count;
-
-            // Global counter that persists across all folders
-            int globalCounter = 1;
+            int globalCounter = StartNumber;
 
             foreach (var subfolder in foldersToProcess)
             {
                 processedFolders++;
                 RenameProgressText = $"Processing ({processedFolders}/{totalFolders}): {subfolder.Name}... ";
-                Debug.WriteLine($"[BatchRenamer] Processing: {subfolder.FullPath}, starting at {globalCounter}");
 
                 int startNum = globalCounter;
 
@@ -243,23 +324,20 @@ public partial class BatchRenamerViewModel : ObservableObject
                         .OrderBy(f => f)
                         .ToList();
 
-                    // First pass: rename to temp files to avoid conflicts
                     var tempMappings = new List<(string TempPath, string FinalPath)>();
 
                     foreach (var file in files)
                     {
                         var ext = Path.GetExtension(file);
                         var tempPath = Path.Combine(subfolder.FullPath, $"_temp_{Guid.NewGuid()}{ext}");
-                        var finalName = $"{globalCounter}{ext}";
+                        var finalName = GenerateFileName(globalCounter, ext);
                         var finalPath = Path.Combine(subfolder.FullPath, finalName);
 
                         File.Move(file, tempPath);
                         tempMappings.Add((tempPath, finalPath));
-
                         globalCounter++;
                     }
 
-                    // Second pass: rename from temp to final names
                     foreach (var mapping in tempMappings)
                     {
                         File.Move(mapping.TempPath, mapping.FinalPath);
@@ -269,9 +347,10 @@ public partial class BatchRenamerViewModel : ObservableObject
                 });
 
                 int endNum = globalCounter - 1;
-                Debug.WriteLine($"[BatchRenamer] Renamed {filesRenamed} files in {subfolder.Name} ({startNum}-{endNum})");
                 summary[subfolder.RelativePath] = (filesRenamed, startNum, endNum);
             }
+
+            stopwatch.Stop();
 
             int totalRenamed = 0;
             foreach (var entry in summary.OrderBy(e => e.Value.StartNum))
@@ -286,15 +365,19 @@ public partial class BatchRenamerViewModel : ObservableObject
                 totalRenamed += entry.Value.FilesRenamed;
             }
 
-            ResultSummaryText = $"Successfully renamed {totalRenamed} files (1-{totalRenamed}) across {summary.Count} folders";
+            string elapsedTime = FormatElapsedTime(stopwatch.ElapsedMilliseconds);
+            string exampleRange = $"{GenerateFileName(StartNumber, ".txt")} to {GenerateFileName(StartNumber + totalRenamed - 1, ".txt")}";
+            ResultSummaryText = $"Renamed {totalRenamed} files ({exampleRange}) in {elapsedTime}";
             ShowResults = true;
 
-            Debug.WriteLine($"[BatchRenamer] Complete.Renamed {totalRenamed} files");
-            _infoBarService.Show("Complete", $"Renamed {totalRenamed} files successfully.", InfoBarSeverity.Success);
+            _infoBarService.Show("Rename Complete! ",
+                $"Successfully renamed {totalRenamed} files in {elapsedTime}.",
+                InfoBarSeverity.Success,
+                5000);
         }
         catch (Exception ex)
         {
-            Debug.WriteLine($"[BatchRenamer] Error: {ex.Message}");
+            _infoBarService.Show("Rename Failed", ex.Message, InfoBarSeverity.Error);
             await _dialogService.ShowErrorDialogAsync("Rename Failed", $"An error occurred during renaming: {ex.Message}");
         }
         finally
@@ -309,7 +392,14 @@ public partial class BatchRenamerViewModel : ObservableObject
     {
         if (!string.IsNullOrEmpty(RenameDirectory) && Directory.Exists(RenameDirectory))
         {
-            await Windows.System.Launcher.LaunchFolderPathAsync(RenameDirectory);
+            try
+            {
+                await Windows.System.Launcher.LaunchFolderPathAsync(RenameDirectory);
+            }
+            catch (Exception ex)
+            {
+                _infoBarService.Show("Error", $"Could not open folder: {ex.Message}", InfoBarSeverity.Error);
+            }
         }
     }
 
@@ -320,9 +410,15 @@ public partial class BatchRenamerViewModel : ObservableObject
         RenameResults.Clear();
         RenameDirectory = null;
         PreviewSubfolders.Clear();
+        PreviewItems.Clear();
+        _allFiles.Clear();
         TotalFileCount = 0;
         SubfolderCount = 0;
+        BaseFileName = string.Empty;
+        StartNumber = 1;
+        PaddingIndex = 0;
         UpdateState();
+        UpdatePreview();
     }
 
     private async Task<string> PickFolderAsync()
@@ -339,7 +435,16 @@ public partial class BatchRenamerViewModel : ObservableObject
         var folder = await folderPicker.PickSingleFolderAsync();
         return folder?.Path;
     }
+
+    private static string FormatElapsedTime(long milliseconds)
+    {
+        if (milliseconds < 1000) return $"{milliseconds}ms";
+        if (milliseconds < 60000) return $"{milliseconds / 1000.0:F1}s";
+        return $"{milliseconds / 60000.0:F1}m";
+    }
 }
+
+#region Models
 
 public class SubfolderPreview
 {
@@ -360,3 +465,20 @@ public class RenameResult
     public int EndNumber { get; set; }
     public string RangeText => $"{StartNumber}-{EndNumber}";
 }
+
+public class RenamePreviewItem
+{
+    public string OldName { get; set; } = string.Empty;
+    public string NewName { get; set; } = string.Empty;
+    public string FolderPath { get; set; } = string.Empty;
+}
+
+public class FilePreviewInfo
+{
+    public string FullPath { get; set; } = string.Empty;
+    public string FileName { get; set; } = string.Empty;
+    public string Extension { get; set; } = string.Empty;
+    public string RelativePath { get; set; } = string.Empty;
+}
+
+#endregion
