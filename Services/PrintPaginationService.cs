@@ -197,7 +197,7 @@ public class PrintPaginationService : IPrintPaginationService
                 // Add continuation header if needed (now we know it fits)
                 if (needsContinuationHeader && !string.IsNullOrEmpty(currentLevel3Header))
                 {
-                    Log($"  -> Adding continuation header '{currentLevel3Header} (cont. )'");
+                    Log($"  -> Adding continuation header '{currentLevel3Header} (cont.)'");
                     currentPageRows.Add(new PrintableFormItem
                     {
                         Content = currentLevel3Header + " (cont.)",

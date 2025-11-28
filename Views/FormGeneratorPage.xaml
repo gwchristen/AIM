@@ -4,29 +4,400 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    mc:Ignorable="d"
-    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+    xmlns:converters="using:AIM.Converters"
+    xmlns:models="using:AIM.Models"
+    mc:Ignorable="d">
 
-    <Grid Margin="24">
-        <StackPanel Spacing="12" MaxWidth="500">
-            <TextBlock Text="Paperwork Form Generator" Style="{StaticResource TitleTextBlockStyle}"/>
-            <TextBlock Text="Select a directory containing the inventory data to generate a printable summary form." TextWrapping="Wrap"/>
+    <Page.Resources>
+        <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
+        <converters:InverseBoolToVisibilityConverter x:Key="InverseBoolToVisibilityConverter"/>
+        <converters:InverseBoolConverter x:Key="InverseBoolConverter"/>
 
-            <TextBlock Text="Select Form Template" Style="{StaticResource SubtitleTextBlockStyle}" Margin="0,20,0,0"/>
-            <ComboBox ItemsSource="{Binding AvailableTemplates}" SelectedItem="{Binding SelectedTemplate, Mode=TwoWay}"/>
+        <SolidColorBrush x:Key="FormsAccentColor" Color="#744DA9"/>
+        <SolidColorBrush x:Key="OhioTemplateColor" Color="#107C10"/>
+        <SolidColorBrush x:Key="IMTemplateColor" Color="#0078D4"/>
+    </Page.Resources>
 
-            <TextBlock Text="Select Inventory Directory" Style="{StaticResource SubtitleTextBlockStyle}" Margin="0,20,0,0"/>
-            <StackPanel Orientation="Horizontal" Spacing="8">
-                <TextBox Text="{Binding FormDirectory, Mode=OneWay}" IsReadOnly="True" PlaceholderText="Select the inventory folder..." MinWidth="300"/>
-                <Button Content="Browse..." Command="{Binding SelectFormDirectoryCommand}"/>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+            <!-- Header -->
+            <Border Grid.Row="0"
+                Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                BorderThickness="0,0,0,1"
+                Padding="24,16">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12">
+                        <FontIcon Glyph="&#xE8A1;" FontSize="28" Foreground="{StaticResource FormsAccentColor}"/>
+                        <StackPanel>
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <TextBlock Text="Paperwork Form Generator" Style="{ThemeResource TitleTextBlockStyle}"/>
+                                <ProgressRing IsActive="{x:Bind ViewModel.IsGenerating, Mode=OneWay}" 
+                                          Width="20" Height="20"
+                                          Visibility="{x:Bind ViewModel.IsGenerating, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                            </StackPanel>
+                            <TextBlock Text="Generate printable inventory summary forms from your data" 
+                                   Style="{ThemeResource CaptionTextBlockStyle}" 
+                                   Opacity="0.7"/>
+                        </StackPanel>
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <!-- Main Content -->
+            <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+                <StackPanel Spacing="20" Margin="24,20,24,24" MaxWidth="800" HorizontalAlignment="Left">
+
+                    <!-- Step 1: Select Template -->
+                    <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                        BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                        BorderThickness="1"
+                        CornerRadius="8"
+                        Padding="24">
+                        <StackPanel Spacing="16">
+                            <!-- Section Header -->
+                            <StackPanel Orientation="Horizontal" Spacing="12">
+                                <Border Background="{StaticResource FormsAccentColor}" 
+                                    CornerRadius="16" 
+                                    Width="32" Height="32">
+                                    <TextBlock Text="1" 
+                                           FontWeight="Bold" 
+                                           Foreground="White" 
+                                           HorizontalAlignment="Center" 
+                                           VerticalAlignment="Center"/>
+                                </Border>
+                                <StackPanel>
+                                    <TextBlock Text="Select Form Template" FontWeight="SemiBold" FontSize="16"/>
+                                    <TextBlock Text="Choose the template that matches your inventory type" Opacity="0.6" FontSize="13"/>
+                                </StackPanel>
+                            </StackPanel>
+
+                            <!-- Template Cards -->
+                            <Grid ColumnSpacing="16">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+
+                                <!-- Ohio Template Card -->
+                                <Border x:Name="OhioTemplateCard"
+                                    Grid.Column="0"
+                                    Background="{ThemeResource CardBackgroundFillColorSecondaryBrush}"
+                                    BorderBrush="{x:Bind ViewModel.OhioCardBorderBrush, Mode=OneWay}"
+                                    BorderThickness="2"
+                                    CornerRadius="8"
+                                    Padding="16"
+                                    PointerPressed="OhioTemplate_Click">
+                                    <Grid>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                        </Grid.RowDefinitions>
+
+                                        <!-- Icon and Title -->
+                                        <StackPanel Grid.Row="0" Orientation="Horizontal" Spacing="12">
+                                            <Border Background="{StaticResource OhioTemplateColor}" 
+                                                CornerRadius="8" 
+                                                Width="40" Height="40">
+                                                <FontIcon Glyph="&#xE80F;" FontSize="20" Foreground="White" 
+                                                      HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                            </Border>
+                                            <StackPanel VerticalAlignment="Center">
+                                                <TextBlock Text="Ohio" FontWeight="SemiBold" FontSize="16"/>
+                                                <TextBlock Text="Ohio Power Template" FontSize="12" Opacity="0.6"/>
+                                            </StackPanel>
+                                        </StackPanel>
+
+                                        <!-- Description -->
+                                        <TextBlock Grid.Row="1" 
+                                               Text="Generates inventory forms for Ohio Power locations including sections, columns, and workstations."
+                                               TextWrapping="Wrap"
+                                               FontSize="12"
+                                               Opacity="0.7"
+                                               Margin="0,12,0,0"/>
+
+                                        <!-- Features -->
+                                        <StackPanel Grid.Row="2" Spacing="4" Margin="0,12,0,0">
+                                            <StackPanel Orientation="Horizontal" Spacing="6">
+                                                <FontIcon Glyph="&#xE73E;" FontSize="12" Foreground="{StaticResource OhioTemplateColor}"/>
+                                                <TextBlock Text="Section-based layout" FontSize="11" Opacity="0.8"/>
+                                            </StackPanel>
+                                            <StackPanel Orientation="Horizontal" Spacing="6">
+                                                <FontIcon Glyph="&#xE73E;" FontSize="12" Foreground="{StaticResource OhioTemplateColor}"/>
+                                                <TextBlock Text="Device count summaries" FontSize="11" Opacity="0.8"/>
+                                            </StackPanel>
+                                            <StackPanel Orientation="Horizontal" Spacing="6">
+                                                <FontIcon Glyph="&#xE73E;" FontSize="12" Foreground="{StaticResource OhioTemplateColor}"/>
+                                                <TextBlock Text="Print-ready format" FontSize="11" Opacity="0.8"/>
+                                            </StackPanel>
+                                        </StackPanel>
+
+                                        <!-- Selection Indicator -->
+                                        <Border Grid.Row="0" 
+                                            HorizontalAlignment="Right" 
+                                            VerticalAlignment="Top"
+                                            Visibility="{x:Bind ViewModel.IsOhioSelected, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+                                            <FontIcon Glyph="&#xE73E;" FontSize="20" Foreground="{StaticResource OhioTemplateColor}"/>
+                                        </Border>
+                                    </Grid>
+                                </Border>
+
+                                <!-- I&M Template Card -->
+                                <Border x:Name="IMTemplateCard"
+                                    Grid.Column="1"
+                                    Background="{ThemeResource CardBackgroundFillColorSecondaryBrush}"
+                                    BorderBrush="{x:Bind ViewModel.IMCardBorderBrush, Mode=OneWay}"
+                                    BorderThickness="2"
+                                    CornerRadius="8"
+                                    Padding="16"
+                                    PointerPressed="IMTemplate_Click">
+                                    <Grid>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                        </Grid.RowDefinitions>
+
+                                        <!-- Icon and Title -->
+                                        <StackPanel Grid.Row="0" Orientation="Horizontal" Spacing="12">
+                                            <Border Background="{StaticResource IMTemplateColor}" 
+                                                CornerRadius="8" 
+                                                Width="40" Height="40">
+                                                <FontIcon Glyph="&#xE80F;" FontSize="20" Foreground="White" 
+                                                      HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                            </Border>
+                                            <StackPanel VerticalAlignment="Center">
+                                                <TextBlock Text="I&amp;M" FontWeight="SemiBold" FontSize="16"/>
+                                                <TextBlock Text="Indiana &amp; Michigan Template" FontSize="12" Opacity="0.6"/>
+                                            </StackPanel>
+                                        </StackPanel>
+
+                                        <!-- Description -->
+                                        <TextBlock Grid.Row="1" 
+                                               Text="Generates inventory forms for I&amp;M locations with appropriate regional formatting."
+                                               TextWrapping="Wrap"
+                                               FontSize="12"
+                                               Opacity="0.7"
+                                               Margin="0,12,0,0"/>
+
+                                        <!-- Features -->
+                                        <StackPanel Grid.Row="2" Spacing="4" Margin="0,12,0,0">
+                                            <StackPanel Orientation="Horizontal" Spacing="6">
+                                                <FontIcon Glyph="&#xE73E;" FontSize="12" Foreground="{StaticResource IMTemplateColor}"/>
+                                                <TextBlock Text="Regional formatting" FontSize="11" Opacity="0.8"/>
+                                            </StackPanel>
+                                            <StackPanel Orientation="Horizontal" Spacing="6">
+                                                <FontIcon Glyph="&#xE73E;" FontSize="12" Foreground="{StaticResource IMTemplateColor}"/>
+                                                <TextBlock Text="Device count summaries" FontSize="11" Opacity="0.8"/>
+                                            </StackPanel>
+                                            <StackPanel Orientation="Horizontal" Spacing="6">
+                                                <FontIcon Glyph="&#xE73E;" FontSize="12" Foreground="{StaticResource IMTemplateColor}"/>
+                                                <TextBlock Text="Print-ready format" FontSize="11" Opacity="0.8"/>
+                                            </StackPanel>
+                                        </StackPanel>
+
+                                        <!-- Selection Indicator -->
+                                        <Border Grid.Row="0" 
+                                            HorizontalAlignment="Right" 
+                                            VerticalAlignment="Top"
+                                            Visibility="{x:Bind ViewModel. IsIMSelected, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+                                            <FontIcon Glyph="&#xE73E;" FontSize="20" Foreground="{StaticResource IMTemplateColor}"/>
+                                        </Border>
+                                    </Grid>
+                                </Border>
+                            </Grid>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Step 2: Select Directory -->
+                    <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                        BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                        BorderThickness="1"
+                        CornerRadius="8"
+                        Padding="24">
+                        <StackPanel Spacing="16">
+                            <!-- Section Header -->
+                            <StackPanel Orientation="Horizontal" Spacing="12">
+                                <Border Background="{x:Bind ViewModel.Step2Color, Mode=OneWay}" 
+                                    CornerRadius="16" 
+                                    Width="32" Height="32">
+                                    <TextBlock Text="2" 
+                                           FontWeight="Bold" 
+                                           Foreground="White" 
+                                           HorizontalAlignment="Center" 
+                                           VerticalAlignment="Center"/>
+                                </Border>
+                                <StackPanel>
+                                    <TextBlock Text="Select Inventory Directory" FontWeight="SemiBold" FontSize="16"/>
+                                    <TextBlock Text="Choose the folder containing your inventory data files" Opacity="0.6" FontSize="13"/>
+                                </StackPanel>
+                            </StackPanel>
+
+                            <!-- Directory Selection -->
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+
+                                <TextBox Grid.Column="0" 
+                                     Text="{x:Bind ViewModel.FormDirectory, Mode=OneWay}" 
+                                     IsReadOnly="True" 
+                                     PlaceholderText="No directory selected..."
+                                     IsEnabled="{x:Bind ViewModel.IsGenerating, Mode=OneWay, Converter={StaticResource InverseBoolConverter}}"
+                                     Margin="0,0,12,0"/>
+                                <Button Grid.Column="1" 
+                                    Command="{x:Bind ViewModel.SelectFormDirectoryCommand}"
+                                    IsEnabled="{x:Bind ViewModel. IsGenerating, Mode=OneWay, Converter={StaticResource InverseBoolConverter}}">
+                                    <StackPanel Orientation="Horizontal" Spacing="8">
+                                        <FontIcon Glyph="&#xE8DA;" FontSize="14"/>
+                                        <TextBlock Text="Browse"/>
+                                    </StackPanel>
+                                </Button>
+                            </Grid>
+
+                            <!-- Directory Preview -->
+                            <Border Background="{ThemeResource CardBackgroundFillColorSecondaryBrush}"
+                                CornerRadius="6"
+                                Padding="16"
+                                Visibility="{x:Bind ViewModel.HasDirectoryPreview, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <StackPanel Grid.Column="0" Spacing="4">
+            <TextBlock Text="Folders" FontSize="12" Opacity="0.6"/>
+            <TextBlock Text="{x:Bind ViewModel.PreviewFolderCount, Mode=OneWay}" FontSize="20" FontWeight="SemiBold"/>
+        </StackPanel>
+
+        <StackPanel Grid.Column="1" Spacing="4">
+            <TextBlock Text="Files" FontSize="12" Opacity="0.6"/>
+            <TextBlock Text="{x:Bind ViewModel.PreviewFileCount, Mode=OneWay}" FontSize="20" FontWeight="SemiBold"/>
+        </StackPanel>
+
+        <StackPanel Grid.Column="2" Spacing="4">
+            <TextBlock Text="Total Size" FontSize="12" Opacity="0.6"/>
+            <TextBlock Text="{x:Bind ViewModel. PreviewSizeText, Mode=OneWay}" FontSize="20" FontWeight="SemiBold"/>
+        </StackPanel>
+    </Grid>
+    </Border>
+
+    <!-- Recent Directories -->
+    <StackPanel Spacing="8" 
+                                    Visibility="{x:Bind ViewModel. HasRecentDirectories, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+        <TextBlock Text="Recent Directories" FontSize="12" FontWeight="SemiBold" Opacity="0.7"/>
+        <ItemsRepeater ItemsSource="{x:Bind ViewModel.RecentDirectories, Mode=OneWay}">
+            <ItemsRepeater.Layout>
+                <StackLayout Orientation="Vertical" Spacing="4"/>
+            </ItemsRepeater.Layout>
+            <ItemsRepeater.ItemTemplate>
+                <DataTemplate x:DataType="x:String">
+                    <Button HorizontalAlignment="Stretch" 
+                                                HorizontalContentAlignment="Left"
+                                                Click="RecentDirectory_Click"
+                                                Padding="12,8">
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <FontIcon Glyph="&#xE823;" FontSize="12" Opacity="0.6"/>
+                            <TextBlock Text="{x:Bind}" FontSize="12" TextTrimming="CharacterEllipsis"/>
+                        </StackPanel>
+                    </Button>
+                </DataTemplate>
+            </ItemsRepeater.ItemTemplate>
+        </ItemsRepeater>
+    </StackPanel>
+    </StackPanel>
+    </Border>
+
+    <!-- Step 3: Generate Form -->
+    <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                        BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                        BorderThickness="1"
+                        CornerRadius="8"
+                        Padding="24">
+        <StackPanel Spacing="16">
+            <!-- Section Header -->
+            <StackPanel Orientation="Horizontal" Spacing="12">
+                <Border Background="{x:Bind ViewModel.Step3Color, Mode=OneWay}" 
+                                    CornerRadius="16" 
+                                    Width="32" Height="32">
+                    <TextBlock Text="3" 
+                                           FontWeight="Bold" 
+                                           Foreground="White" 
+                                           HorizontalAlignment="Center" 
+                                           VerticalAlignment="Center"/>
+                </Border>
+                <StackPanel>
+                    <TextBlock Text="Generate Form" FontWeight="SemiBold" FontSize="16"/>
+                    <TextBlock Text="Create a printable inventory summary" Opacity="0.6" FontSize="13"/>
+                </StackPanel>
             </StackPanel>
 
-            <Button 
-                Content="Generate Printable Form" 
-                Command="{Binding GenerateFormCommand}" 
-                HorizontalAlignment="Left" 
-                Style="{StaticResource AccentButtonStyle}" 
-                Margin="0,20,0,0"/>
+            <!-- Summary -->
+            <Border Background="{ThemeResource CardBackgroundFillColorSecondaryBrush}"
+                                CornerRadius="6"
+                                Padding="16"
+                                Visibility="{x:Bind ViewModel. CanGenerate, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+                <StackPanel Spacing="8">
+                    <TextBlock Text="Ready to generate:" FontWeight="SemiBold"/>
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <FontIcon Glyph="&#xE8A1;" FontSize="14" Foreground="{StaticResource FormsAccentColor}"/>
+                        <TextBlock>
+                                        <Run Text="{x:Bind ViewModel. SelectedTemplate, Mode=OneWay}" FontWeight="SemiBold"/>
+                                        <Run Text="template"/>
+                        </TextBlock>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <FontIcon Glyph="&#xE8B7;" FontSize="14" Foreground="{StaticResource FormsAccentColor}"/>
+                        <TextBlock Text="{x:Bind ViewModel.FormDirectoryName, Mode=OneWay}" TextTrimming="CharacterEllipsis"/>
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+
+            <!-- Generate Button -->
+            <StackPanel Orientation="Horizontal" Spacing="12">
+                <Button Command="{x:Bind ViewModel.GenerateFormCommand}"
+                                    Style="{ThemeResource AccentButtonStyle}"
+                                    IsEnabled="{x:Bind ViewModel. CanGenerate, Mode=OneWay}"
+                                    MinWidth="200">
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <FontIcon Glyph="&#xE8A1;" FontSize="16"/>
+                        <TextBlock Text="Generate Printable Form"/>
+                    </StackPanel>
+                </Button>
+
+                <StackPanel Orientation="Horizontal" 
+                                        Spacing="8"
+                                        VerticalAlignment="Center"
+                                        Visibility="{x:Bind ViewModel. IsGenerating, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+                    <ProgressRing IsActive="True" Width="20" Height="20"/>
+                    <TextBlock Text="{x:Bind ViewModel.GeneratingText, Mode=OneWay}" Opacity="0.7"/>
+                </StackPanel>
+            </StackPanel>
+
+            <!-- Not Ready Message -->
+            <StackPanel Orientation="Horizontal" 
+                                    Spacing="8"
+                                    Visibility="{x:Bind ViewModel. CanGenerate, Mode=OneWay, Converter={StaticResource InverseBoolToVisibilityConverter}}">
+                <FontIcon Glyph="&#xE946;" FontSize="14" Opacity="0.5"/>
+                <TextBlock Text="Select a directory above to enable form generation" FontSize="12" Opacity="0.5"/>
+            </StackPanel>
         </StackPanel>
+    </Border>
+
+    </StackPanel>
+    </ScrollViewer>
     </Grid>
 </Page>

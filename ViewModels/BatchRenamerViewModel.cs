@@ -289,7 +289,7 @@ public partial class BatchRenamerViewModel : ObservableObject
             ResultSummaryText = $"Successfully renamed {totalRenamed} files (1-{totalRenamed}) across {summary.Count} folders";
             ShowResults = true;
 
-            Debug.WriteLine($"[BatchRenamer] Complete. Renamed {totalRenamed} files");
+            Debug.WriteLine($"[BatchRenamer] Complete.Renamed {totalRenamed} files");
             _infoBarService.Show("Complete", $"Renamed {totalRenamed} files successfully.", InfoBarSeverity.Success);
         }
         catch (Exception ex)

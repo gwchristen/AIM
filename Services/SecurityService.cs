@@ -97,7 +97,7 @@ public class SecurityService
             return false;
         }
 
-        Debug.WriteLine($"[Security] PIN change attempted - please update HARDCODED_PIN constant in SecurityService. cs");
+        Debug.WriteLine($"[Security] PIN change attempted - please update HARDCODED_PIN constant in SecurityService.cs");
 
         return false;
     }

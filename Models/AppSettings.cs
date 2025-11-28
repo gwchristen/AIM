@@ -21,4 +21,6 @@ public class AppSettings
     // Other settings
     public string Password { get; set; } = string.Empty;
     public List<string> AuthorizedUsers { get; set; } = new();
+
+    public List<string> RecentFormDirectories { get; set; } = new();
 }
