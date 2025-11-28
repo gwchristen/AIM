@@ -6,238 +6,564 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:converters="using:AIM.Converters"
     xmlns:models="using:AIM.Models"
-    xmlns:lvc="using:LiveChartsCore.SkiaSharpView.WinUI"
-    mc:Ignorable="d"
-    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+    mc:Ignorable="d">
 
     <Page.Resources>
         <converters:CollectionToVisibilityConverter x:Key="CollectionToVisibilityConverter"/>
         <converters:ProgressColorConverter x:Key="ProgressColorConverter"/>
+        <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
+        <converters:InverseBoolToVisibilityConverter x:Key="InverseBoolToVisibilityConverter"/>
+        <converters:InverseBoolConverter x:Key="InverseBoolConverter"/>
+
+        <SolidColorBrush x:Key="AnalysisAccentColor" Color="#0078D4"/>
+        <SolidColorBrush x:Key="OhioColor" Color="#107C10"/>
+        <SolidColorBrush x:Key="IMColor" Color="#0078D4"/>
+        <SolidColorBrush x:Key="AnomalyErrorColor" Color="#C42B1C"/>
+        <SolidColorBrush x:Key="AnomalyWarningColor" Color="#D4A017"/>
+
+        <!-- Anomaly Context Menu -->
+        <MenuFlyout x:Key="AnomalyContextMenu">
+            <MenuFlyoutItem Text="Open File Location" Click="ContextMenu_OpenLocation_Click">
+                <MenuFlyoutItem.Icon>
+                    <FontIcon Glyph="&#xE8DA;"/>
+                </MenuFlyoutItem.Icon>
+            </MenuFlyoutItem>
+            <MenuFlyoutItem Text="Preview File" Click="ContextMenu_Preview_Click">
+                <MenuFlyoutItem.Icon>
+                    <FontIcon Glyph="&#xE8FF;"/>
+                </MenuFlyoutItem.Icon>
+            </MenuFlyoutItem>
+            <MenuFlyoutSeparator/>
+            <MenuFlyoutItem Text="Copy Path" Click="ContextMenu_CopyPath_Click">
+                <MenuFlyoutItem.Icon>
+                    <FontIcon Glyph="&#xE8C8;"/>
+                </MenuFlyoutItem.Icon>
+            </MenuFlyoutItem>
+        </MenuFlyout>
     </Page.Resources>
 
-    <Grid Margin="24">
+    <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <!-- Header Section -->
-        <StackPanel Grid.Row="0" Spacing="12" Margin="0,0,0,20">
-            <TextBlock Text="Directory Analysis" Style="{StaticResource TitleTextBlockStyle}"/>
-            <TextBlock Text="Select a directory to view file count/size statistics and scan for file anomalies." TextWrapping="Wrap"/>
+        <!-- Header -->
+        <Border Grid.Row="0"
+                Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                BorderThickness="0,0,0,1"
+                Padding="24,16">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
 
-            <StackPanel Orientation="Horizontal" Spacing="8">
-                <TextBox Text="{Binding AnalysisDirectory, Mode=OneWay}" IsReadOnly="True" PlaceholderText="Select a directory to analyze..." MinWidth="400"/>
-                <Button Content="Browse..." Command="{Binding SelectAnalysisDirectoryCommand}"/>
-            </StackPanel>
-        </StackPanel>
-
-        <ScrollViewer Grid.Row="1" VerticalScrollMode="Auto">
-            <StackPanel Spacing="20">
-
-                <!-- Statistics Cards - More Compact -->
-                <Grid ColumnSpacing="16">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="*"/>
-                    </Grid.ColumnDefinitions>
-
-                    <!-- Ohio Card -->
-                    <Border Grid.Column="0" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="8" Padding="12">
-                        <StackPanel Spacing="8">
-                            <TextBlock Text="Ohio" Style="{StaticResource BodyStrongTextBlockStyle}"/>
-
-                            <Grid RowSpacing="6">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="Auto"/>
-                                    <ColumnDefinition Width="*"/>
-                                </Grid.ColumnDefinitions>
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="Auto"/>
-                                    <RowDefinition Height="Auto"/>
-                                    <RowDefinition Height="Auto"/>
-                                    <RowDefinition Height="Auto"/>
-                                    <RowDefinition Height="Auto"/>
-                                    <RowDefinition Height="Auto"/>
-                                </Grid.RowDefinitions>
-
-                                <TextBlock Grid.Row="0" Grid.Column="0" Text="Target:" FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
-                                <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding TargetDevicesOhio, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Height="32" Margin="0,0,0,4"/>
-
-                                <TextBlock Grid.Row="1" Grid.Column="0" Text="Files:" FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
-                                <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding OhioFileCount, Mode=OneWay}" FontSize="12"/>
-
-                                <TextBlock Grid.Row="2" Grid.Column="0" Text="Devices:" FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
-                                <StackPanel Grid.Row="2" Grid.Column="1" Orientation="Horizontal" Spacing="4">
-                                    <TextBlock Text="{Binding OhioDeviceCount, Mode=OneWay}" FontSize="12" FontWeight="SemiBold"/>
-                                    <TextBlock Text="/" FontSize="12" Foreground="{ThemeResource TextFillColorTertiaryBrush}"/>
-                                    <TextBlock Text="{Binding TargetDevicesOhio, Mode=OneWay}" FontSize="12" Foreground="{ThemeResource TextFillColorTertiaryBrush}"/>
-                                </StackPanel>
-
-                                <TextBlock Grid.Row="3" Grid.Column="0" Text="Gap:" FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
-                                <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding OhioDifference, Mode=OneWay}" FontSize="12" Foreground="OrangeRed" FontWeight="SemiBold"/>
-
-                                <TextBlock Grid.Row="4" Grid.Column="0" Text="Progress:" FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
-                                <StackPanel Grid.Row="4" Grid.Column="1" Orientation="Vertical" Spacing="2">
-                                    <ProgressBar Value="{Binding OhioPercentage, Mode=OneWay}" Maximum="100" Height="10" CornerRadius="3" Foreground="{Binding OhioPercentage, Mode=OneWay, Converter={StaticResource ProgressColorConverter}}"/>
-                                    <TextBlock Text="{Binding OhioPercentage, Mode=OneWay}" FontSize="10" Foreground="{ThemeResource TextFillColorTertiaryBrush}"/>
-                                </StackPanel>
-
-                                <TextBlock Grid.Row="5" Grid.Column="0" Text="% Diff:" FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
-                                <StackPanel Grid.Row="5" Grid.Column="1" Orientation="Horizontal" Spacing="4">
-                                    <TextBlock Text="{Binding OhioPercentage, Mode=OneWay}" FontSize="12" FontWeight="SemiBold"/>
-                                    <TextBlock Text="%" FontSize="12" FontWeight="SemiBold"/>
-                                </StackPanel>
-                            </Grid>
+                <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12">
+                    <FontIcon Glyph="&#xE9D9;" FontSize="28" Foreground="{StaticResource AnalysisAccentColor}"/>
+                    <StackPanel>
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <TextBlock Text="Directory Analysis" Style="{ThemeResource TitleTextBlockStyle}"/>
+                            <ProgressRing IsActive="{x:Bind ViewModel.IsAnalyzing, Mode=OneWay}" 
+                                          Width="20" Height="20"
+                                          Visibility="{x:Bind ViewModel.IsAnalyzing, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}"/>
                         </StackPanel>
-                    </Border>
-
-                    <!-- I&M Card -->
-                    <Border Grid.Column="1" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1" CornerRadius="8" Padding="12">
-                        <StackPanel Spacing="8">
-                            <TextBlock Text="I&amp;M" Style="{StaticResource BodyStrongTextBlockStyle}"/>
-
-                            <Grid RowSpacing="6">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="Auto"/>
-                                    <ColumnDefinition Width="*"/>
-                                </Grid.ColumnDefinitions>
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="Auto"/>
-                                    <RowDefinition Height="Auto"/>
-                                    <RowDefinition Height="Auto"/>
-                                    <RowDefinition Height="Auto"/>
-                                    <RowDefinition Height="Auto"/>
-                                    <RowDefinition Height="Auto"/>
-                                </Grid.RowDefinitions>
-
-                                <TextBlock Grid.Row="0" Grid.Column="0" Text="Target:" FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
-                                <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding TargetDevicesIm, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Height="32" Margin="0,0,0,4"/>
-
-                                <TextBlock Grid.Row="1" Grid.Column="0" Text="Files:" FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
-                                <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding ImFileCount, Mode=OneWay}" FontSize="12"/>
-
-                                <TextBlock Grid.Row="2" Grid.Column="0" Text="Devices:" FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
-                                <StackPanel Grid.Row="2" Grid.Column="1" Orientation="Horizontal" Spacing="4">
-                                    <TextBlock Text="{Binding ImDeviceCount, Mode=OneWay}" FontSize="12" FontWeight="SemiBold"/>
-                                    <TextBlock Text="/" FontSize="12" Foreground="{ThemeResource TextFillColorTertiaryBrush}"/>
-                                    <TextBlock Text="{Binding TargetDevicesIm, Mode=OneWay}" FontSize="12" Foreground="{ThemeResource TextFillColorTertiaryBrush}"/>
-                                </StackPanel>
-
-                                <TextBlock Grid.Row="3" Grid.Column="0" Text="Gap:" FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
-                                <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding IMDifference, Mode=OneWay}" FontSize="12" Foreground="OrangeRed" FontWeight="SemiBold"/>
-
-                                <TextBlock Grid.Row="4" Grid.Column="0" Text="Progress:" FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
-                                <StackPanel Grid.Row="4" Grid.Column="1" Orientation="Vertical" Spacing="2">
-                                    <ProgressBar Value="{Binding IMPercentage, Mode=OneWay}" Maximum="100" Height="10" CornerRadius="3" Foreground="{Binding IMPercentage, Mode=OneWay, Converter={StaticResource ProgressColorConverter}}"/>
-                                    <TextBlock Text="{Binding IMPercentage, Mode=OneWay}" FontSize="10" Foreground="{ThemeResource TextFillColorTertiaryBrush}"/>
-                                </StackPanel>
-
-                                <TextBlock Grid.Row="5" Grid.Column="0" Text="% Diff:" FontSize="12" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
-                                <StackPanel Grid.Row="5" Grid.Column="1" Orientation="Horizontal" Spacing="4">
-                                    <TextBlock Text="{Binding IMPercentage, Mode=OneWay}" FontSize="12" FontWeight="SemiBold"/>
-                                    <TextBlock Text="%" FontSize="12" FontWeight="SemiBold"/>
-                                </StackPanel>
-                            </Grid>
-                        </StackPanel>
-                    </Border>
-                </Grid>
-
-                <!-- Directory Statistics -->
-                <StackPanel Spacing="8" Visibility="{Binding OpCoStats, Converter={StaticResource CollectionToVisibilityConverter}, Mode=OneWay}">
-                    <TextBlock Text="Directory Statistics by OpCo" Style="{StaticResource SubtitleTextBlockStyle}"/>
-                    <ListView ItemsSource="{Binding OpCoStats, Mode=OneWay}" MaxHeight="150">
-                        <ListView.ItemTemplate>
-                            <DataTemplate x:DataType="models:OpCoStatItem">
-                                <Grid ColumnSpacing="12" Padding="6">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="120"/>
-                                        <ColumnDefinition Width="Auto" MinWidth="80"/>
-                                        <ColumnDefinition Width="Auto" MinWidth="80"/>
-                                    </Grid.ColumnDefinitions>
-                                    <TextBlock Grid.Column="0" Text="{x:Bind OpCoName}" FontSize="12" FontWeight="SemiBold"/>
-                                    <TextBlock Grid.Column="1" HorizontalAlignment="Right" FontSize="12">
-                                        <Run Text="{x:Bind FileCount, Mode=OneWay}"/>
-                                        <Run Text="files" Foreground="{ThemeResource TextFillColorTertiaryBrush}"/>
-                                    </TextBlock>
-                                    <TextBlock Grid.Column="2" HorizontalAlignment="Right" FontSize="12">
-                                        <Run Text="{x:Bind DeviceCount, Mode=OneWay}"/>
-                                        <Run Text="devices" Foreground="{ThemeResource TextFillColorTertiaryBrush}"/>
-                                    </TextBlock>
-                                </Grid>
-                            </DataTemplate>
-                        </ListView.ItemTemplate>
-                    </ListView>
+                        <TextBlock Text="Analyze file counts, device statistics, and detect file anomalies" 
+                                   Style="{ThemeResource CaptionTextBlockStyle}" 
+                                   Opacity="0.7"/>
+                    </StackPanel>
                 </StackPanel>
 
-                <!-- File Anomalies Section - 3 Columns -->
-                <StackPanel Spacing="8">
-                    <TextBlock Text="File Anomalies" Style="{StaticResource SubtitleTextBlockStyle}"/>
+                <!-- Header Actions -->
+                <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8">
+                    <!-- Last Analyzed -->
+                    <StackPanel Orientation="Horizontal" Spacing="6" VerticalAlignment="Center"
+                                Visibility="{x:Bind ViewModel.HasAnalyzed, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+                        <FontIcon Glyph="&#xE823;" FontSize="12" Opacity="0.6"/>
+                        <TextBlock Text="{x:Bind ViewModel.LastAnalyzedText, Mode=OneWay}" FontSize="12" Opacity="0.6"/>
+                    </StackPanel>
 
-                    <Grid ColumnSpacing="12">
+                    <AppBarSeparator Margin="4,0" 
+                                     Visibility="{x:Bind ViewModel.HasAnalyzed, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}"/>
+
+                    <Button Command="{x:Bind ViewModel.RunAnalysisCommand}"
+                            IsEnabled="{x:Bind ViewModel. CanRefresh, Mode=OneWay}"
+                            ToolTipService.ToolTip="Re-analyze directory">
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <FontIcon Glyph="&#xE72C;" FontSize="14"/>
+                            <TextBlock Text="Refresh"/>
+                        </StackPanel>
+                    </Button>
+
+                    <Button Command="{x:Bind ViewModel.ExportAnomaliesCommand}"
+                            IsEnabled="{x:Bind ViewModel.HasAnomalies, Mode=OneWay}"
+                            ToolTipService.ToolTip="Export anomalies report">
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <FontIcon Glyph="&#xE8B5;" FontSize="14"/>
+                            <TextBlock Text="Export"/>
+                        </StackPanel>
+                    </Button>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- Main Content -->
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+            <StackPanel Spacing="16" Margin="24,16,24,24">
+
+                <!-- Directory Selection Card -->
+                <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                        BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                        BorderThickness="1"
+                        CornerRadius="8"
+                        Padding="20">
+                    <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+
+                        <StackPanel Grid.Column="0" Spacing="8">
+                            <TextBlock Text="Analysis Directory" FontWeight="SemiBold"/>
+                            <TextBox Text="{x:Bind ViewModel. AnalysisDirectory, Mode=OneWay}" 
+                                     IsReadOnly="True" 
+                                     PlaceholderText="Select a directory to analyze..."
+                                     IsEnabled="{x:Bind ViewModel.IsAnalyzing, Mode=OneWay, Converter={StaticResource InverseBoolConverter}}"/>
+                        </StackPanel>
+
+                        <Button Grid.Column="1" 
+                                Command="{x:Bind ViewModel.SelectAnalysisDirectoryCommand}"
+                                IsEnabled="{x:Bind ViewModel. IsAnalyzing, Mode=OneWay, Converter={StaticResource InverseBoolConverter}}"
+                                VerticalAlignment="Bottom"
+                                Margin="12,0,0,0">
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <FontIcon Glyph="&#xE8DA;" FontSize="14"/>
+                                <TextBlock Text="Browse"/>
+                            </StackPanel>
+                        </Button>
+                    </Grid>
+                </Border>
+
+                <!-- Loading State -->
+                <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                        BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                        BorderThickness="1"
+                        CornerRadius="8"
+                        Padding="40"
+                        Visibility="{x:Bind ViewModel.IsAnalyzing, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+                    <StackPanel HorizontalAlignment="Center" Spacing="16">
+                        <ProgressRing IsActive="True" Width="48" Height="48"/>
+                        <TextBlock Text="{x:Bind ViewModel. AnalyzingText, Mode=OneWay}" FontSize="14" Opacity="0.7" HorizontalAlignment="Center"/>
+                    </StackPanel>
+                </Border>
+
+                <!-- Error State -->
+                <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                        BorderBrush="{StaticResource AnomalyErrorColor}"
+                        BorderThickness="1"
+                        CornerRadius="8"
+                        Padding="20"
+                        Visibility="{x:Bind ViewModel. HasError, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+                    <StackPanel Orientation="Horizontal" Spacing="12">
+                        <FontIcon Glyph="&#xE783;" FontSize="24" Foreground="{StaticResource AnomalyErrorColor}"/>
+                        <StackPanel>
+                            <TextBlock Text="Analysis Failed" FontWeight="SemiBold" Foreground="{StaticResource AnomalyErrorColor}"/>
+                            <TextBlock Text="{x:Bind ViewModel.ErrorMessage, Mode=OneWay}" Opacity="0.7" TextWrapping="Wrap"/>
+                        </StackPanel>
+                        <Button Content="Retry" Command="{x:Bind ViewModel.RunAnalysisCommand}" VerticalAlignment="Center" Margin="16,0,0,0"/>
+                    </StackPanel>
+                </Border>
+
+                <!-- Results Section (visible when not loading and has data) -->
+                <StackPanel Spacing="16" Visibility="{x:Bind ViewModel.ShowResults, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+
+                    <!-- Statistics Cards -->
+                    <Grid ColumnSpacing="16">
+                        <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
 
-                        <!-- I&M in Ohio Anomalies -->
-                        <StackPanel Grid.Column="0" Spacing="6">
-                            <StackPanel Orientation="Horizontal" Spacing="6">
-                                <FontIcon Glyph="&#xE74C;" Foreground="OrangeRed" FontSize="14" VerticalAlignment="Center"/>
-                                <TextBlock Text="I&amp;M in Ohio" FontSize="12" FontWeight="SemiBold"/>
-                            </StackPanel>
-                            <TextBlock Text="{Binding ImInOhioAnomalies.Count, Mode=OneWay}" FontSize="11" Foreground="OrangeRed" FontWeight="SemiBold"/>
-                            <ListView ItemsSource="{Binding ImInOhioAnomalies, Mode=OneWay}" MinHeight="150" MaxHeight="300">
-                                <ListView.ItemTemplate>
-                                    <DataTemplate x:DataType="models:FileAnomalyItem">
-                                        <StackPanel Spacing="1" Padding="4">
-                                            <TextBlock Text="{x:Bind FileName}" FontSize="11" FontWeight="SemiBold" TextWrapping="Wrap"/>
-                                            <TextBlock Text="{x:Bind FilePath}" FontSize="9" Foreground="Gray" TextTrimming="CharacterEllipsis" ToolTipService.ToolTip="{x:Bind FilePath}"/>
-                                        </StackPanel>
-                                    </DataTemplate>
-                                </ListView.ItemTemplate>
-                            </ListView>
-                        </StackPanel>
+                        <!-- Ohio Card -->
+                        <Border Grid.Column="0" 
+                                Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" 
+                                BorderBrush="{StaticResource OhioColor}" 
+                                BorderThickness="0,3,0,0" 
+                                CornerRadius="8" 
+                                Padding="20">
+                            <StackPanel Spacing="16">
+                                <!-- Header -->
+                                <StackPanel Orientation="Horizontal" Spacing="8">
+                                    <FontIcon Glyph="&#xE80F;" Foreground="{StaticResource OhioColor}" FontSize="20"/>
+                                    <TextBlock Text="Ohio" Style="{StaticResource SubtitleTextBlockStyle}" FontWeight="SemiBold"/>
+                                </StackPanel>
 
-                        <!-- OH/OP in I&M Anomalies -->
-                        <StackPanel Grid.Column="1" Spacing="6">
-                            <StackPanel Orientation="Horizontal" Spacing="6">
-                                <FontIcon Glyph="&#xE74C;" Foreground="OrangeRed" FontSize="14" VerticalAlignment="Center"/>
-                                <TextBlock Text="OH/OP in I&amp;M" FontSize="12" FontWeight="SemiBold"/>
-                            </StackPanel>
-                            <TextBlock Text="{Binding OhInImAnomalies.Count, Mode=OneWay}" FontSize="11" Foreground="OrangeRed" FontWeight="SemiBold"/>
-                            <ListView ItemsSource="{Binding OhInImAnomalies, Mode=OneWay}" MinHeight="150" MaxHeight="300">
-                                <ListView.ItemTemplate>
-                                    <DataTemplate x:DataType="models:FileAnomalyItem">
-                                        <StackPanel Spacing="1" Padding="4">
-                                            <TextBlock Text="{x:Bind FileName}" FontSize="11" FontWeight="SemiBold" TextWrapping="Wrap"/>
-                                            <TextBlock Text="{x:Bind FilePath}" FontSize="9" Foreground="Gray" TextTrimming="CharacterEllipsis" ToolTipService.ToolTip="{x:Bind FilePath}"/>
-                                        </StackPanel>
-                                    </DataTemplate>
-                                </ListView.ItemTemplate>
-                            </ListView>
-                        </StackPanel>
+                                <!-- Target Input Section -->
+                                <Border Background="{ThemeResource CardBackgroundFillColorSecondaryBrush}" 
+                                        CornerRadius="6" 
+                                        Padding="12">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <TextBlock Grid.Column="0" Text="Target Devices:" VerticalAlignment="Center" Margin="0,0,12,0"/>
+                                        <TextBox Grid.Column="1" 
+                                                 Text="{x:Bind ViewModel. TargetDevicesOhio, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                                                 HorizontalAlignment="Stretch"/>
+                                    </Grid>
+                                </Border>
 
-                        <!-- Unidentified Files -->
-                        <StackPanel Grid.Column="2" Spacing="6">
-                            <StackPanel Orientation="Horizontal" Spacing="6">
-                                <FontIcon Glyph="&#xE7BA;" Foreground="Gold" FontSize="14" VerticalAlignment="Center"/>
-                                <TextBlock Text="Unidentified" FontSize="12" FontWeight="SemiBold"/>
-                            </StackPanel>
-                            <TextBlock Text="{Binding UnidentifiedAnomalies.Count, Mode=OneWay}" FontSize="11" Foreground="Gold" FontWeight="SemiBold"/>
-                            <ListView ItemsSource="{Binding UnidentifiedAnomalies, Mode=OneWay}" MinHeight="150" MaxHeight="300">
-                                <ListView.ItemTemplate>
-                                    <DataTemplate x:DataType="models:FileAnomalyItem">
-                                        <StackPanel Spacing="1" Padding="4">
-                                            <TextBlock Text="{x:Bind FileName}" FontSize="11" FontWeight="SemiBold" TextWrapping="Wrap"/>
-                                            <TextBlock Text="{x:Bind FilePath}" FontSize="9" Foreground="Gray" TextTrimming="CharacterEllipsis" ToolTipService.ToolTip="{x:Bind FilePath}"/>
+                                <!-- Stats Grid -->
+                                <Grid RowSpacing="8" ColumnSpacing="16">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                    </Grid.RowDefinitions>
+
+                                    <!-- Files -->
+                                    <StackPanel Grid.Row="0" Grid.Column="0">
+                                        <TextBlock Text="Files" FontSize="12" Opacity="0.6"/>
+                                        <TextBlock Text="{x:Bind ViewModel. OhioFileCount, Mode=OneWay}" FontSize="20" FontWeight="SemiBold"/>
+                                    </StackPanel>
+
+                                    <!-- Devices -->
+                                    <StackPanel Grid.Row="0" Grid.Column="1">
+                                        <TextBlock Text="Devices" FontSize="12" Opacity="0.6"/>
+                                        <StackPanel Orientation="Horizontal" Spacing="4">
+                                            <TextBlock Text="{x:Bind ViewModel.OhioDeviceCount, Mode=OneWay}" FontSize="20" FontWeight="SemiBold"/>
+                                            <TextBlock Text="/" FontSize="16" Opacity="0.4" VerticalAlignment="Bottom" Margin="0,0,0,2"/>
+                                            <TextBlock Text="{x:Bind ViewModel. TargetDevicesOhio, Mode=OneWay}" FontSize="16" Opacity="0.4" VerticalAlignment="Bottom" Margin="0,0,0,2"/>
                                         </StackPanel>
-                                    </DataTemplate>
-                                </ListView.ItemTemplate>
-                            </ListView>
-                        </StackPanel>
+                                    </StackPanel>
+
+                                    <!-- Gap -->
+                                    <StackPanel Grid.Row="1" Grid.Column="0">
+                                        <TextBlock Text="Gap" FontSize="12" Opacity="0.6"/>
+                                        <TextBlock Text="{x:Bind ViewModel.OhioDifference, Mode=OneWay}" FontSize="20" FontWeight="SemiBold" Foreground="{StaticResource AnomalyErrorColor}"/>
+                                    </StackPanel>
+
+                                    <!-- Percentage -->
+                                    <StackPanel Grid.Row="1" Grid.Column="1">
+                                        <TextBlock Text="Complete" FontSize="12" Opacity="0.6"/>
+                                        <TextBlock FontSize="20" FontWeight="SemiBold">
+                                            <Run Text="{x:Bind ViewModel.OhioPercentageText, Mode=OneWay}"/>
+                                        </TextBlock>
+                                    </StackPanel>
+                                </Grid>
+
+                                <!-- Progress Bar - Larger -->
+                                <StackPanel Spacing="4">
+                                    <ProgressBar Value="{x:Bind ViewModel.OhioPercentage, Mode=OneWay}" 
+                                                 Maximum="100" 
+                                                 Height="16" 
+                                                 CornerRadius="4" 
+                                                 Foreground="{x:Bind ViewModel.OhioPercentage, Mode=OneWay, Converter={StaticResource ProgressColorConverter}}"/>
+                                </StackPanel>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- I&M Card -->
+                        <Border Grid.Column="1" 
+                                Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" 
+                                BorderBrush="{StaticResource IMColor}" 
+                                BorderThickness="0,3,0,0" 
+                                CornerRadius="8" 
+                                Padding="20">
+                            <StackPanel Spacing="16">
+                                <!-- Header -->
+                                <StackPanel Orientation="Horizontal" Spacing="8">
+                                    <FontIcon Glyph="&#xE80F;" Foreground="{StaticResource IMColor}" FontSize="20"/>
+                                    <TextBlock Text="I&amp;M" Style="{StaticResource SubtitleTextBlockStyle}" FontWeight="SemiBold"/>
+                                </StackPanel>
+
+                                <!-- Target Input Section -->
+                                <Border Background="{ThemeResource CardBackgroundFillColorSecondaryBrush}" 
+                                        CornerRadius="6" 
+                                        Padding="12">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="*"/>
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock Grid.Column="0" Text="Target Devices:" VerticalAlignment="Center" Margin="0,0,12,0"/>
+                                            <TextBox Grid.Column="1" 
+                                                 Text="{x:Bind ViewModel. TargetDevicesIm, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                                                 HorizontalAlignment="Stretch"/>
+                                    </Grid>
+                                </Border>
+
+                                <!-- Stats Grid -->
+                                <Grid RowSpacing="8" ColumnSpacing="16">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                    </Grid.RowDefinitions>
+
+                                    <!-- Files -->
+                                    <StackPanel Grid.Row="0" Grid.Column="0">
+                                        <TextBlock Text="Files" FontSize="12" Opacity="0.6"/>
+                                        <TextBlock Text="{x:Bind ViewModel.ImFileCount, Mode=OneWay}" FontSize="20" FontWeight="SemiBold"/>
+                                    </StackPanel>
+
+                                    <!-- Devices -->
+                                    <StackPanel Grid.Row="0" Grid.Column="1">
+                                        <TextBlock Text="Devices" FontSize="12" Opacity="0.6"/>
+                                        <StackPanel Orientation="Horizontal" Spacing="4">
+                                            <TextBlock Text="{x:Bind ViewModel.ImDeviceCount, Mode=OneWay}" FontSize="20" FontWeight="SemiBold"/>
+                                            <TextBlock Text="/" FontSize="16" Opacity="0.4" VerticalAlignment="Bottom" Margin="0,0,0,2"/>
+                                            <TextBlock Text="{x:Bind ViewModel. TargetDevicesIm, Mode=OneWay}" FontSize="16" Opacity="0.4" VerticalAlignment="Bottom" Margin="0,0,0,2"/>
+                                        </StackPanel>
+                                    </StackPanel>
+
+                                    <!-- Gap -->
+                                    <StackPanel Grid.Row="1" Grid.Column="0">
+                                        <TextBlock Text="Gap" FontSize="12" Opacity="0.6"/>
+                                        <TextBlock Text="{x:Bind ViewModel.IMDifference, Mode=OneWay}" FontSize="20" FontWeight="SemiBold" Foreground="{StaticResource AnomalyErrorColor}"/>
+                                    </StackPanel>
+
+                                    <!-- Percentage -->
+                                    <StackPanel Grid.Row="1" Grid.Column="1">
+                                        <TextBlock Text="Complete" FontSize="12" Opacity="0.6"/>
+                                        <TextBlock FontSize="20" FontWeight="SemiBold">
+                                            <Run Text="{x:Bind ViewModel.IMPercentageText, Mode=OneWay}"/>
+                                        </TextBlock>
+                                    </StackPanel>
+                                </Grid>
+
+                                <!-- Progress Bar - Larger -->
+                                <StackPanel Spacing="4">
+                                    <ProgressBar Value="{x:Bind ViewModel. IMPercentage, Mode=OneWay}" 
+                                                 Maximum="100" 
+                                                 Height="16" 
+                                                 CornerRadius="4" 
+                                                 Foreground="{x:Bind ViewModel.IMPercentage, Mode=OneWay, Converter={StaticResource ProgressColorConverter}}"/>
+                                </StackPanel>
+                            </StackPanel>
+                        </Border>
                     </Grid>
+
+                    <!-- Directory Statistics -->
+                    <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                            BorderThickness="1"
+                            CornerRadius="8"
+                            Padding="20"
+                            Visibility="{x:Bind ViewModel. OpCoStats, Converter={StaticResource CollectionToVisibilityConverter}, Mode=OneWay}">
+                        <StackPanel Spacing="12">
+                            <TextBlock Text="Directory Statistics by OpCo" FontWeight="SemiBold" FontSize="16"/>
+
+                            <!-- Column Headers -->
+                            <Grid Padding="6,0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="120"/>
+                                    <ColumnDefinition Width="Auto" MinWidth="80"/>
+                                    <ColumnDefinition Width="Auto" MinWidth="80"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="OpCo" FontSize="12" FontWeight="SemiBold" Opacity="0.6"/>
+                                    <TextBlock Grid.Column="1" Text="Files" FontSize="12" FontWeight="SemiBold" Opacity="0.6" HorizontalAlignment="Right"/>
+                                    <TextBlock Grid.Column="2" Text="Devices" FontSize="12" FontWeight="SemiBold" Opacity="0.6" HorizontalAlignment="Right"/>
+                            </Grid>
+
+                            <ListView ItemsSource="{x:Bind ViewModel.OpCoStats, Mode=OneWay}" MaxHeight="200" SelectionMode="None">
+                                <ListView.ItemTemplate>
+                                    <DataTemplate x:DataType="models:OpCoStatItem">
+                                        <Grid ColumnSpacing="12" Padding="6,8">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="120"/>
+                                                <ColumnDefinition Width="Auto" MinWidth="80"/>
+                                                <ColumnDefinition Width="Auto" MinWidth="80"/>
+                                                </Grid.ColumnDefinitions>
+                                                <TextBlock Grid.Column="0" Text="{x:Bind OpCoName}" FontSize="13" FontWeight="SemiBold"/>
+                                                <TextBlock Grid.Column="1" Text="{x:Bind FileCount, Mode=OneWay}" FontSize="13" HorizontalAlignment="Right"/>
+                                                <TextBlock Grid.Column="2" Text="{x:Bind DeviceCount, Mode=OneWay}" FontSize="13" HorizontalAlignment="Right"/>
+                                        </Grid>
+                                    </DataTemplate>
+                                </ListView.ItemTemplate>
+                            </ListView>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- File Anomalies Section -->
+                    <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                            BorderThickness="1"
+                            CornerRadius="8"
+                            Padding="20">
+                        <StackPanel Spacing="16">
+                            <!-- Section Header -->
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+
+                                <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12">
+                                    <TextBlock Text="File Anomalies" FontWeight="SemiBold" FontSize="16"/>
+                                    <Border Background="{x:Bind ViewModel.TotalAnomalyBadgeColor, Mode=OneWay}"
+                                            CornerRadius="10"
+                                            Padding="8,2"
+                                            VerticalAlignment="Center">
+                                        <TextBlock Text="{x:Bind ViewModel.TotalAnomalyCount, Mode=OneWay}" FontSize="11" FontWeight="Bold" Foreground="White"/>
+                                    </Border>
+                                </StackPanel>
+                            </Grid>
+
+                            <!-- Anomaly Columns -->
+                            <Grid ColumnSpacing="16">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+
+                                <!-- I&M in Ohio Anomalies -->
+                                <Border Grid.Column="0" 
+                                        Background="{ThemeResource CardBackgroundFillColorSecondaryBrush}"
+                                        CornerRadius="6"
+                                        Padding="12">
+                                    <StackPanel Spacing="8">
+                                        <StackPanel Orientation="Horizontal" Spacing="8">
+                                            <FontIcon Glyph="&#xE74C;" Foreground="{StaticResource AnomalyErrorColor}" FontSize="14"/>
+                                            <TextBlock Text="I&amp;M in Ohio" FontSize="13" FontWeight="SemiBold"/>
+                                            <Border Background="{StaticResource AnomalyErrorColor}" CornerRadius="8" Padding="6,1">
+                                                <TextBlock Text="{x:Bind ViewModel.ImInOhioAnomalies. Count, Mode=OneWay}" FontSize="11" FontWeight="Bold" Foreground="White"/>
+                                            </Border>
+                                        </StackPanel>
+
+                                        <!-- Empty State -->
+                                        <StackPanel Visibility="{x:Bind ViewModel.ImInOhioEmpty, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}"
+                                                    HorizontalAlignment="Center"
+                                                    Spacing="8"
+                                                    Padding="20">
+                                            <FontIcon Glyph="&#xE73E;" FontSize="24" Foreground="{StaticResource OhioColor}"/>
+                                            <TextBlock Text="No anomalies found" FontSize="12" Opacity="0.6" HorizontalAlignment="Center"/>
+                                        </StackPanel>
+
+                                        <!-- List -->
+                                        <ListView x:Name="ImInOhioListView"
+                                                  ItemsSource="{x:Bind ViewModel.ImInOhioAnomalies, Mode=OneWay}" 
+                                                  MinHeight="100" 
+                                                  MaxHeight="250"
+                                                  SelectionMode="Single"
+                                                  IsItemClickEnabled="True"
+                                                  ItemClick="AnomalyItem_Click"
+                                                  RightTapped="AnomalyItem_RightTapped"
+                                                  Visibility="{x:Bind ViewModel. ImInOhioEmpty, Mode=OneWay, Converter={StaticResource InverseBoolToVisibilityConverter}}">
+                                            <ListView.ItemTemplate>
+                                                <DataTemplate x:DataType="models:FileAnomalyItem">
+                                                    <StackPanel Spacing="2" Padding="4" ToolTipService.ToolTip="{x:Bind FilePath}">
+                                                        <TextBlock Text="{x:Bind FileName}" FontSize="12" FontWeight="SemiBold" TextWrapping="Wrap"/>
+                                                        <TextBlock Text="{x:Bind FilePath}" FontSize="10" Opacity="0.5" TextTrimming="CharacterEllipsis"/>
+                                                    </StackPanel>
+                                                </DataTemplate>
+                                            </ListView.ItemTemplate>
+                                        </ListView>
+                                    </StackPanel>
+                                </Border>
+
+                                <!-- OH/OP in I&M Anomalies -->
+                                <Border Grid.Column="1" 
+                                        Background="{ThemeResource CardBackgroundFillColorSecondaryBrush}"
+                                        CornerRadius="6"
+                                        Padding="12">
+                                    <StackPanel Spacing="8">
+                                        <StackPanel Orientation="Horizontal" Spacing="8">
+                                            <FontIcon Glyph="&#xE74C;" Foreground="{StaticResource AnomalyErrorColor}" FontSize="14"/>
+                                            <TextBlock Text="OH/OP in I&amp;M" FontSize="13" FontWeight="SemiBold"/>
+                                            <Border Background="{StaticResource AnomalyErrorColor}" CornerRadius="8" Padding="6,1">
+                                                <TextBlock Text="{x:Bind ViewModel.OhInImAnomalies. Count, Mode=OneWay}" FontSize="11" FontWeight="Bold" Foreground="White"/>
+                                            </Border>
+                                        </StackPanel>
+
+                                        <!-- Empty State -->
+                                        <StackPanel Visibility="{x:Bind ViewModel.OhInImEmpty, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}"
+                                                    HorizontalAlignment="Center"
+                                                    Spacing="8"
+                                                    Padding="20">
+                                            <FontIcon Glyph="&#xE73E;" FontSize="24" Foreground="{StaticResource IMColor}"/>
+                                            <TextBlock Text="No anomalies found" FontSize="12" Opacity="0.6" HorizontalAlignment="Center"/>
+                                        </StackPanel>
+
+                                        <!-- List -->
+                                        <ListView x:Name="OhInImListView"
+                                                  ItemsSource="{x:Bind ViewModel.OhInImAnomalies, Mode=OneWay}" 
+                                                  MinHeight="100" 
+                                                  MaxHeight="250"
+                                                  SelectionMode="Single"
+                                                  IsItemClickEnabled="True"
+                                                  ItemClick="AnomalyItem_Click"
+                                                  RightTapped="AnomalyItem_RightTapped"
+                                                  Visibility="{x:Bind ViewModel. OhInImEmpty, Mode=OneWay, Converter={StaticResource InverseBoolToVisibilityConverter}}">
+                                            <ListView.ItemTemplate>
+                                                <DataTemplate x:DataType="models:FileAnomalyItem">
+                                                    <StackPanel Spacing="2" Padding="4" ToolTipService.ToolTip="{x:Bind FilePath}">
+                                                        <TextBlock Text="{x:Bind FileName}" FontSize="12" FontWeight="SemiBold" TextWrapping="Wrap"/>
+                                                        <TextBlock Text="{x:Bind FilePath}" FontSize="10" Opacity="0.5" TextTrimming="CharacterEllipsis"/>
+                                                    </StackPanel>
+                                                </DataTemplate>
+                                            </ListView.ItemTemplate>
+                                        </ListView>
+                                    </StackPanel>
+                                </Border>
+
+                                <!-- Unidentified Files -->
+                                <Border Grid.Column="2" 
+                                        Background="{ThemeResource CardBackgroundFillColorSecondaryBrush}"
+                                        CornerRadius="6"
+                                        Padding="12">
+                                    <StackPanel Spacing="8">
+                                        <StackPanel Orientation="Horizontal" Spacing="8">
+                                            <FontIcon Glyph="&#xE7BA;" Foreground="{StaticResource AnomalyWarningColor}" FontSize="14"/>
+                                            <TextBlock Text="Unidentified" FontSize="13" FontWeight="SemiBold"/>
+                                            <Border Background="{StaticResource AnomalyWarningColor}" CornerRadius="8" Padding="6,1">
+                                                <TextBlock Text="{x:Bind ViewModel.UnidentifiedAnomalies.Count, Mode=OneWay}" FontSize="11" FontWeight="SemiBold" Foreground="Black"/>
+                                            </Border>
+                                        </StackPanel>
+
+                                        <!-- Empty State -->
+                                        <StackPanel Visibility="{x:Bind ViewModel.UnidentifiedEmpty, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}"
+                                                    HorizontalAlignment="Center"
+                                                    Spacing="8"
+                                                    Padding="20">
+                                            <FontIcon Glyph="&#xE73E;" FontSize="24" Foreground="{StaticResource OhioColor}"/>
+                                            <TextBlock Text="All files identified" FontSize="12" Opacity="0.6" HorizontalAlignment="Center"/>
+                                        </StackPanel>
+
+                                        <!-- List -->
+                                        <ListView x:Name="UnidentifiedListView"
+                                                  ItemsSource="{x:Bind ViewModel.UnidentifiedAnomalies, Mode=OneWay}" 
+                                                  MinHeight="100" 
+                                                  MaxHeight="250"
+                                                  SelectionMode="Single"
+                                                  IsItemClickEnabled="True"
+                                                  ItemClick="AnomalyItem_Click"
+                                                  RightTapped="AnomalyItem_RightTapped"
+                                                  Visibility="{x:Bind ViewModel.UnidentifiedEmpty, Mode=OneWay, Converter={StaticResource InverseBoolToVisibilityConverter}}">
+                                            <ListView.ItemTemplate>
+                                                <DataTemplate x:DataType="models:FileAnomalyItem">
+                                                    <StackPanel Spacing="2" Padding="4" ToolTipService.ToolTip="{x:Bind FilePath}">
+                                                        <TextBlock Text="{x:Bind FileName}" FontSize="12" FontWeight="SemiBold" TextWrapping="Wrap"/>
+                                                        <TextBlock Text="{x:Bind FilePath}" FontSize="10" Opacity="0.5" TextTrimming="CharacterEllipsis"/>
+                                                    </StackPanel>
+                                                </DataTemplate>
+                                            </ListView.ItemTemplate>
+                                        </ListView>
+                                    </StackPanel>
+                                </Border>
+                            </Grid>
+                        </StackPanel>
+                    </Border>
+
                 </StackPanel>
             </StackPanel>
         </ScrollViewer>
