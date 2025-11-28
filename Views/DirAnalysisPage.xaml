@@ -16,7 +16,7 @@
         <converters:InverseBoolConverter x:Key="InverseBoolConverter"/>
 
         <SolidColorBrush x:Key="AnalysisAccentColor" Color="#0078D4"/>
-        <SolidColorBrush x:Key="OhioColor" Color="#107C10"/>
+        <SolidColorBrush x:Key="OhioColor" Color="Red"/>
         <SolidColorBrush x:Key="IMColor" Color="#0078D4"/>
         <SolidColorBrush x:Key="AnomalyErrorColor" Color="#C42B1C"/>
         <SolidColorBrush x:Key="AnomalyWarningColor" Color="#D4A017"/>

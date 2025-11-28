@@ -68,17 +68,17 @@
                     <NavigationViewItem.MenuItems>
                         <NavigationViewItem Content="Admin Tools" Tag="InventoryAdminTools">
                             <NavigationViewItem.Icon>
-                                <FontIcon Glyph="&#xE90F;" Foreground="#D13438"/>
+                                <FontIcon Glyph="&#xE90F;" Foreground="#f0e68c"/>
                             </NavigationViewItem.Icon>
                         </NavigationViewItem>
                         <NavigationViewItem Content="Arch Viewer" Tag="InventoryViewer">
                             <NavigationViewItem.Icon>
-                                <FontIcon Glyph="&#xE773;" Foreground="#D13438"/>
+                                <FontIcon Glyph="&#xE773;" Foreground="#744DA9"/>
                             </NavigationViewItem.Icon>
                         </NavigationViewItem>
                         <NavigationViewItem Content="Dir Analysis" Tag="DirAnalysis">
                             <NavigationViewItem.Icon>
-                                <FontIcon Glyph="&#xEBE8;" Foreground="#D13438"/>
+                                <FontIcon Glyph="&#xEBE8;" Foreground="#0078D4"/>
                             </NavigationViewItem.Icon>
                         </NavigationViewItem>
                     </NavigationViewItem.MenuItems>

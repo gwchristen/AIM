@@ -13,8 +13,8 @@
         <converters:InverseBoolToVisibilityConverter x:Key="InverseBoolToVisibilityConverter"/>
         <converters:InverseBoolConverter x:Key="InverseBoolConverter"/>
 
-        <SolidColorBrush x:Key="FormsAccentColor" Color="#744DA9"/>
-        <SolidColorBrush x:Key="OhioTemplateColor" Color="#107C10"/>
+        <SolidColorBrush x:Key="FormsAccentColor" Color="#038387"/>
+        <SolidColorBrush x:Key="OhioTemplateColor" Color="Red"/>
         <SolidColorBrush x:Key="IMTemplateColor" Color="#0078D4"/>
     </Page.Resources>
 

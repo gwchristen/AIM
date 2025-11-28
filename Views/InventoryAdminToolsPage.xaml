@@ -20,7 +20,7 @@
                 BorderThickness="0,0,0,1"
                 Padding="24,16">
                 <StackPanel Orientation="Horizontal" Spacing="12">
-                    <FontIcon Glyph="&#xE90F;" FontSize="28" Foreground="#8764B8"/>
+                    <FontIcon Glyph="&#xE90F;" FontSize="28" Foreground="#f0e68c"/>
                     <StackPanel>
                         <TextBlock Text="Admin Tools" Style="{ThemeResource TitleTextBlockStyle}"/>
                         <TextBlock Text="Directory management and batch operations" 
