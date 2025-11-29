@@ -1,4 +1,3 @@
-using AIM.Services;
 using AIM.ViewModels;
 using CommunityToolkit.Mvvm.DependencyInjection;
 using Microsoft.UI.Xaml;
@@ -6,22 +5,19 @@ using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Navigation;
 using System;
-using System.Text.RegularExpressions;
 
 namespace AIM.Views;
 
 public sealed partial class PreviewPage : Page
 {
     public PreviewViewModel ViewModel { get; }
-    private readonly INavigationService _navigationService;
+
     private int _currentFindIndex = -1;
-    private MatchCollection _findMatches;
 
     public PreviewPage()
     {
         this.InitializeComponent();
         ViewModel = Ioc.Default.GetRequiredService<PreviewViewModel>();
-        _navigationService = Ioc.Default.GetRequiredService<INavigationService>();
     }
 
     protected override async void OnNavigatedTo(NavigationEventArgs e)
@@ -30,98 +26,79 @@ public sealed partial class PreviewPage : Page
         await ViewModel.OnNavigatedTo(e.Parameter);
     }
 
-    protected override async void OnNavigatingFrom(NavigatingCancelEventArgs e)
-    {
-        base.OnNavigatingFrom(e);
-
-        // Warn about unsaved changes
-        if (ViewModel.IsDirty)
-        {
-            e.Cancel = true;
-            var dialogService = Ioc.Default.GetRequiredService<IDialogService>();
-            var result = await dialogService.ShowConfirmationDialogAsync(
-                "Unsaved Changes",
-                "You have unsaved changes. Do you want to discard them and leave? ");
-
-            if (result)
-            {
-                ViewModel.DiscardChanges();
-                _navigationService.GoBack();
-            }
-        }
-    }
-
     private void GoBackButton_Click(object sender, RoutedEventArgs e)
     {
-        if (_navigationService.CanGoBack)
-        {
-            _navigationService.GoBack();
-        }
+        if (Frame.CanGoBack)
+            Frame.GoBack();
     }
 
     #region Keyboard Accelerators
-    private void SaveAccelerator_Invoked(KeyboardAccelerator sender, KeyboardAcceleratorInvokedEventArgs args)
+    private async void SaveAccelerator_Invoked(KeyboardAccelerator sender, KeyboardAcceleratorInvokedEventArgs args)
     {
-        if (ViewModel.SaveContentCommand.CanExecute(null))
-        {
-            ViewModel.SaveContentCommand.Execute(null);
-        }
         args.Handled = true;
+        if (ViewModel.SaveContentCommand.CanExecute(null))
+            await ViewModel.SaveContentCommand.ExecuteAsync(null);
+    }
+
+    private async void OpenAccelerator_Invoked(KeyboardAccelerator sender, KeyboardAcceleratorInvokedEventArgs args)
+    {
+        args.Handled = true;
+        await ViewModel.OpenFileCommand.ExecuteAsync(null);
     }
 
     private void FindAccelerator_Invoked(KeyboardAccelerator sender, KeyboardAcceleratorInvokedEventArgs args)
     {
-        if (ViewModel.IsTextVisible)
-        {
-            ShowFindBar();
-        }
         args.Handled = true;
-    }
-
-    private void EscapeAccelerator_Invoked(KeyboardAccelerator sender, KeyboardAcceleratorInvokedEventArgs args)
-    {
-        if (FindBar.Visibility == Visibility.Visible)
-        {
-            CloseFindBar();
-        }
-        else if (_navigationService.CanGoBack)
-        {
-            _navigationService.GoBack();
-        }
-        args.Handled = true;
-    }
-    #endregion
-
-    #region Find Functionality
-    private void FindButton_Click(object sender, RoutedEventArgs e)
-    {
-        ShowFindBar();
-    }
-
-    private void ShowFindBar()
-    {
-        FindBar.Visibility = Visibility.Visible;
         FindTextBox.Focus(FocusState.Programmatic);
         FindTextBox.SelectAll();
     }
 
-    private void CloseFindBar()
+    private void GoToLineAccelerator_Invoked(KeyboardAccelerator sender, KeyboardAcceleratorInvokedEventArgs args)
     {
-        FindBar.Visibility = Visibility.Collapsed;
-        _findMatches = null;
-        _currentFindIndex = -1;
-        FindResultsText.Text = "";
-        ContentTextBox.Focus(FocusState.Programmatic);
+        args.Handled = true;
+        GoToLineNumberBox.Focus(FocusState.Programmatic);
     }
 
-    private void CloseFindBar_Click(object sender, RoutedEventArgs e)
+    private void EscapeAccelerator_Invoked(KeyboardAccelerator sender, KeyboardAcceleratorInvokedEventArgs args)
     {
-        CloseFindBar();
+        if (Frame.CanGoBack)
+        {
+            Frame.GoBack();
+            args.Handled = true;
+        }
     }
+    #endregion
 
+    #region Find
     private void FindTextBox_TextChanged(object sender, TextChangedEventArgs e)
     {
-        UpdateFindMatches();
+        _currentFindIndex = -1;
+        var searchText = FindTextBox.Text;
+
+        if (string.IsNullOrEmpty(searchText))
+        {
+            FindResultsText.Text = "";
+            return;
+        }
+
+        var content = ViewModel.TextContent ?? "";
+        int count = 0, index = 0;
+        while ((index = content.IndexOf(searchText, index, StringComparison.OrdinalIgnoreCase)) != -1)
+        {
+            count++;
+            index += searchText.Length;
+        }
+
+        if (count > 0)
+        {
+            FindResultsText.Text = $"{count} match(es)";
+            FindResultsText.Opacity = 0.7;
+        }
+        else
+        {
+            FindResultsText.Text = "No matches";
+            FindResultsText.Opacity = 0.5;
+        }
     }
 
     private void FindTextBox_KeyDown(object sender, KeyRoutedEventArgs e)
@@ -131,107 +108,93 @@ public sealed partial class PreviewPage : Page
             FindNext();
             e.Handled = true;
         }
-        else if (e.Key == Windows.System.VirtualKey.Escape)
-        {
-            CloseFindBar();
-            e.Handled = true;
-        }
     }
 
-    private void UpdateFindMatches()
-    {
-        var searchText = FindTextBox.Text;
-        if (string.IsNullOrEmpty(searchText) || string.IsNullOrEmpty(ViewModel.TextContent))
-        {
-            _findMatches = null;
-            _currentFindIndex = -1;
-            FindResultsText.Text = "";
-            return;
-        }
-
-        try
-        {
-            _findMatches = Regex.Matches(ViewModel.TextContent, Regex.Escape(searchText), RegexOptions.IgnoreCase);
-            _currentFindIndex = -1;
-
-            if (_findMatches.Count == 0)
-            {
-                FindResultsText.Text = "No matches";
-            }
-            else
-            {
-                FindResultsText.Text = $"{_findMatches.Count} match(es)";
-                FindNext();
-            }
-        }
-        catch
-        {
-            _findMatches = null;
-            FindResultsText.Text = "Invalid search";
-        }
-    }
-
-    private void FindNext_Click(object sender, RoutedEventArgs e)
-    {
-        FindNext();
-    }
-
-    private void FindPrevious_Click(object sender, RoutedEventArgs e)
-    {
-        FindPrevious();
-    }
+    private void FindNext_Click(object sender, RoutedEventArgs e) => FindNext();
+    private void FindPrevious_Click(object sender, RoutedEventArgs e) => FindPrevious();
 
     private void FindNext()
     {
-        if (_findMatches == null || _findMatches.Count == 0) return;
+        var searchText = FindTextBox.Text;
+        if (string.IsNullOrEmpty(searchText) || string.IsNullOrEmpty(ViewModel.TextContent))
+            return;
 
-        _currentFindIndex = (_currentFindIndex + 1) % _findMatches.Count;
-        SelectMatch(_findMatches[_currentFindIndex]);
-        UpdateFindResultsText();
+        var content = ViewModel.TextContent;
+        var startIndex = _currentFindIndex + 1;
+        if (startIndex >= content.Length) startIndex = 0;
+
+        var index = content.IndexOf(searchText, startIndex, StringComparison.OrdinalIgnoreCase);
+        if (index == -1 && startIndex > 0)
+            index = content.IndexOf(searchText, 0, StringComparison.OrdinalIgnoreCase);
+
+        if (index >= 0)
+        {
+            _currentFindIndex = index;
+            ContentTextBox.Select(index, searchText.Length);
+            ContentTextBox.Focus(FocusState.Programmatic);
+        }
     }
 
     private void FindPrevious()
     {
-        if (_findMatches == null || _findMatches.Count == 0) return;
+        var searchText = FindTextBox.Text;
+        if (string.IsNullOrEmpty(searchText) || string.IsNullOrEmpty(ViewModel.TextContent))
+            return;
 
-        _currentFindIndex = _currentFindIndex <= 0 ? _findMatches.Count - 1 : _currentFindIndex - 1;
-        SelectMatch(_findMatches[_currentFindIndex]);
-        UpdateFindResultsText();
-    }
+        var content = ViewModel.TextContent;
+        var startIndex = _currentFindIndex - 1;
+        if (startIndex < 0) startIndex = content.Length - 1;
 
-    private void SelectMatch(Match match)
-    {
-        ContentTextBox.Focus(FocusState.Programmatic);
-        ContentTextBox.Select(match.Index, match.Length);
-    }
+        var index = content.LastIndexOf(searchText, startIndex, StringComparison.OrdinalIgnoreCase);
+        if (index == -1)
+            index = content.LastIndexOf(searchText, content.Length - 1, StringComparison.OrdinalIgnoreCase);
 
-    private void UpdateFindResultsText()
-    {
-        if (_findMatches != null && _findMatches.Count > 0)
+        if (index >= 0)
         {
-            FindResultsText.Text = $"{_currentFindIndex + 1} of {_findMatches.Count}";
+            _currentFindIndex = index;
+            ContentTextBox.Select(index, searchText.Length);
+            ContentTextBox.Focus(FocusState.Programmatic);
         }
     }
     #endregion
 
-    #region Status Bar
-    private void ContentTextBox_SelectionChanged(object sender, RoutedEventArgs e)
+    #region Go to Line
+    private void GoToLineNumberBox_KeyDown(object sender, KeyRoutedEventArgs e)
     {
-        UpdateCursorPosition();
+        if (e.Key == Windows.System.VirtualKey.Enter)
+        {
+            GoToLine((int)GoToLineNumberBox.Value);
+            e.Handled = true;
+        }
     }
 
-    private void UpdateCursorPosition()
+    private void GoToLineButton_Go_Click(object sender, RoutedEventArgs e)
     {
-        if (ViewModel.TextContent == null) return;
+        GoToLine((int)GoToLineNumberBox.Value);
+    }
 
-        var selectionStart = ContentTextBox.SelectionStart;
-        var textBeforeCursor = ViewModel.TextContent.Substring(0, Math.Min(selectionStart, ViewModel.TextContent.Length));
+    private void GoToLine(int lineNumber)
+    {
+        if (lineNumber < 1 || string.IsNullOrEmpty(ViewModel.TextContent))
+            return;
 
-        var lineNumber = textBeforeCursor.Split('\n').Length;
-        var lastNewLine = textBeforeCursor.LastIndexOf('\n');
-        var columnNumber = selectionStart - lastNewLine;
+        // Clamp to valid range
+        if (lineNumber > ViewModel.LineCount)
+            lineNumber = ViewModel.LineCount;
 
-        CursorPositionText.Text = $"Ln {lineNumber}, Col {columnNumber}";
+        // Get the line's start position and length
+        var (startIndex, length) = ViewModel.GetLineRange(lineNumber);
+
+        // Focus the text box and select the entire line
+        ContentTextBox.Focus(FocusState.Programmatic);
+        ContentTextBox.Select(startIndex, length);
+    }
+    #endregion
+
+    #region Editor Events
+    private void ContentTextBox_SelectionChanged(object sender, RoutedEventArgs e)
+    {
+        ViewModel.UpdateCursorPosition(ContentTextBox.SelectionStart, ContentTextBox.SelectionLength);
     }
     #endregion
 }
