@@ -12,8 +12,40 @@ public class SettingsService : ISettingsService
 
     public SettingsService()
     {
-        var appDataFolder = ApplicationData.Current.LocalFolder.Path;
+        var appDataFolder = GetAppDataFolder();
         _settingsPath = Path.Combine(appDataFolder, "settings.json");
+
+        // Ensure the directory exists
+        Directory.CreateDirectory(appDataFolder);
+    }
+
+    private static string GetAppDataFolder()
+    {
+        // Check if running as a packaged app (MSIX)
+        if (IsPackaged())
+        {
+            return ApplicationData.Current.LocalFolder.Path;
+        }
+        else
+        {
+            // Fallback for unpackaged:  use LocalApplicationData
+            var localAppData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+            return Path.Combine(localAppData, "AIM");
+        }
+    }
+
+    private static bool IsPackaged()
+    {
+        try
+        {
+            // This will throw if not packaged
+            _ = Windows.ApplicationModel.Package.Current.Id;
+            return true;
+        }
+        catch
+        {
+            return false;
+        }
     }
 
     // This now correctly returns the AppSettings object, fixing the error.
